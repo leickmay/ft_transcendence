@@ -1,0 +1,34 @@
+version: "3"
+services:
+    nestjs:
+        build:
+            context: ./requirements/nestjs
+        container_name: nestjs
+        depends_on:
+            - postgre
+        env_file:
+            - .env
+        networks:
+            - yggdrasil
+        ports:
+            - "80:80"
+        restart: unless-stopped
+        volumes:
+              - "./app:/var/www/html/app"
+    postgre:
+        image: postgres:14
+        container_name: postgre
+        env_file:
+            - .env
+        networks:
+            - yggdrasil
+        restart: unless-stopped
+        volumes:
+              - "database:/var/lib/postgresql/data"
+networks:
+    yggdrasil:
+        name: yggdrasil
+        driver: bridge
+volumes:
+    database:
+        name: database
