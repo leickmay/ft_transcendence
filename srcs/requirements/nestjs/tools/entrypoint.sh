@@ -1,5 +1,29 @@
 #!/bin/bash
 
+# root_folder_init ()
+# {
+# 	chown -R www-data:www-data /var/www/html
+# 	chmod -R 755 /var/www/html
+# }
+
+
+ssl_certificate ()
+{
+	KEY=/var/www/html/$1/secrets/private-key.pem
+	CERT=/var/www/html/$1/secrets/public-certificate.pem
+	DOMAIN_NAME=localhost
+
+	if [ ! -s "${KEY}" ]
+	then
+		openssl req \
+			-x509 \
+			-days 365 \
+			-newkey rsa:4096 -nodes -keyout ${KEY} \
+			-out ${CERT} \
+			-subj "/C=FR/ST=Rhone/L=Lyon/O=42/OU=chervy/CN=$DOMAIN_NAME"
+	fi
+}
+
 init_project ()
 {
 	if [ "$(ls -A /var/www/html/$1 | wc -l | sed 's/ //g')" == "0" ]
@@ -31,4 +55,5 @@ start_server ()
 
 init_project app
 npm_install app
+ssl_certificate app
 start_server app
