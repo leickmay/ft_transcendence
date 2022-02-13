@@ -13,6 +13,16 @@ init_project ()
 	fi
 }
 
+npm_install ()
+{
+	if [ ! -d "/var/www/html/$1/node_modules" ]
+	then
+		cd /var/www/html/$1
+		npm install
+	fi
+}
+
+
 start_server ()
 {
 	cd /var/www/html/$1
@@ -20,4 +30,5 @@ start_server ()
 }
 
 init_project app
+npm_install app
 start_server app
