@@ -9,8 +9,7 @@ all: build run
 .PHONY:all
 
 logs:
-	@${DOCKER_COMPOSE} logs > ./logs/docker-compose.log
-	@bash ./srcs/requirements/tools/docker_log.sh
+	@bash ./srcs/requirements/tools/logs.sh
 .PHONY:logs
 
 build: clean
@@ -30,12 +29,13 @@ kill:
 .PHONY:kill
 
 clean: stop
-	@echo -n "" > ./logs/docker-compose.log
 .PHONY:clean
 
 fclean: clean
-	@echo -n "" > ./srcs/app/secrets/private-key.pem
-	@echo -n "" > ./srcs/app/secrets/public-certificate.pem
+	rm -rf ./srcs/app/secrets/private-key.pem
+	touch ./srcs/app/secrets/private-key.pem
+	rm -rf ./srcs/app/secrets/public-certificate.pem
+	touch ./srcs/app/secrets/public-certificate.pem
 	docker system prune --all --force --volumes
 .PHONY:fclean
 
