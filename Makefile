@@ -43,10 +43,14 @@ zsh_nestjs:
 	docker exec -ti nestjs zsh
 .PHONY:zsh_nestjs
 
-bash_nestjs:
-	docker exec -ti nestjs bash
-.PHONY:bash_nestjs
+sh_nestjs:
+	docker exec -ti nestjs sh
+.PHONY:sh_nestjs
 
-bash_postgre:
-	docker exec -ti postre bash
-.PHONY:bash_postgre
+sh_postgre:
+	docker exec -ti postres sh
+.PHONY:sh_postgre
+
+sh_pgadmin:
+	docker exec -ti pgadmin sh
+.PHONY:sh_pgadmin

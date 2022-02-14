@@ -2,7 +2,7 @@
 
 follow_log()
 {
-	docker compose --file ./srcs/docker-compose.yml --env-file ./srcs/.env logs -f
+	docker compose --file ./srcs/docker-compose.yml --env-file ./srcs/.env logs --follow --tail=16
 	echo ""
 }
 
@@ -24,11 +24,21 @@ nestjs_log()
 
 postgre_log()
 {
-	echo "###############"
-	echo "### Postgre ###"
-	echo "###############"
+	echo "################"
+	echo "### Postgres ###"
+	echo "################"
 	echo ""
-	docker logs postgre
+	docker logs postgres
+	echo ""
+}
+
+pgadmin_log()
+{
+	echo "################"
+	echo "### PgAdmin ###"
+	echo "################"
+	echo ""
+	docker logs pgadmin
 	echo ""
 }
 
@@ -40,7 +50,8 @@ echo ""
 echo "0 : Follow log output"
 echo "1 : All logs"
 echo "2 : NestJS"
-echo "3 : Postgre"
+echo "3 : Postgres"
+echo "4 : PgAdmin"
 echo ""
 echo "Default : Exit"
 echo ""
@@ -67,5 +78,10 @@ fi
 if [ "$tmp" == "3" ]
 then
 	postgre_log
+fi
+
+if [ "$tmp" == "4" ]
+then
+	pgadmin_log
 fi
 

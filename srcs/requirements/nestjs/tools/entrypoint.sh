@@ -46,7 +46,6 @@ npm_install ()
 	fi
 }
 
-
 start_server ()
 {
 	cd /var/www/html/$1
