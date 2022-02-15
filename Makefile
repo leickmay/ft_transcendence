@@ -12,11 +12,12 @@ logs:
 	@bash ./srcs/requirements/tools/logs.sh
 .PHONY:logs
 
-build: clean
+build:
+	@bash ./srcs/requirements/tools/build.sh
 	${DOCKER_COMPOSE} build
 .PHONY:build
 
-run: clean
+run: stop
 	${DOCKER_COMPOSE} up -d
 .PHONY:run
 
@@ -32,10 +33,9 @@ clean: stop
 .PHONY:clean
 
 fclean: clean
+	rm -rf ./srcs/.env
 	rm -rf ./srcs/app/secrets/private-key.pem
-	touch ./srcs/app/secrets/private-key.pem
 	rm -rf ./srcs/app/secrets/public-certificate.pem
-	touch ./srcs/app/secrets/public-certificate.pem
 	docker system prune --all --force --volumes
 .PHONY:fclean
 

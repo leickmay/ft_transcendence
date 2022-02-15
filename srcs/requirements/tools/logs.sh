@@ -84,4 +84,3 @@ if [ "$tmp" == "4" ]
 then
 	pgadmin_log
 fi
-
