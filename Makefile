@@ -1,7 +1,7 @@
 NAME			= ft_transcendence
 
-DOC_FILE		= ./srcs/docker-compose.yml
-DOC_ENV			= ./srcs/.env
+DOC_FILE		= ./docker-compose.yml
+DOC_ENV			= ./env
 DOC_FLAG		= --file ${DOC_FILE} --env-file ${DOC_ENV}
 DOCKER_COMPOSE	= docker compose ${DOC_FLAG}
 
@@ -14,6 +14,7 @@ logs:
 
 build:
 	@bash ./srcs/requirements/tools/build.sh
+	@${MAKE} clean
 	${DOCKER_COMPOSE} build
 .PHONY:build
 
@@ -33,24 +34,24 @@ clean: stop
 .PHONY:clean
 
 fclean: clean
-	rm -rf ./srcs/.env
-	rm -rf ./srcs/app/secrets/private-key.pem
-	rm -rf ./srcs/app/secrets/public-certificate.pem
+	rm -rf .env
+	rm -rf ./srcs/app_nest/secrets/private-key.pem
+	rm -rf ./srcs/app_nest/secrets/public-certificate.pem
 	docker system prune --all --force --volumes
 .PHONY:fclean
 
-zsh_nestjs:
+react:
+	docker exec -ti react zsh
+.PHONY:react
+
+nestjs:
 	docker exec -ti nestjs zsh
-.PHONY:zsh_nestjs
+.PHONY:nestjs
 
-sh_nestjs:
-	docker exec -ti nestjs sh
-.PHONY:sh_nestjs
+postgre:
+	docker exec -ti postgres bash
+.PHONY:postgre
 
-sh_postgre:
-	docker exec -ti postres sh
-.PHONY:sh_postgre
-
-sh_pgadmin:
+pgadmin:
 	docker exec -ti pgadmin sh
-.PHONY:sh_pgadmin
+.PHONY:pgadmin

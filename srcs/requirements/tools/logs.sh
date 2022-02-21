@@ -2,13 +2,23 @@
 
 follow_log()
 {
-	docker compose --file ./srcs/docker-compose.yml --env-file ./srcs/.env logs --follow --tail=16
+	docker compose logs --follow --tail=16
 	echo ""
 }
 
 all_log()
 {
-	docker compose --file ./srcs/docker-compose.yml --env-file ./srcs/.env logs
+	docker compose logs
+	echo ""
+}
+
+react_log()
+{
+	echo "#############"
+	echo "### React ###"
+	echo "#############"
+	echo ""
+	docker logs react --follow
 	echo ""
 }
 
@@ -18,7 +28,7 @@ nestjs_log()
 	echo "### NestJS ###"
 	echo "##############"
 	echo ""
-	docker logs nestjs
+	docker logs nestjs --follow
 	echo ""
 }
 
@@ -28,7 +38,7 @@ postgre_log()
 	echo "### Postgres ###"
 	echo "################"
 	echo ""
-	docker logs postgres
+	docker logs postgres --follow
 	echo ""
 }
 
@@ -38,7 +48,7 @@ pgadmin_log()
 	echo "### PgAdmin ###"
 	echo "################"
 	echo ""
-	docker logs pgadmin
+	docker logs pgadmin --follow
 	echo ""
 }
 
@@ -49,9 +59,10 @@ echo "############"
 echo ""
 echo "0 : Follow log output"
 echo "1 : All logs"
-echo "2 : NestJS"
-echo "3 : Postgres"
-echo "4 : PgAdmin"
+echo "2 : React"
+echo "3 : NestJS"
+echo "4 : Postgres"
+echo "5 : PgAdmin"
 echo ""
 echo "Default : Exit"
 echo ""
@@ -72,15 +83,20 @@ fi
 
 if [ "$tmp" == "2" ]
 then
-	nestjs_log
+	react_log
 fi
 
 if [ "$tmp" == "3" ]
 then
-	postgre_log
+	nestjs_log
 fi
 
 if [ "$tmp" == "4" ]
+then
+	postgre_log
+fi
+
+if [ "$tmp" == "5" ]
 then
 	pgadmin_log
 fi

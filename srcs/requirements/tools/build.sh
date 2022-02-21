@@ -2,15 +2,15 @@
 
 if [ ! -d ./srcs/.env ]
 then
-	cp ./srcs/.env.example ./srcs/.env
+	cp .env.example .env
 fi
 
-if [ ! -f ./srcs/app/secrets/public-certificate.pem ]
+if [ ! -f ./srcs/app_nest/secrets/public-certificate.pem ]
 then
-	touch ./srcs/app/secrets/public-certificate.pem
+	touch ./srcs/app_nest/secrets/public-certificate.pem
 fi
 
-if [ ! -f ./srcs/app/secrets/private-key.pem ]
+if [ ! -f ./srcs/app_nest/secrets/private-key.pem ]
 then
-	touch ./srcs/app/secrets/private-key.pem
+	touch ./srcs/app_nest/secrets/private-key.pem
 fi
