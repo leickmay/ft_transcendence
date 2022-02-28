@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { getConnection, Repository } from 'typeorm';
 import { User } from './users.entity';
 
 @Injectable()
@@ -10,23 +10,33 @@ export class UsersService {
 		private usersRepository: Repository<User>,
 	) {}
 
-	findAll(): Promise<User[]> {
-		return this.usersRepository.find();
+	async connection(email: string, password: string): Promise<boolean> {
+		const tmp = await this.usersRepository.findOne({
+			email: email
+		});
+		if (tmp != undefined && tmp.password === password)
+		{
+			tmp.isConnected = true;
+			await this.usersRepository.save(tmp);
+			console.log("TRUE");
+			return (true);
+		}
+		console.log("FALSE");
+		return (false);
 	}
 
-	findOne(id: number): Promise<User> {
-		return this.usersRepository.findOne(id);
+	async newUser(myEmail: string, myPassword: string): Promise<void> {
+		await this.usersRepository.insert({
+			email: myEmail,
+			password: myPassword
+		});
 	}
 
-	async remove(id: string): Promise<void> {
+	async delUserById(id: string): Promise<void> {
 		await this.usersRepository.delete(id);
 	}
 
-	async insert(id: number): Promise<void> {
-		await this.usersRepository.insert({
-			id: id,
-			firstName: "Blob",
-			lastName: "Blob"
-		});
+	findAll(): Promise<User[]> {
+		return this.usersRepository.find();
 	}
 }

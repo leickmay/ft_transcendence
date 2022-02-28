@@ -25,9 +25,9 @@ services:
             - .env
         networks:
             - yggdrasil
-        ports:
-            - "3080:3080"
-            - "3443:3443"
+#       ports:
+#           - "3080:3080"
+#           - "3443:3443"
         restart: unless-stopped
         volumes:
               - "./srcs/app_nest:/var/www/html/app_nest"

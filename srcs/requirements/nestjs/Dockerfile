@@ -2,10 +2,10 @@ FROM debian:buster
 
 RUN apt-get update \
 && apt-get -y upgrade \
-&& apt-get -y install git curl wget zsh \
+&& apt-get -y install git curl wget zsh procps \
 && sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
 
-RUN curl -fsSL https://deb.nodesource.com/setup_12.x | bash - \
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
 && apt-get install -y nodejs
 
 RUN npm i -g @nestjs/cli

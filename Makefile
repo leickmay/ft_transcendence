@@ -5,7 +5,7 @@ DOC_ENV			= ./env
 DOC_FLAG		= --file ${DOC_FILE} --env-file ${DOC_ENV}
 DOCKER_COMPOSE	= docker compose ${DOC_FLAG}
 
-all: build run
+all: stop build run
 .PHONY:all
 
 logs:
@@ -14,11 +14,10 @@ logs:
 
 build:
 	@bash ./srcs/requirements/tools/build.sh
-	@${MAKE} clean
 	${DOCKER_COMPOSE} build
 .PHONY:build
 
-run: stop
+run:
 	${DOCKER_COMPOSE} up -d
 .PHONY:run
 

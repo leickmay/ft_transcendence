@@ -6,6 +6,7 @@ import * as express from 'express';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ExpressAdapter } from '@nestjs/platform-express';
+//import { createProxyMiddleware } from 'http-proxy-middleware';
 
 async function bootstrap() {
   const httpsOptions = {
@@ -18,6 +19,14 @@ async function bootstrap() {
     AppModule,
     new ExpressAdapter(server),
   );
+  app.enableCors();
+// app.use('/api', createProxyMiddleware({
+//		target: 'http://172.18.0.5:3000',
+//		changeOrigin: false,
+//		pathRewrite: {
+//			[`^/api`]: ''
+//		}
+// }));
   await app.init();
 
   http.createServer(server).listen(3080);
@@ -25,3 +34,6 @@ async function bootstrap() {
 }
 
 bootstrap();
+
+//let request = await fetch("/users/list");
+//let users = await request.json();

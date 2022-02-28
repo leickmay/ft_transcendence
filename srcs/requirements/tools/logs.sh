@@ -28,7 +28,7 @@ nestjs_log()
 	echo "### NestJS ###"
 	echo "##############"
 	echo ""
-	docker logs nestjs --follow
+	docker logs nestjs --follow;
 	echo ""
 }
 

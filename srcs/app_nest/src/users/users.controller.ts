@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { User } from './users.entity';
 import { UsersService } from './users.service';
 
@@ -6,13 +6,19 @@ import { UsersService } from './users.service';
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
 
-	@Get('id')
-	getHello(): Promise<User> {
-		return this.usersService.findOne(1);
+	@Get('new')
+	async newUser(): Promise<void> {
+		this.usersService.newUser("user@ElementInternals.fr", "password");
 	}
 
-	@Get('new')
-	setHello(): Promise<void> {
-		return this.usersService.insert(42);
+	@Post()
+	connection(@Body() user: User){
+		console.log(user);
+		this.usersService.connection("user@ElementInternals.fr", "password");
+	}
+
+	@Get('list')
+	findAll(): Promise<User[]> {
+		return this.usersService.findAll();
 	}
 }
