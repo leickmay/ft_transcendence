@@ -2,7 +2,7 @@ version: "3"
 services:
     react:
         build:
-            context: ./srcs/requirements/react
+            context: ./client
         container_name: react
         depends_on:
             - nestjs
@@ -14,10 +14,10 @@ services:
             - "3000:3000"
         restart: unless-stopped
         volumes:
-              - "./srcs/app_react:/var/www/html/app_react"
+              - "./client:/var/www/html/client"
     nestjs:
         build:
-            context: ./srcs/requirements/nestjs
+            context: ./server
         container_name: nestjs
         depends_on:
             - postgre
@@ -25,12 +25,9 @@ services:
             - .env
         networks:
             - yggdrasil
-#       ports:
-#           - "3080:3080"
-#           - "3443:3443"
         restart: unless-stopped
         volumes:
-              - "./srcs/app_nest:/var/www/html/app_nest"
+              - "./server:/var/www/html/server"
     postgres:
         image: postgres:14
         container_name: postgres
@@ -41,7 +38,7 @@ services:
         restart: unless-stopped
         volumes:
               - "database:/var/lib/postgresql/data"
-    pgamin:
+    pgadmin:
         image: dpage/pgadmin4
         container_name: pgadmin
         depends_on:
@@ -54,7 +51,7 @@ services:
             - "8080:80"
         restart: unless-stopped
         volumes:
-            - ./srcs/requirements/pgadmin/servers.json:/pgadmin4/servers.json
+            - ./pgadmin/servers.json:/pgadmin4/servers.json
 networks:
     yggdrasil:
         name: yggdrasil

@@ -5,15 +5,19 @@ DOC_ENV			= ./env
 DOC_FLAG		= --file ${DOC_FILE} --env-file ${DOC_ENV}
 DOCKER_COMPOSE	= docker compose ${DOC_FLAG}
 
-all: stop build run
+#########
+## ALL ##
+#########
+
+all: build run
 .PHONY:all
 
-logs:
-	@bash ./srcs/requirements/tools/logs.sh
-.PHONY:logs
+####################
+## DOCKER-COMPOSE ##
+####################
 
 build:
-	@bash ./srcs/requirements/tools/build.sh
+	@bash ./tools/build.sh
 	${DOCKER_COMPOSE} build
 .PHONY:build
 
@@ -29,15 +33,43 @@ kill:
 	${DOCKER_COMPOSE} kill
 .PHONY:kill
 
+prune:
+	docker system prune --all --force --volumes
+.PHONY:prune
+
+###########
+## CLEAN ##
+###########
+
 clean: stop
 .PHONY:clean
 
 fclean: clean
 	rm -rf .env
-	rm -rf ./srcs/app_nest/secrets/private-key.pem
-	rm -rf ./srcs/app_nest/secrets/public-certificate.pem
-	docker system prune --all --force --volumes
+	rm -rf ./server/secrets/private-key.pem
+	rm -rf ./server/secrets/public-certificate.pem
+	${MAKE} prune
 .PHONY:fclean
+
+##########
+## LOGS ##
+##########
+
+logs:
+	docker compose logs nestjs react postgres
+.PHONY:logs
+
+flogs:
+	docker compose logs nestjs react postgres --follow --tail 16
+.PHONY:flogs
+
+pglogs:
+	docker compose logs pgadmin --follow
+.PHONY:pglogs
+
+###########
+## SHELL ##
+###########
 
 react:
 	docker exec -ti react zsh
