@@ -1,23 +1,27 @@
 NAME			= ft_transcendence
 
-DOC_FILE		= ./srcs/docker-compose.yml
-DOC_ENV			= ./srcs/.env
+DOC_FILE		= ./docker-compose.yml
+DOC_ENV			= ./env
 DOC_FLAG		= --file ${DOC_FILE} --env-file ${DOC_ENV}
 DOCKER_COMPOSE	= docker compose ${DOC_FLAG}
+
+#########
+## ALL ##
+#########
 
 all: build run
 .PHONY:all
 
-logs:
-	@bash ./srcs/requirements/tools/logs.sh
-.PHONY:logs
+####################
+## DOCKER-COMPOSE ##
+####################
 
 build:
-	@bash ./srcs/requirements/tools/build.sh
+	@bash ./tools/build.sh
 	${DOCKER_COMPOSE} build
 .PHONY:build
 
-run: stop
+run:
 	${DOCKER_COMPOSE} up -d
 .PHONY:run
 
@@ -29,28 +33,56 @@ kill:
 	${DOCKER_COMPOSE} kill
 .PHONY:kill
 
+prune:
+	docker system prune --all --force --volumes
+.PHONY:prune
+
+###########
+## CLEAN ##
+###########
+
 clean: stop
 .PHONY:clean
 
 fclean: clean
-	rm -rf ./srcs/.env
-	rm -rf ./srcs/app/secrets/private-key.pem
-	rm -rf ./srcs/app/secrets/public-certificate.pem
-	docker system prune --all --force --volumes
+	rm -rf .env
+	rm -rf ./server/secrets/private-key.pem
+	rm -rf ./server/secrets/public-certificate.pem
+	${MAKE} prune
 .PHONY:fclean
 
-zsh_nestjs:
+##########
+## LOGS ##
+##########
+
+logs:
+	docker compose logs nestjs react postgres
+.PHONY:logs
+
+flogs:
+	docker compose logs nestjs react postgres --follow --tail 16
+.PHONY:flogs
+
+pglogs:
+	docker compose logs pgadmin --follow
+.PHONY:pglogs
+
+###########
+## SHELL ##
+###########
+
+react:
+	docker exec -ti react zsh
+.PHONY:react
+
+nestjs:
 	docker exec -ti nestjs zsh
-.PHONY:zsh_nestjs
+.PHONY:nestjs
 
-sh_nestjs:
-	docker exec -ti nestjs sh
-.PHONY:sh_nestjs
+postgre:
+	docker exec -ti postgres bash
+.PHONY:postgre
 
-sh_postgre:
-	docker exec -ti postres sh
-.PHONY:sh_postgre
-
-sh_pgadmin:
+pgadmin:
 	docker exec -ti pgadmin sh
-.PHONY:sh_pgadmin
+.PHONY:pgadmin

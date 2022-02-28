@@ -5,14 +5,12 @@ RUN apt-get update \
 && apt-get -y install git curl wget zsh \
 && sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
 
-RUN curl -fsSL https://deb.nodesource.com/setup_12.x | bash - \
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
 && apt-get install -y nodejs
-
-RUN npm i -g @nestjs/cli
 
 COPY ./tools /tools
 
-RUN mv /tools/entrypoint.sh /usr/local/bin/entrypoint.sh \
-&& chmod +x /usr/local/bin/entrypoint.sh \
+RUN mv /tools/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh \
+&& chmod +x /usr/local/bin/docker-entrypoint.sh \
 && rm -rf /tools
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["docker-entrypoint.sh"]

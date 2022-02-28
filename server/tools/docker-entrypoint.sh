@@ -6,7 +6,6 @@
 # 	chmod -R 755 /var/www/html
 # }
 
-
 ssl_certificate ()
 {
 	KEY=/var/www/html/$1/secrets/private-key.pem
@@ -49,10 +48,9 @@ npm_install ()
 start_server ()
 {
 	cd /var/www/html/$1
-    nest start
+    nest start --watch --preserveWatchOutput
 }
 
-init_project app
-npm_install app
-ssl_certificate app
-start_server app
+npm_install server
+ssl_certificate server
+start_server server
