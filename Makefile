@@ -4,13 +4,13 @@ DOC_FILE		= ./docker-compose.yml
 DOC_ENV			= ./env
 DOC_FLAG		= --file ${DOC_FILE} --env-file ${DOC_ENV}
 DOC_FLAGS		= docker compose ${DOC_FLAG}
-DOC				= docker-compose
+DOC				= docker compose
 
 #########
 ## ALL ##
 #########
 
-all: npm build run
+all: npm build drun
 .PHONY:all
 
 ####################
@@ -33,7 +33,7 @@ run:
 .PHONY:run
 
 drun:
-	${DOC} up > ./logs/up.log &
+	${DOC} up &> ./logs/up.log &
 	bash ./tools/run.sh
 .PHONY:run
 
