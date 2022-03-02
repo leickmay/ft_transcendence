@@ -51,6 +51,6 @@ start_server ()
     nest start --watch --preserveWatchOutput
 }
 
-npm_install server
+#npm_install server
 ssl_certificate server
 start_server server

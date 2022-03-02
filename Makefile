@@ -3,34 +3,50 @@ NAME			= ft_transcendence
 DOC_FILE		= ./docker-compose.yml
 DOC_ENV			= ./env
 DOC_FLAG		= --file ${DOC_FILE} --env-file ${DOC_ENV}
-DOCKER_COMPOSE	= docker compose ${DOC_FLAG}
+DOC_FLAGS		= docker compose ${DOC_FLAG}
+DOC				= docker compose
 
 #########
 ## ALL ##
 #########
 
-all: build run
+all: npm build drun
 .PHONY:all
 
 ####################
 ## DOCKER-COMPOSE ##
 ####################
 
+npm:
+	@bash ./tools/npm.sh
+.PHONY:npm
+
 build:
+	rm -rf ./logs/*.log
 	@bash ./tools/build.sh
-	${DOCKER_COMPOSE} build
+	${DOC} build
 .PHONY:build
 
 run:
-	${DOCKER_COMPOSE} up -d
+	rm -rf ./logs/*.log
+	${DOC} up -d
 .PHONY:run
 
+drun:
+	${DOC} up &> ./logs/up.log &
+	bash ./tools/run.sh
+.PHONY:run
+
+ready:
+	bash ./tools/ready.sh
+.PHONY:ready
+
 stop:
-	${DOCKER_COMPOSE} stop
+	${DOC} stop
 .PHONY:stop
 
 kill:
-	${DOCKER_COMPOSE} kill
+	${DOC} kill
 .PHONY:kill
 
 prune:
@@ -44,11 +60,11 @@ prune:
 clean: stop
 .PHONY:clean
 
-fclean: clean
+fclean: clean prune
 	rm -rf .env
 	rm -rf ./server/secrets/private-key.pem
 	rm -rf ./server/secrets/public-certificate.pem
-	${MAKE} prune
+	rm -rf ./logs/*.log
 .PHONY:fclean
 
 ##########

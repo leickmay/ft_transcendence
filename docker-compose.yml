@@ -5,6 +5,7 @@ services:
             context: ./client
         container_name: react
         depends_on:
+            - postgres
             - nestjs
         env_file:
             - .env
@@ -20,7 +21,7 @@ services:
             context: ./server
         container_name: nestjs
         depends_on:
-            - postgre
+            - postgres
         env_file:
             - .env
         networks:
@@ -42,7 +43,7 @@ services:
         image: dpage/pgadmin4
         container_name: pgadmin
         depends_on:
-            - postgre
+            - postgres
         env_file:
             - .env
         networks:
