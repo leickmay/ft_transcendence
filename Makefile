@@ -4,13 +4,13 @@ DOC_FILE		= ./docker-compose.yml
 DOC_ENV			= ./env
 DOC_FLAG		= --file ${DOC_FILE} --env-file ${DOC_ENV}
 DOC_FLAGS		= docker compose ${DOC_FLAG}
-DOC				= docker compose
+DOC				= docker-compose
 
 #########
 ## ALL ##
 #########
 
-all: build run
+all: npm build run
 .PHONY:all
 
 ####################
@@ -22,11 +22,13 @@ npm:
 .PHONY:npm
 
 build:
+	rm -rf ./logs/*.log
 	@bash ./tools/build.sh
 	${DOC} build
 .PHONY:build
 
 run:
+	rm -rf ./logs/*.log
 	${DOC} up -d
 .PHONY:run
 
@@ -62,6 +64,7 @@ fclean: clean prune
 	rm -rf .env
 	rm -rf ./server/secrets/private-key.pem
 	rm -rf ./server/secrets/public-certificate.pem
+	rm -rf ./logs/*.log
 .PHONY:fclean
 
 ##########
