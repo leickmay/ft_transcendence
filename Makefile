@@ -17,6 +17,10 @@ all: build run
 ## DOCKER-COMPOSE ##
 ####################
 
+npm:
+	@bash ./tools/npm.sh
+.PHONY:npm
+
 build:
 	@bash ./tools/build.sh
 	${DOC} build
