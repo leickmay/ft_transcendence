@@ -3,10 +3,12 @@
 READY="0"
 
 POSTGRES_READY="database system is ready to accept connections"
+ADMINER="Development Server (http://\[::\]:8080) started"
 NESTJS_READY="Nest application successfully started"
 REACT_READY="Compiled successfully!"
 
 POSTGRES="$(cat ./logs/up.log| grep "$POSTGRES_READY" | wc -l | sed 's/ //g')"
+ADMINER="$(cat ./logs/up.log| grep "$ADMINER" | wc -l | sed 's/ //g')"
 NESTJS="$(cat ./logs/up.log| grep "$NESTJS_READY" | wc -l | sed 's/ //g')"
 REACT="$(cat ./logs/up.log| grep "$REACT_READY" | wc -l | sed 's/ //g')"
 
@@ -24,6 +26,13 @@ do
 		echo "Postgres is ready !!!"
 	else
 		echo "Postgres ..."
+	fi
+
+	if [ "$ADMINER" != "0" ]
+	then
+		echo "Adminer is ready !!!"
+	else
+		echo "Adminer ..."
 	fi
 
 	if [ "$NESTJS" != "0" ]
@@ -45,7 +54,7 @@ do
 	echo ""
 	tail -n 4 ./logs/up.log
 
-	if [[ "$POSTGRES" != "0" && "$NESTJS" != "0" && "$REACT" != "0" ]]
+	if [[ "$POSTGRES" != "0" && "$ADMINER" != "0" && "$NESTJS" != "0" && "$REACT" != "0" ]]
 	then
 		READY="1"
 	fi
@@ -53,6 +62,7 @@ do
 	sleep 1
 
 POSTGRES="$(cat ./logs/up.log| grep "$POSTGRES_READY" | wc -l | sed 's/ //g')"
+ADMINER="$(cat ./logs/up.log| grep "$ADMINER" | wc -l | sed 's/ //g')"
 NESTJS="$(cat ./logs/up.log| grep "$NESTJS_READY" | wc -l | sed 's/ //g')"
 REACT="$(cat ./logs/up.log| grep "$REACT_READY" | wc -l | sed 's/ //g')"
 done

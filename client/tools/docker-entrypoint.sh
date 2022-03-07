@@ -21,5 +21,5 @@ start_server ()
     npm start
 }
 
-#npm_install client
+npm_install client
 start_server client
