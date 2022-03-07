@@ -26,6 +26,8 @@ services:
             - .env
         networks:
             - yggdrasil
+        ports:
+            - "3001:80"
         restart: unless-stopped
         volumes:
               - "./server:/var/www/html/server"
