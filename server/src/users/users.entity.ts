@@ -1,32 +1,52 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
+import { type } from 'os';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, BaseEntity } from 'typeorm';
 
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class User extends BaseEntity {
+	@PrimaryGeneratedColumn()
+	id: number;
 
-  @Column()
-  password: string;
+	@Column({
+		type: 'text'
+	})
+	password: string;
 
-  @Column()
-  name: string;
+	@Column({
+		type: 'text',
+		unique: true,
+		default: null
+	})
+	pkey: string;
 
-  @Column()
-  mail: string;
+	@Column({
+		type: 'text'
+	})
+	name: string;
 
-  @Column()
-  tel: string;
+	@Column({
+		type: 'text',
+		unique: true
+	})
+	mail: string;
 
-  @Column()
-  avatar: string;
+	@Column({
+		type: 'text',
+		unique: true
+	})
+	tel: string;
 
-  @Column({default: false})
-  online: boolean;
+	@Column({
+		type: 'text'
+	})
+	avatar: string;
 
-  @Column({default: false})
-  ingame: boolean;
+	@Column({default: false})
+	online: boolean;
 
-  @ManyToMany(() => User)
-  @JoinTable()
-  friends: User[];
+	@Column({default: false})
+	ingame: boolean;
+
+	@ManyToMany(() => User)
+	@JoinTable()
+	friends: User[];
 }
