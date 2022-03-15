@@ -36,7 +36,7 @@ export function SignIn() {
 					type="submit"
 					onClick={() => window.open("https://www.youtube.com/watch?v=Sk-f-b2vbG4","_self")}
 				>
-						Sing in the rain
+						Sign in the rain
 			</button>
 			<p className="mb-3 text-muted">&copy; 1961–2967</p>
 		</main>
