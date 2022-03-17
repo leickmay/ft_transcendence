@@ -23,8 +23,7 @@ export class UsersController {
 	}
 
 	@Post('/code/:id')
-	async code(@Param('id') id: string) : Promise<void> {
-		this.userService.connection(id);
-		//console.log(code);
+	async code(@Param('id') id: string) : Promise<string> {
+		return this.userService.connection(id);
 	}
 }
