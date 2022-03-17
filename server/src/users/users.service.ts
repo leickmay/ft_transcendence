@@ -1,9 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { Observable } from 'rxjs';
-const axios = require('axios').default;
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './create-user.dto';
 import { User } from './users.entity';
@@ -44,40 +43,36 @@ export class UsersService {
 		return user;
 	}
 
-	async connection(myCode: string): Promise<boolean> {
-		
-		const base_url = "https://api.intra.42.fr/oauth/token"
+	async connection(myCode: string): Promise<string> {
 
-		const parameters = {
-			grant_type: "authorization_code",
-			client_id: "32e445666f212da52b3a7811bf1ff13d37cfb105f4870eb38365337172af351a",
-			client_secret: "dfe506a4d179da98961261974e2ccb7dbc23f131de64890281224d8d75d78783",
-			code: myCode
-		}
+	const base_url = "https://api.intra.42.fr/oauth/token"
+	console.log('code', myCode);
+	
+	let tonq = {
+		grant_type: "authorization_code",
+		client_id: "32e445666f212da52b3a7811bf1ff13d37cfb105f4870eb38365337172af351a",
+		client_secret: "dfe506a4d179da98961261974e2ccb7dbc23f131de64890281224d8d75d78783",
+		redirect_uri: "http://127.0.0.1:3000/loading",
+		code: myCode
+	}
 
-		console.log(parameters);
+	let ret : string;
+	await axios({
+		method: "post",
+		url: base_url,
+		data: tonq,
+		headers: {
+			"content-type": "application/json",
+		},
+	})
+	.then(function(res) {
+		ret = res.data.access_token;
+		console.log("retour : ", res.data);
+	})
+	.catch((err) => {});
 
-		let tmp:Observable<AxiosResponse> = this.httpService.post(base_url, parameters);
+	console.log("ret : ", ret);
 
-		console.log(tmp);
-
-
-		//axios.post(base_url, parameters)
-		//	.then(function (response) {
-		//		console.log(response);
-		//		console.log("OK");
-		//	})
-		//	.catch(function(error) {
-		//		console.log(error);
-		//		console.log("KO");
-		//	});
-		//try {
-		//	let rsl  = await axios.post(base_url, parameters);
-		//	//let tmp = rsl.data.json();
-		//	console.log("ENFIN !!!!");
-		//} catch (error) {
-		//	console.log("POURQUOI !!!!!??????? :'(");
-		//}
-		return (true);
+		return (ret);
 	}
 }
