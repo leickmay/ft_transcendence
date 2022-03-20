@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Hey } from "./hey";
 
 export const getAuthCode = () => {
 	const str: string[] = window.location.href.split("=");
@@ -6,12 +7,12 @@ export const getAuthCode = () => {
 };
 
 //const code = getAuthCode();
-
+/*
 async function getCode() {
 	const str: string[] = window.location.href.split("=");
 }
-
-const formData = (body: { [key: string] : string}) => {
+*/
+/*const formData = (body: { [key: string] : string}) => {
 	const form = new FormData()
 		for (let key in body) {
 			form.append(key, body[key])
@@ -31,10 +32,9 @@ async function wait() {
 	console.log(pouic.getAll('grant_type'));
 
 }
-
+*/
 
 async function sendCode() {
-
 	const code = getAuthCode();
 	let ret;
 	/*fetch("/api/users/code/" + code, {method: "POST"})
@@ -46,13 +46,11 @@ async function sendCode() {
 			console.log(res);
 			ret = res;
 		})*/
-		ret = await fetch("/api/users/code/" + code, {method: "POST"});
-		ret = await ret.text();
+	ret = await fetch("/api/users/code/" + code, { method: "POST" });
+	ret = await ret.text();
 
-		console.log("does it work BG dylan jtm ? ", ret);
-		
+	console.log("does it work BG dylan jtm ? ", ret);
 
-	
 	//console.log("ret du back : ", ret);
 
 	//console.log("yoyoyoyo");
@@ -76,31 +74,38 @@ async function sendCode() {
 	console.log("token : ", tmp['access_token']);
 
 	return tmp['access_token'];*/
-
 }
 
 //const request = fetch("/api/users/code/" + code, {method: "POST"});
 
-
-
 export function Loading() {
+	const [loading, setLoading] = useState(true);
+	const [name, setname] = useState("");
+	let ret: any;
+	let code: string;
 
-	//sendCode();
-
-	//wait();
-	let retour;
-	
 	useEffect(() => {
-		sendCode()
-			//.then((data) => token = data)
-		
+		const loadData = async () => {
+			const str: string[] = window.location.href.split("=");
+			code = str[1];
+			ret = await fetch("/api/users/code/" + code, { method: "POST" });
+			console.log(ret);
 
+			ret = await ret.text();
+			setname(ret);
+			console.log(name);
+			setLoading((loading) => !loading);
+		};
+		loadData();
 	}, []);
-	//console.log("retour : ", token);
-	return (
-		<div>
-			<div className="spinner-grow" role="status">
+
+	if (loading) {
+		return (
+			<div>
+				<div className="spinner-grow" role="status"></div>
 			</div>
-		</div>
-	);
+		);
+	} else {
+		return <h1>Hey {name} !!!</h1>;
+	}
 }
