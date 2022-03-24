@@ -1,104 +1,45 @@
 NAME			= ft_transcendence
 
-DOC_FILE		= ./docker-compose.yml
-DOC_ENV			= ./env
-DOC_FLAG		= --file ${DOC_FILE} --env-file ${DOC_ENV}
-DOC_FLAGS		= docker compose ${DOC_FLAG}
-DOC				= docker compose
+DOCKER			= docker compose
 
-#########
-## ALL ##
-#########
+SERVICES		=							\
+					react					\
+					nestjs					\
+					postgres				\
+					adminer					\
 
-all: build drun
-.PHONY:all
-
-####################
-## DOCKER-COMPOSE ##
-####################
+#####################
+## DOCKER COMMANDS ##
+#####################
 
 build:
-	rm -rf ./logs/*.log
-	@bash ./tools/build.sh
-	${DOC} build
-.PHONY:build
+	@$(DOCKER) build
 
-run:
-	rm -rf ./logs/*.log
-	${DOC} up -d
-.PHONY:run
+up:
+	@$(DOCKER) up -d
 
-drun:
-	${DOC} up &> ./logs/up.log &
-	bash ./tools/run.sh
-.PHONY:run
+down:
+	@$(DOCKER) down
 
-ready:
-	bash ./tools/ready.sh
-.PHONY:ready
+start:
+	@$(DOCKER) start
 
 stop:
-	${DOC} stop
-.PHONY:stop
+	@$(DOCKER) stop
 
-kill:
-	${DOC} kill
-.PHONY:kill
+status:
+	bash ./tools/ready.sh
 
 prune:
 	docker system prune --all --force --volumes
-.PHONY:prune
 
-###########
-## CLEAN ##
-###########
-
-clean: stop
-.PHONY:clean
-
-fclean: clean prune
-	rm -rf .env
-	rm -rf ./server/secrets/private-key.pem
-	rm -rf ./server/secrets/public-certificate.pem
-	rm -rf ./logs/*.log
-.PHONY:fclean
-
-##########
-## LOGS ##
-##########
+$(SERVICES):
+	docker exec -ti $@ bash
 
 logs:
-	docker compose logs nestjs react postgres
-.PHONY:logs
+	docker compose logs $(SERVICES)
 
 flogs:
-	docker compose logs nestjs react postgres adminer --follow --tail 16
-.PHONY:flogs
+	docker compose logs $(SERVICES) --follow --tail 16
 
-pglogs:
-	docker compose logs pgadmin --follow
-.PHONY:pglogs
-
-###########
-## SHELL ##
-###########
-
-react:
-	docker exec -w /var/www/html/client -ti react zsh
-.PHONY:react
-
-nestjs:
-	docker exec -w /var/www/html/server -ti nestjs zsh
-.PHONY:nestjs
-
-postgre:
-	docker exec -ti postgres bash
-.PHONY:postgre
-
-adminer:
-	docker exec -ti adminer sh
-.PHONY:adminer
-
-pgadmin:
-	docker exec -ti pgadmin sh
-.PHONY:pgadmin
+.PHONY: all logs flogs pglogs $(SERVICES)

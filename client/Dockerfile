@@ -1,16 +1,18 @@
 FROM debian:buster
 
-RUN apt-get update \
+WORKDIR /app
+
+EXPOSE 80
+EXPOSE 443
+
+RUN apt-get -y update \
 && apt-get -y upgrade \
-&& apt-get -y install git curl wget zsh \
-&& sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
+&& apt-get -y install curl
 
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
-&& apt-get install -y nodejs
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && apt-get install -y nodejs
 
-COPY ./tools /tools
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm install
 
-RUN mv /tools/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh \
-&& chmod +x /usr/local/bin/docker-entrypoint.sh \
-&& rm -rf /tools
-ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["npm", "start"]
