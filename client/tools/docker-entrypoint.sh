@@ -8,11 +8,8 @@
 
 npm_install ()
 {
-	if [ ! -d "/var/www/html/$1/node_modules" ]
-	then
 		cd /var/www/html/$1
 		npm install
-	fi
 }
 
 start_server ()

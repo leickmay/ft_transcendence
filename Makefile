@@ -17,10 +17,6 @@ all: build drun
 ## DOCKER-COMPOSE ##
 ####################
 
-npm:
-	@bash ./tools/npm.sh
-.PHONY:npm
-
 build:
 	rm -rf ./logs/*.log
 	@bash ./tools/build.sh
@@ -88,11 +84,11 @@ pglogs:
 ###########
 
 react:
-	docker exec -ti react zsh
+	docker exec -w /var/www/html/client -ti react zsh
 .PHONY:react
 
 nestjs:
-	docker exec -ti nestjs zsh
+	docker exec -w /var/www/html/server -ti nestjs zsh
 .PHONY:nestjs
 
 postgre:
