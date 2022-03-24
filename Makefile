@@ -10,7 +10,7 @@ DOC				= docker compose
 ## ALL ##
 #########
 
-all: npm build drun
+all: build drun
 .PHONY:all
 
 ####################
@@ -76,7 +76,7 @@ logs:
 .PHONY:logs
 
 flogs:
-	docker compose logs nestjs react postgres --follow --tail 16
+	docker compose logs nestjs react postgres adminer --follow --tail 16
 .PHONY:flogs
 
 pglogs:
@@ -98,6 +98,10 @@ nestjs:
 postgre:
 	docker exec -ti postgres bash
 .PHONY:postgre
+
+adminer:
+	docker exec -ti adminer sh
+.PHONY:adminer
 
 pgadmin:
 	docker exec -ti pgadmin sh

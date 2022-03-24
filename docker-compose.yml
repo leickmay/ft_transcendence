@@ -26,6 +26,8 @@ services:
             - .env
         networks:
             - yggdrasil
+        ports:
+            - "3001:80"
         restart: unless-stopped
         volumes:
               - "./server:/var/www/html/server"
@@ -39,9 +41,23 @@ services:
         restart: unless-stopped
         volumes:
               - "database:/var/lib/postgresql/data"
-    pgadmin:
-        image: dpage/pgadmin4
-        container_name: pgadmin
+#    pgadmin:
+#        image: dpage/pgadmin4
+#        container_name: pgadmin
+#        depends_on:
+#            - postgres
+#        env_file:
+#            - .env
+#        networks:
+#            - yggdrasil
+#        ports:
+#            - "8080:80"
+#        restart: unless-stopped
+#        volumes:
+#            - ./pgadmin/servers.json:/pgadmin4/servers.json
+    adminer:
+        image: adminer
+        container_name: adminer
         depends_on:
             - postgres
         env_file:
@@ -49,10 +65,8 @@ services:
         networks:
             - yggdrasil
         ports:
-            - "8080:80"
+            - "8080:8080"
         restart: unless-stopped
-        volumes:
-            - ./pgadmin/servers.json:/pgadmin4/servers.json
 networks:
     yggdrasil:
         name: yggdrasil

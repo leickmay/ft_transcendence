@@ -6,6 +6,8 @@ import * as express from 'express';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ExpressAdapter } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
 	const httpsOptions = {
@@ -19,6 +21,15 @@ async function bootstrap() {
 	);
 	app.enableCors();
 	app.setGlobalPrefix('api');
+	app.useGlobalPipes(new ValidationPipe());
+
+	const config = new DocumentBuilder()
+		.setTitle('Transcendence')
+		.setVersion('1.0')
+		.addTag('users')
+		.build();
+	const document = SwaggerModule.createDocument(app, config);
+	SwaggerModule.setup('', app, document);
 	await app.init();
 	http.createServer(server).listen(80);
 	https.createServer(httpsOptions, server).listen(443);
