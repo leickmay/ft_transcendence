@@ -1,16 +1,11 @@
 # Ft_transcendence
 
-## React
-
 * [Link](http://localhost:3000)
 
-## NestJS
+## [React](http://localhost:3000)
 
-* [Link](http://localhost:3001)
+## [NestJS](http://localhost:3001)
 
 ## Postgres
 
-## Adminer
-
-* [Link](http://localhost:8080)
-
+## [Adminer](http://localhost:8080)
