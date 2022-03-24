@@ -16,7 +16,6 @@ services:
     restart: unless-stopped
     volumes:
       - "./client:/app"
-      - /app/node_modules
   nestjs:
     build:
       context: ./server
@@ -33,7 +32,6 @@ services:
     restart: unless-stopped
     volumes:
       - "./server:/app"
-      - /app/node_modules
   postgres:
     image: postgres:14
     container_name: postgres
