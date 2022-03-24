@@ -28,7 +28,7 @@ stop:
 	@$(DOCKER) stop
 
 status:
-	bash ./tools/ready.sh
+	@bash ./tools/ready.sh
 
 prune:
 	docker system prune --all --force --volumes
@@ -42,4 +42,4 @@ logs:
 flogs:
 	docker compose logs $(SERVICES) --follow --tail 16
 
-.PHONY: all logs flogs pglogs $(SERVICES)
+.PHONY: build up down start stop status prune $(SERVICES) logs flogs

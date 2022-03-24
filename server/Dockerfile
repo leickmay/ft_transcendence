@@ -12,9 +12,9 @@ RUN apt-get -y update \
 RUN mkdir /.ssh
 
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-		-subj "/C=FR/ST=France/L=Lyon/emailAddress=chervy@student.42lyon.fr/CN=localhost:3443" \
+		-subj "/C=FR/ST=France/L=Lyon/emailAddress=chervy@student.42lyon.fr/CN=localhost" \
 		-keyout /etc/ssl/private/private-key.key \
-		-out /etc/ssl/certs/public-certificate.pem
+		-out /etc/ssl/certs/public-certificate.crt
 
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && apt-get install -y nodejs
 
