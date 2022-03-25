@@ -1,10 +1,9 @@
 # Ft_transcendence
 
-* [Link](http://localhost:3000)
+## [React](http://localhost)
 
-## [React](http://localhost:3000)
-
-## [NestJS](http://localhost:3001)
+## [NestJS](http://localhost:3000)
+## [NestJS](https://localhost:3443)
 
 ## Postgres
 

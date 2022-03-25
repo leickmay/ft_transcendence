@@ -11,8 +11,8 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
 	const httpsOptions = {
-		key: fs.readFileSync('./secrets/private-key.pem'),
-		cert: fs.readFileSync('./secrets/public-certificate.pem'),
+		key: fs.readFileSync('/etc/ssl/private/private-key.key'),
+		cert: fs.readFileSync('/etc/ssl/certs/public-certificate.crt'),
 	};
 	const server = express();
 	const app = await NestFactory.create(

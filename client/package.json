@@ -1,7 +1,29 @@
 {
   "name": "client",
   "version": "0.1.0",
+  "description": "",
+  "maintainers": [
+    {
+      "name": "chervy",
+      "email" : "chervy@student.42lyon.fr"
+    },
+    {
+      "name": "deustach",
+      "email" : "deustach@student.42lyon.fr"
+    },
+    {
+      "name": "leickmay",
+      "email" : "leickmay@student.42lyon.fr"
+    },
+    {
+      "name": "scros",
+      "email" : "scros@student.42lyon.fr"
+    }
+  ],
   "private": true,
+  "engines" : { 
+    "node" : ">=16.0.0"
+  },
   "proxy": "http://nestjs.yggdrasil:80",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.2",

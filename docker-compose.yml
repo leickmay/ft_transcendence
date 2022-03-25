@@ -1,76 +1,63 @@
 version: "3"
 services:
-    react:
-        build:
-            context: ./client
-        container_name: react
-        depends_on:
-            - postgres
-            - nestjs
-        env_file:
-            - .env
-        networks:
-            - yggdrasil
-        ports:
-            - "3000:3000"
-        restart: unless-stopped
-        volumes:
-              - "./client:/var/www/html/client"
-    nestjs:
-        build:
-            context: ./server
-        container_name: nestjs
-        depends_on:
-            - postgres
-        env_file:
-            - .env
-        networks:
-            - yggdrasil
-        ports:
-            - "3001:80"
-        restart: unless-stopped
-        volumes:
-              - "./server:/var/www/html/server"
-    postgres:
-        image: postgres:14
-        container_name: postgres
-        env_file:
-            - .env
-        networks:
-            - yggdrasil
-        restart: unless-stopped
-        volumes:
-              - "database:/var/lib/postgresql/data"
-#    pgadmin:
-#        image: dpage/pgadmin4
-#        container_name: pgadmin
-#        depends_on:
-#            - postgres
-#        env_file:
-#            - .env
-#        networks:
-#            - yggdrasil
-#        ports:
-#            - "8080:80"
-#        restart: unless-stopped
-#        volumes:
-#            - ./pgadmin/servers.json:/pgadmin4/servers.json
-    adminer:
-        image: adminer
-        container_name: adminer
-        depends_on:
-            - postgres
-        env_file:
-            - .env
-        networks:
-            - yggdrasil
-        ports:
-            - "8080:8080"
-        restart: unless-stopped
+  react:
+    build:
+      context: ./client
+    container_name: react
+    depends_on:
+      - postgres
+      - nestjs
+    env_file:
+      - .env
+    networks:
+      - yggdrasil
+    ports:
+      - "80:3000"
+    restart: unless-stopped
+    volumes:
+      - "./client:/app"
+  nestjs:
+    build:
+      context: ./server
+    container_name: nestjs
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    networks:
+      - yggdrasil
+    ports:
+      - "3443:443"
+      - "3000:80"
+    restart: unless-stopped
+    volumes:
+      - "./server:/app"
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    env_file:
+      - .env
+    networks:
+      - yggdrasil
+    restart: unless-stopped
+    volumes:
+        - "database:/var/lib/postgresql/data"
+  adminer:
+    image: adminer
+    container_name: adminer
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    networks:
+      - yggdrasil
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
 networks:
-    yggdrasil:
-        name: yggdrasil
-        driver: bridge
+  yggdrasil:
+    name: yggdrasil
+    driver: bridge
 volumes:
-    database:
-        name: database
+  database:
+    name: database

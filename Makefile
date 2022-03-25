@@ -1,104 +1,63 @@
 NAME			= ft_transcendence
 
-DOC_FILE		= ./docker-compose.yml
-DOC_ENV			= ./env
-DOC_FLAG		= --file ${DOC_FILE} --env-file ${DOC_ENV}
-DOC_FLAGS		= docker compose ${DOC_FLAG}
-DOC				= docker compose
+DOCKER			= docker
+COMPOSE			= docker compose
 
-#########
-## ALL ##
-#########
+SERVICES		=							\
+					react					\
+					nestjs					\
+					postgres				\
+					adminer					\
 
-all: build drun
-.PHONY:all
-
-####################
-## DOCKER-COMPOSE ##
-####################
+#############################
+## DOCKER COMPOSE COMMANDS ##
+#############################
 
 build:
-	rm -rf ./logs/*.log
-	@bash ./tools/build.sh
-	${DOC} build
-.PHONY:build
+	@$(COMPOSE) build
 
-run:
-	rm -rf ./logs/*.log
-	${DOC} up -d
-.PHONY:run
+up:
+	@$(COMPOSE) up -d
 
-drun:
-	${DOC} up &> ./logs/up.log &
-	bash ./tools/run.sh
-.PHONY:run
+down:
+	@$(COMPOSE) down
 
-ready:
-	bash ./tools/ready.sh
-.PHONY:ready
+start:
+	@$(COMPOSE) start
 
 stop:
-	${DOC} stop
-.PHONY:stop
+	@$(COMPOSE) stop
 
-kill:
-	${DOC} kill
-.PHONY:kill
+restart:
+	@$(COMPOSE) restart
 
-prune:
-	docker system prune --all --force --volumes
-.PHONY:prune
+reload:
+	@docker-compose up --build --force-recreate -d
 
-###########
-## CLEAN ##
-###########
+ps:
+	@$(COMPOSE) ps
 
-clean: stop
-.PHONY:clean
-
-fclean: clean prune
-	rm -rf .env
-	rm -rf ./server/secrets/private-key.pem
-	rm -rf ./server/secrets/public-certificate.pem
-	rm -rf ./logs/*.log
-.PHONY:fclean
-
-##########
-## LOGS ##
-##########
-
-logs:
-	docker compose logs nestjs react postgres
-.PHONY:logs
-
-flogs:
-	docker compose logs nestjs react postgres adminer --follow --tail 16
-.PHONY:flogs
-
-pglogs:
-	docker compose logs pgadmin --follow
-.PHONY:pglogs
-
-###########
-## SHELL ##
-###########
-
-react:
-	docker exec -w /var/www/html/client -ti react zsh
-.PHONY:react
-
-nestjs:
-	docker exec -w /var/www/html/server -ti nestjs zsh
-.PHONY:nestjs
-
-postgre:
-	docker exec -ti postgres bash
-.PHONY:postgre
+$(filter-out adminer,$(SERVICES)):
+	@$(COMPOSE) exec $@ bash
 
 adminer:
-	docker exec -ti adminer sh
-.PHONY:adminer
+	@$(COMPOSE) exec $@ sh
 
-pgadmin:
-	docker exec -ti pgadmin sh
-.PHONY:pgadmin
+logs:
+	@$(COMPOSE) logs $(S)
+
+flogs:
+	@$(COMPOSE) logs --follow --tail 16 $(S)
+
+#####################
+## DOCKER COMMANDS ##
+#####################
+
+prune:
+	$(DOCKER) system prune --all --force --volumes
+
+###########
+## PHONY ##
+###########
+
+.PHONY: build up down start stop restart reload ps $(SERVICES) logs flogs prune
