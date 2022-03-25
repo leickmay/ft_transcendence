@@ -28,11 +28,20 @@ start:
 stop:
 	@$(COMPOSE) stop
 
+restart:
+	@$(COMPOSE) restart
+
+reload:
+	@docker-compose up --build --force-recreate -d
+
 ps:
 	@$(COMPOSE) ps
 
-$(SERVICES):
+$(filter-out adminer,$(SERVICES)):
 	@$(COMPOSE) exec $@ bash
+
+adminer:
+	@$(COMPOSE) exec $@ sh
 
 logs:
 	@$(COMPOSE) logs $(S)
@@ -51,4 +60,4 @@ prune:
 ## PHONY ##
 ###########
 
-.PHONY: build up down start stop ps $(SERVICES) logs flogs prune
+.PHONY: build up down start stop restart reload ps $(SERVICES) logs flogs prune
