@@ -7,7 +7,7 @@ EXPOSE 443
 
 RUN apt-get -y update \
 && apt-get -y upgrade \
-&& apt-get -y install curl openssl
+&& apt-get -y install curl openssl procps
 
 RUN mkdir /.ssh
 
