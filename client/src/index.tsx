@@ -3,19 +3,22 @@ import ReactDOM from 'react-dom';
 import './index.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
 import { CookiesProvider } from 'react-cookie';
+import { io } from 'socket.io-client';
+
+const socket = io("ws://localhost:3001");
+
+socket.emit("events", {id: 5});
+
+socket.on("meuh", (...args) => {
+	console.log(...args);
+});
 
 ReactDOM.render(
   <React.StrictMode>
     <CookiesProvider>
-    <App />
+      <App />
     </CookiesProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

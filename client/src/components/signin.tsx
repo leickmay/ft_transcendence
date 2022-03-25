@@ -23,20 +23,6 @@ export function SignIn() {
 				>
 						Sign in with 42
 			</button>
-			<button 
-					className="mb-3 w-100 btn btn-lg btn-secondary"
-					type="submit"
-					onClick={() => window.open("/email","_self")}
-				>
-						Sign in with email
-			</button>
-			<button 
-					className="mb-2 w-100 btn btn-lg btn-secondary"
-					type="submit"
-					onClick={() => window.open("https://www.youtube.com/watch?v=Sk-f-b2vbG4","_self")}
-				>
-						Sign in the rain
-			</button>
 			<p className="mb-3 text-muted">&copy; 1961–2967</p>
 		</main>
 	);

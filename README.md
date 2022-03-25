@@ -2,8 +2,8 @@
 
 ## [React](http://localhost)
 
-## [NestJS](http://localhost:3000)
-## [NestJS](https://localhost:3443)
+## [Swagger](http://localhost:3080)
+## [Swagger](https://localhost:3443)
 
 ## Postgres
 
