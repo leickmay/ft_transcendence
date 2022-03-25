@@ -1,6 +1,7 @@
 NAME			= ft_transcendence
 
-DOCKER			= docker compose
+DOCKER			= docker
+COMPOSE			= docker compose
 
 SERVICES		=							\
 					react					\
@@ -8,38 +9,46 @@ SERVICES		=							\
 					postgres				\
 					adminer					\
 
+#############################
+## DOCKER COMPOSE COMMANDS ##
+#############################
+
+build:
+	@$(COMPOSE) build
+
+up:
+	@$(COMPOSE) up -d
+
+down:
+	@$(COMPOSE) down
+
+start:
+	@$(COMPOSE) start
+
+stop:
+	@$(COMPOSE) stop
+
+ps:
+	@$(COMPOSE) ps
+
+$(SERVICES):
+	@$(COMPOSE) exec $@ bash
+
+logs:
+	@$(COMPOSE) logs $(S)
+
+flogs:
+	@$(COMPOSE) logs --follow --tail 16 $(S)
+
 #####################
 ## DOCKER COMMANDS ##
 #####################
 
-build:
-	@$(DOCKER) build
-
-up:
-	@$(DOCKER) up -d
-
-down:
-	@$(DOCKER) down
-
-start:
-	@$(DOCKER) start
-
-stop:
-	@$(DOCKER) stop
-
-ps:
-	@$(DOCKER) ps
-
 prune:
-	docker system prune --all --force --volumes
+	$(DOCKER) system prune --all --force --volumes
 
-$(SERVICES):
-	docker exec -ti $@ bash
+###########
+## PHONY ##
+###########
 
-logs:
-	docker compose logs $(SERVICES)
-
-flogs:
-	docker compose logs $(SERVICES) --follow --tail 16
-
-.PHONY: build up down start stop ps prune $(SERVICES) logs flogs
+.PHONY: build up down start stop ps $(SERVICES) logs flogs prune
