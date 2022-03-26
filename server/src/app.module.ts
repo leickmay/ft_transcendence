@@ -5,7 +5,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
-import { EventsModule } from './events.module';
+import { EventsModule } from './chat/events.module';
 
 @Module({
   imports: [

@@ -4,14 +4,13 @@ import './index.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './App';
 import { CookiesProvider } from 'react-cookie';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
-const socket = io("ws://localhost:3001");
+const socket: Socket = io("http://localhost:3001");
 
-socket.emit("events", {id: 5});
-
-socket.on("meuh", (...args) => {
-	console.log(...args);
+socket.on("numbers", data => {
+	console.log(data.num);
+	socket.emit("increment", {num: ++data.num});
 });
 
 ReactDOM.render(
