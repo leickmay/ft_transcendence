@@ -1,67 +1,92 @@
 NAME			= ft_transcendence
 
 DOCKER			= docker
+
 COMPOSE			= docker compose
 
-SERVICES		=							\
-					react					\
-					nestjs					\
-					postgres				\
-					adminer					\
+SERVICES		= react \
+					nestjs \
+					postgres \
+					adminer
 
-#############################
-## DOCKER COMPOSE COMMANDS ##
-#############################
+all: stop build up flogs
+.PHONY: all
+
+############
+## DOCKER ##
+############
 
 build:
 	cp -n .env.example .env | exit 0
 	@$(COMPOSE) build
+.PHONY: build
 
 up:
 	@$(COMPOSE) up -d
+.PHONY: up
 
 down:
 	@$(COMPOSE) down
+.PHONY: down
 
 start:
 	@$(COMPOSE) start
+.PHONY: start
 
 stop:
 	@$(COMPOSE) stop
+.PHONY: stop
 
 restart:
 	@$(COMPOSE) restart
+.PHONY: restart
 
 reload:
 	@docker-compose up --build --force-recreate -d
+.PHONY: reload
+
+############
+## STATUS ##
+############
 
 ps:
 	@$(COMPOSE) ps
+.PHONY: ps
+
+###########
+## SHELL ##
+###########
 
 $(filter-out adminer,$(SERVICES)):
 	@$(COMPOSE) exec $@ bash
+.PHONY: $(filter-out adminer,$(SERVICES))
 
 adminer:
 	@$(COMPOSE) exec $@ sh
+.PHONY: adminer
+
+##########
+## LOGS ##
+##########
 
 logs:
 	@$(COMPOSE) logs $(S)
+.PHONY: logs
 
 flogs:
 	@$(COMPOSE) logs --follow --tail 16 $(S)
-
-#####################
-## DOCKER COMMANDS ##
-#####################
-
-prune:
-	$(DOCKER) system prune --all --force --volumes
+.PHONY: flogs
 
 ###########
 ## CLEAN ##
 ###########
 
+prune:
+	$(DOCKER) system prune --all --force --volumes
+.PHONY: prune
+
 clean: stop prune
+.PHONY: clean
 
 fclean: clean
 	rm -rf \
@@ -69,9 +94,4 @@ fclean: clean
 		./server/node_modules \
 		./server/dist \
 		.env
-
-###########
-## PHONY ##
-###########
-
-.PHONY: build up down start stop restart reload ps $(SERVICES) logs flogs prune clean fclean
+.PHONY: fclean
