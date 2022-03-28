@@ -14,6 +14,7 @@ SERVICES		=							\
 #############################
 
 build:
+	cp -n .env.example .env | exit 0
 	@$(COMPOSE) build
 
 up:
@@ -57,7 +58,20 @@ prune:
 	$(DOCKER) system prune --all --force --volumes
 
 ###########
+## CLEAN ##
+###########
+
+clean: stop prune
+
+fclean: clean
+	rm -rf \
+		./client/node_modules \
+		./server/node_modules \
+		./server/dist \
+		.env
+
+###########
 ## PHONY ##
 ###########
 
-.PHONY: build up down start stop restart reload ps $(SERVICES) logs flogs prune
+.PHONY: build up down start stop restart reload ps $(SERVICES) logs flogs prune clean fclean
