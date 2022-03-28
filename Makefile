@@ -9,15 +9,18 @@ SERVICES		= react \
 					postgres \
 					adminer
 
-all: stop build up flogs
+all: env stop build up flogs
 .PHONY: all
+
+env:
+	cp -n .env.example .env | exit 0
+.PHONY: env
 
 ############
 ## DOCKER ##
 ############
 
-build:
-	cp -n .env.example .env | exit 0
+build: env
 	@$(COMPOSE) build
 .PHONY: build
 
