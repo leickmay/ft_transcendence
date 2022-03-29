@@ -1,4 +1,4 @@
 #!/bin/sh
 
 npm install
-nest start --watch --preserveWatchOutput
+npm run start:pre
