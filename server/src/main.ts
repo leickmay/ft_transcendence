@@ -26,7 +26,6 @@ async function bootstrap() {
 	const config = new DocumentBuilder()
 		.setTitle('Transcendence')
 		.setVersion('1.0')
-		.addTag('users')
 		.build();
 	const document = SwaggerModule.createDocument(app, config);
 	SwaggerModule.setup('', app, document);
