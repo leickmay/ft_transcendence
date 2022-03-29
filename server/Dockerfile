@@ -20,9 +20,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && apt-get install
 
 RUN npm install --global @nestjs/cli
 
-COPY package.json ./
-COPY package-lock.json ./
-RUN npm install
-
-CMD ["nest", "start", "--watch", "--preserveWatchOutput"]
-
+COPY ./docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["docker-entrypoint.sh"]

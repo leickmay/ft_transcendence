@@ -11,8 +11,6 @@ RUN apt-get -y update \
 
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && apt-get install -y nodejs
 
-COPY package.json ./
-COPY package-lock.json ./
-RUN npm install
-
-CMD ["npm", "start"]
+COPY ./docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["docker-entrypoint.sh"]
