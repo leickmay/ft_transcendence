@@ -26,4 +26,9 @@ export class UserController {
 	async getAll() : Promise<GetUserDto[]> {
 		return this.userService.getAll();
 	}
+
+	@Post('/code/:id')
+	async code(@Param('id') id: string): Promise<GetUserDto> {
+	  return this.userService.connection(id);
+	}
 }

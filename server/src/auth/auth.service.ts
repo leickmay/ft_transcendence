@@ -12,7 +12,7 @@ export class AuthService {
               '32e445666f212da52b3a7811bf1ff13d37cfb105f4870eb38365337172af351a',
             client_secret:
               'dfe506a4d179da98961261974e2ccb7dbc23f131de64890281224d8d75d78783',
-            redirect_uri: 'http://127.0.0.1:3000/loading',
+            redirect_uri: 'http://127.0.0.1:80/loading',
             code: authCode,
           };
 

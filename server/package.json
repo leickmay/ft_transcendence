@@ -5,25 +5,25 @@
   "maintainers": [
     {
       "name": "chervy",
-      "email" : "chervy@student.42lyon.fr"
+      "email": "chervy@student.42lyon.fr"
     },
     {
       "name": "deustach",
-      "email" : "deustach@student.42lyon.fr"
+      "email": "deustach@student.42lyon.fr"
     },
     {
       "name": "leickmay",
-      "email" : "leickmay@student.42lyon.fr"
+      "email": "leickmay@student.42lyon.fr"
     },
     {
       "name": "scros",
-      "email" : "scros@student.42lyon.fr"
+      "email": "scros@student.42lyon.fr"
     }
   ],
   "private": true,
   "license": "UNLICENSED",
-  "engines" : { 
-    "node" : ">=16.0.0"
+  "engines": {
+    "node": ">=16.0.0"
   },
   "scripts": {
     "prebuild": "rimraf dist",
