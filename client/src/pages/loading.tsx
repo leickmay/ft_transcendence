@@ -9,20 +9,30 @@ export function Loading() {
 	const [avatar, setavatar] = useState("");
 	
 	let ret: any;
+	let user: any;
 	let code: string;
 
 	useEffect(() => {
 		const loadData = async () => {
 			const str: string[] = window.location.href.split("=");
 			code = str[1];
-			ret = await fetch("/api/users/code/" + code, { method: "POST" });
+			ret = await fetch("/api/code/" + code, { method: "POST" });
 			console.log('ret : ', ret);
 
 			ret = await ret.json();
 			console.log('ret2 : ', ret);
+			user = await fetch("api/profile", {
+				method: 'GET',
+				headers: {
+					authorization: "Bearer " + ret.access_token,
+				}
+			})
+			user = await user.json();
+
+			console.log('User : ', user);
 			setname(ret.name);
 			setid(ret.id42);
-			setlogin(ret.login);
+			setlogin(user.username);
 			setavatar(ret.avatar);
 			console.log(name);
 			setLoading((loading) => !loading);

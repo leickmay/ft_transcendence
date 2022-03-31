@@ -27,8 +27,5 @@ export class UserController {
 		return this.userService.getAll();
 	}
 
-	@Post('/code/:id')
-	async code(@Param('id') id: string): Promise<GetUserDto> {
-	  return this.userService.connection(id);
-	}
+
 }
