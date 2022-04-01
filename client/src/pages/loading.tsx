@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { SignIn } from "../components/signin";
+import { Navigate } from "react-router-dom";
+
 
 
 export function Loading() {
@@ -6,7 +9,7 @@ export function Loading() {
 	const [name, setname] = useState("");
 	const [id, setid] = useState(0);
 	const [login, setlogin] = useState("");
-	const [avatar, setavatar] = useState("");
+	const [auth, setAuth] = useState(false);
 	
 	let ret: any;
 	let user: any;
@@ -16,25 +19,38 @@ export function Loading() {
 		const loadData = async () => {
 			const str: string[] = window.location.href.split("=");
 			code = str[1];
-			ret = await fetch("/api/code/" + code, { method: "POST" });
+			ret = await fetch("/api/code/" + code, { method: "GET" });
+	
 			console.log('ret : ', ret);
 
-			ret = await ret.json();
-			console.log('ret2 : ', ret);
-			user = await fetch("api/profile", {
+
+			//ret = await ret.json();
+			//console.log('ret2 : ', ret);
+			/*user = await fetch("api/profile", {
 				method: 'GET',
 				headers: {
+					
 					authorization: "Bearer " + ret.access_token,
 				}
-			})
+			})*/
+
+			/*
 			user = await user.json();
+			
+			if (user.statusCode === 401){
+				setAuth(false);
+				console.log('auth = false');
+			}
+			else if (user.username) {
+				setAuth(true);
+			}
+			
 
 			console.log('User : ', user);
 			setname(ret.name);
 			setid(ret.id42);
 			setlogin(user.username);
-			setavatar(ret.avatar);
-			console.log(name);
+			console.log(name);*/
 			setLoading((loading) => !loading);
 		};
 		loadData();
@@ -47,11 +63,15 @@ export function Loading() {
 			</div>
 		);
 	} else {
-		return (
-			<div className="coucou">
-				<h1>Hey {name} !!!</h1>
-				<h2>Ton id 42 est {id}, ton login {login}</h2>
-			</div>
-			);
-	}
+		//if (auth) {
+			return (
+					<Navigate to="/hey"/>
+				);
+		}
+		//else {
+			//<Navigate to="/home" />
+		//	<h1>C'est dead</h1>
+		//}
+		
+	//}
 }
