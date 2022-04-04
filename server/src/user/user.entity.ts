@@ -6,9 +6,31 @@ export class User extends BaseEntity {
 	id: number;
 
 	@Column({
+		type: 'text',
+	})
+	id42: number;
+
+	@Column({
 		type: 'text'
 	})
 	name: string;
+
+	@Column({
+		type: "text",
+		unique: true
+	})
+	login: string;
+
+	@Column({
+		type: 'text'
+	})
+	avatar: string;
+
+	@Column({default: false})
+	online: boolean;
+
+	@Column({default: false})
+	ingame: boolean;
 
 	@ManyToMany(() => User)
 	@JoinTable()

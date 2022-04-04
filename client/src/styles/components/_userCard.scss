@@ -1,0 +1,30 @@
+.userCard {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	background: rgba(0, 0, 0, 0.541);
+	border-radius: 10%;
+	border: 2px solid $color-1;
+	//margin: 50px 12%;
+	padding: 10px 10px;
+	min-width: 20%;
+
+	.userCardAvatar {
+		//background: rgba(0, 0, 0, 0.541);
+		background: url("/assets/img/bg_friendCard.png")  no-repeat center/cover;
+		background-size: 125%;
+		border-radius: 50%;
+		border: 2px inset $color-1;
+		//margin: 50px 20%;
+		padding: 10px;
+	}
+	
+	.userCardInfo {
+		flex-direction: row;
+		padding: 20px 10px 20px 15px;
+		font-size: 1.5rem;
+		border-radius: 10%;
+		//border: 2px solid $color-1;
+	}
+}

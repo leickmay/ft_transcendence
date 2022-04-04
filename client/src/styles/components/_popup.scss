@@ -1,0 +1,44 @@
+.popup {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	font-size: 1.5rem;
+	text-shadow: none;
+
+	.popupShowValid {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		width: 450px;
+		background-color: $color-4;
+		color: $color-5;
+		border-radius: 20%;
+		border: 3px solid $color-5;
+		transition: all 0.5s ease-out;
+	}
+
+	.popupShowError {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		width: 450px;
+		background-color: rgb(250, 86, 86);
+		color: rgb(121, 21, 21);
+		border-radius: 20%;
+		border: 3px solid rgb(121, 21, 21);;
+		transition: all 0.5s ease-out;
+	}
+
+	.popupHide {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		width: 450px;
+		background-color: transparent;
+		color: transparent;
+		border-radius: 20%;
+		border: 3px solid transparent;
+		transform: translateX(-50%);
+		transition: all 1s ease-out;
+	}
+}

@@ -1,106 +1,58 @@
-import React, { useEffect } from "react";
-
-export const getAuthCode = () => {
-	const str: string[] = window.location.href.split("=");
-	return str[1];
-};
-
-//const code = getAuthCode();
-
-async function getCode() {
-	const str: string[] = window.location.href.split("=");
-}
-
-const formData = (body: { [key: string] : string}) => {
-	const form = new FormData()
-		for (let key in body) {
-			form.append(key, body[key])
-		}
-		return form;
-}
-
-async function wait() {
-	
-	let pouic = formData({
-		grant_type: "authorization_code",
-		client_id: "32e445666f212da52b3a7811bf1ff13d37cfb105f4870eb38365337172af351a",
-		client_secret: "dfe506a4d179da98961261974e2ccb7dbc23f131de64890281224d8d75d78783",
-		redirect_uri: "http://127.0.0.1:3000/loading",
-	})
-	//await new Promise((resolve, reject) => setTimeout(resolve, 3000));
-	console.log(pouic.getAll('grant_type'));
-
-}
-
-
-async function sendCode() {
-
-	const code = getAuthCode();
-	let ret;
-	/*fetch("/api/users/code/" + code, {method: "POST"})
-		.then((res) => {
-			return res.text()
-
-		})
-		.then((res) => {
-			console.log(res);
-			ret = res;
-		})*/
-		ret = await fetch("/api/users/code/" + code, {method: "POST"});
-		ret = await ret.text();
-
-		console.log("does it work BG dylan jtm ? ", ret);
-		
-
-	
-	//console.log("ret du back : ", ret);
-
-	//console.log("yoyoyoyo");
-
-	/*const base_url = "https://api.intra.42.fr/oauth/token"
-	console.log('code', code);
-	let tonq = formData({
-		grant_type: "authorization_code",
-		client_id: "32e445666f212da52b3a7811bf1ff13d37cfb105f4870eb38365337172af351a",
-		client_secret: "dfe506a4d179da98961261974e2ccb7dbc23f131de64890281224d8d75d78783",
-		redirect_uri: "http://127.0.0.1:3000/loading",
-		code: code
-	})
-	const monq = {
-		method: "post",
-		body: tonq,
-	}
-	let ret : any;
-	ret = await fetch(base_url, monq);
-	let tmp: any = await ret.json();
-	console.log("token : ", tmp['access_token']);
-
-	return tmp['access_token'];*/
-
-}
-
-//const request = fetch("/api/users/code/" + code, {method: "POST"});
-
-
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
+import { getProfile, getUserById } from "../redux/actions/user.actions";
+import { useCookies } from "react-cookie";
+import { TIMEOUT } from "dns";
 
 export function Loading() {
+	const dispatch = useDispatch();
+	const user = useSelector((state: any) => state.userReducer);
+	const [loading, setLoading] = useState(true);
 
-	//sendCode();
+	const [cookies, setCookies] = useCookies();
 
-	//wait();
-	let retour;
-	
 	useEffect(() => {
-		sendCode()
-			//.then((data) => token = data)
-		
-
+		loadData();
 	}, []);
-	//console.log("retour : ", token);
-	return (
-		<div>
-			<div className="spinner-grow" role="status">
-			</div>
-		</div>
-	);
+
+	const loadData = async () => {
+		const str: string[] = window.location.href.split('=');
+		const code: string = str[1];
+		let ret = await fetch("api/code/" + code, {method: "GET"});
+
+		console.log('ret : ', ret);
+		
+		let token = await cookies.access_token;
+		if (token)
+		{
+			let pouic = await fetch("api/profile", {
+				method: "GET",
+				headers: {
+					authorization: "Bearer " + token.access_token,
+				}
+			});
+			console.log("pouic : ", pouic.json());
+			dispatch(getProfile(token.access_token))
+			console.log("user " + user);
+
+			//await new Promise(resolve => setTimeout(resolve, 5000));
+			let id = user.id42;
+			dispatch(getUserById(id, token.access_token));
+		}
+		console.log("token cookie : ", token.access_token);
+		setLoading((loading) => !loading);
+	}
+
+	if (loading) {
+		return (
+			<div>Chargement en cours</div>
+		);
+	}
+
+	else {
+		return (
+			<Navigate to="/home" />
+		);
+	}
 }

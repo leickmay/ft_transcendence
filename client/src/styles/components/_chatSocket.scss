@@ -1,0 +1,188 @@
+.chatButton {
+	position: absolute;
+	z-index: 11;
+	background: url("/assets/img/chat_button.png") no-repeat center/cover;
+	width: 90px;
+	height: 70px;
+	position: fixed;
+    bottom: 2%;
+	left: 46.5%;
+	transition: all 0s ease-out;
+
+	//border-radius: 1%;
+	//border: 2px solid $color-1;
+
+	&:hover {
+		background: url("/assets/img/chat_button_active.png") no-repeat center/cover;
+		cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
+		transition: all 0s ease-out;
+	}
+	
+	&:active {
+		background: url("/assets/img/chat_button_active.png") no-repeat center/cover;
+		transition: all 0s ease-out;
+	}
+}
+
+.chatSocket {
+	width: 90%;
+	background: rgb(0, 0, 0);
+	//border-radius: 1%;
+	border: 2px solid $color-1;
+	//margin: 0px 0px 0px 80px;
+	//padding: 50px 0px 50px 0px;
+	//align-items: center;
+	//text-align: center;
+	font-family: $font-1;
+  	font-size: 2rem;
+  	color: $color-2;
+	text-shadow: none;
+	position:absolute;
+	z-index: 10;
+	//transform: translateY(-500px);
+	top: 170px;
+	left: 0; 
+ 	right: 0; 
+ 	margin-left: auto; 
+ 	margin-right: auto; 
+	//margin-left: auto;
+	//margin-right: auto;
+	
+	.chatWindow {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.chatHome {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.chatMsgs {
+		//line-height: 20px;
+		height: 600px;
+		width: 85%;
+		background: rgba(97, 97, 97, 0.753);
+		//background: url("/assets/img/chatBackground.png") no-repeat center/cover;
+		//border-radius: 1%;
+		border: 2px solid $color-1;
+		margin: 0px 0px 0px 0px;
+		padding: 40px;
+		font-size: 1.5rem;
+		color: $color-3;
+		overflow-y: scroll;
+		overflow-wrap: break-word;
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+	}
+
+	.chatChannels {
+		display: flex;
+		flex-direction: column;
+		background: rgba(59, 59, 59, 0.753);
+		//border-radius: 1%;
+		border: 2px solid $color-1;
+		width: 15%;
+		min-width: 15%;
+		margin: 0px 0px 0px 0px;
+		padding: 10px 0px 0px 0px;
+		align-items: center;
+		text-align: center;
+		overflow-y: scroll;
+		overflow-wrap: break-word;
+		
+		&::-webkit-scrollbar {
+			display: none;
+		}
+
+		button {
+			background: url("/assets/img/home_button.png") no-repeat center/contain;
+			width: 90px;
+			height: 90px;
+			
+			&:hover {
+				background: url("/assets/img/home_button_hover.png") no-repeat center/contain;
+			}
+			
+			&:active {
+				background: url("/assets/img/home_button_active.png") no-repeat center/contain;
+				
+			}
+		}
+
+	}
+
+	.chatForm {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-around;
+		align-items: center;
+	}
+
+	input {
+		padding: 0px 10px 0px 10px;
+		font-size: 1.5rem;
+		overflow-y: scroll;
+		overflow-wrap: break-word;
+		width: 100%;
+		height: 100px;
+	}
+
+	textarea {
+		padding: 0px 10px 0px 10px;
+		color: $color-3;
+		font-size: 1.5rem;
+		width: 100%;
+		height: 100px;
+		z-index: 1;
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+	}
+
+	button {
+		font-family: $font-1;
+		font-size: 1.5rem;
+		color: $color-2;;
+		background: url("/assets/img/bg_friendCard.png") no-repeat center/cover;
+		border: none;
+		transition: all 0.5s ease-out;
+		width: 75px;
+		height: 75px;
+
+		&:hover {
+			background: url("/assets/img/button_hover_rainbow.png") no-repeat center/cover;
+			text-shadow: none;
+			cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
+		}
+
+		&:active {
+			background: url("/assets/img/button_active.png") no-repeat center/cover;
+			color: $color-4;
+			transition: all 0s ease-out;
+		}
+	}
+	
+	.chan {
+		width: 100%;
+		color: $color-1;
+		transition: all 0.5s ease-out;
+
+		&:hover {
+			color: $color-2;
+			cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
+		}
+	}
+
+	.chan-active {
+		background-color: rgba(255, 77, 255, 0.363);
+		width: 100%;
+		color: $color-2;
+		transition: all 0.5s ease-out;
+	}
+
+}

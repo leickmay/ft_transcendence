@@ -2,15 +2,30 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsInt, IsString } from "class-validator";
 
 export class GetUserDto {
-	@IsInt()
 	@ApiProperty({
-		example: '42'
+		example: '42id',
+		description: 'Bonjour'
 	})
-	id: number;
+	id42: number;
 
-	@IsString()
 	@ApiProperty({
-		example: 'Bob'
+		example: 'name',
+		description: '...'
 	})
+	@IsString()
 	name: string;
+
+	@ApiProperty({
+		example: 'login',
+		description: 'tmtc'
+	})
+	@IsString()
+	login: string;
+
+	@ApiProperty({
+		example: './path/to/avatar.png',
+		description: '...'
+	})
+	@IsString()
+	avatar: string;
 }
