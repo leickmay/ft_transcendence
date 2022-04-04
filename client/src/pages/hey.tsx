@@ -4,7 +4,8 @@ import { SignIn } from "../components/signin";
 import { useCookies } from "react-cookie";
 
 export function Hey() {
-	const [user, setUser] = useState({});
+	const [user, setUser] = useState("");
+	const [userId, setUserId] = useState(0);
 	const [cookies, setCookies] = useCookies();
 
 	useEffect(() => {
@@ -18,11 +19,20 @@ export function Hey() {
 					}
 			})
 			console.log('user :', user);
+			const data = await user.json();
+			console.log('data : ', data);
+			//let username = data.username;
+
+
+			setUser(data.username);
+			setUserId(data.userId);
 		}
 		loadData();
 	}, [])
 	
 
 
-	return <h1>Hey !</h1>;
+	return (
+	<h1>Hey {user} - {userId}</h1>
+		);
 }

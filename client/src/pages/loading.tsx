@@ -24,8 +24,8 @@ export function Loading() {
 			console.log('ret : ', ret);
 
 
-			//ret = await ret.json();
-			//console.log('ret2 : ', ret);
+			ret = await ret.json();
+			console.log('ret.access_token : ', ret);
 			/*user = await fetch("api/profile", {
 				method: 'GET',
 				headers: {
@@ -67,6 +67,11 @@ export function Loading() {
 			return (
 					<Navigate to="/hey"/>
 				);
+			/*return(
+				<div>
+					<h1>Hey {user.username} !</h1>
+				</div>
+			)*/
 		}
 		//else {
 			//<Navigate to="/home" />
