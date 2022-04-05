@@ -28,8 +28,10 @@ export class UserService {
 		return await this.userRepository.findOne(id);
 	}
 
-	async getById42(id42: number) : Promise<GetUserDto> {
-		const user = await this.userRepository.findOne({ id42 });
+	async getById42(id: number) : Promise<GetUserDto> {
+		const user = await this.userRepository.findOne({
+			id42: id
+		});
 		return user;
 	  }
 
