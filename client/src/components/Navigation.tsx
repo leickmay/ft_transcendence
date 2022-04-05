@@ -3,16 +3,16 @@ import UserCard from "./UserCard";
 
 const Navigation = ( {userCard}: any ) => {
 	return (
-		<div className="navigation">
+		<div id="navigation">
 			<UserCard userCard={userCard}/>
-			<div className="navBar">
-				<NavLink to="/home" className="nav-active">Home</NavLink>
-				<NavLink to="/game" className="nav-active">Game</NavLink>
-				<NavLink to="/friends" className="nav-active">Friends</NavLink>
-				<NavLink to="/statistics" className="nav-active">Statisitcs</NavLink>
-				<NavLink to="/history" className="nav-active">History</NavLink>
-				<NavLink to="/options" className="nav-active">Options</NavLink>
-			</div>
+			<nav>
+				<NavLink end to="/home" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>Home</NavLink>
+				<NavLink end to="/game" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>Game</NavLink>
+				<NavLink end to="/friends" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>Friends</NavLink>
+				<NavLink end to="/statistics" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>Statisitcs</NavLink>
+				<NavLink end to="/history" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>History</NavLink>
+				<NavLink end to="/options" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>Options</NavLink>
+			</nav>
 		</div>
 	);
 };

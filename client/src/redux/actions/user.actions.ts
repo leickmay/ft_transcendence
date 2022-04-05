@@ -2,6 +2,8 @@ import axios from "axios"
 
 
 export const GET_USER = "GET_USER";
+export const GET_USER_BY_ID = "GET_USER_BY_ID";
+export const GET_PROFILE = "GET_PROFILE";
 
 export const getUser = (name: string) => {
 	
@@ -17,16 +19,26 @@ export const getUser = (name: string) => {
 
 export const getUserById = (id: number, token: string) => {
 	
-	return (dispatch: any) => {
+	return async (dispatch: any) => {
 
-		fetch("api/users/" + id, {
+		/*let data = await fetch("api/users/" + id, {
 			method: "GET",
 			headers: {
-				authorization: "Bearer " + token,
-			}
-		}).then((ret) => {dispatch({ type: GET_USER, payload: ret.json() })})
-		.catch((err) => {dispatch({ type: GET_USER, payload: null })});
-		
+				authorization: "Bearer " + token, }
+			});
+		console.log("getUserByID data: " + data);
+		let dataJson = await data.json();
+		console.log("getUserById dataJson: " + dataJson);
+		return dispatch({ type: GET_USER_BY_ID, payload: dataJson });*/
+
+		return fetch("api/users/" + id, {
+				method: "GET",
+				headers: {
+					authorization: "Bearer " + token, }
+			}).then(req => req.json())
+			.then(data => {dispatch({ type: GET_USER_BY_ID, payload: data })})
+			.catch((err) => {dispatch({ type: GET_USER_BY_ID, payload: null })});
+
 		/*return axios.get("http://" + window.location.hostname + ":3001/" + 'clients/one/' + name)
 		.then((ret) => {dispatch({ type: GET_USER, payload: ret.data })})
 		.catch((err) => {dispatch({ type: GET_USER, payload: null })});*/
@@ -35,15 +47,28 @@ export const getUserById = (id: number, token: string) => {
 
 export const getProfile = (token: string) => {
 	
-	return (dispatch: any) => {
+	return async (dispatch: any) => {
 
-		fetch("api/profile", {
+		/*let data = await fetch("api/profile", {
 			method: "GET",
 			headers: {
 				authorization: "Bearer " + token,
 			}
-		}).then((ret) => {dispatch({ type: GET_USER, payload: ret.json() })})
-		.catch((err) => {dispatch({ type: GET_USER, payload: null })});
+		});
+		console.log("getProfile data: " + data);
+		let dataJson = await data.json();
+		console.log("getProfile dataJson: " + dataJson);
+		return dispatch({ type: GET_PROFILE, payload: dataJson });*/
+
+		return fetch("api/profile", {
+			method: "GET",
+			headers: {
+				authorization: "Bearer " + token,
+			}
+		}).then(req => req.json())
+		.then(data => {console.log(data), dispatch({ type: GET_PROFILE, payload: data })})
+		.catch((err) => {dispatch({ type: GET_PROFILE, payload: null })});
+
 		/*return axios.get("http://" + window.location.hostname + ":3001/" + 'clients/one/' + name)
 		.then((ret) => {dispatch({ type: GET_USER, payload: ret.data })})
 		.catch((err) => {dispatch({ type: GET_USER, payload: null })});*/

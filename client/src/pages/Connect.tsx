@@ -1,30 +1,5 @@
-import User from '../components/Interface';
-import { useDispatch, useSelector } from 'react-redux';
-import { getUser } from '../redux/actions/user.actions';
-import { registerUser, updateUser } from '../redux/actions/users.actions';
-import { useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
 
 const Connect = () => {
-
-
-	const dispatch = useDispatch();
-	const users = useSelector((state: any) => state.usersReducer);
-
-
-	//const user = useSelector((state: any) => state.userReducer);
-
-
-
-	var inputName: string;
-
-	async function getClient(name: string) : Promise<User | undefined> {
-		return users.filter((u: any) => u.name === name)[0];
-	};
-
-	const handleInput = (input: string) => {
-		inputName = input;
-	};
 
 	const authEndpoint = 'https://api.intra.42.fr/oauth/authorize';
 

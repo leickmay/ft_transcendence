@@ -1,5 +1,4 @@
-.navigation {
-	
+#navigation {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
@@ -10,14 +9,14 @@
 		margin: 10px;
 		padding: 10px;
 		position: relative;
+
+		&:hover {
+			text-shadow: 5px 3px 0px $color-3;
+			color: #8900b3; 
+		}
 	}
 
-	a:hover {
-		text-shadow: 5px 3px 0px $color-3;
-		color: #8900b3; 
-	}
-
-	.navBar {
+	nav {
 		background: rgba(0, 0, 0, 0.541);
 		border-radius: 5%;
 		border: 2px inset $color-1;
@@ -26,25 +25,27 @@
 		justify-content: space-evenly;
 		align-items: center;
 		min-width: 72%;
-	}
 
-	.nav-active {
-		&::after {
-			content: '';
-			width: 110%;
-			height: 20px;
-			background: url("/assets/img/activeNav.png") no-repeat center/cover;
-			position: absolute;
-			bottom: -9px;
-			left: 50%;
-			transform: translateX(-50%);
+		.nav-link {
+			&.activated {
+				&::after {
+					content: '';
+					width: 110%;
+					height: 20px;
+					background: url("/assets/img/activeNav.png") no-repeat center/cover;
+					position: absolute;
+					bottom: -9px;
+					left: 50%;
+					transform: translateX(-50%);
+				}
+				text-shadow: 5px 3px 0px $color-3;
+				color: #8900b3;
+				animation-name: shine;
+				animation-duration: 3.5s;
+				animation-iteration-count: infinite;
+				animation-timing-function: ease-in-out;
+			}
 		}
-		text-shadow: 5px 3px 0px $color-3;
-		color: #8900b3;
-		animation-name: shine;
-		animation-duration: 3.5s;
-		animation-iteration-count: infinite;
-		animation-timing-function: ease-in-out;
 	}
 }
 
