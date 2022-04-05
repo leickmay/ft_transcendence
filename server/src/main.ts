@@ -8,6 +8,7 @@ import { AppModule } from './app.module';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import * as cookierParser from 'cookie-parser';
 
 async function bootstrap() {
 	const httpsOptions = {
@@ -22,6 +23,7 @@ async function bootstrap() {
 	app.enableCors();
 	app.setGlobalPrefix('api');
 	app.useGlobalPipes(new ValidationPipe());
+	app.use(cookierParser());
 
 	const config = new DocumentBuilder()
 		.setTitle('Transcendence')

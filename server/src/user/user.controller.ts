@@ -26,4 +26,6 @@ export class UserController {
 	async getAll() : Promise<GetUserDto[]> {
 		return this.userService.getAll();
 	}
+
+
 }

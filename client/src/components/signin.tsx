@@ -8,8 +8,7 @@ const scopes = [
 
 export const getAuthorizeHref = (): string => {
   const clientId = '32e445666f212da52b3a7811bf1ff13d37cfb105f4870eb38365337172af351a';
-  const myURI = window.location.href;
-  const redirectUri = 'http://127.0.0.1:3000/loading';
+  const redirectUri = 'http://127.0.0.1:80/loading';
   return `${authEndpoint}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes.join("%20")}&response_type=code`;
 }
 

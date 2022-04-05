@@ -1,106 +1,82 @@
-import React, { useEffect } from "react";
-
-export const getAuthCode = () => {
-	const str: string[] = window.location.href.split("=");
-	return str[1];
-};
-
-//const code = getAuthCode();
-
-async function getCode() {
-	const str: string[] = window.location.href.split("=");
-}
-
-const formData = (body: { [key: string] : string}) => {
-	const form = new FormData()
-		for (let key in body) {
-			form.append(key, body[key])
-		}
-		return form;
-}
-
-async function wait() {
-	
-	let pouic = formData({
-		grant_type: "authorization_code",
-		client_id: "32e445666f212da52b3a7811bf1ff13d37cfb105f4870eb38365337172af351a",
-		client_secret: "dfe506a4d179da98961261974e2ccb7dbc23f131de64890281224d8d75d78783",
-		redirect_uri: "http://127.0.0.1:3000/loading",
-	})
-	//await new Promise((resolve, reject) => setTimeout(resolve, 3000));
-	console.log(pouic.getAll('grant_type'));
-
-}
-
-
-async function sendCode() {
-
-	const code = getAuthCode();
-	let ret;
-	/*fetch("/api/users/code/" + code, {method: "POST"})
-		.then((res) => {
-			return res.text()
-
-		})
-		.then((res) => {
-			console.log(res);
-			ret = res;
-		})*/
-		ret = await fetch("/api/users/code/" + code, {method: "POST"});
-		ret = await ret.text();
-
-		console.log("does it work BG dylan jtm ? ", ret);
-		
-
-	
-	//console.log("ret du back : ", ret);
-
-	//console.log("yoyoyoyo");
-
-	/*const base_url = "https://api.intra.42.fr/oauth/token"
-	console.log('code', code);
-	let tonq = formData({
-		grant_type: "authorization_code",
-		client_id: "32e445666f212da52b3a7811bf1ff13d37cfb105f4870eb38365337172af351a",
-		client_secret: "dfe506a4d179da98961261974e2ccb7dbc23f131de64890281224d8d75d78783",
-		redirect_uri: "http://127.0.0.1:3000/loading",
-		code: code
-	})
-	const monq = {
-		method: "post",
-		body: tonq,
-	}
-	let ret : any;
-	ret = await fetch(base_url, monq);
-	let tmp: any = await ret.json();
-	console.log("token : ", tmp['access_token']);
-
-	return tmp['access_token'];*/
-
-}
-
-//const request = fetch("/api/users/code/" + code, {method: "POST"});
+import React, { useEffect, useState } from "react";
+import { SignIn } from "../components/signin";
+import { Navigate } from "react-router-dom";
 
 
 
 export function Loading() {
-
-	//sendCode();
-
-	//wait();
-	let retour;
+	const [loading, setLoading] = useState(true);
+	const [name, setname] = useState("");
+	const [id, setid] = useState(0);
+	const [login, setlogin] = useState("");
+	const [auth, setAuth] = useState(false);
 	
-	useEffect(() => {
-		sendCode()
-			//.then((data) => token = data)
-		
+	let ret: any;
+	let user: any;
+	let code: string;
 
+	useEffect(() => {
+		const loadData = async () => {
+			const str: string[] = window.location.href.split("=");
+			code = str[1];
+			ret = await fetch("/api/code/" + code, { method: "GET" });
+	
+			console.log('ret : ', ret);
+
+
+			ret = await ret.json();
+			console.log('ret.access_token : ', ret);
+			/*user = await fetch("api/profile", {
+				method: 'GET',
+				headers: {
+					
+					authorization: "Bearer " + ret.access_token,
+				}
+			})*/
+
+			/*
+			user = await user.json();
+			
+			if (user.statusCode === 401){
+				setAuth(false);
+				console.log('auth = false');
+			}
+			else if (user.username) {
+				setAuth(true);
+			}
+			
+
+			console.log('User : ', user);
+			setname(ret.name);
+			setid(ret.id42);
+			setlogin(user.username);
+			console.log(name);*/
+			setLoading((loading) => !loading);
+		};
+		loadData();
 	}, []);
-	//console.log("retour : ", token);
-	return (
-		<div>
-			<div className="spinner-grow" role="status">
+
+	if (loading) {
+		return (
+			<div>
+				<div className="spinner-grow" role="status"></div>
 			</div>
-		</div>
-	);
+		);
+	} else {
+		//if (auth) {
+			return (
+					<Navigate to="/hey"/>
+				);
+			/*return(
+				<div>
+					<h1>Hey {user.username} !</h1>
+				</div>
+			)*/
+		}
+		//else {
+			//<Navigate to="/home" />
+		//	<h1>C'est dead</h1>
+		//}
+		
+	//}
 }
