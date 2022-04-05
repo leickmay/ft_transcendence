@@ -31,11 +31,23 @@ export const getUserById = (id: number, token: string) => {
 		console.log("getUserById dataJson: " + dataJson);
 		return dispatch({ type: GET_USER_BY_ID, payload: dataJson });*/
 
+		console.log(id);
+		
+		let response = await fetch("api/users/" + id, {
+			method: "GET",
+			headers: {
+				authorization: "Bearer " + token,
+			}
+		});
+		let data = await response.json();
+		console.log(data);
+
 		return fetch("api/users/" + id, {
 				method: "GET",
 				headers: {
 					authorization: "Bearer " + token, }
-			}).then(req => req.json())
+			})
+			.then(req => req.json())
 			.then(data => {dispatch({ type: GET_USER_BY_ID, payload: data })})
 			.catch((err) => {dispatch({ type: GET_USER_BY_ID, payload: null })});
 
@@ -65,8 +77,9 @@ export const getProfile = (token: string) => {
 			headers: {
 				authorization: "Bearer " + token,
 			}
-		}).then(req => req.json())
-		.then(data => {console.log(data), dispatch({ type: GET_PROFILE, payload: data })})
+		})
+		.then(req => req.json())
+		.then(data => {dispatch({ type: GET_PROFILE, payload: data })})
 		.catch((err) => {dispatch({ type: GET_PROFILE, payload: null })});
 
 		/*return axios.get("http://" + window.location.hostname + ":3001/" + 'clients/one/' + name)

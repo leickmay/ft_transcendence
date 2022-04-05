@@ -21,7 +21,10 @@ export class UserController {
 
 	@Get('/:id')
 	async getById(@Param('id') id: number) : Promise<GetUserDto> {
-		return this.userService.getById42(id);
+		let dto: GetUserDto = await this.userService.getById42(id);
+		if (!dto)
+			return null;
+		return dto;
 	}
 
 	@Get('/')

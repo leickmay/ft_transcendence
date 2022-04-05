@@ -28,6 +28,7 @@ export function Loading() {
 				}
 			});
 			let data = await pouic.json();
+			//console.log("data ", data, " token ", token.access_token);
 			dispatch(getUserById(data.userId, token.access_token));
 		}
 	}
@@ -37,7 +38,6 @@ export function Loading() {
 			<div>Chargement en cours</div>
 		);
 	}
-
 	else {
 		return (
 			<Navigate to="/home" />
