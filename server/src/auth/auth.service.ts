@@ -37,9 +37,9 @@ export class AuthService {
               token = res.data.access_token;
               console.log('retour get42Token : ', res.data);
             })
-            .catch((err) => {});
-        
-        console.log('token : ', token);
+            .catch((err) => {
+              console.log(err);
+            });
         return token;
     }
 
@@ -67,14 +67,8 @@ export class AuthService {
 			console.log(err);
 		  });
 	
-		  console.log('data.campus.city : ', data.campus[0].name);
-	
-	
-	
 		  let tmpUser = await this.userService.getById42(data.id);
       
-
-		  
 		  if (!tmpUser) {
 			await this.userService.create({
 			  "id42": data.id,
@@ -85,8 +79,6 @@ export class AuthService {
 	
 			tmpUser = await this.userService.getById42(data.id);
 		  }
-		  
-		  console.log("tmp user : ", tmpUser);
 
       return tmpUser;
       

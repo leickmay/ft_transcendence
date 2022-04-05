@@ -23,12 +23,8 @@ export class AppController {
 
 		response
 			.cookie('access_token', token, {
-				//httpOnly: true,
-				//domain: 'localhost',
-				//expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
 			})
 			.send({ success: true });
-	  //return token;
 	}
 
 }
