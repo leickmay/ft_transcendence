@@ -12,7 +12,7 @@ export function Hey() {
 		const loadData = async () => {
 			let token = await cookies.access_token;
 			console.log("token cookie : ", token.access_token);
-			let user = await fetch("api/profile", {
+			let user = await fetch("api/users/addfriend/grosendo", {
 				method: 'GET',
 				headers: {
 					authorization: "Bearer " + token.access_token,

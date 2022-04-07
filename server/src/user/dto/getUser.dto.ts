@@ -9,6 +9,13 @@ export class GetUserDto {
 	id42: number;
 
 	@ApiProperty({
+		example: 'id',
+		description: 'id'
+	})
+	id: number;
+
+
+	@ApiProperty({
 		example: 'name',
 		description: '...'
 	})
