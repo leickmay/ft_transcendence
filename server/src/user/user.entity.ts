@@ -32,10 +32,10 @@ export class User extends BaseEntity {
 	@Column({default: false})
 	ingame: boolean;
 
-	@ManyToMany(() => User, (user) => user.following)
+	/*@OneToOne(() => User, (user) => user.following)
 	@JoinTable()
 	followers: User[];
 
 	@ManyToMany(() => User, (user) => user.followers)
-	following: User[];
+	following: User[];*/
 }

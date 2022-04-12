@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards, Request } from '@nestjs/common';
+import { request } from 'http';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/createUser.dto';
 import { GetUserDto } from './dto/getUser.dto';
@@ -45,7 +46,11 @@ export class UserController {
 		const users = await this.userService.getFriends(req);
 		return users;
 	}
-	
 
+	@Get('/pendingfriends')
+	async getPendingFriends(@Request() req) /*: Promise<User[]> */{
+		/*const users = */await this.userService.getPendingFriends(req);
+		//return users;
+	}
 
 }
