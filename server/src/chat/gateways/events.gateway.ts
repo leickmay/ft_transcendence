@@ -1,6 +1,6 @@
 import { SubscribeMessage, MessageBody, WebSocketGateway, ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer, WsException } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { HttpException, Injectable, UseGuards } from '@nestjs/common';
+import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
@@ -12,8 +12,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	connected: number;
 
-	handleConnection(client: Socket, ...args: any[]) {
-		
+	constructor(private authService: AuthService) {}
+
+	async handleConnection(client: Socket, ...args: any[]) {
+		try {
+			console.log(await this.authService.verifyJwt(client.handshake.headers.authorization.replace('Bearer ', '')));
+		} catch (e) {
+			client.emit('Error', new UnauthorizedException());
+			client.disconnect();
+			return;
+		}
 	}
 
 	handleDisconnect(client: Socket) {
