@@ -1,6 +1,9 @@
-import { SubscribeMessage, MessageBody, WebSocketGateway, ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer } from '@nestjs/websockets';
+import { SubscribeMessage, MessageBody, WebSocketGateway, ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer, WsException } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
+import { HttpException, Injectable, UseGuards } from '@nestjs/common';
+import { AuthService } from 'src/auth/auth.service';
 
+@Injectable()
 @WebSocketGateway(3001, { cors: true })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 

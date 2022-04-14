@@ -1,22 +1,20 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsInt, IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, IsString, MaxLength } from 'class-validator';
 
 export class CreateUserDto {
 	@ApiProperty({
-		example: '42id',
 		description: 'Bonjour'
 	})
 	id42: number;
 
 	@ApiProperty({
-		example: 'name',
 		description: '...'
 	})
 	@IsString()
+	@MaxLength(50)
 	name: string;
 
 	@ApiProperty({
-		example: 'login',
 		description: 'tmtc'
 	})
 	@IsString()

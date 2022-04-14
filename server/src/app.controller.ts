@@ -7,9 +7,15 @@ import { response, Response } from 'express';
 
 @Controller()
 export class AppController {
-	constructor(private readonly appService: AppService,
+	constructor(
+		private readonly appService: AppService,
 		private authService: AuthService
-		) {}
+	) {}
+
+	@Get('/')
+	index() {
+		console.log(1);
+	}
 
 	@UseGuards(JwtAuthGuard)
 	@Get('profile')
@@ -23,10 +29,7 @@ export class AppController {
 	async code(@Param('id') id: string, @Res() response : Response) {
 		const token = await this.authService.login(id);
 
-		response
-			.cookie('access_token', token, {
-			})
-			.send({ success: true });
+		response.cookie('access_token', token.access_token).send({ success: true });
 	}
 
 }

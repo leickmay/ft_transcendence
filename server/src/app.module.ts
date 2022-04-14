@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { Friendship } from './friendship/friendship.entity';
 import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
 import { EventsModule } from './chat/events.module';
@@ -17,7 +16,7 @@ import { EventsModule } from './chat/events.module';
 		username: 'admin',
 		password: 'password',
 		database: 'my_db',
-		entities: [User, Friendship],
+		entities: [User],
 		synchronize: true,
 	  }),
 	  UserModule,

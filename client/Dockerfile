@@ -3,7 +3,6 @@ FROM debian:buster
 WORKDIR /app
 
 EXPOSE 80
-EXPOSE 443
 
 RUN apt-get -y update \
 && apt-get -y upgrade \

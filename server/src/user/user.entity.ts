@@ -1,41 +1,25 @@
-import { BaseEntity, Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class User extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@Column({
-		type: 'text',
-	})
+	@Column('varchar', { length: 255 })
 	id42: number;
 
-	@Column({
-		type: 'text'
-	})
+	@Column('varchar', { length: 50 })
 	name: string;
 
-	@Column({
-		type: "text",
-		unique: true
-	})
+	@Column('varchar', { length: 50 })
 	login: string;
 
-	@Column({
-		type: 'text'
-	})
+	@Column('varchar', { length: 255 })
 	avatar: string;
 
-	@Column({default: false})
-	online: boolean;
-
-	@Column({default: false})
-	ingame: boolean;
-
-	/*@OneToOne(() => User, (user) => user.following)
-	@JoinTable()
-	followers: User[];
-
-	@ManyToMany(() => User, (user) => user.followers)
-	following: User[];*/
+	@ManyToMany(() => User)
+    @JoinTable({
+		name: 'friends',
+	})
+	friends: User[];
 }

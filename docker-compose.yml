@@ -27,9 +27,7 @@ services:
     networks:
       - yggdrasil
     ports:
-      - "3080:80"
-      - "3443:443"
-      - "3000:3000"
+      - "3000:80"
       - "3001:3001"
     restart: unless-stopped
     volumes:
