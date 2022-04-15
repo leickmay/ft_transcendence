@@ -10,15 +10,6 @@ export function Hey() {
 
 	useEffect(() => {
 		const loadData = async () => {
-			let token = await cookies.access_token;
-
-			let options: RequestInit = {
-				headers: {
-					'Authorization': 'Bearer ' + token,
-				},
-			};
-
-			console.log(await (await fetch('/api/users/', options)).json());
 			// const data = await user.json();
 			// console.log('data : ', data);
 			//let username = data.username;
@@ -29,11 +20,11 @@ export function Hey() {
 			// setData(data);
 		}
 		loadData();
-	}, [cookies])
+	}, []);
 
 	return (
 		<div>
-			<h1>Hey</h1>
+			{/* <img>{{ user.id }}</img> */}
 		</div>
 	);
 }

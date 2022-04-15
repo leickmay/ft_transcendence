@@ -4,26 +4,12 @@ import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { response, Response } from 'express';
 
-
 @Controller()
 export class AppController {
 	constructor(
 		private readonly appService: AppService,
 		private authService: AuthService
 	) {}
-
-	@Get('/')
-	index() {
-		console.log(1);
-	}
-
-	@UseGuards(JwtAuthGuard)
-	@Get('profile')
-	getProfile(@Request() req) {
-		console.log('req.user : ', req.user);
-
-		return req.user;
-	}
 
 	@Get('/code/:id')
 	async code(@Param('id') id: string, @Res() response : Response) {

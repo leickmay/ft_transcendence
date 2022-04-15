@@ -33,7 +33,6 @@ export class AuthService {
 		})
 		.then(function (res) {
 			token = res.data.access_token;
-			console.log('retour get42Token : ', res.data);
 		})
 		.catch((err) => {
 			console.log(err);
@@ -58,8 +57,6 @@ export class AuthService {
 		.then(function (res) {
 			name = res.data.usual_full_name;
 			data = res.data;
-			console.log('name : ', res.data.usual_full_name);
-			console.log('data : ', data.id);
 		})
 		.catch((err) => {
 			console.log(err);
@@ -87,8 +84,8 @@ export class AuthService {
 	async login(code: string) {
 		const user = await this.validateUser(code);
 		const payload = {
-			username: user.login,
-			sub: user.id
+			id: user.id,
+			login: user.login,
 		};
 
 		return {
