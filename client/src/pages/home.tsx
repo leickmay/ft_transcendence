@@ -1,8 +1,15 @@
-import React from "react";
-import { SignIn } from "../components/signin";
+import { Route, Routes } from 'react-router-dom';
+import { Menu } from './menu';
+import { Page404 } from './Page404';
 
-export function Home() {
+interface Props {
+}
+
+export function Home(props: Props) {
 	return (
-		<SignIn />
+		<Routes>
+			<Route path="/" element={<Menu />} />
+			<Route path="*" element={<Page404 />} />
+		</Routes>
 	);
 }
