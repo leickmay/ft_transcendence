@@ -1,7 +1,7 @@
 import { AnyAction } from '@reduxjs/toolkit';
 import { Dispatch } from 'react';
 import { User } from '../interfaces/User';
-import { setUser } from '../slices/userSlice';
+import { setCurrentUser } from '../slices/usersSlice';
 
 export const fetchCurrentUser = (headers: HeadersInit): any => {
 	return async (dispatch: Dispatch<AnyAction>, getState: any) => {
@@ -9,6 +9,6 @@ export const fetchCurrentUser = (headers: HeadersInit): any => {
 		if (!res.ok)
 				throw res.statusText;
 		let user: User = await res.json();
-		dispatch(setUser(user));
+		dispatch(setCurrentUser(user));
 	};
 };

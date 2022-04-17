@@ -7,19 +7,19 @@ import { UserCard } from '../components/UserCard';
 import { UsersList } from '../components/UsersList';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
-import { fetchCurrentUser } from '../../app/actions/UserActions';
+import { fetchCurrentUser } from '../../app/actions/usersActions';
 import { User } from '../../app/interfaces/User';
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
+import { addOnlineUser } from '../../app/slices/usersSlice';
 
 interface Props {
 }
 
 export function Menu(props: Props) {
-	// const [user, setUser] = useState<User>();
 	const [cookies] = useCookies();
 	const navigate = useNavigate();
 
-	const user: User | undefined = useSelector((state: RootState) => state.user.user.value);
+	const user: User | undefined = useSelector((state: RootState) => state.users.current);
 	const dispatch: Dispatch<AnyAction> = useDispatch();
 
 	const getHeaders = useCallback(async () => {
@@ -30,17 +30,10 @@ export function Menu(props: Props) {
 	}, [cookies.access_token]);
 
 	useEffect(() => {
-		const startSockets = async (): Promise<Socket> => {
-			return io('http://localhost:3001', {extraHeaders: await getHeaders()});
-		};
-
-		startSockets();
-	}, [getHeaders]);
-
-	useEffect(() => {
 		const connect = async () => {
 			const headers: HeadersInit = await getHeaders();
 			await dispatch(fetchCurrentUser(headers));
+			// const socket: Socket = io('http://localhost:3001', {extraHeaders: await getHeaders()});
 		}
 
 		connect()
@@ -51,7 +44,7 @@ export function Menu(props: Props) {
 
 	return (
 		<div>
-			<UserCard user={ user } />
+			<UserCard user={user} />
 			<UsersList />
 		</div>
 	);
