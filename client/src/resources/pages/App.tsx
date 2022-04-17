@@ -1,8 +1,9 @@
 import { Route, Routes } from 'react-router-dom';
-import { SignIn } from './components/signin';
-import { Home } from './pages/home';
-import { Loading } from './pages/loading';
-import './App.scss';
+import { Login } from './login';
+import { Home } from './home';
+import { Loading } from './loading';
+
+import '../scss/App.scss';
 
 interface Props {
 }
@@ -12,7 +13,7 @@ export default function App(props: Props) {
 		<div className="App">
 			<Routes>
 				<Route path="/loading" element={<Loading />} />
-				<Route path="/login" element={<SignIn />} />
+				<Route path="/login" element={<Login />} />
 				<Route path="*" element={<Home />} />
 			</Routes>
 		</div>
