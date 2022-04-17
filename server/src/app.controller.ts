@@ -1,21 +1,23 @@
-import { Body, Controller, Get, Post, UseGuards, Request, Param, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Request, Param, Res, HttpException, HttpStatus } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { response, Response } from 'express';
+import { JwtService } from '@nestjs/jwt';
+import { userInfo } from 'os';
+import { UserService } from './user/user.service';
 
 @Controller()
 export class AppController {
 	constructor(
 		private readonly appService: AppService,
-		private authService: AuthService
+		private authService: AuthService,
 	) {}
 
 	@Get('/code/:id')
-	async code(@Param('id') id: string, @Res() response : Response) {
+	async code(@Param('id') id: string, @Res() response: Response) {
 		const token = await this.authService.login(id);
 
 		response.cookie('access_token', token.access_token).send({ success: true });
 	}
-
 }
