@@ -33,7 +33,6 @@ export function Menu(props: Props) {
 		const connect = async () => {
 			const headers: HeadersInit = await getHeaders();
 			await dispatch(fetchCurrentUser(headers));
-			// const socket: Socket = io('http://localhost:3001', {extraHeaders: await getHeaders()});
 		}
 
 		connect()
