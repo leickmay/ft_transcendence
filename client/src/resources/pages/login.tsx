@@ -1,7 +1,5 @@
-import { KeyboardEvent } from 'react';
+import { KeyboardEvent, useState } from 'react';
 import { useNavigate } from 'react-router';
-
-import '../scss/login.scss'
 
 const authEndpoint = 'https://api.intra.42.fr/oauth/authorize';
 
@@ -34,16 +32,20 @@ export function Login() {
 		}
 	}
 
-	return (
-		<main className="form-signin text-center">
-			<img className="mb-4" src="https://getbootstrap.com/docs/5.1/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57" />
-			<button className="mb-3 w-100 btn btn-lg btn-secondary" type="submit"
-					onClick={() => window.open(getAuthorizeHref(), "_self")}
-				>
-						Sign in with 42
-			</button>
-			<input type="number" onKeyDown={debugLogin} />
-			<p className="mb-3 text-muted">&copy; 1961–2967</p>
-		</main>
-	);
+	const [rain, setRain] = useState(false);
+	
+	if (!rain)
+		return (
+			<div className="connect">
+				<button type="submit" onClick={() => setRain(true)}>Sign in the rain</button>
+				<button type="submit" onClick={() => window.open(getAuthorizeHref(), "_self")}>Sign in with 42</button>
+				<input type="number" onKeyDown={debugLogin} placeholder='Debug Login'/>
+			</div>
+		);
+	else 
+			return (
+				<div className="video-responsive">
+					<iframe width="560" height="315" src="https://www.youtube.com/embed/D1ZYhVpdXbQ?autoplay=1?controls=0&amp;start=66" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ></iframe>
+				</div>
+			);
 }

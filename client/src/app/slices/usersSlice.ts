@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction, applyMiddleware, AnyAction, Slice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { containsUser, User } from '../interfaces/User';
 
 interface State {
@@ -41,7 +41,7 @@ const slice = createSlice({
 			return {
 				...state,
 				online: [
-					...state.online.filter(e => e != action.payload),
+					...state.online.filter(e => e !== action.payload),
 				],
 			};
 		},

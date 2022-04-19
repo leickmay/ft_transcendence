@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import store from './app/store';
-import App from './resources/pages/App';
+import App from './resources/layouts/App';
 import './resources/scss/index.scss';
 
 ReactDOM.render(

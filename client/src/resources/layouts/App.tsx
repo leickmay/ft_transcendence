@@ -1,8 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
-import '../scss/App.scss';
-import { Home } from './home';
-import { Loading } from './loading';
-import { Login } from './login';
+import { Loading } from '../pages/Loading';
+import { Login } from '../pages/Login';
+import { Connected } from '../wrappers/Connected';
 
 interface Props {
 }
@@ -13,7 +12,7 @@ export default function App(props: Props) {
 			<Routes>
 				<Route path="/loading" element={<Loading />} />
 				<Route path="/login" element={<Login />} />
-				<Route path="*" element={<Home />} />
+				<Route path="*" element={<Connected />} />
 			</Routes>
 		</div>
 	);

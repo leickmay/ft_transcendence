@@ -1,22 +1,22 @@
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import { useCallback, useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
-import { useDispatch, useSelector } from 'react-redux';
-import { Navigate } from "react-router";
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import { fetchCurrentUser } from '../../app/actions/usersActions';
 import { SocketContext } from '../../app/context/socket';
-import { RootState } from '../../app/store';
-import { Menu } from './menu';
+import { Home } from '../layouts/Home';
 
 interface Props {
 }
 
-export function Home(props: Props) {
+export function Connected(props: Props) {
+	const navigate = useNavigate();
+
 	const [cookies] = useCookies();
 	const [socket, setSocket] = useState<Socket>();
-	const navigate = useNavigate();
+
 	const dispatch: Dispatch<AnyAction> = useDispatch();
 
 	const getHeaders = useCallback(async () => {
@@ -27,36 +27,35 @@ export function Home(props: Props) {
 	}, [cookies.access_token]);
 
 	useEffect(() => {
-		
-	}, [socket]);
-
-	useEffect(() => {
 		const connect = async () => {
 			const headers: HeadersInit = await getHeaders();
 			await dispatch(fetchCurrentUser(headers));
 
-			const socket: Socket = io(':3001', {extraHeaders: headers as any});
-			socket.on('connect', () => {
+			const instance: Socket = io(':3001', {extraHeaders: headers as any});
+			instance.on('connect', () => {
 				dispatch({ type: 'socket/connected', payload: true });
 			});
-			socket.on('disconnect', () => {
+			instance.on('disconnect', () => {
 				dispatch({ type: 'socket/connected', payload: false });
 			});
-			setSocket(socket);
+			setSocket(instance);
 		}
 
 		connect()
 		.catch(() => {
 			navigate('/login');
 		});
-	}, [getHeaders]);
+	}, [dispatch, navigate, getHeaders]);
+
+	useEffect(() => {
+		return () => {
+			socket?.close();
+		};
+	}, [socket]);
 
 	return (
 		<SocketContext.Provider value={socket}>
-			<Routes>
-				<Route path="/" element={<Menu />} />
-				<Route path="*" element={<Navigate to="/" replace />} />
-			</Routes>
+			<Home />
 		</SocketContext.Provider>
 	);
 }

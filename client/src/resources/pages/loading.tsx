@@ -6,8 +6,8 @@ export function Loading() {
 
 	useEffect(() => {
 		const loadData = async () => {
-			const str: string[] = window.location.href.split("=");
-			let res = await fetch("/api/code/" + str[1], { method: "GET" });
+			const str: string[] = window.location.href.split('=');
+			let res = await fetch('/api/code/' + str[1], { method: 'GET' });
 			await res.json();
 			navigate('/');
 		};

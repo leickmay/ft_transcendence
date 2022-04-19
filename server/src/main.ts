@@ -1,13 +1,12 @@
-import * as fs from 'fs'
-import * as http from 'http'
-import * as https from 'https'
-
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
 import * as cookierParser from 'cookie-parser';
+import * as fs from 'fs';
+import * as http from 'http';
+import * as https from 'https';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
 	const app: NestExpressApplication = await initNest();

@@ -21,5 +21,5 @@ const slice = createSlice({
 	},
 });
 
-export const {  } = slice.actions;
+export const { connected } = slice.actions;
 export default slice.reducer;
