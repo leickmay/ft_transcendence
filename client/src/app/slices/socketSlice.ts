@@ -1,24 +1,25 @@
-import { createSlice, PayloadAction, applyMiddleware, AnyAction, Slice } from '@reduxjs/toolkit';
-import { Socket } from 'socket.io-client';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface State {
-	socket?: Socket;
+	connected: boolean;
 }
 
-const initialState: State = {};
+const initialState: State = {
+	connected: false,
+};
 
 const slice = createSlice({
 	name: 'socket',
 	initialState,
 	reducers: {
-		setSocket: (state: State, action: PayloadAction<Socket>): State => {
+		connected: (state: State, action: PayloadAction<boolean>): State => {
 			return {
 				...state,
-				socket: action.payload,
-			} as State;
-		},
+				connected: action.payload,
+			}
+		}
 	},
 });
 
-export const { setSocket } = slice.actions;
+export const {  } = slice.actions;
 export default slice.reducer;

@@ -18,13 +18,13 @@ const slice = createSlice({
 			return {
 				...state,
 				current: action.payload,
-			} as State;
+			};
 		},
 		setOnlineUsers: (state: State, action: PayloadAction<Array<User>>): State => {
 			return {
 				...state,
 				online: action.payload,
-			} as State;
+			};
 		},
 		addOnlineUser: (state: State, action: PayloadAction<User>): State => {
 			if (containsUser(state.online, action.payload))
@@ -35,7 +35,7 @@ const slice = createSlice({
 					...state.online,
 					action.payload,
 				],
-			} as State;
+			};
 		},
 		removeOnlineUser: (state: State, action: PayloadAction<User>): State => {
 			return {
@@ -43,7 +43,7 @@ const slice = createSlice({
 				online: [
 					...state.online.filter(e => e != action.payload),
 				],
-			} as State;
+			};
 		},
 	},
 });

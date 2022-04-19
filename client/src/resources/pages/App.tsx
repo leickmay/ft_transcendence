@@ -1,9 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
-import { Login } from './login';
+import '../scss/App.scss';
 import { Home } from './home';
 import { Loading } from './loading';
-
-import '../scss/App.scss';
+import { Login } from './login';
 
 interface Props {
 }
