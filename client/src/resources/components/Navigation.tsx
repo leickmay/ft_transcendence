@@ -1,10 +1,13 @@
 import { NavLink } from "react-router-dom";
 import UserCard from "./UserCard";
 
-const Navigation = ( {userCard}: any ) => {
+interface Props {
+}
+
+const Navigation = (props: Props) => {
 	return (
 		<div id="navigation">
-			<UserCard userCard={userCard}/>
+			<UserCard />
 			<nav>
 				<NavLink end to="/" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>Home</NavLink>
 				<NavLink end to="/game" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>Game</NavLink>

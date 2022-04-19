@@ -1,22 +1,22 @@
-import React, { createContext, useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import React from 'react';
+import { CookiesProvider } from 'react-cookie';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { applyMiddleware, createStore } from 'redux';
-import { composeWithDevTools } from '@redux-devtools/extension';
-import thunk from 'redux-thunk';
-import App from './App';
-import "./styles/index.scss"
-import rootReducer from "./redux"
-import { getUsers } from './redux/actions/users.actions';
-
-const store = createStore(rootReducer, composeWithDevTools(applyMiddleware(thunk))); // enelever composeWithDevTools for production
-store.dispatch(getUsers());
+import { BrowserRouter } from 'react-router-dom';
+import store from './app/store';
+import App from './resources/layouts/App';
+import './resources/scss/index.scss';
 
 ReactDOM.render(
-	<Provider store={store}>
-		<React.StrictMode>
-			<App/>
-		</React.StrictMode>
-	</Provider>,
-  document.getElementById('root')
+	<React.StrictMode>
+		<CookiesProvider>
+			<BrowserRouter>
+				<Provider store={store}>
+					<App />
+				</Provider>
+			</BrowserRouter>
+		</CookiesProvider>
+	</React.StrictMode>,
+	document.getElementById('root')
 );
