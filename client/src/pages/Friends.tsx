@@ -19,7 +19,7 @@ const Friends = () => {
 	const [popupData, setPopupData] = useState(["...............", "popupHide"]);
 	
 	useEffect(() => {
-		refreshFriendsList();
+		//refreshFriendsList();
 		window.addEventListener("beforeunload", function() {dispatch(updateUser(user.id, {online: false}));});
 	}, []);
 
@@ -93,11 +93,11 @@ const Friends = () => {
 				</div>
 				<ul className='friendsList'>
 				{
-					users.map((friendCard: any) => {
-						if (user.friends.indexOf(friendCard.name) > -1)
-						{
-							let props = {friendCard: friendCard, delFriend: delFriend };
-							return ( <FriendCard key={friendCard.id} props={props}/>)}})
+					//users.map((friendCard: any) => {
+					//	if (user.friends.indexOf(friendCard.name) > -1)
+					//	{
+					//		let props = {friendCard: friendCard, delFriend: delFriend };
+					//		return ( <FriendCard key={friendCard.id} props={props}/>)}})
 				}
 				</ul>
 			</div>

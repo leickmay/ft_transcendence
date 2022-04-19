@@ -11,14 +11,20 @@ export function Loading() {
 	const [cookies, setCookies] = useCookies();
 
 	useEffect(() => {
+		console.log("Loading...");	
 		loadData();
 	}, []);
-
+	
 	const loadData = async () => {
 		const str: string[] = window.location.href.split('=');
 		const code: string = str[1];
 		
+		if (!cookies.access_token)
+			await fetch("/api/code/" + code, { method: "GET" });
+
 		let token = await cookies.access_token;
+		console.log("token: ", await cookies.access_token);
+		
 		if (token)
 		{
 			let pouic = await fetch("api/profile", {
@@ -28,19 +34,28 @@ export function Loading() {
 				}
 			});
 			let data = await pouic.json();
-			//console.log("data ", data, " token ", token.access_token);
 			dispatch(getUserById(data.userId, token.access_token));
+			console.log("user: ", user);
+			
 		}
+		else
+		{
+			window.location.reload();
+		}
+			
 	}
 
-	if (!user) {
+	if (!user)
+	{
 		return (
 			<div>Chargement en cours</div>
-		);
+		);	
 	}
-	else {
+	else 
+	{
 		return (
-			<Navigate to="/home" />
+			<Navigate to="/"/>
 		);
-	}
+	}	
 }
+

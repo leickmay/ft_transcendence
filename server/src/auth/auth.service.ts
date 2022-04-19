@@ -17,9 +17,9 @@ export class AuthService {
         const params = {
             grant_type: 'authorization_code',
             client_id:
-              '32e445666f212da52b3a7811bf1ff13d37cfb105f4870eb38365337172af351a',
+              '0f3b46da8a8d75d766c4c3af8cc92a0c522cc646686afbe32e950c9d61506951',
             client_secret:
-              'dfe506a4d179da98961261974e2ccb7dbc23f131de64890281224d8d75d78783',
+              '4198269eb067e672120f15893be15670791758cc5a34d75351630bfa11562c8c',
             redirect_uri: 'http://127.0.0.1:80/loading',
             code: authCode,
           };

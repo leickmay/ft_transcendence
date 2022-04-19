@@ -7,7 +7,7 @@
 	border-radius: 10%;
 	border: 2px solid $color-1;
 	//margin: 50px 12%;
-	padding: 10px 10px;
+	padding: 0px 10px 0px 10px;
 	min-width: 20%;
 
 	.userCardAvatar {
@@ -22,9 +22,20 @@
 	
 	.userCardInfo {
 		flex-direction: row;
-		padding: 20px 10px 20px 15px;
+		padding: 20px 10px 0px 15px;
 		font-size: 1.5rem;
 		border-radius: 10%;
+		justify-content: center;
 		//border: 2px solid $color-1;
+	}
+
+	button {
+		margin: 5px 0% 0px 85%;
+		background: url("/assets/img/logout4.png") no-repeat center/cover;
+		height: 40px;
+		width: 40px;
+		&:hover {
+			background: url("/assets/img/logout3.png") no-repeat center/cover;
+		}
 	}
 }

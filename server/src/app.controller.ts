@@ -22,13 +22,8 @@ export class AppController {
 		const token = await this.authService.login(id);
 
 		response
-			.cookie('access_token', token, {
-				//httpOnly: true,
-				//domain: 'localhost',
-				//expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-			})
+			.cookie('access_token', token, {})
 			.send({ success: true });
-	  //return token;
 	}
 
 }
