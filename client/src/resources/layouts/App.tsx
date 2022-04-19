@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import { Loading } from '../pages/Loading';
-import { Login } from '../pages/old-login';
+import { Login } from '../pages/Login';
 import { Connected } from '../wrappers/Connected';
 
 interface Props {

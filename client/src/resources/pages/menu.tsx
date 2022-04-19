@@ -3,7 +3,7 @@ interface Props {
 
 export function Menu(props: Props) {
 	return (
-		<div>
+		<div className="menu">
 			C'est le menu
 		</div>
 	);

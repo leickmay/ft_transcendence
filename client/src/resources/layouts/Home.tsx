@@ -28,14 +28,14 @@ export function Home(props: Props) {
 
 	return (
 		<>
-			{ loadingElement }
 			<Navigation />
+			{ loadingElement }
 			<Routes>
 				<Route path="/" element={<Menu />} />
-				<Route path="/friends" element={<Friends />} />
 				<Route path="/game" element={<Game />} />
-				<Route path="/history" element={<History />} />
+				<Route path="/friends" element={<Friends />} />
 				<Route path="/statistics" element={<Statistics />} />
+				<Route path="/history" element={<History />} />
 				<Route path="/options" element={<Options />} />
 				<Route path="*" element={<Navigate to="/" replace />} />
 			</Routes>
