@@ -5,8 +5,10 @@ import { AuthService } from 'src/auth/auth.service';
 
 interface Room {
 	player1: string;
+	p1Avatar: string;
 	p1PaddleX: number;
 	player2: string;
+	p2Avatar: string;
 	p2PaddleX: number;
 	BallY: number;
 }
@@ -22,8 +24,10 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 
 	rooms: Array<Room> = [{
 		player1: "",
+		p1Avatar: "",
 		p1PaddleX: -1,
 		player2: "",
+		p2Avatar: "",
 		p2PaddleX: -1,
 		BallY: -1 
 	}];
@@ -65,9 +69,15 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 			return;
 		}
 		else if (this.rooms[0].player1 === "")
+		{
 			this.rooms[0].player1 = body.name;
+			this.rooms[0].p1Avatar = body.avatar;
+		}
 		else if (this.rooms[0].player2 === "")
+		{
 			this.rooms[0].player2 = body.name;
+			this.rooms[0].p2Avatar = body.avatar;
+		}
 		else
 		{
 			console.log("Room is FULL !");
@@ -83,8 +93,10 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 	clearRoom(@MessageBody() body:any, @ConnectedSocket() client: Socket) {
 		this.rooms[0] = {
 			player1: "",
+			p1Avatar: "",
 			p1PaddleX: -1,
 			player2: "",
+			p2Avatar: "",
 			p2PaddleX: -1,
 			BallY: -1 
 		};

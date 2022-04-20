@@ -36,7 +36,7 @@
 		width: 40px;
 		&:hover {
 			background: url("/assets/img/logout3.png") no-repeat center/cover;
-			cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
+			cursor: url("/assets/img/cursor_little_pink.png"), 50 50, auto;
 		}
 	}
 }

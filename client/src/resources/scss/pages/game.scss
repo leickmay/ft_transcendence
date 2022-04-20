@@ -1,5 +1,5 @@
 .game {
-	width: 90%;	
+	width: 90%;
 
 	.buttonWindow {
 		display: flex;
@@ -33,5 +33,43 @@
 		background-color: black;
 		margin: 30px 5%;
 		//padding: 20px 0px 20px 0px;
+	}
+
+	.roomInfo {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-evenly;
+		text-align: center;
+		//align-items: center;
+		background: url("/assets/img/button.png")  no-repeat center/cover;
+		width: 80%;
+		aspect-ratio: 16/3;
+		user-select: none;
+
+		margin: 30px 10%;
+		text-shadow: none;
+ 		color: white;
+		font-size: 2rem;
+
+		.p1 {
+			display: flex;
+			//margin: 20px;
+			justify-content: space-between;
+		}
+
+		.versus {
+
+		}
+
+		.p2 {
+			display: flex;
+			//margin: 20px;
+			justify-content: space-between;
+		}
+	}
+
+	img {
+		height: 40%;
+		//width: 8%;
 	}
 }
