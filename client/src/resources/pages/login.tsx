@@ -31,21 +31,15 @@ export function Login() {
 			});
 		}
 	}
-
-	const [rain, setRain] = useState(false);
 	
-	if (!rain)
-		return (
-			<div className="connect">
-				<button type="submit" onClick={() => setRain(true)}>Sign in the rain</button>
+	return (
+		<>
+			<div className='title'>Stonks Pong 3000</div>
+			<div className="login">
+				<div>Login</div>
 				<button type="submit" onClick={() => window.open(getAuthorizeHref(), "_self")}>Sign in with 42</button>
 				<input type="number" onKeyDown={debugLogin} placeholder='Debug Login'/>
 			</div>
-		);
-	else 
-			return (
-				<div className="video-responsive">
-					<iframe width="560" height="315" src="https://www.youtube.com/embed/D1ZYhVpdXbQ?autoplay=1?controls=0&amp;start=66" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ></iframe>
-				</div>
-			);
+		</>
+	);
 }

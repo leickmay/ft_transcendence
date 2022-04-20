@@ -12,7 +12,7 @@
 
 		&:hover {
 			text-shadow: 5px 3px 0px $color-3;
-			color: #8900b3; 
+			color: $color-1; 
 		}
 	}
 
@@ -39,7 +39,7 @@
 					transform: translateX(-50%);
 				}
 				text-shadow: 5px 3px 0px $color-3;
-				color: #8900b3;
+				color: $color-1;
 				animation-name: shine;
 				animation-duration: 3.5s;
 				animation-iteration-count: infinite;
@@ -50,7 +50,7 @@
 }
 
  @keyframes shine {
-    0% { text-shadow: 5px 3px 0px $color-3; color: #ff3bd5; }
-    14% { text-shadow: 5px 3px 0px $color-3; color: #8900b3; }
-    100% { text-shadow: 5px 3px 0px $color-3; color: #8900b3; }
+    0% { text-shadow: 5px 3px 0px $color-3; color: $color-2; }
+    14% { text-shadow: 5px 3px 0px $color-3; color: $color-1; }
+    100% { text-shadow: 5px 3px 0px $color-3; color: $color-1; }
 }
