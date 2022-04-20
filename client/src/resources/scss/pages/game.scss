@@ -1,10 +1,37 @@
 .game {
+	width: 90%;	
 
-	width: 90%;
-	height: 800px;
+	.buttonWindow {
+		display: flex;
+		justify-content: center;
+		width: 90%;
+		margin: 30px 5%;
 
-	border: 2px solid $color-1;
-	background-color: black;
-	margin: 30px 5%;
-	//padding: 20px 0px 20px 0px;
+		//border: 2px solid $color-1;
+		//background-color: black;
+
+		button {
+			width: 150px;
+			height: 150px;
+			padding: 15px;
+			color: $color-3;
+			margin: 20px;
+			&:hover {
+				color: $color-2;
+			}
+			&:active {
+				color: $color-4;
+			}
+		}
+	}
+
+	.gameWindow {
+		width: 90%;
+		height: 800px;
+
+		border: 2px solid $color-1;
+		background-color: black;
+		margin: 30px 5%;
+		//padding: 20px 0px 20px 0px;
+	}
 }
