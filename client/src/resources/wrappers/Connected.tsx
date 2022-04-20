@@ -1,5 +1,5 @@
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -19,19 +19,14 @@ export function Connected(props: Props) {
 
 	const dispatch: Dispatch<AnyAction> = useDispatch();
 
-	const getHeaders = useCallback(async () => {
-		const token = await cookies.access_token;
-		return {
-			'Authorization': 'Bearer ' + token
-		};
-	}, [cookies.access_token]);
-
 	useEffect(() => {
 		const connect = async () => {
-			const headers: HeadersInit = await getHeaders();
+			const headers: HeadersInit = {
+				'Authorization': 'Bearer ' + await cookies.access_token
+			};
 			await dispatch(fetchCurrentUser(headers));
 
-			const instance: Socket = io(':3001', {extraHeaders: headers as any});
+			let instance = io(':3001', {extraHeaders: headers as any});
 			instance.on('connect', () => {
 				dispatch({ type: 'socket/connected', payload: true });
 			});
@@ -41,11 +36,8 @@ export function Connected(props: Props) {
 			setSocket(instance);
 		}
 
-		connect()
-		.catch(() => {
-			navigate('/login');
-		});
-	}, [dispatch, navigate, getHeaders]);
+		!socket && connect().catch(() => navigate('/login'));
+	}, [socket, dispatch, navigate, cookies.access_token]);
 
 	useEffect(() => {
 		return () => {

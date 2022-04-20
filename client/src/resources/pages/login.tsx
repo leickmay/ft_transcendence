@@ -1,4 +1,4 @@
-import { KeyboardEvent, useState } from 'react';
+import { KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router';
 
 const authEndpoint = 'https://api.intra.42.fr/oauth/authorize';

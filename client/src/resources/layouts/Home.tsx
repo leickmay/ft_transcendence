@@ -1,7 +1,8 @@
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate } from "react-router";
 import { Route, Routes } from 'react-router-dom';
+import { SocketContext } from '../../app/context/socket';
 import { RootState } from '../../app/store';
 import Navigation from '../components/Navigation';
 import { Friends } from '../pages/Friends';
