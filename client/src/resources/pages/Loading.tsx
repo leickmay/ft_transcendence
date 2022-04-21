@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Loader } from "../components/Loader";
 
 export function Loading() {
 	const navigate = useNavigate();
@@ -16,8 +17,6 @@ export function Loading() {
 	}, [navigate]);
 
 	return (
-		<div>
-			<div className="spinner-grow" role="status"></div>
-		</div>
+		<Loader />
 	);
 }

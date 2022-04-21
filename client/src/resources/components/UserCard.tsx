@@ -15,14 +15,11 @@ const UserCard = (props: Props) => {
 		removeCookie('access_token');
 	};
 
-	if (!user)
-		return (<></>);
-
 	return (
 		<div className="userCard">
-			<img className="userCardAvatar" src={user.avatar} width="120px" alt=""></img>
+			<img className="userCardAvatar" src={user?.avatar} width="120px" height="120px" alt=""></img>
 			<div className="userCardInfo"> 
-				<div>{ user.name }</div>
+				<div>{ user?.name || '...' }</div>
 				<div>lvl { /*user.level */ 0 }</div>
 				<button type="submit" onClick={() => {logout()}}></button>
 			</div>

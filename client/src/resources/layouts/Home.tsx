@@ -1,7 +1,11 @@
-import { ReactElement, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { AnyAction, Dispatch } from '@reduxjs/toolkit';
+import { ReactElement, useContext, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Navigate } from "react-router";
 import { Route, Routes } from 'react-router-dom';
+import { SocketContext } from '../../app/context/socket';
+import { User } from '../../app/interfaces/User';
+import { addOnlineUser, removeOnlineUser, setOnlineUsers } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
 import Navigation from '../components/Navigation';
 import { Friends } from '../pages/Friends';
@@ -16,7 +20,12 @@ interface Props {
 
 export function Home(props: Props) {
 	const [loadingElement, setLoadingElement] = useState<ReactElement>();
+
 	const connected = useSelector((state: RootState) => state.socket.connected);
+
+	const socket = useContext(SocketContext);
+
+	const dispatch: Dispatch<AnyAction> = useDispatch();
 
 	useEffect(() => {
 		if (!connected) {
@@ -25,6 +34,28 @@ export function Home(props: Props) {
 			setLoadingElement(undefined);
 		}
 	}, [connected]);
+
+	useEffect(() => {
+		if (socket) {
+			socket.on('already-online', (data: Array<User>) => {
+				dispatch(setOnlineUsers(data));
+			});
+
+			socket.on('online', (data: User) => {
+				dispatch(addOnlineUser(data));
+			});
+
+			socket.on('offline', (data: User) => {
+				dispatch(removeOnlineUser(data));
+			});
+
+			return () => {
+				socket.off('online');
+				socket.off('offline');
+				socket.off('online-users');
+			}
+		}
+	}, [socket]);
 
 	return (
 		<>

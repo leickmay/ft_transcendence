@@ -44,7 +44,6 @@ export class AuthService {
 		const token = await this.get42Token(authCode);
 		const api_endpoint = 'https://api.intra.42.fr/v2';
 
-		let name: string;
 		let data: any;
 
 		await axios({
@@ -55,7 +54,6 @@ export class AuthService {
 			},
 		})
 		.then(function (res) {
-			name = res.data.usual_full_name;
 			data = res.data;
 		})
 		.catch((err) => {

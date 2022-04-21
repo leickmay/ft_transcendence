@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import { fetchCurrentUser } from '../../app/actions/usersActions';
 import { SocketContext } from '../../app/context/socket';
+import { Loader } from '../components/Loader';
 import { Home } from '../layouts/Home';
 
 interface Props {

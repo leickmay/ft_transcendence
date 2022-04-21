@@ -27,7 +27,7 @@ const slice = createSlice({
 			};
 		},
 		addOnlineUser: (state: State, action: PayloadAction<User>): State => {
-			if (containsUser(state.online, action.payload))
+			if (containsUser(state.online, action.payload) || state.current?.id == action.payload.id)
 				return state;
 			return {
 				...state,
@@ -41,7 +41,7 @@ const slice = createSlice({
 			return {
 				...state,
 				online: [
-					...state.online.filter(e => e !== action.payload),
+					...state.online.filter(e => e.id !== action.payload.id),
 				],
 			};
 		},
