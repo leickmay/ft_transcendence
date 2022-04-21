@@ -11,6 +11,8 @@ interface Room {
 	p2Avatar: string;
 	p2PaddleX: number;
 	BallY: number;
+	isFull: boolean;
+	usrsSocket: Map<any, any>;
 }
 
 @Injectable()
@@ -23,13 +25,15 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 	connected: number;
 
 	rooms: Array<Room> = [{
-		player1: "",
-		p1Avatar: "",
+		player1: "search...",
+		p1Avatar: "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg",
 		p1PaddleX: -1,
-		player2: "",
-		p2Avatar: "",
+		player2: "search...",
+		p2Avatar: "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg",
 		p2PaddleX: -1,
-		BallY: -1 
+		BallY: -1,
+		isFull: false,
+		usrsSocket: new Map(),
 	}];
 
 	constructor(private authService: AuthService) {}
@@ -65,41 +69,60 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 		if (this.rooms[0].player1 === body.name || this.rooms[0].player2 === body.name)
 		{
 			console.log(body.name, " Already in room");
-			this.server.emit("retJoinRoom", null);
+			client.emit("retJoinRoom", null);
 			return;
 		}
-		else if (this.rooms[0].player1 === "")
+		else if (this.rooms[0].player1 === "search...")
 		{
 			this.rooms[0].player1 = body.name;
 			this.rooms[0].p1Avatar = body.avatar;
+			this.rooms[0].usrsSocket.set(client, 1);
+			//console.log(this.rooms[0].usrsSocket);
+			
 		}
-		else if (this.rooms[0].player2 === "")
+		else if (this.rooms[0].player2 === "search...")
 		{
 			this.rooms[0].player2 = body.name;
 			this.rooms[0].p2Avatar = body.avatar;
+			this.rooms[0].isFull = true;
+			this.rooms[0].usrsSocket.set(client, 1);
+			//tmp = this.rooms[0].usrsSocket[1];
+			//tmp.emit("retJoinRoom", this.rooms[0]);
 		}
 		else
 		{
 			console.log("Room is FULL !");
-			this.server.emit("retJoinRoom", null);
+			client.emit("retJoinRoom", null);
 			return;
 		}
-		console.log("Player in Room : \nP1: ", this.rooms[0].player1, "\nP2: ", this.rooms[0].player2)
-		this.server.emit("retJoinRoom", this.rooms[0]);
+		console.log("Player in Room : \nP1: ", this.rooms[0].player1, "\nP2: ", this.rooms[0].player2)	
+		for (const [client, sequenceNumber] of this.rooms[0].usrsSocket.entries()) {
+			client.emit("retJoinRoom",  this.rooms[0]);
+			this.rooms[0].usrsSocket.set(client, sequenceNumber + 1);
+		}
 		return;
 	}
 
 	@SubscribeMessage('clearRoom')
 	clearRoom(@MessageBody() body:any, @ConnectedSocket() client: Socket) {
+		if (this.rooms[0].player1 === body.name || this.rooms[0].player2 === body.name)
+			for (const [client, sequenceNumber] of this.rooms[0].usrsSocket.entries()) {
+				client.emit("retClearRoom",  0);
+				this.rooms[0].usrsSocket.set(client, sequenceNumber + 1);
+			}
+		else
+			client.emit("retClearRoom",  1);
 		this.rooms[0] = {
-			player1: "",
-			p1Avatar: "",
+			player1: "search...",
+			p1Avatar: "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg",
 			p1PaddleX: -1,
-			player2: "",
-			p2Avatar: "",
+			player2: "search...",
+			p2Avatar: "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg",
 			p2PaddleX: -1,
-			BallY: -1 
+			BallY: -1,
+			isFull: false,
+			usrsSocket: new Map(),
 		};
-		console.log("Room 0 clear : ", this.rooms[0]);
+		//console.log("Room 0 clear : ", this.rooms[0]);
 	}
 }

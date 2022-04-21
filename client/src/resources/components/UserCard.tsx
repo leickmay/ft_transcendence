@@ -13,6 +13,7 @@ const UserCard = (props: Props) => {
 
 	const logout = () => {
 		removeCookie('access_token');
+		window.location.reload();
 	};
 
 	if (!user)
