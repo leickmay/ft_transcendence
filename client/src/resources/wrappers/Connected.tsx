@@ -30,6 +30,10 @@ export function Connected(props: Props) {
 			instance.on('connect', () => {
 				dispatch({ type: 'socket/connected', payload: true });
 			});
+			instance.on('error', (e: any) => {
+				if (e.status == 401)
+					navigate('/login');
+			});
 			instance.on('disconnect', () => {
 				dispatch({ type: 'socket/connected', payload: false });
 			});

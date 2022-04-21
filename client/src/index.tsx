@@ -1,5 +1,4 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React from 'react';
 import { CookiesProvider } from 'react-cookie';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -12,13 +11,11 @@ const container = document.getElementById('root');
 const root = createRoot(container!);
 
 root.render(
-	<React.StrictMode>
-		<CookiesProvider>
-			<BrowserRouter>
-				<Provider store={store}>
-					<App />
-				</Provider>
-			</BrowserRouter>
-		</CookiesProvider>
-	</React.StrictMode>
+	<CookiesProvider>
+		<BrowserRouter>
+			<Provider store={store}>
+				<App />
+			</Provider>
+		</BrowserRouter>
+	</CookiesProvider>
 );
