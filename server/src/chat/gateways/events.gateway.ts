@@ -18,7 +18,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		try {
 			console.log('socket:', await this.authService.verifyJwt(client.handshake.headers.authorization.replace('Bearer ', '')));
 		} catch (e) {
-			client.emit('Error', new UnauthorizedException());
+			client.emit('error', new UnauthorizedException());
 			client.disconnect();
 			return;
 		}

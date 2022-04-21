@@ -1,4 +1,4 @@
-import { KeyboardEvent, useState } from 'react';
+import { KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router';
 
 const authEndpoint = 'https://api.intra.42.fr/oauth/authorize';
@@ -37,7 +37,7 @@ export function Login() {
 			<div className='title'>Stonks Pong 3000</div>
 			<div className="login">
 				<div>Login</div>
-				<button type="submit" onClick={() => window.open(getAuthorizeHref(), "_self")}>Sign in with 42</button>
+				<button type="submit" onClick={() => window.location.replace(getAuthorizeHref())}>Sign in with 42</button>
 				<input type="number" onKeyDown={debugLogin} placeholder='Debug Login'/>
 			</div>
 		</>

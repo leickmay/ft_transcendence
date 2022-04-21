@@ -9,10 +9,10 @@ export function Loading() {
 			const str: string[] = window.location.href.split('=');
 			let res = await fetch('/api/code/' + str[1], { method: 'GET' });
 			await res.json();
-			navigate('/');
+			navigate('/', {replace: true});
 		};
 
-		loadData();
+		loadData().catch(() => navigate('/login'));
 	}, [navigate]);
 
 	return (
