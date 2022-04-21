@@ -14,13 +14,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer()
 	server: Server;
 
-	users: {[socket: string]: GetUserDto} = {};
+	users: {[socket: string]: User} = {};
 
 	constructor(private authService: AuthService, private userService: UserService) {}
 
 	async handleConnection(client: Socket, ...args: any[]) {
 		try {
-			const user: GetUserDto = await this.userService.get((
+			const user: User = await this.userService.get((
 				await this.authService.verifyJwt(
 					client.handshake.headers.authorization.replace('Bearer ', '')
 				)).id

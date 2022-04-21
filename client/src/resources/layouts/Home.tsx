@@ -42,6 +42,8 @@ export function Home(props: Props) {
 			});
 
 			socket.on('online', (data: User) => {
+				console.log(data);
+				
 				dispatch(addOnlineUser(data));
 			});
 
