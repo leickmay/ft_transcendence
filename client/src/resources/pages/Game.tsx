@@ -7,10 +7,12 @@ import { RootState } from "../../app/store";
 interface Room {
 	player1: string;
 	p1Avatar: string;
-	p1PaddleX: number;
+	p1Up: false;
+	p1Down: false;
 	player2: string;
 	p2Avatar: string;
-	p2PaddleX: number;
+	p2Up: false;
+	p2Down: false;
 	BallY: number;
 	isFull: boolean;
 }
@@ -19,6 +21,7 @@ export const Game = () => {
 	const socket = useContext(SocketContext);
 	const user = useSelector((state: RootState) => state.users.current);
 	const [curRoom, setCurRoom] = useState<Room | null>(null);
+	let curRoom2: Room | null = null;
 
 	let p1 = document.getElementById('paddle_1');
 	let p1BasePos = 225;
@@ -37,40 +40,53 @@ export const Game = () => {
 	const [pressEnter, setPressEnter] = useState("Press Enter to Play Pong");
 
 	useEffect(() => {
-		document.addEventListener('keydown', e => {handleKeyDown(e)});
-		document.addEventListener('keyup', e => {handleKeyUp(e)});
-	}, []);
+		initGame();	
+	}, [curRoom?.isFull]);
 
 	function handleKeyDown(e: any) {
-		//console.log("Handle Key Down...", e.key);
-		if (e.key === 'w') {
-			p1Up = true;
-			p1Down = false;
-		}
-		if (e.key === 's') {
-			p1Up = false;
-			p1Down = true;
-		}
-		if (e.key === 'ArrowUp') {
+		//console.log("curRoom : ", curRoom?.player1, " user.login", user?.login);
+		if (socket && curRoom && user && curRoom.player1 === user.login) {
+			//console.log("hub");
+			if (e.key === 'w' && !p1Up) {
+				console.log("up true");
+				
+				//p1Up = true;
+				//p1Down = false;
+				socket.emit('p1', {name: user?.login, p1Up: true, p1Down: false});
+			}
+			if (e.key === 's' && !p1Down) {
+				console.log("down true");
+				//p1Up = false;
+				//p1Down = true;
+				socket.emit('p1', {name: user?.login, p1Up: false, p1Down: true});
+			}
+			if (e.key === 'ArrowUp') {
 
+			}
 		}
 		if (e.key === 'ArrowDown') {
 
 		}
-		if (e.key === "Enter") {
-			initGame();		
-			gameLaunch = true;
-			setPressEnter("");
-		}
+		//if (e.key === "Enter") {
+		//	initGame();		
+		//	gameLaunch = true;
+		//	setPressEnter("");
+		//}
 	};
 
 	function handleKeyUp(e: any) {
 		//console.log("Handle Key Up...");
-		if (e.key === 'w') {
-			p1Up = false;
-		}
-		if (e.key === 's') {
-			p1Down = false;
+		if (socket && curRoom && user && curRoom.player1 === user.login) {
+			if (e.key === 'w') {
+				console.log("up false");
+				//p1Up = false;
+				socket.emit('p1', {name: user?.login, p1Up: false, p1Down: false});
+			}
+			if (e.key === 's') {
+				console.log("down false");
+				//p1Down = false;
+				socket.emit('p1', {name: user?.login, p1Up: false, p1Down: false});
+			}
 		}
 		if (e.key === 'ArrowUp') {
 
@@ -81,14 +97,13 @@ export const Game = () => {
 	};
 
 	function performMove() {
-		if (p1 && p2)
-		{
-			//console.log("check input...");
-			if (p1Up === true && p1Pos > p1BasePos - 245) {
+		if (p1 && p2) {
+			//console.log("check input...\n", curRoom?.p1Up, " ", curRoom?.p1Down);
+			if (p1Up && p1Pos > p1BasePos - 245) {
 				p1Pos -= pSpeed;
 				p1.style.top = p1Pos + "px";
 			}
-			if (p1Down === true && p1Pos < p1BasePos + 240) {
+			else if (p1Down && p1Pos < p1BasePos + 240) {
 				p1Pos += pSpeed;
 				p1.style.top = p1Pos + "px";
 			}
@@ -99,24 +114,33 @@ export const Game = () => {
 				
 			}
 		}
+		else {
+			p1 = document.getElementById('paddle_1');
+			p2 = document.getElementById('paddle_2');
+		}
+
 	}
 
 	setInterval(performMove, 50);
+	//performMove();
 
 	socket?.off("retJoinRoom").on("retJoinRoom", function(ret: Room | null) {
 		if (ret === null)
 			console.log("Cannot join room");
-		else
-		{
+		else {
+			gameLaunch = true;
 			setCurRoom(ret);
+			setPressEnter("");
+			p1Up = ret.p1Up;
+			p1Down = ret.p1Down;
+			console.log("MAJ up: ", p1Up, " down: ", p1Down);
 		}
 	})
 
 	function joinRoom() {
 		if (!socket || !user)
 			console.log("NO SOCKET OR USER !");
-		else
-		{
+		else {
 			console.log("Clique !");
 			socket.emit('joinRoom', {name: user?.login, avatar: user?.avatar});
 		}
@@ -125,8 +149,7 @@ export const Game = () => {
 	socket?.off("retClearRoom").on("retClearRoom", function(ret: number) {
 		if (ret === 1)
 			console.log("Your not in room");
-		else
-		{
+		else {
 			gameLaunch = false;
 			setPressEnter("Press Enter to Play Pong");
 			setCurRoom(null);
@@ -138,11 +161,20 @@ export const Game = () => {
 	}
 
 	function initGame() {
-		if (p1 && p2)
-		{
+		console.log("init Game");
+		p1 = document.getElementById('paddle_1');
+		p2 = document.getElementById('paddle_2');
+
+		if (p1 && p2) {
 			console.log("Refresh Game");
+			document.removeEventListener('keydown', e => {handleKeyDown(e)});
+			document.removeEventListener('keyup', e => {handleKeyUp(e)});
+			document.addEventListener('keydown', e => {handleKeyDown(e)});
+			document.addEventListener('keyup', e => {handleKeyUp(e)});
 			p1.style.top = p1BasePos + "px";
 			p2.style.top = p2BasePos + "px";
+			p1Pos = p1BasePos;
+			p2Pos = p2BasePos;
 		}
 	}
 
@@ -181,7 +213,7 @@ export const Game = () => {
 					<div id="paddle_1" className="paddle_1 paddle"></div>
 					<div id="paddle_2" className="paddle_2 paddle"></div>
 					<h1 className="message">
-						{pressEnter}
+						{/*pressEnter*/}
 					</h1>
 				</div>
 				:

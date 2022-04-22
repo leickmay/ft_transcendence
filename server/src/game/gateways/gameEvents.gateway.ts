@@ -6,10 +6,12 @@ import { AuthService } from 'src/auth/auth.service';
 interface Room {
 	player1: string;
 	p1Avatar: string;
-	p1PaddleX: number;
+	p1Up: boolean;
+	p1Down: boolean;
 	player2: string;
 	p2Avatar: string;
-	p2PaddleX: number;
+	p2Up: boolean;
+	p2Down: boolean;
 	BallY: number;
 	isFull: boolean;
 	usrsSocket: Map<any, any>;
@@ -27,10 +29,12 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 	rooms: Array<Room> = [{
 		player1: "search...",
 		p1Avatar: "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg",
-		p1PaddleX: -1,
+		p1Up: false,
+		p1Down: false,
 		player2: "search...",
 		p2Avatar: "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg",
-		p2PaddleX: -1,
+		p2Up: false,
+		p2Down: false,
 		BallY: -1,
 		isFull: false,
 		usrsSocket: new Map(),
@@ -64,6 +68,18 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 		return num;
 	}
 
+	@SubscribeMessage('p1')
+	p1Moovement(@MessageBody() body: any, @ConnectedSocket() client: Socket): Room | null {
+		this.rooms[0].p1Up = body.p1Up;
+		this.rooms[0].p1Down = body.p1Down;
+		for (const [client, sequenceNumber] of this.rooms[0].usrsSocket.entries()) {
+			console.log("p1Up : ", this.rooms[0].p1Up, "\np1Down : ", this.rooms[0].p1Down);
+			client.emit("retJoinRoom",  this.rooms[0]);
+			this.rooms[0].usrsSocket.set(client, sequenceNumber + 1);
+		}
+		return;
+	}
+
 	@SubscribeMessage('joinRoom')
 	joinRoom(@MessageBody() body: any, @ConnectedSocket() client: Socket): Room | null {
 		if (this.rooms[0].player1 === body.name || this.rooms[0].player2 === body.name)
@@ -77,7 +93,6 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 			this.rooms[0].player1 = body.name;
 			this.rooms[0].p1Avatar = body.avatar;
 			this.rooms[0].usrsSocket.set(client, 1);
-			//console.log(this.rooms[0].usrsSocket);
 			
 		}
 		else if (this.rooms[0].player2 === "search...")
@@ -86,8 +101,6 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 			this.rooms[0].p2Avatar = body.avatar;
 			this.rooms[0].isFull = true;
 			this.rooms[0].usrsSocket.set(client, 1);
-			//tmp = this.rooms[0].usrsSocket[1];
-			//tmp.emit("retJoinRoom", this.rooms[0]);
 		}
 		else
 		{
@@ -115,10 +128,12 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 		this.rooms[0] = {
 			player1: "search...",
 			p1Avatar: "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg",
-			p1PaddleX: -1,
+			p1Up: false,
+			p1Down: false,
 			player2: "search...",
 			p2Avatar: "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg",
-			p2PaddleX: -1,
+			p2Up: false,
+			p2Down: false,
 			BallY: -1,
 			isFull: false,
 			usrsSocket: new Map(),
