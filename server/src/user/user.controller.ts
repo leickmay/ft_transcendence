@@ -12,8 +12,6 @@ export class UserController {
 
 	@Get('/')
 	async index(@Req() request) : Promise<User> {
-		console.log(request.user.friends);
-		
 		return request.user;
 	}
 

@@ -1,11 +1,9 @@
-import { SubscribeMessage, MessageBody, WebSocketGateway, ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer, WsException } from '@nestjs/websockets';
-import { Socket, Server } from 'socket.io';
-import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import { UserService } from 'src/user/user.service';
-import { GetUserDto } from 'src/user/dto/getUser.dto';
 import { User } from 'src/user/user.entity';
-import { use } from 'passport';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 @WebSocketGateway(3001, { cors: true })
@@ -43,9 +41,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		delete this.users[client.id];
 	}
 
-	// @SubscribeMessage('increment')
-	// handleEvent(@MessageBody('num') num: number, @ConnectedSocket() client: Socket): number {
-	// 	client.emit("increment", {num: ++num});
-	// 	return num;
-	// }
+	@SubscribeMessage('friend')
+	async handleEvent(@MessageBody('action') action: string, @MessageBody('id') id: number, @ConnectedSocket() client: Socket): Promise<void> {
+		if (action == 'add') {
+			let target = await this.userService.get(id);
+
+			if (target) {
+				this.users[client.id].friends.push(target);
+			}
+		}
+	}
 }
