@@ -44,35 +44,23 @@ export class AuthService {
 		const token = await this.get42Token(authCode);
 		const api_endpoint = 'https://api.intra.42.fr/v2';
 
-		let name: string;
-		let data: any;
-
-		await axios({
+		let response = await axios({
 			method: 'get',
 			url: api_endpoint + '/me',
 			headers: {
 				authorization: 'Bearer ' + token,
 			},
-		})
-		.then(function (res) {
-			name = res.data.usual_full_name;
-			data = res.data;
-		})
-		.catch((err) => {
-			console.log(err);
 		});
-
+		let data = response.data;
 		let tmpUser = await this.userService.getById42(data.id);
 		
 		if (!tmpUser) {
-			await this.userService.create({
-				"id42": data.id,
-				"name": data.displayname,
-				"login": data.login,
-				"avatar": data.image_url
+			tmpUser = await this.userService.create({
+				'id42': data.id,
+				'name': data.displayname,
+				'login': data.login,
+				'avatar': data.image_url
 			});
-	
-			tmpUser = await this.userService.getById42(data.id);
 		}
 		return tmpUser;
 	}

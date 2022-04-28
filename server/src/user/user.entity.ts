@@ -1,25 +1,29 @@
-import { BaseEntity, Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, Index, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class User extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@Column('varchar', { length: 255 })
+	@Index({ unique: true })
+	@Column()
 	id42: number;
 
-	@Column('varchar', { length: 50 })
+	@Column({ length: 50 })
 	name: string;
 
-	@Column('varchar', { length: 50 })
+	@Index({ unique: true })
+	@Column({ length: 50 })
 	login: string;
 
-	@Column('varchar', { length: 255 })
+	@Column({ length: 255 })
 	avatar: string;
 
-	@ManyToMany(() => User)
+	@ManyToMany(() => User, {
+		lazy: true
+	})
     @JoinTable({
 		name: 'friends',
 	})
-	friends: User[];
+	friends: Promise<User[]>;
 }

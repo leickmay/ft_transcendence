@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Loader } from "../components/Loader";
 
 export function Loading() {
 	const navigate = useNavigate();
@@ -8,6 +9,8 @@ export function Loading() {
 		const loadData = async () => {
 			const str: string[] = window.location.href.split('=');
 			let res = await fetch('/api/code/' + str[1], { method: 'GET' });
+			if (!res.ok)
+				throw res.statusText;
 			await res.json();
 			navigate('/', {replace: true});
 		};
@@ -16,8 +19,6 @@ export function Loading() {
 	}, [navigate]);
 
 	return (
-		<div>
-			<div className="spinner-grow" role="status"></div>
-		</div>
+		<Loader />
 	);
 }

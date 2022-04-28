@@ -31,7 +31,7 @@ export function Connected(props: Props) {
 				dispatch({ type: 'socket/connected', payload: true });
 			});
 			instance.on('error', (e: any) => {
-				if (e.status == 401)
+				if (e.status === 401)
 					navigate('/login');
 			});
 			instance.on('disconnect', () => {

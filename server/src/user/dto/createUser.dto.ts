@@ -2,28 +2,16 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, MaxLength } from 'class-validator';
 
 export class CreateUserDto {
-	@ApiProperty({
-		description: 'Bonjour'
-	})
+	@ApiProperty()
 	id42: number;
 
-	@ApiProperty({
-		description: '...'
-	})
-	@IsString()
+	@ApiProperty()
 	@MaxLength(50)
 	name: string;
 
-	@ApiProperty({
-		description: 'tmtc'
-	})
-	@IsString()
+	@ApiProperty()
 	login: string;
 
-	@ApiProperty({
-		example: './path/to/avatar.png',
-		description: '...'
-	})
-	@IsString()
+	@ApiProperty()
 	avatar: string;
 }

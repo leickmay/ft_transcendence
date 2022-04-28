@@ -1,5 +1,6 @@
 import { useCookies } from "react-cookie";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 import { User } from "../../app/interfaces/User";
 import { RootState } from "../../app/store";
 
@@ -8,21 +9,20 @@ interface Props {
 }
 
 const UserCard = (props: Props) => {
+	const navigate = useNavigate();
 	const [,, removeCookie] = useCookies();
 	const user = useSelector((state: RootState) => state.users.current);
 
 	const logout = () => {
 		removeCookie('access_token');
+		navigate('/login');
 	};
-
-	if (!user)
-		return (<></>);
 
 	return (
 		<div className="userCard">
-			<img className="userCardAvatar" src={user.avatar} width="120px" alt=""></img>
+			<img className="userCardAvatar" src={user?.avatar} width="120px" height="120px" alt=""></img>
 			<div className="userCardInfo"> 
-				<div>{ user.name }</div>
+				<div>{ user?.name || '...' }</div>
 				<div>lvl { /*user.level */ 0 }</div>
 				<button type="submit" onClick={() => {logout()}}></button>
 			</div>
