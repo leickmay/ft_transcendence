@@ -11,7 +11,7 @@ export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	@Get('/')
-	async index(@Req() request) : Promise<User> {
+	async index(@Req() request) : Promise<GetUserDto> {
 		return request.user;
 	}
 

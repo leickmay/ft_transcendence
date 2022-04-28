@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
+import { User } from '../user.entity';
 
 export class GetUserDto {
 	@ApiProperty()
@@ -16,4 +17,7 @@ export class GetUserDto {
 
 	@ApiProperty()
 	avatar: string;
+
+	@ApiProperty()
+	friends?: Promise<GetUserDto[]>;
 }

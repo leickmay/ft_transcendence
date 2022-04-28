@@ -1,39 +1,47 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
-import { User } from "../../app/interfaces/User";
 import { RootState } from "../../app/store";
 import FriendCard from "../components/FriendCard";
 
 export const Friends = () => {
-	const user = useSelector((state: RootState) => state.users.current);
-	const online = useSelector((state: RootState) => state.users.online);
+	const friends = useSelector((state: RootState) => state.users.friends);
 
-	const getOnlineFriends: () => Array<User> = () => {
-		return user?.friends?.filter(value => online.includes(value)) || [];
-	};
-
-	const onlineFriends: () => Array<JSX.Element> = () => {
+	const friendsComponents: () => Array<JSX.Element> = () => {
 		let elements: Array<JSX.Element> = [];
-		for (const element of getOnlineFriends()) {
-			elements.push(<FriendCard key={element.id} user={element} />);
+		
+		for (const friend of friends) {
+			elements.push(<FriendCard key={friend.id} user={friend} />);
 		}
 		return elements;
 	};
 
+	// ====== TMP ====== //
+	const socket = useContext(SocketContext);
+	const online = useSelector((state: RootState) => state.users.online);
 	const connected: () => Array<JSX.Element> = () => {
 		let elements: Array<JSX.Element> = [];
-		for (const element of online) {
-			elements.push(<FriendCard key={element.id} user={element} />);
+		for (const user of online.filter(o => !friends.find(f => f.id === o.id))) {
+			elements.push(
+			<p key={user.id}>
+				<div onClick={() => socket?.emit('friend', {
+					action: 'add',
+					id: user.id,
+				})}>
+					<p className="pointer" style={{fontSize: '1rem'}}>{user.name} (ajouter)</p>
+				</div>
+			</p>);
 		}
 		return elements;
 	};
+	// ====== TMP ====== //
 
 	return (
 		<div>
-			{ onlineFriends() }
-			<div style={{ height: '8px', width: '100vw', backgroundColor: 'yellow' }}></div>
+			{ friendsComponents() }
+			{/* // ====== TMP ====== // */}
 			{ connected() }
+			{/* // ====== TMP ====== // */}
 		</div>
 	);
 };

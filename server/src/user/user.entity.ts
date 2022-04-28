@@ -19,9 +19,11 @@ export class User extends BaseEntity {
 	@Column({ length: 255 })
 	avatar: string;
 
-	@ManyToMany(() => User)
+	@ManyToMany(() => User, {
+		lazy: true
+	})
     @JoinTable({
 		name: 'friends',
 	})
-	friends: User[];
+	friends: Promise<User[]>;
 }

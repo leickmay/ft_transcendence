@@ -5,7 +5,7 @@ import { Navigate } from "react-router";
 import { Route, Routes } from 'react-router-dom';
 import { SocketContext } from '../../app/context/socket';
 import { User } from '../../app/interfaces/User';
-import { addOnlineUser, removeOnlineUser, setOnlineUsers } from '../../app/slices/usersSlice';
+import { addOnlineUser, removeOnlineUser, setFriends, setOnlineUsers } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
 import Navigation from '../components/Navigation';
 import { Friends } from '../pages/Friends';
@@ -41,6 +41,10 @@ export function Home(props: Props) {
 				dispatch(setOnlineUsers(data));
 			});
 
+			socket.on('friends', (data: Array<User>) => {
+				dispatch(setFriends(data));
+			});
+
 			socket.on('online', (data: User) => {
 				console.log(data);
 				
@@ -57,7 +61,7 @@ export function Home(props: Props) {
 				socket.off('online-users');
 			}
 		}
-	}, [socket]);
+	}, [socket, dispatch]);
 
 	return (
 		<>

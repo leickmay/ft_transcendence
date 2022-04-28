@@ -23,8 +23,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 					client.handshake.headers.authorization.replace('Bearer ', '')
 				)).id
 			);
-			if (Object.values(this.users).find(e => e.id === user.id))
+			if (Object.values(this.users).find(e => e.id === user.id)) {
 				throw Error('Already connected');
+			}
 
 			client.broadcast.emit('online', user);
 			client.emit('already-online', Object.values(this.users));
@@ -32,7 +33,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		} catch (e) {
 			client.emit('error', new UnauthorizedException());
 			client.disconnect();
-			return;
 		}
 	}
 
@@ -43,12 +43,25 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('friend')
 	async handleEvent(@MessageBody('action') action: string, @MessageBody('id') id: number, @ConnectedSocket() client: Socket): Promise<void> {
+		let user = this.users[client.id];
+
+		let friends = await user.friends;
 		if (action == 'add') {
 			let target = await this.userService.get(id);
 
+			if (target && !friends.find(o => o.id === id)) {
+				friends.push(target);
+			}
+		} else if (action == 'remove') {
+			let target = await this.userService.get(id);
+
 			if (target) {
-				this.users[client.id].friends.push(target);
+				friends = friends.filter(e => e.id != target.id);
 			}
 		}
+		user.friends = Promise.resolve(friends);
+		this.userService.save(user).then(async (updated) => {
+			client.emit('friends', await updated.friends)
+		});
 	}
 }

@@ -13,7 +13,7 @@ $white: rgb(243, 243, 243);
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
-	cursor: url("/assets/img/cursor.png")50 50, auto;
+	cursor: url("/assets/img/cursor.png") 50 50, auto;
 	user-select: none;
 }
 
@@ -24,7 +24,7 @@ body {
   font-size: 2.5rem;
   text-shadow: 5px 3px 0px $color-1;
   color: $color-3;
-  background: url(/assets/img/bg_home.png) fixed center/contain;
+  background: url("/assets/img/bg_home.png") fixed center/contain;
   animation: 30s linear 1s infinite alternate slidein;
 }
 
@@ -37,14 +37,17 @@ li {
   list-style-type: none;
 }
 
-a {
+a, a:visited {
 	text-decoration: none;
 	color: $color-3;
-	cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
+
+	&:hover {
+		color: $color-1; 
+	}
 }
 
-a:visited {
-	color: $color-3;
+:any-link, button:hover, input:hover, textarea:hover, .pointer {
+	cursor: url("/assets/img/cursor_little_pink.png") 50 50, auto;
 }
 
 button {
@@ -57,7 +60,6 @@ button {
 	&:hover {
 		background: url("/assets/img/button_hover_rainbow.png") no-repeat center/cover;
 		text-shadow: none;
-		cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
 	}
 	&:active {
 		background: url("/assets/img/button_active.png") no-repeat center/cover;
@@ -80,7 +82,6 @@ input:hover {
 	color: $color-1;
 	background: black;
 	border-color: $color-2;
-	cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
 }
 
 input:active {
@@ -105,7 +106,6 @@ textarea:hover {
 	color: $color-1;
 	background: black;
 	border-color: $color-2;
-	cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
 }
 
 textarea:active {
@@ -117,5 +117,5 @@ textarea:active {
 }
 
 .spec:hover {
-	cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
+	cursor: url("/assets/img/cursor_little_pink.png") 50 50, auto;
 }
