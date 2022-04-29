@@ -31,7 +31,7 @@ const FriendCard = (props: Props) => {
 				<img src={
 					isOnline() ? 'assets/images/online.png' : 'assets/images/offline.png'
 				} width="40" height="40" alt=""></img>
-				{/* <img className='spec' src={ingameSrc} width="40" height="40" alt=""></img> */}
+				{/* <img src={ingameSrc} width="40" height="40" alt=""></img> */}
 			</div>
 			<div className="friendCardDown">
 				<img src={props.user.avatar} width="100" height="100" align-item="bottom" alt=""></img>
