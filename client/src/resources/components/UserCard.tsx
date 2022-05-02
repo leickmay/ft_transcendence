@@ -22,7 +22,7 @@ const UserCard = (props: Props) => {
 		<div className="userCard">
 			<img className="userCardAvatar" src={user?.avatar} width="120px" height="120px" alt=""></img>
 			<div className="userCardInfo"> 
-				<div>{ user?.name || '...' }</div>
+				<div>{ user?.login || '...' }</div>
 				<div>lvl { /*user.level */ 0 }</div>
 				<button type="submit" onClick={() => {logout()}}></button>
 			</div>

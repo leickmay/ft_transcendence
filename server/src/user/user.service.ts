@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { AlreadyExistsException } from './alreadyExists.exception';
 import { CreateUserDto } from './dto/createUser.dto';
 import { User } from './user.entity';
 
@@ -39,5 +40,17 @@ export class UserService {
 
 	async getByLogin(login: string) : Promise<User> {
 		return await this.userRepository.findOne({login});
+	}
+
+	async newLogin(login: string, newLogin: string) {
+		const user: User = await this.getByLogin(login);
+		user.login = newLogin;
+		try {
+			await this.userRepository.save(user);
+		}
+		catch{
+			throw new AlreadyExistsException();
+		}
+		
 	}
 }

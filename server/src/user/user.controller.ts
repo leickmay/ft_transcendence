@@ -34,4 +34,9 @@ export class UserController {
 	async delete(@Param('id') id: number): Promise<void> {
 		return this.userService.remove(id);
 	}
+
+	@Post('/changelogin/:newLogin')
+	async changeLogin(@Param('newLogin') newLogin: string, @Req() request) {
+		await this.userService.newLogin(request.user.login, newLogin);
+	}
 }

@@ -35,7 +35,7 @@ const FriendCard = (props: Props) => {
 			</div>
 			<div className="friendCardDown">
 				<img src={props.user.avatar} width="100" height="100" align-item="bottom" alt=""></img>
-				<div>{props.user.name}</div>
+				<div>{props.user.login}</div>
 				{ button() }
 				{/* <div> lvl {props.user.level}</div> */}
 				{/* <button type="submit" onClick={() => {props.delFriend(props.user.name)}}></button> */}
