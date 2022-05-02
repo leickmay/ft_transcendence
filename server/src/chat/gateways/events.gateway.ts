@@ -4,6 +4,7 @@ import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
+import * as OTPAuth from 'otpauth';
 
 @Injectable()
 @WebSocketGateway(3001, { cors: true })
@@ -41,8 +42,33 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		delete this.users[client.id];
 	}
 
+	@SubscribeMessage('totp')
+	async totpEvent(@MessageBody('action') action: string, @ConnectedSocket() client: Socket): Promise<void> {
+		let user = this.users[client.id];
+
+		if (action == 'add') {
+			let totp = new OTPAuth.TOTP({
+				issuer: 'Stonks Pong 3000',
+				label: this.users[client.id].login,
+				algorithm: 'SHA1',
+				digits: 6,
+				period: 30,
+			});
+
+			user.totp = totp.secret.base32;
+			await user.save();
+			client.emit('totp', {status: 'enabled', payload: totp.toString()});
+		} else if (action == 'remove' && this.users[client.id].totp) {
+			user.totp = null;
+			await user.save();
+			client.emit('totp', {status: 'disabled'});
+		} else {
+			client.emit('totp', {status: 'unknown'});
+		}
+	}
+
 	@SubscribeMessage('friend')
-	async handleEvent(@MessageBody('action') action: string, @MessageBody('id') id: number, @ConnectedSocket() client: Socket): Promise<void> {
+	async friendEvent(@MessageBody('action') action: string, @MessageBody('id') id: number, @ConnectedSocket() client: Socket): Promise<void> {
 		let user = this.users[client.id];
 
 		let friends = await user.friends;
@@ -60,8 +86,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			}
 		}
 		user.friends = Promise.resolve(friends);
-		this.userService.save(user).then(async (updated) => {
-			client.emit('friends', await updated.friends)
-		});
+		let updated = await user.save();
+		client.emit('friends', await updated.friends)
 	}
 }

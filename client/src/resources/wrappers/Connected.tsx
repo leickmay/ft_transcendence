@@ -40,7 +40,9 @@ export function Connected(props: Props) {
 			setSocket(instance);
 		}
 
-		!socket && connect().catch(() => navigate('/login'));
+		if (!socket) {
+			connect().catch(() => navigate('/login'))
+		}
 	}, [socket, dispatch, navigate, cookies.access_token]);
 
 	useEffect(() => {
