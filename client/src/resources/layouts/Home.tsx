@@ -7,6 +7,7 @@ import { SocketContext } from '../../app/context/socket';
 import { User } from '../../app/interfaces/User';
 import { addOnlineUser, removeOnlineUser, setFriends, setOnlineUsers } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
+import Alert from '../components/Alert';
 import Navigation from '../components/Navigation';
 import { Friends } from '../pages/Friends';
 import { Game } from '../pages/Game';
@@ -65,6 +66,7 @@ export function Home(props: Props) {
 
 	return (
 		<>
+			<Alert />
 			<Navigation />
 			{ loadingElement }
 			<Routes>

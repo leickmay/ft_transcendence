@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -19,6 +20,7 @@ import { UserModule } from './user/user.module';
 			entities: [User],
 			synchronize: true,
 		}),
+		ConfigModule.forRoot(),
 		UserModule,
 		AuthModule,
 		EventsModule,

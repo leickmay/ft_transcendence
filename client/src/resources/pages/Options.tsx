@@ -1,10 +1,14 @@
 import { KeyboardEvent, useState, useEffect } from 'react';
 import { useCookies } from "react-cookie";
+import { alertType } from '../../app/slices/alertSlice';
+import store from '../../app/store';
+import Alert from '../components/Alert';
 
 export const Options = () => {
 
 	const [name, setName] = useState("");
 	const [cookies] = useCookies();
+	const [alert, setAlert] = useState("");
 
 	async function getHeaders() {
 		
@@ -16,12 +20,19 @@ export const Options = () => {
 
 	const changeLoginApi = async() => {
 		const headers = await getHeaders();
-		try {
-			await fetch("api/users/changelogin/" + name, {method: "POST", headers: headers});
-		}
-		catch {
-			 console.log("This name already exists");
-		}
+		fetch("api/users/changelogin/" + name, {method: "POST", headers: headers})
+			.then(res => {
+				if (!res.ok)
+				{
+					store.dispatch(alertType("This username is already taken espece de sous merde"));
+					throw new Error('Already exists');
+				}
+				//window.location.reload();
+				//let currentUser = store.getState(u);
+				//store.dispatch(user)
+			})
+			.catch((e) => console.log("error : ", e));
+			
 	}
 
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -37,6 +48,7 @@ export const Options = () => {
 		<div className='options'>
 			<div className='optionsWindow'>
 				<div className='optionsAvatar'>
+					
 					<div className='title'> 
 						Choose your Avatar 
 					</div>

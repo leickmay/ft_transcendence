@@ -8,12 +8,10 @@ interface Props {
 
 export default function App(props: Props) {
 	return (
-		<div className="App">
 			<Routes>
 				<Route path="/loading" element={<Loading />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="*" element={<Connected />} />
 			</Routes>
-		</div>
 	);
 }
