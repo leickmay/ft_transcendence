@@ -1,19 +1,22 @@
 import { useContext, useEffect, useState } from "react";
 import QRCode from "react-qr-code";
+import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
+import { RootState } from "../../app/store";
 
 export const Options = () => {
 	const socket = useContext(SocketContext);
+	const user = useSelector((state: RootState) => state.users.current);
 	const [totpLoading, setTotpLoading] = useState<boolean>(false);
 	const [totpURL, setTotpURL] = useState<string>();
 
 	useEffect(() => {
 		socket?.on('totp', (data: {status: string, payload?: string}) => {
 			setTotpLoading(false);
-			if (data.status == 'enabled') {
+			if (data.status === 'enabled') {
 				setTotpURL(data.payload);
 			}
-			if (data.status == 'disabled') {
+			if (data.status === 'disabled') {
 				setTotpURL(undefined);
 			}
 		});
@@ -25,7 +28,7 @@ export const Options = () => {
 
 	const newTotp = (): void => {
 		setTotpLoading(true);
-		if (!totpURL) {
+		if (!totpURL && !user?.totp) {
 			socket?.emit('totp', {action: 'add'});
 		} else {
 			socket?.emit('totp', {action: 'remove'});

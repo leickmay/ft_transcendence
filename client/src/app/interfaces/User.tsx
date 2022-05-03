@@ -4,6 +4,7 @@ export interface User {
 	login: string;
 	name: string;
 	avatar: string;
+	totp?: boolean;
 	__friends__?: Array<User>;
 }
 

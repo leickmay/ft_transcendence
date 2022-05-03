@@ -17,6 +17,9 @@ const slice = createSlice({
 	initialState,
 	reducers: {
 		setCurrentUser: (state: State, action: PayloadAction<User>): State => {
+			console.log(action.payload);
+			console.log(action.payload.__friends__);
+			
 			return {
 				...state,
 				current: action.payload,

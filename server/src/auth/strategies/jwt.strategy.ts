@@ -1,7 +1,8 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, SerializeOptions } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
+import { plainToClass } from "class-transformer";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { GetUserDto } from "src/user/dto/getUser.dto";
+import { User } from "src/user/user.entity";
 import { UserService } from "src/user/user.service";
 import { jwtConstants } from "../constants";
 
@@ -17,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		});
 	}
 
-	async validate(payload: any): Promise<GetUserDto> {
+	async validate(payload: any): Promise<User> {
 		return this.userService.get(payload.id);
 	}
 }

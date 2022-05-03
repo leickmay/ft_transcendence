@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import * as OTPAuth from 'otpauth';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
-import * as OTPAuth from 'otpauth';
 
 @Injectable()
 @WebSocketGateway(3001, { cors: true })
@@ -85,8 +85,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				friends = friends.filter(e => e.id != target.id);
 			}
 		}
-		user.friends = Promise.resolve(friends);
-		let updated = await user.save();
-		client.emit('friends', await updated.friends)
+		user.friends = friends;
+		await (await user.save()).reload();
+		client.emit('friends', await user.friends)
 	}
 }

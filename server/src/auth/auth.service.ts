@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
+import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -40,7 +41,7 @@ export class AuthService {
 		return token;
 	}
 
-	async validateUser(authCode: string): Promise<any> {
+	async validateUser(authCode: string): Promise<User> {
 		const token = await this.get42Token(authCode);
 		const api_endpoint = 'https://api.intra.42.fr/v2';
 
