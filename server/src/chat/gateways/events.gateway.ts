@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { instanceToPlain } from 'class-transformer';
 import * as OTPAuth from 'otpauth';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
@@ -28,8 +29,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				throw Error('Already connected');
 			}
 
-			client.broadcast.emit('online', user);
-			client.emit('already-online', Object.values(this.users));
+			client.broadcast.emit('online', instanceToPlain(user));
+			client.emit('already-online', instanceToPlain(Object.values(this.users)));
 			this.users[client.id] = user;
 		} catch (e) {
 			client.emit('error', new UnauthorizedException());
@@ -38,7 +39,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	}
 
 	handleDisconnect(client: Socket) {
-		client.broadcast.emit('offline', this.users[client.id]);
+		client.broadcast.emit('offline', instanceToPlain(this.users[client.id]));
 		delete this.users[client.id];
 	}
 
@@ -78,15 +79,20 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			if (target && !friends.find(o => o.id === id)) {
 				friends.push(target);
 			}
+
+			user.friends = Promise.resolve(friends);
+			await (await user.save()).reload();
 		} else if (action == 'remove') {
 			let target = await this.userService.get(id);
 
 			if (target) {
 				friends = friends.filter(e => e.id != target.id);
 			}
+
+			user.friends = Promise.resolve(friends);
+			await (await user.save()).reload();
+		} else if (action == 'get') {
 		}
-		user.friends = friends;
-		await (await user.save()).reload();
-		client.emit('friends', await user.friends)
+		client.emit('friends', instanceToPlain(await user.friends))
 	}
 }

@@ -17,17 +17,12 @@ const slice = createSlice({
 	initialState,
 	reducers: {
 		setCurrentUser: (state: State, action: PayloadAction<User>): State => {
-			console.log(action.payload);
-			console.log(action.payload.friends);
-			
 			return {
 				...state,
 				current: action.payload,
-				friends: action.payload.friends || [],
 			};
 		},
 		setFriends: (state: State, action: PayloadAction<Array<User>>): State => {
-			console.log(action.payload);
 			return {
 				...state,
 				friends: action.payload,

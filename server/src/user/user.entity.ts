@@ -33,11 +33,9 @@ export class User extends BaseEntity {
 	@Column({ length: 255 })
 	avatar: string;
 
-	@Expose({
-		groups: ['owner'],
+	@ManyToMany(() => User, {
+		lazy: true,
 	})
-	@Type(() => User)
-	@ManyToMany(() => User)
     @JoinTable({
 		name: 'followers',
 		joinColumn: {
@@ -47,5 +45,5 @@ export class User extends BaseEntity {
 			name: 'following',
 		},
 	})
-	friends: Array<User>;
+	friends: Promise<Array<User>>;
 }
