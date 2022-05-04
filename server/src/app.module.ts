@@ -5,6 +5,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { EventsModule } from './chat/events.module';
+import ImageFile from './imageFile/imageFile.entity';
+import { ImageFileModule } from './imageFile/imageFile.module';
 import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
 
@@ -17,13 +19,14 @@ import { UserModule } from './user/user.module';
 			username: 'admin',
 			password: 'password',
 			database: 'my_db',
-			entities: [User],
+			entities: [User, ImageFile],
 			synchronize: true,
 		}),
 		ConfigModule.forRoot(),
 		UserModule,
 		AuthModule,
 		EventsModule,
+		ImageFileModule
 	],
 	controllers: [AppController],
 	providers: [AppService],

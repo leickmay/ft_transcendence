@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/createUser.dto';
 import { GetUserDto } from './dto/getUser.dto';
@@ -38,5 +39,14 @@ export class UserController {
 	@Post('/changelogin/:newLogin')
 	async changeLogin(@Param('newLogin') newLogin: string, @Req() request) {
 		await this.userService.newLogin(request.user.login, newLogin);
+	}
+
+	@Post('/uploadimage')
+	@UseInterceptors(FileInterceptor('file'))
+	async uploadFile(@UploadedFile() file: Express.Multer.File, @Req() request) {
+	  console.log("file : ", file);
+	  console.log("user : ", request.user.login);
+	  return this.userService.addAvatar(request.user.login, file.buffer, file.originalname);
+	  //await this.userService.setNewAvatar(file, request.user.login);
 	}
 }

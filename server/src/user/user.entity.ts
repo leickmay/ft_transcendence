@@ -1,4 +1,6 @@
-import { BaseEntity, Column, Entity, Index, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import ImageFile from 'src/imageFile/imageFile.entity';
+import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+
 
 @Entity()
 export class User extends BaseEntity {
@@ -17,7 +19,16 @@ export class User extends BaseEntity {
 	login: string;
 
 	@Column({ length: 255 })
-	avatar: string;
+	intraPicture: string;
+
+	@JoinColumn({ name: 'avatarId' })
+	@OneToOne(
+	  () => ImageFile,
+	  {
+		nullable: true
+	  }
+	)
+	public avatar?: ImageFile;
 
 	@ManyToMany(() => User, {
 		lazy: true

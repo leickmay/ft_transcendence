@@ -13,5 +13,5 @@ export class CreateUserDto {
 	login: string;
 
 	@ApiProperty()
-	avatar: string;
+	intraPicture: string;
 }

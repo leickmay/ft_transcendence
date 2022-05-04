@@ -16,7 +16,7 @@ export class GetUserDto {
 	login: string;
 
 	@ApiProperty()
-	avatar: string;
+	intraPicture: string;
 
 	@ApiProperty()
 	friends?: Promise<GetUserDto[]>;

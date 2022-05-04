@@ -1,14 +1,21 @@
 import { KeyboardEvent, useState, useEffect } from 'react';
 import { useCookies } from "react-cookie";
 import { alertType } from '../../app/slices/alertSlice';
-import store from '../../app/store';
+import { setCurrentUser } from '../../app/slices/usersSlice';
+import { User } from "../../app/interfaces/User";
+import store, { RootState } from '../../app/store';
 import Alert from '../components/Alert';
+import { useSelector } from 'react-redux';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { ImageUploader } from '../components/ImageUploader';
+import { blob } from 'stream/consumers';
 
 export const Options = () => {
 
 	const [name, setName] = useState("");
 	const [cookies] = useCookies();
-	const [alert, setAlert] = useState("");
+	const user = useSelector((state: RootState) => state.users.current);
+	const [img, setImg] = useState("");
 
 	async function getHeaders() {
 		
@@ -18,18 +25,23 @@ export const Options = () => {
 		};
 	};
 
+	const fetchImage = async () => {
+		const headers = await getHeaders();
+		const res = await fetch("api/image-files/2", {method: "GET", headers: headers});
+		const imageBlob = await res.blob();
+		const imageObjectURL = URL.createObjectURL(imageBlob);
+		setImg(imageObjectURL);
+	}
+
 	const changeLoginApi = async() => {
 		const headers = await getHeaders();
 		fetch("api/users/changelogin/" + name, {method: "POST", headers: headers})
 			.then(res => {
 				if (!res.ok)
 				{
-					store.dispatch(alertType("This username is already taken espece de sous merde"));
+					store.dispatch(alertType("This username is already taken"));
 					throw new Error('Already exists');
 				}
-				//window.location.reload();
-				//let currentUser = store.getState(u);
-				//store.dispatch(user)
 			})
 			.catch((e) => console.log("error : ", e));
 			
@@ -37,12 +49,15 @@ export const Options = () => {
 
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		console.log(`The name you entered was: ${name}`)
 		if (name !== "")
 		{
 			changeLoginApi();
 		}
 	  }
+
+	  useEffect(() => {
+		  fetchImage();
+	  }, [])
 
 	return (
 		<div className='options'>
@@ -52,6 +67,7 @@ export const Options = () => {
 					<div className='title'> 
 						Choose your Avatar 
 					</div>
+					<ImageUploader />
 					<div className='title'> 
 						Change your username 
 					</div>
@@ -65,6 +81,8 @@ export const Options = () => {
 		  </label>
 		  <input type="submit" />
 		</form>
+
+		<img src={img} alt="avatar" />
 					
 
 				</div>
