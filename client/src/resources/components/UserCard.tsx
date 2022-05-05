@@ -20,7 +20,8 @@ const UserCard = (props: Props) => {
 
 	return (
 		<div className="userCard">
-			<img className="userCardAvatar" src={user?.avatar} width="120px" height="120px" alt=""></img>
+			<img className="userCardAvatar" src={user?.intraPicture} width="120px" height="120px" alt=""></img> 
+
 			<div className="userCardInfo"> 
 				<div>{ user?.login || '...' }</div>
 				<div>lvl { /*user.level */ 0 }</div>

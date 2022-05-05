@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import ImageFileService from 'src/imageFile/imageFile.service';
 import { Connection, Repository } from 'typeorm';
@@ -58,12 +58,6 @@ export class UserService {
 		
 	}
 
-	/*async setNewAvatar(file: Express.Multer.File, login: string) {
-		const user: User = await this.getByLogin(login);
-		user.avatar = file.buffer.toString();
-		await this.userRepository.save(user);
-	}
-*/
 	async addAvatar(login: string, imageBuffer: Buffer, filename: string) {
 		const queryRunner = this.connection.createQueryRunner();
 
@@ -71,12 +65,12 @@ export class UserService {
 		await queryRunner.startTransaction();
 
 		try {
-			const user = await queryRunner.manager.findOne(User, login);
-			const currentAvatarId = user.avatar.id;
+			const user = await queryRunner.manager.findOne(User, {login});
+			const currentAvatarId = user.avatarId;
 			const avatar = await this.imageFileService.uploadImageFile(imageBuffer, filename, queryRunner);
 
-			await queryRunner.manager.update(User, login, {
-				avatar: avatar,
+			await queryRunner.manager.update(User, {login}, {
+				avatarId: avatar.id,
 			})
 
 			if (currentAvatarId) {
@@ -92,11 +86,11 @@ export class UserService {
 		} finally {
 			await queryRunner.release();
 		}
-
-		//const avatar = await this.imageFileService.uploadImageFile(imageBuffer, filename);
-		//let user: User = await this.getByLogin(login);
-		//user.avatar = avatar;
-		//this.userRepository.save(user);
-		//return avatar;
 	  }
+
+	async getAvatar(user: User) {
+		const avatar = await this.imageFileService.getImageById(user.avatarId);
+		console.log("avatar : ", avatar);
+		return avatar;
+	}
 }

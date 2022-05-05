@@ -2,8 +2,8 @@ import { ClassSerializerInterceptor, Controller, Get, Param, ParseIntPipe, Res, 
 import { Response } from "express";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { Readable } from "stream";
-import { InitializedRelationError } from "typeorm";
 import ImageFileService from "./imageFile.service";
+
 
 @UseGuards(JwtAuthGuard)
 @Controller('image-files')

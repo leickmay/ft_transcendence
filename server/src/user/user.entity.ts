@@ -30,6 +30,9 @@ export class User extends BaseEntity {
 	)
 	public avatar?: ImageFile;
 
+	@Column({ nullable: true })
+	public avatarId?: number;
+
 	@ManyToMany(() => User, {
 		lazy: true
 	})

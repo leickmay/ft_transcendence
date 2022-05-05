@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { QueryRunner, QueryRunnerAlreadyReleasedError, Repository } from "typeorm";
+import { QueryRunner, Repository } from "typeorm";
 import ImageFile from "./imageFile.entity";
 
 @Injectable()
@@ -16,11 +16,6 @@ class ImageFileService {
             data: dataBuffer
         })
         await queryRunner.manager.save(ImageFile, newFile);
-       // const newFile = await this.imageFileRepository.create({
-       //     filename,
-       //     data: dataBuffer
-       // })
-        //await this.imageFileRepository.save(newFile);
         return newFile;
     }
 
@@ -34,6 +29,7 @@ class ImageFileService {
 
     async getImageById(imageId: number) {
         const image = await this.imageFileRepository.findOne(imageId);
+        console.log("image : ", image);
         if (!image) {
             throw new NotFoundException();
         }

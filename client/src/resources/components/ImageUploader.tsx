@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { consumers } from "stream";
+import { useSelector } from "react-redux";
 import { alertType } from "../../app/slices/alertSlice";
-import store from "../../app/store";
+import store, { RootState } from "../../app/store";
 
 export function ImageUploader() {
     const [selectedFile, setSelectedFile] = useState<File>();
     const [cookies] = useCookies();
+    const [img, setImg] = useState("");
+    const user = useSelector((state: RootState) => state.users.current);
 
 	async function getHeaders() {
 		
@@ -35,9 +37,9 @@ export function ImageUploader() {
         {
             store.dispatch(alertType("File size is limited to 2MB"));
         }
-        else if (selectedFile.type !== 'image/png')
+        else if (selectedFile.type !== 'image/png' && selectedFile.type !== 'image/jpeg')
         {
-            store.dispatch(alertType("Image type is not PNG"));
+            store.dispatch(alertType("Please upload a PNG or JPEG image only"));
         }
         else
         {
@@ -63,6 +65,18 @@ export function ImageUploader() {
         }
     }
 
+	const fetchImage = async () => {
+		const headers = await getHeaders();
+		const res = await fetch("api/users/avatar/" + user?.login, {method: "GET", headers: headers});
+		const imageBlob = await res.blob();
+		const imageObjectURL = URL.createObjectURL(imageBlob);
+		setImg(imageObjectURL);
+	}
+
+    useEffect(() => {
+        fetchImage();
+    }, [])
+
     return (
         <div>
             <input type="file" name="image" onChange={changeHandler} />
@@ -72,12 +86,13 @@ export function ImageUploader() {
                 </div>
             ) : (
                 <div>
-                    <p>Select an image to upload (PNG)</p>
+                    <p>Select an image to upload (PNG or JPEG)</p>
                 </div>
             )}
             <div>
                 <button onClick={handleSubmission}>Submit</button>
             </div>
+            <img src={img} alt="avatar" />
         </div>
     )
 }

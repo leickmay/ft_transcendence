@@ -1,4 +1,4 @@
-import { KeyboardEvent, useState, useEffect } from 'react';
+import {  useState, useEffect } from 'react';
 import { useCookies } from "react-cookie";
 import { alertType } from '../../app/slices/alertSlice';
 import { setCurrentUser } from '../../app/slices/usersSlice';
@@ -25,14 +25,6 @@ export const Options = () => {
 		};
 	};
 
-	const fetchImage = async () => {
-		const headers = await getHeaders();
-		const res = await fetch("api/image-files/2", {method: "GET", headers: headers});
-		const imageBlob = await res.blob();
-		const imageObjectURL = URL.createObjectURL(imageBlob);
-		setImg(imageObjectURL);
-	}
-
 	const changeLoginApi = async() => {
 		const headers = await getHeaders();
 		fetch("api/users/changelogin/" + name, {method: "POST", headers: headers})
@@ -54,10 +46,6 @@ export const Options = () => {
 			changeLoginApi();
 		}
 	  }
-
-	  useEffect(() => {
-		  fetchImage();
-	  }, [])
 
 	return (
 		<div className='options'>
@@ -82,7 +70,7 @@ export const Options = () => {
 		  <input type="submit" />
 		</form>
 
-		<img src={img} alt="avatar" />
+
 					
 
 				</div>

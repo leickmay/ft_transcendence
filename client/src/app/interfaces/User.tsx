@@ -3,7 +3,8 @@ export interface User {
 	id42: string;
 	login: string;
 	name: string;
-	avatar: string;
+	intraPicture: string;
+	avatarId: number;
 	__friends__?: Array<User>;
 }
 
