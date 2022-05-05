@@ -65,15 +65,18 @@ export function ImageUploader() {
         }
     }
 
-	const fetchImage = async () => {
-		const headers = await getHeaders();
-		const res = await fetch("api/users/avatar/" + user?.login, {method: "GET", headers: headers});
-		const imageBlob = await res.blob();
-		const imageObjectURL = URL.createObjectURL(imageBlob);
-		setImg(imageObjectURL);
-	}
-
     useEffect(() => {
+        const fetchImage = async () => {
+            const headers = await getHeaders();
+            const res = await fetch("api/users/avatar/" + user?.login, {method: "GET", headers: headers});
+            if (res.ok)
+            {
+                const imageBlob = await res.blob();
+                const imageObjectURL = URL.createObjectURL(imageBlob);
+                setImg(imageObjectURL);
+            }
+        }
+        
         fetchImage();
     }, [])
 
@@ -92,7 +95,14 @@ export function ImageUploader() {
             <div>
                 <button onClick={handleSubmission}>Submit</button>
             </div>
-            <img src={img} alt="avatar" />
+            {
+                img !== "" ? (
+                    <img src={img} alt="avatar" />
+                ) : (
+                 <p> no avatar</p>
+                )
+            }
+            
         </div>
     )
 }
