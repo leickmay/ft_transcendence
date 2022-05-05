@@ -20,11 +20,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	async handleConnection(client: Socket, ...args: any[]) {
 		try {
-			const user: User = await this.userService.get((
-				await this.authService.verifyJwt(
-					client.handshake.headers.authorization.replace('Bearer ', '')
-				)).id
+			let jwt = await this.authService.verifyJwt(
+				client.handshake.headers.authorization.replace('Bearer ', '')
 			);
+			
+			if (jwt.restricted) {
+				throw Error('Operation not permited');
+			}
+
+			const user: User = await this.userService.get(jwt.id);
 			if (Object.values(this.users).find(e => e.id === user.id)) {
 				throw Error('Already connected');
 			}

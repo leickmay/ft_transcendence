@@ -1,13 +1,15 @@
-import { ClassSerializerInterceptor, Controller, Get, Req, SerializeOptions, UseGuards, UseInterceptors } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ClassSerializerInterceptor, Controller, Get, Req, SerializeOptions, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
+import { HttpExceptionFilter } from 'src/auth/filters/totp-exception.filter';
+import { TwoFactorJwtAuthGuard } from 'src/auth/guards/two-factor-jwt-auth.guard';
 import { User } from './user.entity';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(TwoFactorJwtAuthGuard)
+@UseInterceptors(ClassSerializerInterceptor)
+@UseFilters(HttpExceptionFilter)
 @Controller('users')
 export class UserController {
 	constructor() {}
 
-	@UseInterceptors(ClassSerializerInterceptor)
 	@SerializeOptions({
 		groups: ['owner'],
 	})

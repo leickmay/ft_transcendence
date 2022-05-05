@@ -70,15 +70,19 @@ export class AuthService {
 		return this.jwtService.verify(token);
 	}
 
-	async login(code: string) {
-		const user = await this.validateUser(code);
+	makeJWTToken(user: User, totp: boolean = true): string {
 		const payload = {
 			id: user.id,
 			login: user.login,
+			restricted: !!user.totp && totp
 		};
 
-		return {
-			access_token: this.jwtService.sign(payload),
-		};
+		return this.jwtService.sign(payload);
+	}
+
+	async login(code: string): Promise<string> {
+		const user = await this.validateUser(code);
+		
+		return this.makeJWTToken(user);
 	}
 }

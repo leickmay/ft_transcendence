@@ -22,6 +22,18 @@ const slice = createSlice({
 				current: action.payload,
 			};
 		},
+		setTotp: (state: State, action: PayloadAction<boolean>): State => {
+			if (!state.current) {
+				return state;
+			}
+			return {
+				...state,
+				current: {
+					...state.current,
+					totp: action.payload,
+				}
+			};
+		},
 		setFriends: (state: State, action: PayloadAction<Array<User>>): State => {
 			return {
 				...state,
@@ -75,5 +87,5 @@ const slice = createSlice({
 	},
 });
 
-export const { setCurrentUser, setFriends, addFriend, removeFriend, setOnlineUsers, addOnlineUser, removeOnlineUser } = slice.actions;
+export const { setCurrentUser, setTotp, setFriends, addFriend, removeFriend, setOnlineUsers, addOnlineUser, removeOnlineUser } = slice.actions;
 export default slice.reducer;

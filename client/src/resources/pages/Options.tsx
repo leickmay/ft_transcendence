@@ -1,11 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import QRCode from "react-qr-code";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
+import { setTotp } from "../../app/slices/usersSlice";
 import { RootState } from "../../app/store";
 
 export const Options = () => {
 	const socket = useContext(SocketContext);
+	const dispatch = useDispatch();
 	const user = useSelector((state: RootState) => state.users.current);
 	const [totpLoading, setTotpLoading] = useState<boolean>(false);
 	const [totpURL, setTotpURL] = useState<string>();
@@ -15,20 +17,22 @@ export const Options = () => {
 			setTotpLoading(false);
 			if (data.status === 'enabled') {
 				setTotpURL(data.payload);
+				dispatch(setTotp(true));
 			}
 			if (data.status === 'disabled') {
 				setTotpURL(undefined);
+				dispatch(setTotp(false));
 			}
 		});
 
 		return () => {
 			socket?.off('totp');
 		};
-	}, [socket]);
+	}, [socket, dispatch]);
 
 	const newTotp = (): void => {
 		setTotpLoading(true);
-		if (!totpURL && !user?.totp) {
+		if (!user?.totp) {
 			socket?.emit('totp', {action: 'add'});
 		} else {
 			socket?.emit('totp', {action: 'remove'});
@@ -53,7 +57,7 @@ export const Options = () => {
 					<div className='title'> 
 						Choose your Avatar 
 					</div>
-					<button onClick={newTotp} disabled={totpLoading}>{!totpURL ? 'Enable ' : 'Disable '}2fa</button>
+					<button onClick={newTotp} disabled={totpLoading}>{!user?.totp ? 'Enable ' : 'Disable '}2fa</button>
 					{ getTotp() }
 				</div>
 			</div>
