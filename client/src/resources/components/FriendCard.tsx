@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
 import { User } from "../../app/interfaces/User";
 import { RootState } from "../../app/store";
+import icon_online from '../../assets/images/online.png';
+import icon_offline from '../../assets/images/offline.png';
 
 interface Props {
 	user: User;
@@ -28,10 +30,8 @@ const FriendCard = (props: Props) => {
 	return (
 		<div className="friendCard">
 			<div className="friendCardUp">
-				<img src={
-					isOnline() ? 'assets/images/online.png' : 'assets/images/offline.png'
-				} width="40" height="40" alt=""></img>
-				{/* <img className='spec' src={ingameSrc} width="40" height="40" alt=""></img> */}
+				<img src={isOnline() ? icon_online : icon_offline} width="40" height="40" alt=""></img>
+				{/* <img src={ingameSrc} width="40" height="40" alt=""></img> */}
 			</div>
 			<div className="friendCardDown">
 				<img src={props.user.intraPicture} width="100" height="100" align-item="bottom" alt=""></img>

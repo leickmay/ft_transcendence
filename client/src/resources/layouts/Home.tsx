@@ -37,30 +37,17 @@ export function Home(props: Props) {
 	}, [connected]);
 
 	useEffect(() => {
-		if (socket) {
-			socket.on('already-online', (data: Array<User>) => {
-				dispatch(setOnlineUsers(data));
-			});
+		socket?.on('already-online', (data: Array<User>) => { dispatch(setOnlineUsers(data)); });
+		socket?.on('friends', (data: Array<User>) => { dispatch(setFriends(data)); });
+		socket?.on('online', (data: User) => { dispatch(addOnlineUser(data)); });
+		socket?.on('offline', (data: User) => { dispatch(removeOnlineUser(data)); });
 
-			socket.on('friends', (data: Array<User>) => {
-				dispatch(setFriends(data));
-			});
+		socket?.emit('friend', { action: 'get' });
 
-			socket.on('online', (data: User) => {
-				console.log(data);
-				
-				dispatch(addOnlineUser(data));
-			});
-
-			socket.on('offline', (data: User) => {
-				dispatch(removeOnlineUser(data));
-			});
-
-			return () => {
-				socket.off('online');
-				socket.off('offline');
-				socket.off('online-users');
-			}
+		return () => {
+			socket?.off('online');
+			socket?.off('offline');
+			socket?.off('online-users');
 		}
 	}, [socket, dispatch]);
 

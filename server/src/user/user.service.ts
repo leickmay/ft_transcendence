@@ -1,11 +1,11 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import ImageFileService from 'src/imageFile/imageFile.service';
 import { Connection, Repository } from 'typeorm';
 import { AlreadyExistsException } from './alreadyExists.exception';
-import { CreateUserDto } from './dto/createUser.dto';
-
+import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './user.entity';
+
 
 @Injectable()
 export class UserService {
@@ -33,9 +33,7 @@ export class UserService {
 	}
 
 	async get(id: number): Promise<User> {
-		return await this.userRepository.findOne(id, {
-			relations: ['friends'],
-		});
+		return await this.userRepository.findOne(id);
 	}
 
 	async getById42(id42: number) : Promise<User> {

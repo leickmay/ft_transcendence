@@ -1,9 +1,11 @@
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import ImageFile from 'src/imageFile/imageFile.entity';
 import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-
+@Exclude()
 @Entity()
 export class User extends BaseEntity {
+	@Expose()
 	@PrimaryGeneratedColumn()
 	id: number;
 
@@ -11,13 +13,24 @@ export class User extends BaseEntity {
 	@Column()
 	id42: number;
 
+	@Expose({
+		groups: ['owner'],
+	})
+	@Type(() => Boolean)
+	@Transform(({value}) => !!value)
+	@Column({ nullable: true })
+	totp?: string;
+
+	@Expose()
 	@Column({ length: 50 })
 	name: string;
 
+	@Expose()
 	@Index({ unique: true })
 	@Column({ length: 50 })
 	login: string;
 
+	@Expose()
 	@Column({ length: 255 })
 	intraPicture: string;
 
@@ -34,10 +47,16 @@ export class User extends BaseEntity {
 	public avatarId?: number;
 
 	@ManyToMany(() => User, {
-		lazy: true
+		lazy: true,
 	})
     @JoinTable({
-		name: 'friends',
+		name: 'followers',
+		joinColumn: {
+			name: 'followed',
+		},
+		inverseJoinColumn: {
+			name: 'following',
+		},
 	})
-	friends: Promise<User[]>;
+	friends: Promise<Array<User>>;
 }

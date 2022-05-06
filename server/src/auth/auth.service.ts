@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
+import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -40,7 +41,7 @@ export class AuthService {
 		return token;
 	}
 
-	async validateUser(authCode: string): Promise<any> {
+	async validateUser(authCode: string): Promise<User> {
 		const token = await this.get42Token(authCode);
 		const api_endpoint = 'https://api.intra.42.fr/v2';
 
@@ -69,15 +70,19 @@ export class AuthService {
 		return this.jwtService.verify(token);
 	}
 
-	async login(code: string) {
-		const user = await this.validateUser(code);
+	makeJWTToken(user: User, totp: boolean = true): string {
 		const payload = {
 			id: user.id,
 			login: user.login,
+			restricted: !!user.totp && totp
 		};
 
-		return {
-			access_token: this.jwtService.sign(payload),
-		};
+		return this.jwtService.sign(payload);
+	}
+
+	async login(code: string): Promise<string> {
+		const user = await this.validateUser(code);
+		
+		return this.makeJWTToken(user);
 	}
 }

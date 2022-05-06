@@ -23,14 +23,14 @@ export const Friends = () => {
 		let elements: Array<JSX.Element> = [];
 		for (const user of online.filter(o => !friends.find(f => f.id === o.id))) {
 			elements.push(
-			<p key={user.id}>
+			<div key={user.id}>
 				<div onClick={() => socket?.emit('friend', {
 					action: 'add',
 					id: user.id,
 				})}>
 					<p className="pointer" style={{fontSize: '1rem'}}>{user.name} (ajouter)</p>
 				</div>
-			</p>);
+			</div>);
 		}
 		return elements;
 	};

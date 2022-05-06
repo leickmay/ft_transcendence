@@ -1,7 +1,10 @@
-import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, InternalServerErrorException, NotFoundException, Post, Query, Req, Res, UnprocessableEntityException, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
+import e, { Response } from 'express';
+import * as OTPAuth from 'otpauth';
 import { UserService } from 'src/user/user.service';
+import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 /**
  * @deprecated
@@ -10,22 +13,55 @@ import { UserService } from 'src/user/user.service';
 export class AuthController {
 	constructor(
 		private readonly userService: UserService,
+		private readonly authService: AuthService,
 		private jwtService: JwtService
 	) {}
 
-	@Get('/login')
-	async debugLogin(@Query('id') id: number, @Res() response: Response) {
-		this.userService.get(id)
-		.then((user) => {
-			const payload = {
-				id: user.id,
-				login: user.login,
-			};
+	@Get('/debug')
+	async debug(@Query('id') id: number, @Res() response: Response) {
+		let user = await this.userService.get(id);
+		if (!user) {
+			throw new NotFoundException('User not found');
+		}
 
-			response.cookie('access_token', this.jwtService.sign(payload)).send({ success: true });
-		})
-		.catch(() => {
-			response.status(404).send('User not found');
+		const payload = {
+			id: user.id,
+			login: user.login,
+		};
+
+		let token = this.jwtService.sign(payload);
+		response.cookie('access_token', token).send(token);
+	}
+
+	@Post('/login')
+	async login(@Body('code') code: string, @Res() response: Response): Promise<void> {
+		if (code) {
+			const token = await this.authService.login(code);
+
+			response.cookie('access_token', token).send(token);
+		} else {
+			throw new UnprocessableEntityException();
+		}
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Post('/totp')
+	async totp(@Body('token') token: string, @Req() request, @Res() response: Response): Promise<void> {
+		let totp = new OTPAuth.TOTP({
+			issuer: 'Stonks Pong 3000',
+			label: request.user.login,
+			algorithm: 'SHA1',
+			digits: 6,
+			period: 30,
+			secret: request.user.totp,
 		});
+	
+		if (token && totp.validate({token}) == 0) {
+			const token = await this.authService.makeJWTToken(request.user, false);
+
+			response.cookie('access_token', token).send(token);
+		} else {
+			throw new ForbiddenException();
+		}
 	}
 }

@@ -20,7 +20,7 @@ export function Login() {
 		if (el.code === 'Enter') {
 			const target: HTMLInputElement = el.currentTarget;
 			
-			fetch('/api/login/?id=' + target.value)
+			fetch('/api/debug/?id=' + target.value)
 			.then(res => {
 				if (!res.ok)
 					throw new Error('Unknown user');
