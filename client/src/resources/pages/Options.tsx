@@ -1,15 +1,11 @@
-<<<<<<< HEAD
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useCookies } from "react-cookie";
-import { alertType } from '../../app/slices/alertSlice';
-import store from '../../app/store';
-import { useContext, useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
+import { alertType } from '../../app/slices/alertSlice';
 import { setTotp } from "../../app/slices/usersSlice";
-import { RootState } from "../../app/store";
-
+import store, { RootState } from '../../app/store';
 import { ImageUploader } from '../components/ImageUploader';
 
 export const Options = () => {
