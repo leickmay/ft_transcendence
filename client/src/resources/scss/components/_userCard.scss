@@ -12,7 +12,7 @@
 
 	.userCardAvatar {
 		//background: rgba(0, 0, 0, 0.541);
-		background: url("/assets/img/bg_friendCard.png")  no-repeat center/cover;
+		background: url("/assets/images/bg_friendCard.png")  no-repeat center/cover;
 		background-size: 125%;
 		border-radius: 50%;
 		border: 2px inset $color-1;
@@ -31,12 +31,11 @@
 
 	button {
 		margin: 5px 0% 0px 85%;
-		background: url("/assets/img/logout4.png") no-repeat center/cover;
+		background: url("/assets/images/logout4.png") no-repeat center/cover;
 		height: 40px;
 		width: 40px;
 		&:hover {
-			background: url("/assets/img/logout3.png") no-repeat center/cover;
-			cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
+			background: url("/assets/images/logout3.png") no-repeat center/cover;
 		}
 	}
 }

@@ -4,7 +4,7 @@ export interface User {
 	login: string;
 	name: string;
 	avatar: string;
-	__friends__?: Array<User>;
+	totp?: boolean;
 }
 
 export function containsUser(users: Array<User>, user: User): boolean {

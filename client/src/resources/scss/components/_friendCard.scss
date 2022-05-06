@@ -1,7 +1,7 @@
 .friendCard {
 	// border: 2px solid rgb(255, 25, 255);
 	text-align: center;
-	background: url("/assets/img/bg_friendCard.png")  no-repeat center/cover;
+	background: url("/assets/images/bg_friendCard.png")  no-repeat center/cover;
 	width: 300px;
 	height: 300px;
 	user-select: none;
@@ -23,7 +23,7 @@
 	}
 
 	button {
-		background: url("../../../../public/assets/images/trash.png") no-repeat center/contain;
+		background: url("/assets/images/trash.png") no-repeat center/contain;
 		//position: absolute;
 		//bottom: 16px;
 		transform: translateY(-95%) translateX(+345%);

@@ -13,19 +13,26 @@ $white: rgb(243, 243, 243);
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
-	cursor: url("/assets/img/cursor.png") 50 50, auto;
 	user-select: none;
 }
 
+:root {
+	cursor: url("/assets/images/cursor.png") 16 16, auto;
+}
+
+:any-link, button:hover, input:hover, textarea:hover, .pointer {
+	cursor: url("/assets/images/cursor_little_pink.png") 16 16, auto;
+}
+
 body {
-  margin: 0.4rem auto;
-  max-width: 1700px;
-  font-family: $font-1;
-  font-size: 2.5rem;
-  text-shadow: 5px 3px 0px $color-1;
-  color: $color-3;
-  background: url("/assets/img/bg_home.png") fixed center/contain;
-  animation: 30s linear 1s infinite alternate slidein;
+	margin: 0.4rem auto;
+	max-width: 1700px;
+	font-family: $font-1;
+	font-size: 2.5rem;
+	text-shadow: 5px 3px 0px $color-1;
+	color: $color-3;
+	background: url("/assets/images/bg_home.png") fixed center/contain;
+	animation: 30s linear 1s infinite alternate slidein;
 }
 
 @keyframes slidein {
@@ -46,23 +53,19 @@ a, a:visited {
 	}
 }
 
-:any-link, button:hover, input:hover, textarea:hover, .pointer {
-	cursor: url("/assets/img/cursor_little_pink.png") 50 50, auto;
-}
-
 button {
 	font-family: $font-1;
 	font-size: 1.5rem;
 	color: $color-2;;
-	background: url("/assets/img/bg_friendCard.png") no-repeat center/cover;
+	background: url("/assets/images/bg_friendCard.png") no-repeat center/cover;
 	border: none;
 	transition: all 0.5s ease-out;
 	&:hover {
-		background: url("/assets/img/button_hover_rainbow.png") no-repeat center/cover;
+		background: url("/assets/images/button_hover_rainbow.png") no-repeat center/cover;
 		text-shadow: none;
 	}
 	&:active {
-		background: url("/assets/img/button_active.png") no-repeat center/cover;
+		background: url("/assets/images/button_active.png") no-repeat center/cover;
 		color: $color-4;
 		transition: all 0s ease-out;
 	}
@@ -114,8 +117,4 @@ textarea:active {
 	color: $color-1;
 	background: black;
 	border-color: $color-2;
-}
-
-.spec:hover {
-	cursor: url("/assets/img/cursor_little_pink.png") 50 50, auto;
 }

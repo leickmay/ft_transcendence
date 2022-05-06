@@ -4,9 +4,10 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 import { User } from "src/user/user.entity";
 import { UserService } from "src/user/user.service";
 import { jwtConstants } from "../constants";
+import { TotpException } from "../exceptions/totp.exception";
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class TwoFactorJwtStrategy extends PassportStrategy(Strategy, 'two-factor-jwt') {
 	constructor(
 		private userService: UserService
 	) {
@@ -18,6 +19,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 	}
 
 	async validate(payload: any): Promise<User> {
+		if (payload.restricted) {
+			throw new TotpException();
+		}
 		return await this.userService.get(payload.id);
 	}
 }
