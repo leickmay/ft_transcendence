@@ -22,7 +22,7 @@ export function Connected(props: Props) {
 	const dispatch: Dispatch<AnyAction> = useDispatch();
 
 	useEffect(() => {
-		const connect = async () => {
+		const connect = async (): Promise<void> => {
 			const headers: HeadersInit = {
 				'Authorization': 'Bearer ' + cookies.access_token,
 				'Content-Type': 'application/json',
@@ -30,10 +30,14 @@ export function Connected(props: Props) {
 			let res: Response = await fetch('/api/users', {headers});
 
 			let data: any = await res.json();
+			console.log(-1);
 			if (data.totp_validation) {
 				res = await fetch('/api/totp', {method: 'POST', headers, body: JSON.stringify({token: prompt('Double authentification token :')})});
+				console.log(0);
 				if (res.ok) {
 					setCookie('access_token', await res.text());
+					console.log(1);
+					
 					return;
 				}
 			}
@@ -42,7 +46,7 @@ export function Connected(props: Props) {
 				throw res.statusText;
 			}
 
-			let user: User = await res.json();
+			let user: User = data;
 			dispatch(setCurrentUser(user));
 
 			let instance = io(':3001', {extraHeaders: headers as any});
