@@ -88,13 +88,10 @@ prune:
 	$(DOCKER) system prune --all --force --volumes
 .PHONY: prune
 
-clean: stop prune
-.PHONY: clean
-
-fclean: clean
+clean: stop
 	rm -rf \
 		./client/node_modules \
 		./server/node_modules \
 		./server/dist \
 		.env
-.PHONY: fclean
+.PHONY: clean

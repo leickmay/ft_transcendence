@@ -1,8 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import ImageFileService from 'src/imageFile/imageFile.service';
+import ImageFileService from 'src/images/image.service';
 import { Connection, Repository } from 'typeorm';
-import { AlreadyExistsException } from './alreadyExists.exception';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './user.entity';
 
@@ -38,7 +37,7 @@ export class UserService {
 
 	async getById42(id42: number) : Promise<User> {
 		return await this.userRepository.findOne({id42});
-	  }
+	}
 
 	async getByLogin(login: string) : Promise<User> {
 		return await this.userRepository.findOne({login});

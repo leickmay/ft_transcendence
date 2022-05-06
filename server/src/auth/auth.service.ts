@@ -17,7 +17,7 @@ export class AuthService {
 		const params = {
 			grant_type: 'authorization_code',
 			client_id: process.env.API42_UID,
-			client_secret: process.env.API42_SECRET,
+			client_secret: process.env.API42_SECRET_KEY,
 			redirect_uri: process.env.API42_REDIRECT,
 			code: authCode,
 		};

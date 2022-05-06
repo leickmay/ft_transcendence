@@ -30,9 +30,9 @@ export class UserController {
 	@Post('/uploadimage')
 	@UseInterceptors(FileInterceptor('file'))
 	async uploadFile(@UploadedFile() file: Express.Multer.File, @Req() request) {
-	  console.log("file : ", file);
-	  console.log("user : ", request.user.login);
-	  return this.userService.addAvatar(request.user.login, file.buffer, file.originalname);
+		console.log("file : ", file);
+		console.log("user : ", request.user.login);
+		return this.userService.addAvatar(request.user.login, file.buffer, file.originalname);
 	}
 
 	@Get('/avatar/:login')
@@ -42,11 +42,11 @@ export class UserController {
 
 		const stream = Readable.from(avatar.data);
 
-        response.set({
-            'Content-Disposition': `inline; filename="${avatar.filename}"`,
-            'Content-Type': 'image'
-        })
+		response.set({
+			'Content-Disposition': `inline; filename="${avatar.filename}"`,
+			'Content-Type': 'image'
+		})
 
-        return new StreamableFile(stream);
+		return new StreamableFile(stream);
 	}
 }

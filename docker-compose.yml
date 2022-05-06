@@ -1,14 +1,14 @@
-version: "3"
+version: "3.9"
 services:
   react:
-    build:
-      context: ./client
+    build: ./client
     container_name: react
     depends_on:
       - postgres
       - nestjs
-    env_file:
-      - .env
+    environment:
+      - REACT_APP_API42_UID=${API42_UID}
+      - REACT_APP_API42_REDIRECT=${API42_REDIRECT}
     networks:
       - yggdrasil
     ports:
@@ -17,8 +17,7 @@ services:
     volumes:
       - "./client:/app"
   nestjs:
-    build:
-      context: ./server
+    build: ./server
     container_name: nestjs
     depends_on:
       - postgres
@@ -35,8 +34,10 @@ services:
   postgres:
     image: postgres:14
     container_name: postgres
-    env_file:
-      - .env
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
     networks:
       - yggdrasil
     restart: unless-stopped
@@ -47,8 +48,6 @@ services:
     container_name: adminer
     depends_on:
       - postgres
-    env_file:
-      - .env
     networks:
       - yggdrasil
     ports:
