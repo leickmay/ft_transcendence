@@ -32,7 +32,7 @@ export class User extends BaseEntity {
 
 	@Expose()
 	@Column({ length: 255 })
-	intraPicture: string;
+	intra_picture: string;
 
 	@JoinColumn({ name: 'avatarId' })
 	@OneToOne(

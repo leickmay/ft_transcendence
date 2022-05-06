@@ -3,7 +3,7 @@ export interface User {
 	id42: string;
 	login: string;
 	name: string;
-	intraPicture: string;
+	intra_picture: string;
 	avatarId: number;
 	totp?: boolean;
 }

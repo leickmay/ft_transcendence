@@ -60,7 +60,7 @@ export class AuthService {
 				'id42': data.id,
 				'name': data.displayname,
 				'login': data.login,
-				'intraPicture': data.image_url
+				'intra_picture': data.image_url
 			});
 		}
 		return tmpUser;

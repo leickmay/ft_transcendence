@@ -24,7 +24,7 @@ export class UserController {
 
 	@Post('/changelogin/:newLogin')
 	async changeLogin(@Param('newLogin') newLogin: string, @Req() request) {
-		await this.userService.newLogin(request.user.login, newLogin);
+		await this.userService.setName(request.user, newLogin);
 	}
 
 	@Post('/uploadimage')
@@ -39,7 +39,7 @@ export class UserController {
 	async getAvatar(@Res({ passthrough: true }) response: Response, @Param('login') login:string ) {
 		const user: User = await this.userService.getByLogin(login);
 		const avatar = await this.userService.getAvatar(user);
-		
+
 		const stream = Readable.from(avatar.data);
 
         response.set({

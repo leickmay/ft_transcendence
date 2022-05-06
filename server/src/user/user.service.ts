@@ -44,16 +44,9 @@ export class UserService {
 		return await this.userRepository.findOne({login});
 	}
 
-	async newLogin(login: string, newLogin: string) {
-		const user: User = await this.getByLogin(login);
-		user.login = newLogin;
-		try {
-			await this.userRepository.save(user);
-		}
-		catch{
-			throw new AlreadyExistsException();
-		}
-		
+	async setName(user: User, name: string): Promise<User> {
+		user.name = name;
+		return user.save();
 	}
 
 	async addAvatar(login: string, imageBuffer: Buffer, filename: string) {
@@ -84,7 +77,7 @@ export class UserService {
 		} finally {
 			await queryRunner.release();
 		}
-	  }
+	}
 
 	async getAvatar(user: User) {
 		const avatar = await this.imageFileService.getImageById(user.avatarId);

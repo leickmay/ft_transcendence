@@ -16,10 +16,10 @@ const UserCard = (props: Props) => {
 
 	return (
 		<div className="userCard">
-			<img className="userCardAvatar" src={user?.intraPicture} width="120px" height="120px" alt=""></img> 
+			<img className="userCardAvatar" src={user?.intra_picture} width="120px" height="120px" alt=""></img> 
 
 			<div className="userCardInfo"> 
-				<div>{ user?.login || '...' }</div>
+				<div>{ user?.name || '...' }</div>
 				<div>lvl { /*user.level */ 0 }</div>
 				<button type="submit" onClick={() => {logout(removeCookie, navigate)}}></button>
 			</div>

@@ -20,7 +20,7 @@ env:
 ## DOCKER ##
 ############
 
-build: env
+build:
 	@$(COMPOSE) build
 .PHONY: build
 
