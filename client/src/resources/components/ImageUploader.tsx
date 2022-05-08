@@ -1,20 +1,17 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useCookies } from "react-cookie";
-import { useSelector } from "react-redux";
 import { alertType } from "../../app/slices/alertSlice";
-import store, { RootState } from "../../app/store";
+import store from "../../app/store";
 
 export function ImageUploader() {
 	const [selectedFile, setSelectedFile] = useState<File>();
 	const [cookies] = useCookies();
-	const [img, setImg] = useState("");
-	const user = useSelector((state: RootState) => state.users.current);
 
 	const getHeaders = useCallback(async (): Promise<HeadersInit> => {
-		const token = await cookies.access_token;
+		const token = cookies.access_token;
 
 		return {
-			'Authorization': 'Bearer ' + token
+			'Authorization': 'Bearer ' + token,
 		};
 	}, [cookies]);
 
@@ -35,10 +32,10 @@ export function ImageUploader() {
 		} else if (selectedFile.type !== 'image/png' && selectedFile.type !== 'image/jpeg') {
 			store.dispatch(alertType("Please upload a PNG or JPEG image only"));
 		} else {
-			formData.set('file', selectedFile);
+			formData.set('avatar', selectedFile);
 			const headers = await getHeaders();
 
-			await fetch("/api/users/avatar/", {
+			await fetch("/api/users/avatar", {
 				method: "POST",
 				headers: headers,
 				body: formData,
@@ -55,21 +52,6 @@ export function ImageUploader() {
 		}
 	}
 
-	useEffect(() => {
-		const fetchImage = async () => {
-			const headers = await getHeaders();
-			const res = await fetch("/api/users/avatar/" + user?.login, {method: "GET", headers: headers});
-			if (res.ok)
-			{
-				const imageBlob = await res.blob();
-				const imageObjectURL = URL.createObjectURL(imageBlob);
-				setImg(imageObjectURL);
-			}
-		}
-		
-		fetchImage();
-	}, [getHeaders, user?.login])
-
 	return (
 		<div>
 			<input type="file" name="image" onChange={changeHandler} />
@@ -85,14 +67,6 @@ export function ImageUploader() {
 			<div>
 				<button onClick={handleSubmission}>Submit</button>
 			</div>
-			{
-				img !== "" ? (
-					<img src={img} alt="avatar" />
-				) : (
-				 <p> no avatar</p>
-				)
-			}
-			
 		</div>
 	)
 }

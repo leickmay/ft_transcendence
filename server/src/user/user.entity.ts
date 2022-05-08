@@ -30,7 +30,9 @@ export class User extends BaseEntity {
 	@Column({ length: 50 })
 	login: string;
 
-	@Expose()
+	@Expose({
+		name: 'avatar',
+	})
 	@Column({ length: 255 })
 	intra_picture: string;
 

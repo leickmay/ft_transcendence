@@ -3,6 +3,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { HttpExceptionFilter } from 'src/auth/filters/totp-exception.filter';
 import { TwoFactorJwtAuthGuard } from 'src/auth/guards/two-factor-jwt-auth.guard';
+import { ApiFile } from 'src/images/decorators/api-file.decorator';
+import { fileMimetypeFilter } from 'src/images/filters/file-mimetype-filter';
 import { Readable } from 'stream';
 import { User } from './user.entity';
 import { UserService } from './user.service';
@@ -23,15 +25,14 @@ export class UserController {
 	}
 
 	@Post('/avatar')
-	@UseInterceptors(FileInterceptor('image', {
+	@ApiFile('avatar', true, {
+		fileFilter: fileMimetypeFilter('image'),
 		limits: {
 			fileSize: 2000000,
 		},
-	}))
+	})
 	async uploadFile(@UploadedFile() file: Express.Multer.File, @Req() request) {
-		console.log(file.path);
-		
-		return this.userService.setAvatar(request.user, {
+		return await this.userService.setAvatar(request.user, {
 			avatar: {
 				content: file.buffer,
 				filename: file.originalname,
@@ -43,6 +44,8 @@ export class UserController {
 	async getAvatar(@Res({ passthrough: true }) response: Response, @Param('login') login:string ) {
 		const user: User = await this.userService.getByLogin(login);
 		const avatar = await user.avatar;
+
+		console.log(user);
 
 		if (!avatar)
 			throw new NotFoundException();

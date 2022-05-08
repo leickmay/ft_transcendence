@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as OTPAuth from 'otpauth';
+import { use } from 'passport';
 import { Image } from 'src/images/image.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserAvatarDto } from './dto/update-user-avatar.dto';
@@ -47,7 +48,7 @@ export class UserService {
 	}
 
 	async setAvatar(user: User, data: UpdateUserAvatarDto): Promise<User> {
-		user.avatar = await Image.merge(user.avatar, data.avatar).save();
+		user.avatar = await Image.merge(user.avatar || new Image(), data.avatar).save();
 		return await user.save();
 	}
 }

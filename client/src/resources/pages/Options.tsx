@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 import QRCode from "react-qr-code";
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
@@ -13,6 +14,8 @@ export const Options = () => {
 	const [totpLoading, setTotpLoading] = useState<boolean>(false);
 	const [totpURL, setTotpURL] = useState<string | null>();
 	const [name, setName] = useState("");
+    const [img, setImg] = useState("");
+	const [cookies] = useCookies();
 
 	useEffect(() => {
 		socket?.on('totp', (data: {status: string, totp: string | null}) => {
@@ -45,6 +48,24 @@ export const Options = () => {
 		return null;
 	};
 
+	useEffect(() => {
+        const fetchImage = async () => {
+            const res = await fetch("/api/users/avatar/" + user?.login, {
+				headers: {
+					'Authorization': 'Bearer ' + cookies.access_token,
+				},
+			});
+            if (res.ok) {
+                const imageBlob = await res.blob();
+                const imageObjectURL = URL.createObjectURL(imageBlob);
+                setImg(imageObjectURL);
+            }
+        }
+
+		if (user?.login)
+        	fetchImage();
+    }, [cookies.access_token, user?.login])
+
 	return (
 		<div className='options'>
 			<div className='optionsWindow'>
@@ -58,6 +79,9 @@ export const Options = () => {
 					<h2>Two factor authentification</h2>
 					<button onClick={newTotp} disabled={totpLoading}>{!user?.totp ? 'Enable ' : 'Disable '}2fa</button>
 					{ getTotp() }
+					{
+						img ? (<img src={img} alt="avatar" />) : (<p>Loading...</p>)
+					}
 				</div>
 			</div>
 		</div>

@@ -34,7 +34,7 @@ const FriendCard = (props: Props) => {
 				{/* <img src={ingameSrc} width="40" height="40" alt=""></img> */}
 			</div>
 			<div className="friendCardDown">
-				<img src={props.user.intra_picture} width="100" height="100" align-item="bottom" alt=""></img>
+				<img src={props.user.avatar} width="100" height="100" align-item="bottom" alt=""></img>
 				<div>{props.user.name}</div>
 				{ button() }
 				{/* <div> lvl {props.user.level}</div> */}

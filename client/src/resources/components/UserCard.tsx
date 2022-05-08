@@ -16,7 +16,7 @@ const UserCard = (props: Props) => {
 
 	return (
 		<div className="userCard">
-			<img className="userCardAvatar" src={user?.intra_picture} width="120px" height="120px" alt=""></img> 
+			<img className="userCardAvatar" src={user?.avatar} width="120px" height="120px" alt=""></img> 
 
 			<div className="userCardInfo"> 
 				<div>{ user?.name || '...' }</div>

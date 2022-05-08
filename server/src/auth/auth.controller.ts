@@ -35,7 +35,6 @@ export class AuthController {
 
 	@Post('/login')
 	async login(@Body('code') code: string, @Res() response: Response): Promise<void> {
-	
 		if (code) {
 			const token = await this.authService.login(code);
 			response.cookie('access_token', token).send(token);
