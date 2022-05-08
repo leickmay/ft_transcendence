@@ -49,27 +49,18 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('totp')
 	async totpEvent(@MessageBody('action') action: string, @ConnectedSocket() client: Socket): Promise<void> {
+		let url: string | undefined;
 		let user = this.users[client.id];
 
-		if (action == 'add') {
-			let totp = new OTPAuth.TOTP({
-				issuer: 'Stonks Pong 3000',
-				label: this.users[client.id].login,
-				algorithm: 'SHA1',
-				digits: 6,
-				period: 30,
-			});
+		if (action == 'toggle')
+			url = await this.userService.toggleTotp(user);
 
-			user.totp = totp.secret.base32;
-			await user.save();
-			client.emit('totp', {status: 'enabled', payload: totp.toString()});
-		} else if (action == 'remove' && this.users[client.id].totp) {
-			user.totp = null;
-			await user.save();
-			client.emit('totp', {status: 'disabled'});
-		} else {
-			client.emit('totp', {status: 'unknown'});
-		}
+		client.emit('totp', {status: 'success', totp: url});
+	}
+
+	@SubscribeMessage('option')
+	async optionEvent(@MessageBody('action') action: string, @MessageBody('id') id: number, @ConnectedSocket() client: Socket): Promise<void> {
+		
 	}
 
 	@SubscribeMessage('friend')
@@ -78,7 +69,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 		let friends = await user.friends;
 		if (action == 'add') {
-			let target = await this.userService.get(id);
+			let target = await User.findOne(id);
 
 			if (target && !friends.find(o => o.id === id)) {
 				friends.push(target);
@@ -87,7 +78,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			user.friends = Promise.resolve(friends);
 			await (await user.save()).reload();
 		} else if (action == 'remove') {
-			let target = await this.userService.get(id);
+			let target = await User.findOne(id);
 
 			if (target) {
 				friends = friends.filter(e => e.id != target.id);
@@ -97,6 +88,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			await (await user.save()).reload();
 		} else if (action == 'get') {
 		}
-		client.emit('friends', instanceToPlain(await user.friends))
+		client.emit('friends', instanceToPlain(await user.friends));
 	}
 }

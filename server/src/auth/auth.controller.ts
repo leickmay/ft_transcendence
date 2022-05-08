@@ -35,9 +35,9 @@ export class AuthController {
 
 	@Post('/login')
 	async login(@Body('code') code: string, @Res() response: Response): Promise<void> {
+	
 		if (code) {
 			const token = await this.authService.login(code);
-
 			response.cookie('access_token', token).send(token);
 		} else {
 			throw new UnprocessableEntityException();
@@ -45,7 +45,7 @@ export class AuthController {
 	}
 
 	@UseGuards(JwtAuthGuard)
-	@Post('/totp')
+	@Post('/login/totp')
 	async totp(@Body('token') token: string, @Req() request, @Res() response: Response): Promise<void> {
 		let totp = new OTPAuth.TOTP({
 			issuer: 'Stonks Pong 3000',

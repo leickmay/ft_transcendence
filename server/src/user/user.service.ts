@@ -1,86 +1,53 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import ImageFileService from 'src/images/image.service';
-import { Connection, Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import * as OTPAuth from 'otpauth';
+import { Image } from 'src/images/image.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserAvatarDto } from './dto/update-user-avatar.dto';
+import { UpdateUserNameDto } from './dto/update-user-name.dto';
 import { User } from './user.entity';
-
 
 @Injectable()
 export class UserService {
-	constructor(
-		@InjectRepository(User)
-		private userRepository: Repository<User>,
-		private readonly imageFileService: ImageFileService,
-		private connection: Connection
-	) {}
+	constructor() {}
 
-	async all(): Promise<User[]> {
-		return await this.userRepository.find();
+	async create(data: CreateUserDto) : Promise<User> {
+		return await User.create(data).save();
 	}
 
-	async create(user: CreateUserDto): Promise<User> {
-		return await this.userRepository.save(user);
-	}
-
-	async save(user: User): Promise<User> {
-		return await this.userRepository.save(user);
-	}
-
-	async remove(id: number): Promise<void> {
-		await this.userRepository.delete(id);
-	}
-
-	async get(id: number): Promise<User> {
-		return await this.userRepository.findOne(id);
+	async get(id: number) : Promise<User> {
+		return await User.findOne(id);
 	}
 
 	async getById42(id42: number) : Promise<User> {
-		return await this.userRepository.findOne({id42});
+		return await User.findOne({id42});
 	}
 
 	async getByLogin(login: string) : Promise<User> {
-		return await this.userRepository.findOne({login});
+		return await User.findOne({login});
 	}
 
-	async setName(user: User, name: string): Promise<User> {
-		user.name = name;
-		return user.save();
+	async setName(user: User, data: UpdateUserNameDto): Promise<User> {
+		return await User.merge(user, data).save();
 	}
 
-	async addAvatar(login: string, imageBuffer: Buffer, filename: string) {
-		const queryRunner = this.connection.createQueryRunner();
-
-		await queryRunner.connect();
-		await queryRunner.startTransaction();
-
-		try {
-			const user = await queryRunner.manager.findOne(User, {login});
-			const currentAvatarId = user.avatarId;
-			const avatar = await this.imageFileService.uploadImageFile(imageBuffer, filename, queryRunner);
-
-			await queryRunner.manager.update(User, {login}, {
-				avatarId: avatar.id,
-			})
-
-			if (currentAvatarId) {
-				await this.imageFileService.deleteImageFile(currentAvatarId, queryRunner);
-			}
-
-			await queryRunner.commitTransaction();
-
-			return avatar;
-		} catch {
-			await queryRunner.rollbackTransaction();
-			throw new InternalServerErrorException();
-		} finally {
-			await queryRunner.release();
+	async toggleTotp(user: User): Promise<string | undefined> {
+		let totp: OTPAuth.TOTP;
+		if (!user.totp) {
+			totp = new OTPAuth.TOTP({
+				issuer: 'Stonks Pong 3000',
+				label: user.login,
+				algorithm: 'SHA1',
+				digits: 6,
+				period: 30,
+			});
 		}
+		user.totp = totp?.secret.base32 || null;
+		await user.save();
+		return totp?.toString();
 	}
 
-	async getAvatar(user: User) {
-		const avatar = await this.imageFileService.getImageById(user.avatarId);
-		console.log("avatar : ", avatar);
-		return avatar;
+	async setAvatar(user: User, data: UpdateUserAvatarDto): Promise<User> {
+		user.avatar = await Image.merge(user.avatar, data.avatar).save();
+		return await user.save();
 	}
 }

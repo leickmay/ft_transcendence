@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useCookies } from "react-cookie";
 import { useSelector } from "react-redux";
 import { alertType } from "../../app/slices/alertSlice";
@@ -10,18 +10,17 @@ export function ImageUploader() {
 	const [img, setImg] = useState("");
 	const user = useSelector((state: RootState) => state.users.current);
 
-	async function getHeaders() {
-		
+	const getHeaders = useCallback(async (): Promise<HeadersInit> => {
 		const token = await cookies.access_token;
+
 		return {
 			'Authorization': 'Bearer ' + token
 		};
-	};
+	}, [cookies]);
 
 	const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const filelist = e.target.files;
-		if (filelist)
-		{
+		if (filelist) {
 			setSelectedFile(filelist[0]);
 		}
 	}
@@ -29,33 +28,24 @@ export function ImageUploader() {
 	const handleSubmission = async () => {
 		let formData = new FormData();
 
-		if (!selectedFile)
-		{
+		if (!selectedFile) {
 			store.dispatch(alertType("File is missing !"));
-		}
-		else if (selectedFile.size > 2000000)
-		{
+		} else if (selectedFile.size > 2000000) {
 			store.dispatch(alertType("File size is limited to 2MB"));
-		}
-		else if (selectedFile.type !== 'image/png' && selectedFile.type !== 'image/jpeg')
-		{
+		} else if (selectedFile.type !== 'image/png' && selectedFile.type !== 'image/jpeg') {
 			store.dispatch(alertType("Please upload a PNG or JPEG image only"));
-		}
-		else
-		{
+		} else {
 			formData.set('file', selectedFile);
 			const headers = await getHeaders();
-			await fetch("api/users/uploadimage/", {
+
+			await fetch("/api/users/avatar/", {
 				method: "POST",
 				headers: headers,
 				body: formData,
-			}
-			).then((response) => {
-				if (response.ok)
-				{
+			}).then((response) => {
+				if (response.ok) {
 					store.dispatch(alertType("Avatar succesfully uploaded"));
-				}
-				else {
+				} else {
 					store.dispatch(alertType("Avatar upload failed"));
 				}
 			})
@@ -68,7 +58,7 @@ export function ImageUploader() {
 	useEffect(() => {
 		const fetchImage = async () => {
 			const headers = await getHeaders();
-			const res = await fetch("api/users/avatar/" + user?.login, {method: "GET", headers: headers});
+			const res = await fetch("/api/users/avatar/" + user?.login, {method: "GET", headers: headers});
 			if (res.ok)
 			{
 				const imageBlob = await res.blob();
@@ -78,7 +68,7 @@ export function ImageUploader() {
 		}
 		
 		fetchImage();
-	}, [])
+	}, [getHeaders, user?.login])
 
 	return (
 		<div>

@@ -1,5 +1,5 @@
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
-import ImageFile from 'src/images/image.entity';
+import { Image } from 'src/images/image.entity';
 import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Exclude()
@@ -34,12 +34,9 @@ export class User extends BaseEntity {
 	@Column({ length: 255 })
 	intra_picture: string;
 
-	@JoinColumn({ name: 'avatarId' })
-	@OneToOne(() => ImageFile)
-	public avatar?: ImageFile;
-
-	@Column({ nullable: true })
-	public avatarId?: number;
+	@JoinColumn({ name: 'avatar' })
+	@OneToOne(() => Image)
+	public avatar?: Image;
 
 	@ManyToMany(() => User, {
 		lazy: true,

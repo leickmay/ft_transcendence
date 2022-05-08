@@ -4,8 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { EventsModule } from './chat/events.module';
-import ImageFile from './images/image.entity';
-import { ImageFileModule } from './images/image.module';
+import { Image } from './images/image.entity';
+import { ImageModule } from './images/image.module';
 import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
 
@@ -18,14 +18,14 @@ import { UserModule } from './user/user.module';
 			username: process.env.DB_USERNAME,
 			password: process.env.DB_PASSWORD,
 			database: process.env.DB_DATABASE,
-			entities: [User, ImageFile],
+			entities: [User, Image],
 			synchronize: true,
 		}),
 		ConfigModule.forRoot(),
 		UserModule,
 		AuthModule,
 		EventsModule,
-		ImageFileModule
+		ImageModule
 	],
 	providers: [AppService],
 })

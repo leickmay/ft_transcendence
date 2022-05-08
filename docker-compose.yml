@@ -7,12 +7,13 @@ services:
       - postgres
       - nestjs
     environment:
+      - PORT=${PORT}
       - REACT_APP_API42_UID=${API42_UID}
       - REACT_APP_API42_REDIRECT=${API42_REDIRECT}
     networks:
       - yggdrasil
     ports:
-      - "80:80"
+      - "80:${PORT}"
     restart: unless-stopped
     volumes:
       - "./client:/app"
@@ -26,6 +27,7 @@ services:
     networks:
       - yggdrasil
     ports:
+      # "3000:80" TO REMOVE
       - "3000:80"
       - "3001:3001"
     restart: unless-stopped

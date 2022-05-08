@@ -1,7 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-class Image {
+export class Image extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	public id: number;
  
@@ -11,7 +11,5 @@ class Image {
 	@Column({
 		type: 'bytea',
 	})
-	data: Uint8Array;
+	content: Uint8Array;
 }
- 
-export default Image;

@@ -1,63 +1,28 @@
 import { useContext, useEffect, useState } from 'react';
-import { useCookies } from "react-cookie";
 import QRCode from "react-qr-code";
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
-import { alertType } from '../../app/slices/alertSlice';
 import { setTotp } from "../../app/slices/usersSlice";
-import store, { RootState } from '../../app/store';
+import { RootState } from '../../app/store';
 import { ImageUploader } from '../components/ImageUploader';
 
 export const Options = () => {
-
 	const socket = useContext(SocketContext);
 	const dispatch = useDispatch();
 	const user = useSelector((state: RootState) => state.users.current);
 	const [totpLoading, setTotpLoading] = useState<boolean>(false);
-	const [totpURL, setTotpURL] = useState<string>();
+	const [totpURL, setTotpURL] = useState<string | null>();
 	const [name, setName] = useState("");
-	const [cookies] = useCookies();
-
-	async function getHeaders() {
-		
-		const token = await cookies.access_token;
-		return {
-			'Authorization': 'Bearer ' + token
-		};
-	};
-
-	const changeLoginApi = async () => {
-		const headers = await getHeaders();
-		fetch("api/users/changelogin/" + name, {method: "POST", headers: headers})
-		.then(res => {
-			if (!res.ok)
-			{
-				store.dispatch(alertType("This username is already taken"));
-				throw new Error('Already exists');
-			}
-		})
-		.catch((e) => console.log("error : ", e));
-	}
-
-	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
-		if (name !== "") {
-			changeLoginApi();
-		}
-	}
 
 	useEffect(() => {
-		socket?.on('totp', (data: {status: string, payload?: string}) => {
+		socket?.on('totp', (data: {status: string, totp: string | null}) => {
 			setTotpLoading(false);
-			if (data.status === 'enabled') {
-				setTotpURL(data.payload);
-				dispatch(setTotp(true));
-			}
-			if (data.status === 'disabled') {
-				setTotpURL(undefined);
-				dispatch(setTotp(false));
+			if (data.status === 'success') {
+				setTotpURL(data.totp);
+				dispatch(setTotp(!!data.totp));
 			}
 		});
+		// socket?.on('option')
 
 		return () => {
 			socket?.off('totp');
@@ -66,11 +31,7 @@ export const Options = () => {
 
 	const newTotp = (): void => {
 		setTotpLoading(true);
-		if (!user?.totp) {
-			socket?.emit('totp', {action: 'add'});
-		} else {
-			socket?.emit('totp', {action: 'remove'});
-		}
+		socket?.emit('totp', {action: 'toggle'});
 	};
 
 	const getTotp = (): JSX.Element | null => {
@@ -88,20 +49,13 @@ export const Options = () => {
 		<div className='options'>
 			<div className='optionsWindow'>
 				<div className='optionsAvatar'>
-					<div className='title'> 
-						Choose your Avatar 
-					</div>
+					<h2>Choose your Avatar</h2>
 					<ImageUploader />
-					<div className='title'> 
-						Change your username 
-					</div>
+					<h2>Change your username</h2>
 					<label>Enter your name:
-						<input 
-							type="text" 
-							value={name}
-							onChange={(e) => setName(e.target.value)}
-						/>
+						<input type="text" value={name} onChange={(e) => setName(e.target.value)} />
 					</label>
+					<h2>Two factor authentification</h2>
 					<button onClick={newTotp} disabled={totpLoading}>{!user?.totp ? 'Enable ' : 'Disable '}2fa</button>
 					{ getTotp() }
 				</div>

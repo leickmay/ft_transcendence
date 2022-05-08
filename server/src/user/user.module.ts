@@ -1,17 +1,14 @@
 import { Module } from '@nestjs/common';
-import { UserService } from './user.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ImageModule } from 'src/images/image.module';
 import { UserController } from './user.controller';
 import { User } from './user.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
-
-import ImageFileService from 'src/images/image.service';
-import ImageFile from 'src/images/image.entity';
-import { ImageFileModule } from 'src/images/image.module';
+import { UserService } from './user.service';
 
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([User]),
-		ImageFileModule
+		ImageModule
 	],
 	providers: [UserService],
 	controllers: [UserController],
