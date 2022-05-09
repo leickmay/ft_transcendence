@@ -41,11 +41,11 @@ export class UserController {
 	}
 
 	@Get('/avatar/:login')
-	async getAvatar(@Res({ passthrough: true }) response: Response, @Param('login') login:string ) {
-		const user: User = await this.userService.getByLogin(login);
-		const avatar = await user.avatar;
-
-		console.log(user);
+	async getAvatar(@Param('login') login: string, @Res({ passthrough: true }) response: Response) {
+		const user: User = await this.userService.getByLogin(login, {
+			relations: ['avatar']
+		});
+		const avatar = user.avatar;
 
 		if (!avatar)
 			throw new NotFoundException();

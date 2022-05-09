@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as OTPAuth from 'otpauth';
 import { use } from 'passport';
 import { Image } from 'src/images/image.entity';
+import { FindOneOptions } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserAvatarDto } from './dto/update-user-avatar.dto';
 import { UpdateUserNameDto } from './dto/update-user-name.dto';
@@ -23,8 +24,8 @@ export class UserService {
 		return await User.findOne({id42});
 	}
 
-	async getByLogin(login: string) : Promise<User> {
-		return await User.findOne({login});
+	async getByLogin(login: string, options?: FindOneOptions<User>) : Promise<User> {
+		return await User.findOne({login}, options);
 	}
 
 	async setName(user: User, data: UpdateUserNameDto): Promise<User> {

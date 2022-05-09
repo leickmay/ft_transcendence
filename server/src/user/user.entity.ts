@@ -38,7 +38,7 @@ export class User extends BaseEntity {
 
 	@JoinColumn({ name: 'avatar' })
 	@OneToOne(() => Image)
-	public avatar?: Image;
+	avatar?: Image;
 
 	@ManyToMany(() => User, {
 		lazy: true,

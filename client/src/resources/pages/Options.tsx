@@ -72,6 +72,9 @@ export const Options = () => {
 				<div className='optionsAvatar'>
 					<h2>Choose your Avatar</h2>
 					<ImageUploader />
+					{
+						img ? (<img src={img} style={{ maxWidth: '100%' }} alt="avatar" />) : (<p>Loading...</p>)
+					}
 					<h2>Change your username</h2>
 					<label>Enter your name:
 						<input type="text" value={name} onChange={(e) => setName(e.target.value)} />
@@ -79,9 +82,6 @@ export const Options = () => {
 					<h2>Two factor authentification</h2>
 					<button onClick={newTotp} disabled={totpLoading}>{!user?.totp ? 'Enable ' : 'Disable '}2fa</button>
 					{ getTotp() }
-					{
-						img ? (<img src={img} alt="avatar" />) : (<p>Loading...</p>)
-					}
 				</div>
 			</div>
 		</div>
