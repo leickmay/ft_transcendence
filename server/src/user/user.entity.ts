@@ -53,4 +53,9 @@ export class User extends BaseEntity {
 		},
 	})
 	friends: Promise<Array<User>>;
+
+	@Expose({ name: 'avatar' })
+	get getAvatarUrl() {
+		return this.avatar ? '/users/avatar/' + this.login : this.intra_picture;
+	}
 }
