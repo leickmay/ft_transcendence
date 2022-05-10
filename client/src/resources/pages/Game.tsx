@@ -17,10 +17,12 @@ interface Room {
 	isFull: boolean;
 }
 
+let roomTmp: Room | null = null;
+
 export const Game = () => {
 	const socket = useContext(SocketContext);
 	const user = useSelector((state: RootState) => state.users.current);
-	const [curRoom, setCurRoom] = useState<Room | null>(null);
+	const [curRoom, setCurRoom] = useState<Room | null>(roomTmp);
 	let curRoom2: Room | null = null;
 
 	let p1 = document.getElementById('paddle_1');
@@ -38,34 +40,42 @@ export const Game = () => {
 
 	let gameLaunch = false;
 	const [pressEnter, setPressEnter] = useState("Press Enter to Play Pong");
+	console.log("repasse");
+	
 
 	useEffect(() => {
-		initGame();	
+		initGame();
+		performMove();
 	}, [curRoom?.isFull]);
 
 	function handleKeyDown(e: any) {
 		//console.log("curRoom : ", curRoom?.player1, " user.login", user?.login);
-		if (socket && curRoom && user && curRoom.player1 === user.login) {
+		if (socket && curRoom && user) {
 			//console.log("hub");
-			if (e.key === 'w' && !p1Up) {
-				console.log("up true");
-				
+			if (e.key === 'w' && curRoom.player1 === user.login && !p1Up) {
+				//console.log("up true");
 				//p1Up = true;
 				//p1Down = false;
 				socket.emit('p1', {name: user?.login, p1Up: true, p1Down: false});
 			}
-			if (e.key === 's' && !p1Down) {
-				console.log("down true");
+			if (e.key === 's' && curRoom.player1 === user.login && !p1Down) {
+				//console.log("down true");
 				//p1Up = false;
 				//p1Down = true;
 				socket.emit('p1', {name: user?.login, p1Up: false, p1Down: true});
 			}
-			if (e.key === 'ArrowUp') {
-
+			if (e.key === 'w' && curRoom.player2 === user.login && !p2Up) {
+				//console.log("up true");
+				//p2Up = true;
+				//p2Down = false;
+				socket.emit('p2', {name: user?.login, p2Up: true, p2Down: false});
 			}
-		}
-		if (e.key === 'ArrowDown') {
-
+			if (e.key === 's' && curRoom.player2 === user.login && !p2Down) {
+				//console.log("down true");
+				//p2Up = false;
+				//p2Down = true;
+				socket.emit('p2', {name: user?.login, p2Up: false, p2Down: true});
+			}
 		}
 		//if (e.key === "Enter") {
 		//	initGame();		
@@ -76,52 +86,67 @@ export const Game = () => {
 
 	function handleKeyUp(e: any) {
 		//console.log("Handle Key Up...");
-		if (socket && curRoom && user && curRoom.player1 === user.login) {
-			if (e.key === 'w') {
-				console.log("up false");
+		if (socket && curRoom && roomTmp && user) {
+			if (e.key === 'w' && curRoom.player1 === user.login) {
+				//console.log("up false");
 				//p1Up = false;
+				roomTmp.p1Up = false;
 				socket.emit('p1', {name: user?.login, p1Up: false, p1Down: false});
 			}
-			if (e.key === 's') {
-				console.log("down false");
+			if (e.key === 's' && curRoom.player1 === user.login) {
+				//console.log("down false");
 				//p1Down = false;
+				roomTmp.p1Down = false;
 				socket.emit('p1', {name: user?.login, p1Up: false, p1Down: false});
 			}
+			if (e.key === 'w' && curRoom.player2 === user.login) {
+				//console.log("up false");
+				//p2Up = false;
+				roomTmp.p2Up = false;
+				socket.emit('p2', {name: user?.login, p2Up: false, p2Down: false});
+			}
+			if (e.key === 's' && curRoom.player2 === user.login) {
+				//console.log("down false");
+				//p2Down = false;
+				roomTmp.p2Down = false;
+				socket.emit('p2', {name: user?.login, p2Up: false, p2Down: false});
+			}
 		}
-		if (e.key === 'ArrowUp') {
 
-		}
-		if (e.key === 'ArrowDown') {
-
-		}
 	};
 
 	function performMove() {
 		if (p1 && p2) {
-			//console.log("check input...\n", curRoom?.p1Up, " ", curRoom?.p1Down);
-			if (p1Up && p1Pos > p1BasePos - 245) {
+			//console.log("check input...\n", p1Up, " ", p1Down);
+			if (roomTmp?.p1Up && p1Pos > p1BasePos - 245) {
 				p1Pos -= pSpeed;
 				p1.style.top = p1Pos + "px";
+				//console.log("p1 UP !");
 			}
-			else if (p1Down && p1Pos < p1BasePos + 240) {
+			else if (roomTmp?.p1Down && p1Pos < p1BasePos + 240) {
 				p1Pos += pSpeed;
 				p1.style.top = p1Pos + "px";
+				//console.log("p1 DOWN !");
 			}
-			if (p2Up) {
-				
+			if (roomTmp?.p2Up && p2Pos > p2BasePos - 245) {
+				p2Pos -= pSpeed;
+				p2.style.top = p2Pos + "px";
+				//console.log("p1 UP !");
 			}
-			if (p2Down) {
-				
+			else if (roomTmp?.p2Down && p2Pos < p2BasePos + 240) {
+				p2Pos += pSpeed;
+				p2.style.top = p2Pos + "px";
+				//console.log("p1 DOWN !");
 			}
 		}
 		else {
 			p1 = document.getElementById('paddle_1');
 			p2 = document.getElementById('paddle_2');
 		}
-
+		requestAnimationFrame(performMove);
 	}
 
-	setInterval(performMove, 50);
+	//setInterval(performMove, 500);
 	//performMove();
 
 	socket?.off("retJoinRoom").on("retJoinRoom", function(ret: Room | null) {
@@ -130,10 +155,11 @@ export const Game = () => {
 		else {
 			gameLaunch = true;
 			setCurRoom(ret);
+			roomTmp = ret;
 			setPressEnter("");
-			p1Up = ret.p1Up;
-			p1Down = ret.p1Down;
-			console.log("MAJ up: ", p1Up, " down: ", p1Down);
+			//p1Up = ret.p1Up;
+			//p1Down = ret.p1Down;
+			//console.log("MAJ up: ", p1Up, " down: ", p1Down);
 		}
 	})
 
@@ -141,7 +167,7 @@ export const Game = () => {
 		if (!socket || !user)
 			console.log("NO SOCKET OR USER !");
 		else {
-			console.log("Clique !");
+			//console.log("Clique !");
 			socket.emit('joinRoom', {name: user?.login, avatar: user?.avatar});
 		}
 	}
@@ -153,6 +179,7 @@ export const Game = () => {
 			gameLaunch = false;
 			setPressEnter("Press Enter to Play Pong");
 			setCurRoom(null);
+			roomTmp = null;
 		}
 	})
 
@@ -161,7 +188,7 @@ export const Game = () => {
 	}
 
 	function initGame() {
-		console.log("init Game");
+		//console.log("init Game");
 		p1 = document.getElementById('paddle_1');
 		p2 = document.getElementById('paddle_2');
 

@@ -80,6 +80,18 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 		return;
 	}
 
+	@SubscribeMessage('p2')
+	p2Moovement(@MessageBody() body: any, @ConnectedSocket() client: Socket): Room | null {
+		this.rooms[0].p2Up = body.p2Up;
+		this.rooms[0].p2Down = body.p2Down;
+		for (const [client, sequenceNumber] of this.rooms[0].usrsSocket.entries()) {
+			console.log("p2Up : ", this.rooms[0].p2Up, "\np2Down : ", this.rooms[0].p2Down);
+			client.emit("retJoinRoom",  this.rooms[0]);
+			this.rooms[0].usrsSocket.set(client, sequenceNumber + 1);
+		}
+		return;
+	}
+
 	@SubscribeMessage('joinRoom')
 	joinRoom(@MessageBody() body: any, @ConnectedSocket() client: Socket): Room | null {
 		if (this.rooms[0].player1 === body.name || this.rooms[0].player2 === body.name)
@@ -125,7 +137,7 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 			}
 		else
 			client.emit("retClearRoom",  1);
-		this.rooms[0] = {
+			this.rooms[0] = {
 			player1: "search...",
 			p1Avatar: "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg",
 			p1Up: false,

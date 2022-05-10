@@ -13,7 +13,7 @@ $white: rgb(243, 243, 243);
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
-	cursor: url("/assets/img/cursor.png")50 50, auto;
+	cursor: url("/assets/img/cursor.png") 50 50, auto;
 	user-select: none;
 }
 
@@ -40,7 +40,7 @@ li {
 a {
 	text-decoration: none;
 	color: $color-3;
-	cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
+	cursor: url("/assets/img/cursor_little_pink.png") 50 50, auto;
 }
 
 a:visited {
@@ -57,7 +57,7 @@ button {
 	&:hover {
 		background: url("/assets/img/button_hover_rainbow.png") no-repeat center/cover;
 		text-shadow: none;
-		cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
+		cursor: url("/assets/img/cursor_little_pink.png") 50 50, auto;
 	}
 	&:active {
 		background: url("/assets/img/button_active.png") no-repeat center/cover;
@@ -80,7 +80,7 @@ input:hover {
 	color: $color-1;
 	background: black;
 	border-color: $color-2;
-	cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
+	cursor: url("/assets/img/cursor_little_pink.png") 50 50, auto;
 }
 
 input:active {
@@ -105,7 +105,7 @@ textarea:hover {
 	color: $color-1;
 	background: black;
 	border-color: $color-2;
-	cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
+	cursor: url("/assets/img/cursor_little_pink.png") 50 50, auto;
 }
 
 textarea:active {
@@ -117,5 +117,5 @@ textarea:active {
 }
 
 .spec:hover {
-	cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
+	cursor: url("/assets/img/cursor_little_pink.png") 50 50, auto;
 }
