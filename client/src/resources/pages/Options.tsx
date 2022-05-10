@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import QRCode from "react-qr-code";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,7 +13,7 @@ export const Options = () => {
 	const user = useSelector((state: RootState) => state.users.current);
 	const [totpLoading, setTotpLoading] = useState<boolean>(false);
 	const [totpURL, setTotpURL] = useState<string | null>();
-	const [name, setName] = useState("");
+	const [name, setName] = useState(user?.name);
     const [img, setImg] = useState("");
 	const [cookies] = useCookies();
 
@@ -35,6 +35,13 @@ export const Options = () => {
 	const newTotp = (): void => {
 		setTotpLoading(true);
 		socket?.emit('totp', {action: 'toggle'});
+	};
+
+	const newName = (e: ChangeEvent<HTMLInputElement>): void => {
+		console.log(e);
+		setName(e.target.value);
+		setTotpLoading(true);
+		socket?.emit('option', {field: 'name', value: ''});
 	};
 
 	const getTotp = (): JSX.Element | null => {
@@ -77,7 +84,7 @@ export const Options = () => {
 					}
 					<h2>Change your username</h2>
 					<label>Enter your name:
-						<input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+						<input type="text" value={name} onChange={newName} />
 					</label>
 					<h2>Two factor authentification</h2>
 					<button onClick={newTotp} disabled={totpLoading}>{!user?.totp ? 'Enable ' : 'Disable '}2fa</button>
