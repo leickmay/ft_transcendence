@@ -14,8 +14,8 @@
 
 	& > div {
 		flex-grow: 1;
+		position: relative;
 		margin-left: 20px;
-		overflow: hidden;
 
 		h4, h5 {
 			overflow: hidden;
@@ -31,10 +31,12 @@
 		}
 
 		& > .btn {
+			position: absolute;
+			bottom: -20px;
+			right: 0;
 			background: url("/assets/images/logout4.png") no-repeat center/cover;
 			height: 40px;
 			width: 40px;
-			margin-left: auto;
 			&:hover {
 				background: url("/assets/images/logout3.png") no-repeat center/cover;
 			}
