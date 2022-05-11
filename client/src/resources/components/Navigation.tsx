@@ -1,23 +1,33 @@
 import { NavLink } from "react-router-dom";
-import UserCard from "./UserCard";
+import { UserCard } from "./UserCard";
 
 interface Props {
 }
 
 const Navigation = (props: Props) => {
+	const routes = {
+		'/': 'Home',
+		'/game': 'Game',
+		'/friends': 'Friends',
+		'/chat': 'Chat',
+		'/statistics': 'Statisitcs',
+		'/history': 'History',
+		'/options': 'Options',
+	};
+
 	return (
-		<div id="navigation">
+		<nav>
 			<UserCard />
-			<nav>
-				<NavLink end to="/" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>Home</NavLink>
-				<NavLink end to="/game" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>Game</NavLink>
-				<NavLink end to="/friends" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>Friends</NavLink>
-				<NavLink end to="/chat" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>Chat</NavLink>
-				<NavLink end to="/statistics" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>Statisitcs</NavLink>
-				<NavLink end to="/history" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>History</NavLink>
-				<NavLink end to="/options" className={({ isActive }) => "nav-link" + (isActive ? " activated" : "")}>Options</NavLink>
-			</nav>
-		</div>
+			<ul className="overlay border-primary">
+				{Object.entries(routes).map(([route, name]) => (
+					<li key={route}>
+						<NavLink end to={route} className={({ isActive }) => "nav-link" + (isActive ? " activated text-neon-secondary" : " text-neon-primary")}>
+							{name}
+						</NavLink>
+					</li>
+				))}
+			</ul>
+		</nav>
 	);
 };
 

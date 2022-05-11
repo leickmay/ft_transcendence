@@ -1,0 +1,43 @@
+.user-card {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	align-items: center;
+
+	width: 340px;
+	max-width: 340px;
+
+	& > img {
+		margin: -10px 0;
+		border-radius: 424242px;
+	}
+
+	& > div {
+		flex-grow: 1;
+		margin-left: 20px;
+		overflow: hidden;
+
+		h4, h5 {
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			width: 100%;
+			display: block;
+			margin: 0;
+		}
+
+		h4 {
+			margin-bottom: 15px;
+		}
+
+		& > .btn {
+			background: url("/assets/images/logout4.png") no-repeat center/cover;
+			height: 40px;
+			width: 40px;
+			margin-left: auto;
+			&:hover {
+				background: url("/assets/images/logout3.png") no-repeat center/cover;
+			}
+		}
+	}
+}

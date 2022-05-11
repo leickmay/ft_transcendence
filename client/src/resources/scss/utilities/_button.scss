@@ -10,4 +10,24 @@ button, .btn {
 	font-weight: $button-font-weight;
 
 	background: transparent;
+
+	&.square {
+		position: relative;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		& > .content {
+			position: absolute;
+			display: block;
+			padding: inherit;
+		}
+
+		&:before {
+			content: "";
+			display: block;
+			padding-bottom: 100%;
+		}
+	}
 }

@@ -3,6 +3,7 @@
 }
 
 :root {
+	user-select: none;
 	background-color: black;
 	font-family: monospace;
 	cursor: url("/assets/images/cursor.png") 16 16, auto;
@@ -29,13 +30,21 @@ body {
 		background: url("/assets/images/bg_home.png") fixed center/cover no-repeat;
 		z-index: -1;
 		pointer-events: none;
-		animation: 30s linear 1s infinite alternate slidein;
+		animation: 30s cubic-bezier(0.3, 0, 0.7, 1) 1s infinite alternate slidein;
 
 		@keyframes slidein {
 			from { transform: scale(1); }
 			to   { transform: scale(2); }
 		}
 	}
+}
+
+a {
+	color: inherit;
+}
+
+ul {
+	list-style-type: none;
 }
 
 #root {
@@ -45,14 +54,8 @@ body {
 	min-height: 100%;
 }
 
-@media screen and (max-width: 720px) {
+@include for-tablet {
 	:root {
 		font-size: 11px;
-	}
-}
-  
-@media screen and (max-width: 512px) {
-	:root {
-		font-size: 8px;
 	}
 }

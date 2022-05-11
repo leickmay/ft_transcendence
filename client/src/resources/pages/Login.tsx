@@ -1,6 +1,8 @@
 import { KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router';
 
+import '../scss/pages/login.scss'
+
 const authEndpoint = 'https://api.intra.42.fr/oauth/authorize';
 
 const scopes = [
@@ -33,10 +35,9 @@ export function Login() {
 	}
 	
 	return (
-		<div id="login" className="overlay">
+		<div id="login" className="overlay border-primary">
 			<h1 className="text-neon-primary">Stonks Pong 3000</h1>
-			<h2 className="text-neon-tertiary">Login</h2>
-			<a className="btn border-neon-primary" href={getAuthorizeHref()}>
+			<a className="btn border-neon-primary overlay square" href={getAuthorizeHref()}>
 				<span className="content">Sign in with 42</span>
 			</a>
 			<input type="number" onKeyDown={debugLogin} placeholder='Debug Login'/>

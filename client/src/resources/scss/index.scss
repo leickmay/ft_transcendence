@@ -2,6 +2,7 @@
 @import "variables";
 
 // Mixins
+@import "mixins/sizes";
 @import "mixins/neon";
 
 // Utilities
@@ -13,8 +14,8 @@
 // Final style
 
 @import "layouts/app";
-
-@import "./pages/login";
+@import "components/user_card";
+@import "components/navigation";
 
 // @import "./pages/friends";
 // @import "./pages/game";
