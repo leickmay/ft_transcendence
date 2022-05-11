@@ -1,0 +1,13 @@
+a {
+	text-decoration: none;
+}
+
+button, .btn {
+	display: block;
+
+	color: inherit;
+	font-size: $button-font-size;
+	font-weight: $button-font-weight;
+
+	background: transparent;
+}

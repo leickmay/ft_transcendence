@@ -1,0 +1,27 @@
+$primary:					#ff33a0;
+$secondary:					#00ffaa;
+$tertiary:					#ff3336;
+$overlay:					#000000;
+
+$overlay-radius:			50px;
+$overlay-opacity:			0.5;
+
+$font-size-base:			1em;
+
+$button-font-size:			2em;
+$button-font-weight:		bold;
+
+$h1-font-size:				$font-size-base * 4 !default;
+$h2-font-size:				$font-size-base * 3 !default;
+$h3-font-size:				$font-size-base * 2 !default;
+$h4-font-size:				$font-size-base * 1.5 !default;
+$h5-font-size:				$font-size-base * 1.25 !default;
+$h6-font-size:				$font-size-base !default;
+
+$body-color:				white;
+
+$neon-colors: (
+	"primary":				$primary,
+	"secondary":			$secondary,
+	"tertiary":				$tertiary,
+);

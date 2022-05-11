@@ -1,0 +1,13 @@
+body {
+	color: $body-color;
+	font-size: $font-size-base;
+}
+
+h1 { font-size: $h1-font-size; }
+h2 { font-size: $h2-font-size; }
+
+@each $name, $color in $neon-colors {
+	.text-neon-#{$name} {
+		text-shadow: generate-neon($color);
+	}
+}

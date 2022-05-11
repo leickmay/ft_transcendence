@@ -1,0 +1,6 @@
+.overlay {
+	border: 2px solid $primary;
+	background-color: rgba($overlay, $overlay-opacity);
+	border-radius: $overlay-radius;
+	padding: 40px 20px;
+}

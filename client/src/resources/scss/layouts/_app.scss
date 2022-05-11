@@ -1,0 +1,58 @@
+* {
+	box-sizing: border-box;
+}
+
+:root {
+	background-color: black;
+	font-family: monospace;
+	cursor: url("/assets/images/cursor.png") 16 16, auto;
+}
+
+:any-link, button:hover, input:hover, textarea:hover, .pointer {
+	cursor: url("/assets/images/cursor_little_pink.png") 16 16, auto;
+}
+
+html, body, #root {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	
+	&:before {
+		content: "";
+		position: fixed;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		background: url("/assets/images/bg_home.png") fixed center/cover no-repeat;
+		z-index: -1;
+		pointer-events: none;
+		animation: 30s linear 1s infinite alternate slidein;
+
+		@keyframes slidein {
+			from { transform: scale(1); }
+			to   { transform: scale(2); }
+		}
+	}
+}
+
+#root {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	min-height: 100%;
+}
+
+@media screen and (max-width: 720px) {
+	:root {
+		font-size: 11px;
+	}
+}
+  
+@media screen and (max-width: 512px) {
+	:root {
+		font-size: 8px;
+	}
+}

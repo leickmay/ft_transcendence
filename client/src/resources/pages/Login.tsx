@@ -33,14 +33,13 @@ export function Login() {
 	}
 	
 	return (
-		<>
-			<div className='title'>Stonks Pong 3000</div>
-			<div className="login">
-				<div>Login</div>
-				<button type="submit" onClick={() => window.location.replace(getAuthorizeHref())}>Sign in with 42</button>
-				<input type="number" onKeyDown={debugLogin} placeholder='Debug Login'/>
-			</div>
-		</>
+		<div id="login" className="overlay">
+			<h1 className="text-neon-primary">Stonks Pong 3000</h1>
+			<h2 className="text-neon-tertiary">Login</h2>
+			<a className="btn border-neon-primary" href={getAuthorizeHref()}>
+				<span className="content">Sign in with 42</span>
+			</a>
+			<input type="number" onKeyDown={debugLogin} placeholder='Debug Login'/>
+		</div>
 	);
-
 }
