@@ -1,17 +1,21 @@
 import { SubscribeMessage, MessageBody, WebSocketGateway, ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer, WsException } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { AuthService } from 'src/auth/auth.service';
+import { AuthService } from 'src/auth/auth.service';	``
 
 interface Room {
 	player1: string;
 	p1Avatar: string;
 	p1Up: boolean;
 	p1Down: boolean;
+	p1BasePos: number;
+	p1Pos: number;
 	player2: string;
 	p2Avatar: string;
 	p2Up: boolean;
 	p2Down: boolean;
+	p2BasePos: number;
+	p2Pos: number;
 	BallY: number;
 	isFull: boolean;
 	usrsSocket: Map<any, any>;
@@ -31,16 +35,27 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 		p1Avatar: "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg",
 		p1Up: false,
 		p1Down: false,
+		p1BasePos: 225,
+		p1Pos: 225,
 		player2: "search...",
 		p2Avatar: "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg",
 		p2Up: false,
 		p2Down: false,
+		p2BasePos: 125,
+		p2Pos: 125,
 		BallY: -1,
 		isFull: false,
 		usrsSocket: new Map(),
 	}];
 
+	pSpeed: number = 8;
+
 	constructor(private authService: AuthService) {}
+
+	
+	performMove() {
+
+	}
 
 	async handleConnection(client: Socket, ...args: any[]) {
 		try {
@@ -62,31 +77,22 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 		}
 	}
 
-	@SubscribeMessage('increment')
-	handleEvent(@MessageBody('num') num: number, @ConnectedSocket() client: Socket): number {
-		client.emit("increment", {num: ++num});
-		return num;
-	}
-
-	@SubscribeMessage('p1')
-	p1Moovement(@MessageBody() body: any, @ConnectedSocket() client: Socket): Room | null {
-		this.rooms[0].p1Up = body.p1Up;
-		this.rooms[0].p1Down = body.p1Down;
-		for (const [client, sequenceNumber] of this.rooms[0].usrsSocket.entries()) {
-			console.log("p1Up : ", this.rooms[0].p1Up, "\np1Down : ", this.rooms[0].p1Down);
-			client.emit("retJoinRoom",  this.rooms[0]);
-			this.rooms[0].usrsSocket.set(client, sequenceNumber + 1);
+	@SubscribeMessage('playerMove')
+	p1Move(@MessageBody() body: any, @ConnectedSocket() client: Socket): Room | null {
+		if (body.p1Up && this.rooms[0].p1Pos > this.rooms[0].p1BasePos - 245) {
+			this.rooms[0].p1Pos -= this.pSpeed;
 		}
-		return;
-	}
-
-	@SubscribeMessage('p2')
-	p2Moovement(@MessageBody() body: any, @ConnectedSocket() client: Socket): Room | null {
-		this.rooms[0].p2Up = body.p2Up;
-		this.rooms[0].p2Down = body.p2Down;
+		else if (body.p1Down && this.rooms[0].p1Pos < this.rooms[0].p1BasePos + 240) {
+			this.rooms[0].p1Pos += this.pSpeed;
+		}
+		if (body.p2Up && this.rooms[0].p2Pos > this.rooms[0].p2BasePos - 245) {
+			this.rooms[0].p2Pos -= this.pSpeed;
+		}
+		else if (body.p2Down && this.rooms[0].p2Pos < this.rooms[0].p2BasePos + 240) {
+			this.rooms[0].p2Pos += this.pSpeed;
+		}
 		for (const [client, sequenceNumber] of this.rooms[0].usrsSocket.entries()) {
-			console.log("p2Up : ", this.rooms[0].p2Up, "\np2Down : ", this.rooms[0].p2Down);
-			client.emit("retJoinRoom",  this.rooms[0]);
+			client.emit("retPlayerMove",  this.rooms[0]);
 			this.rooms[0].usrsSocket.set(client, sequenceNumber + 1);
 		}
 		return;
@@ -142,10 +148,14 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 			p1Avatar: "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg",
 			p1Up: false,
 			p1Down: false,
+			p1BasePos: 225,
+			p1Pos: 225,
 			player2: "search...",
 			p2Avatar: "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg",
 			p2Up: false,
 			p2Down: false,
+			p2BasePos: 125,
+			p2Pos: 125,
 			BallY: -1,
 			isFull: false,
 			usrsSocket: new Map(),
