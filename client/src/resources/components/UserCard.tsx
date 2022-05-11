@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { logout } from "../../app/Helpers";
 import { User } from "../../app/interfaces/User";
 import { RootState } from "../../app/store";
+import '../scss/components/user_card.scss';
 
 interface Props {
 	user?: User;
@@ -20,6 +21,8 @@ export const UserCard = (props: Props) => {
 			<div> 
 				<h4>{ user?.name || '...' }</h4>
 				<h5>lvl { /*user.level */ 0 }</h5>
+				{/* To change */}
+				<div className="btn" onClick={() => {logout(removeCookie, navigate)}}></div>
 			</div>
 		</div>
 	);
