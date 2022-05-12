@@ -66,7 +66,7 @@ export class AuthService {
 		return tmpUser;
 	}
 
-	verifyJwt(token: string) {
+	verifyJwt(token: string): any {
 		return this.jwtService.verify(token);
 	}
 

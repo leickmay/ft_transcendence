@@ -1,6 +1,7 @@
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { Socket } from 'socket.io';
 import { Image } from 'src/images/image.entity';
-import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn, RelationId } from 'typeorm';
 
 @Exclude()
 @Entity()
@@ -30,15 +31,15 @@ export class User extends BaseEntity {
 	@Column({ length: 50 })
 	login: string;
 
-	@Expose({
-		name: 'avatar',
-	})
 	@Column({ length: 255 })
 	intra_picture: string;
 
 	@JoinColumn({ name: 'avatar' })
 	@OneToOne(() => Image)
 	avatar?: Image;
+
+	@RelationId('avatar')
+	avatarId?: number;
 
 	@ManyToMany(() => User, {
 		lazy: true,
@@ -54,8 +55,10 @@ export class User extends BaseEntity {
 	})
 	friends: Promise<Array<User>>;
 
+	socket?: Socket;
+
 	@Expose({ name: 'avatar' })
-	get getAvatarUrl() {
-		return this.avatar ? '/users/avatar/' + this.login : this.intra_picture;
+	avatarUrl() {
+		return this.avatarId ? '/api/users/avatar/' + this.login : this.intra_picture;
 	}
 }

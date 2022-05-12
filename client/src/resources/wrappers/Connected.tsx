@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import { SocketContext } from '../../app/context/socket';
 import { logout } from '../../app/Helpers';
-import { User } from '../../app/interfaces/User';
-import { setCurrentUser } from '../../app/slices/usersSlice';
+import { UpdateUserDto, User } from '../../app/interfaces/User';
+import { setCurrentUser, updateUser } from '../../app/slices/usersSlice';
 import { Home } from '../layouts/Home';
 
 interface Props {
@@ -49,9 +49,13 @@ export function Connected(props: Props) {
 			instance.on('connect', () => {
 				dispatch({ type: 'socket/connected', payload: true });
 			});
+			instance.on('update-user', (e: UpdateUserDto) => {
+				dispatch(updateUser(e));
+			});
 			instance.on('error', (e: any) => {
-				if (e.status === 401)
+				if (e.status === 401) {
 					navigate('/login');
+				}
 			});
 			instance.on('disconnect', () => {
 				dispatch({ type: 'socket/connected', payload: false });

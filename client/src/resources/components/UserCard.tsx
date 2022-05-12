@@ -11,7 +11,7 @@ interface Props {
 
 const UserCard = (props: Props) => {
 	const navigate = useNavigate();
-	const [,, removeCookie] = useCookies(['access_token']);
+	const [,, removeCookie] = useCookies(['access_token']);	
 	const user = useSelector((state: RootState) => state.users.current);
 
 	return (

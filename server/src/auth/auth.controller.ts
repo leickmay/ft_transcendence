@@ -1,6 +1,6 @@
-import { Body, Controller, ForbiddenException, Get, InternalServerErrorException, NotFoundException, Post, Query, Req, Res, UnprocessableEntityException, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, NotFoundException, Post, Query, Req, Res, UnprocessableEntityException, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import e, { Response } from 'express';
+import { Response } from 'express';
 import * as OTPAuth from 'otpauth';
 import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
@@ -14,7 +14,7 @@ export class AuthController {
 	constructor(
 		private readonly userService: UserService,
 		private readonly authService: AuthService,
-		private jwtService: JwtService
+		private jwtService: JwtService,
 	) {}
 
 	@Get('/debug')

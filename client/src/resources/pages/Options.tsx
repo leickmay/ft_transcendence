@@ -38,7 +38,6 @@ export const Options = () => {
 	};
 
 	const newName = (e: ChangeEvent<HTMLInputElement>): void => {
-		console.log(e);
 		setName(e.target.value);
 		setTotpLoading(true);
 		socket?.emit('option', {field: 'name', value: ''});
@@ -55,33 +54,12 @@ export const Options = () => {
 		return null;
 	};
 
-	useEffect(() => {
-        const fetchImage = async () => {
-            const res = await fetch("/api/users/avatar/" + user?.login, {
-				headers: {
-					'Authorization': 'Bearer ' + cookies.access_token,
-				},
-			});
-            if (res.ok) {
-                const imageBlob = await res.blob();
-                const imageObjectURL = URL.createObjectURL(imageBlob);
-                setImg(imageObjectURL);
-            }
-        }
-
-		if (user?.login)
-        	fetchImage();
-    }, [cookies.access_token, user?.login])
-
 	return (
 		<div className='options'>
 			<div className='optionsWindow'>
 				<div className='optionsAvatar'>
 					<h2>Choose your Avatar</h2>
 					<ImageUploader />
-					{
-						img ? (<img src={img} style={{ maxWidth: '100%' }} alt="avatar" />) : (<p>Loading...</p>)
-					}
 					<h2>Change your username</h2>
 					<label>Enter your name:
 						<input type="text" value={name} onChange={newName} />

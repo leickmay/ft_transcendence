@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { containsUser, User } from '../interfaces/User';
+import { containsUser, UpdateUserDto, User } from '../interfaces/User';
 
 interface State {
 	current?: User;
@@ -20,6 +20,19 @@ const slice = createSlice({
 			return {
 				...state,
 				current: action.payload,
+			};
+		},
+		updateUser: (state: State, action: PayloadAction<UpdateUserDto>): State => {			
+			if (state.current?.id == action.payload.id) {
+				return {
+					...state,
+					current: {...state.current, ...action.payload},
+				}
+			}
+
+			return {
+				...state,
+				friends: state.friends.map(friend => friend.id == action.payload.id ? {...friend, ...action.payload} : friend),
 			};
 		},
 		setTotp: (state: State, action: PayloadAction<boolean>): State => {
@@ -87,5 +100,5 @@ const slice = createSlice({
 	},
 });
 
-export const { setCurrentUser, setTotp, setFriends, addFriend, removeFriend, setOnlineUsers, addOnlineUser, removeOnlineUser } = slice.actions;
+export const { setCurrentUser, updateUser, setTotp, setFriends, addFriend, removeFriend, setOnlineUsers, addOnlineUser, removeOnlineUser } = slice.actions;
 export default slice.reducer;

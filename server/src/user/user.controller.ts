@@ -1,20 +1,26 @@
-import { ClassSerializerInterceptor, Controller, Get, NotFoundException, Param, Post, Req, Res, SerializeOptions, StreamableFile, UploadedFile, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { ClassSerializerInterceptor, Controller, forwardRef, Get, Inject, NotFoundException, Param, Post, Req, Res, SerializeOptions, SetMetadata, StreamableFile, UploadedFile, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Response } from 'express';
 import { HttpExceptionFilter } from 'src/auth/filters/totp-exception.filter';
 import { TwoFactorJwtAuthGuard } from 'src/auth/guards/two-factor-jwt-auth.guard';
+import { EventsService } from 'src/chat/events.service';
 import { ApiFile } from 'src/images/decorators/api-file.decorator';
 import { fileMimetypeFilter } from 'src/images/filters/file-mimetype-filter';
 import { Readable } from 'stream';
 import { User } from './user.entity';
 import { UserService } from './user.service';
 
+export const Public = () => SetMetadata("isPublic", true );
+
 @UseGuards(TwoFactorJwtAuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @UseFilters(HttpExceptionFilter)
 @Controller('users')
 export class UserController {
-	constructor(private userService: UserService) {}
+	constructor(
+		private userService: UserService,
+		@Inject(forwardRef(() => EventsService))
+		private eventsService: EventsService,
+	) {}
 
 	@SerializeOptions({
 		groups: ['owner'],
@@ -26,20 +32,27 @@ export class UserController {
 
 	@Post('/avatar')
 	@ApiFile('avatar', true, {
-		fileFilter: fileMimetypeFilter('image'),
+		fileFilter: fileMimetypeFilter('image/png','image/jpeg'),
 		limits: {
 			fileSize: 2000000,
 		},
 	})
 	async uploadFile(@UploadedFile() file: Express.Multer.File, @Req() request) {
-		return await this.userService.setAvatar(request.user, {
+		let user: User = request.user;
+
+		await this.userService.setAvatar(user, {
 			avatar: {
 				content: file.buffer,
 				filename: file.originalname,
 			},
+		});		
+		this.eventsService.getServer().emit('update-user', {
+			id: user.id,
+			avatar: user.avatarUrl,
 		});
 	}
 
+	@Public()
 	@Get('/avatar/:login')
 	async getAvatar(@Param('login') login: string, @Res({ passthrough: true }) response: Response) {
 		const user: User = await this.userService.getByLogin(login, {

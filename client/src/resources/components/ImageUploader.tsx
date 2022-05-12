@@ -54,7 +54,7 @@ export function ImageUploader() {
 
 	return (
 		<div>
-			<input type="file" name="image" onChange={changeHandler} />
+			<input type="file" accept="image/png,image/jpeg" name="image" onChange={changeHandler} />
 			{(selectedFile) ? (
 				<div>
 					<p>Image to upload : {selectedFile.name} </p>

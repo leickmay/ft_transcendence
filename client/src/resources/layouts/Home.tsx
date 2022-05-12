@@ -32,6 +32,7 @@ export function Home(props: Props) {
 		if (!connected) {
 			setLoadingElement(<div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}><div className="spinner-grow" role="status"></div></div>);
 		} else {
+			socket?.emit('friend', { action: 'get' });
 			setLoadingElement(undefined);
 		}
 	}, [connected]);
@@ -41,8 +42,6 @@ export function Home(props: Props) {
 		socket?.on('friends', (data: Array<User>) => { dispatch(setFriends(data)); });
 		socket?.on('online', (data: User) => { dispatch(addOnlineUser(data)); });
 		socket?.on('offline', (data: User) => { dispatch(removeOnlineUser(data)); });
-
-		socket?.emit('friend', { action: 'get' });
 
 		return () => {
 			socket?.off('online');
