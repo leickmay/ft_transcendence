@@ -1,17 +1,35 @@
-export interface GameRoom {
-	player1: string;
-	p1Avatar: string;
-	p1Up: boolean;
-	p1Down: boolean;
-	p1BasePos: number;
-	p1Pos: number;
-	player2: string;
-	p2Avatar: string;
-	p2Up: boolean;
-	p2Down: boolean;
-	p2BasePos: number;
-	p2Pos: number;
-	BallY: number;
+import { Socket } from "socket.io-client";
+import { User } from "./User";
+
+interface Entity {
+	x: number;
+	y: number;
+	baseX: number;
+	baseY: number;
+	speed: number;
+}
+
+export interface Player extends Entity {
+	user: User;
+	up: boolean;
+	down: boolean;
+	score: number;
+}
+
+export interface Spectator {
+	user: User;
+}
+
+export interface Ball extends Entity {
+	skin: string;
+}
+
+export interface Room {
+	id: number;
 	isFull: boolean;
-	usrsSocket: Map<any, any>;
+	p1: Player;
+	p2: Player;
+	nalls: Array<Ball>;
+	spectators: Array<Spectator>;
+	sockets: Array<Socket>;
 }

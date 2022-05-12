@@ -3,24 +3,7 @@ import { useContext } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
 import { RootState } from "../../app/store";
-
-interface Room {
-	player1: string;
-	p1Avatar: string;
-	p1Up: boolean;
-	p1Down: boolean;
-	p1BasePos: number;
-	p1Pos: number;
-	player2: string;
-	p2Avatar: string;
-	p2Up: boolean;
-	p2Down: boolean;
-	p2BasePos: number;
-	p2Pos: number;
-	BallY: number;
-	isFull: boolean;
-	usrsSocket: Map<any, any>;
-}
+import { Room } from "../../app/interfaces/Game"
 
 export const Game = () => {
 	const socket = useContext(SocketContext);
@@ -44,19 +27,19 @@ export const Game = () => {
 
 	function handleKeyDown(e: any) {
 		if (socket && curRoom && user) {
-			if (e.key === 'w' && curRoom.player1 === user.login && curRoom.p1Pos > curRoom.p1BasePos - 245) {
+			if (e.key === 'w' && curRoom.p1.user.login === user.login && curRoom.p1.y > curRoom.p1.baseY - 245) {
 				p1Up = true;
 				p1Down = false;
 			}
-			if (e.key === 's' && curRoom.player1 === user.login && curRoom.p1Pos < curRoom.p1BasePos + 240) {
+			if (e.key === 's' && curRoom.p1.user.login === user.login && curRoom.p1.y < curRoom.p1.baseY + 240) {
 				p1Up = false;
 				p1Down = true;
 			}
-			if (e.key === 'w' && curRoom.player2 === user.login && curRoom.p2Pos > curRoom.p2BasePos - 245) {
+			if (e.key === 'w' && curRoom.p2.user.login === user.login && curRoom.p2.y > curRoom.p2.baseY - 245) {
 				p2Up = true;
 				p2Down = false;
 			}
-			if (e.key === 's' && curRoom.player2 === user.login && curRoom.p2Pos < curRoom.p2BasePos + 240) {
+			if (e.key === 's' && curRoom.p2.user.login === user.login && curRoom.p2.y < curRoom.p2.baseY + 240) {
 				p2Up = false;
 				p2Down = true;
 			}
@@ -70,16 +53,16 @@ export const Game = () => {
 
 	function handleKeyUp(e: any) {
 		if (socket && curRoom && user) {
-			if (e.key === 'w' && curRoom.player1 === user.login) {
+			if (e.key === 'w' && curRoom.p1.user.login === user.login) {
 				p1Up = false;
 			}
-			if (e.key === 's' && curRoom.player1 === user.login) {
+			if (e.key === 's' && curRoom.p1.user.login === user.login) {
 				p1Down = false;
 			}
-			if (e.key === 'w' && curRoom.player2 === user.login) {
+			if (e.key === 'w' && curRoom.p2.user.login === user.login) {
 				p2Up = false;
 			}
-			if (e.key === 's' && curRoom.player2 === user.login) {
+			if (e.key === 's' && curRoom.p2.user.login === user.login) {
 				p2Down = false;
 			}
 		}
@@ -87,13 +70,30 @@ export const Game = () => {
 	};
 
 	function emitMovement() {
-		if(socket && gameLaunch) {
+		if(curRoom && socket && gameLaunch) {
 			if (p1Up || p1Down || p2Up || p2Down) {
-				socket.emit('playerMove', {name: user?.login, p1Up: p1Up, p1Down: p1Down, p2Up: p2Up, p2Down: p2Down});
+				socket.emit('playerMove', {id: curRoom.id, p1Up: p1Up, p1Down: p1Down, p2Up: p2Up, p2Down: p2Down});
 			}
 		}
 		//requestAnimationFrame(emitMovement);
 	}
+
+	socket?.off("retPlayerMove").on("retPlayerMove", function(ret: Room | null) {
+		if (ret === null)
+			console.log("Problem in retPlayerMove");
+		else {
+			setCurRoom(ret);
+			if (curRoom && p1 && p2) {
+				console.log("ret Moove !");
+				p1.style.top =  curRoom.p1.y + "px";
+				p2.style.top =  curRoom.p2.y + "px";
+			}
+			else if (curRoom) {
+				p1 = document.getElementById('paddle_1');
+				p2 = document.getElementById('paddle_2');
+			}
+		}
+	})
 
 	socket?.off("retJoinRoom").on("retJoinRoom", function(ret: Room | null) {
 		if (ret === null)
@@ -107,55 +107,40 @@ export const Game = () => {
 	function joinRoom() {
 		if (!socket || !user)
 			console.log("NO SOCKET OR USER !");
-		else {
-			socket.emit('joinRoom', {name: user?.login, avatar: user?.avatar});
+		else if (!curRoom) {
+			socket.emit('joinRoom', {user: user});
 		}
 	}
 
-	socket?.off("retPlayerMove").on("retPlayerMove", function(ret: Room | null) {
-		if (ret === null)
-			console.log("Problem in retPlayerMove");
-		else {
-			setCurRoom(ret);
-			if (p1 && p2) {
-				p1.style.top =  curRoom?.p1Pos + "px";
-				p2.style.top =  curRoom?.p2Pos + "px";
-			}
-			else {
-				p1 = document.getElementById('paddle_1');
-				p2 = document.getElementById('paddle_2');
-			}
-		}
-	})
 
 
 	socket?.off("retClearRoom").on("retClearRoom", function(ret: number) {
-		if (ret === 1)
-			console.log("Your not in room");
-		else {
-			gameLaunch = false;
-			setPressEnter("Press Enter to Play Pong");
-			setCurRoom(null);
-		}
+		gameLaunch = false;
+		setPressEnter("Press Enter to Play Pong");
+		setCurRoom(null);
 	})
 
 	function clearRoom() {
-		socket?.emit('clearRoom', {name: user?.login});
+		if (socket && curRoom) {
+			socket.emit('clearRoom', {id: curRoom.id});
+		}
 	}
 
 	function initGame() {
-		p1 = document.getElementById('paddle_1');
-		p2 = document.getElementById('paddle_2');
+		if (curRoom) {
+			p1 = document.getElementById('paddle_1');
+			p2 = document.getElementById('paddle_2');
+		}
 
-		if (p1 && p2) {
+		if (curRoom && p1 && p2) {
 			document.removeEventListener('keydown', e => {handleKeyDown(e)});
 			document.removeEventListener('keyup', e => {handleKeyUp(e)});
 			document.addEventListener('keydown', e => {handleKeyDown(e)});
 			document.addEventListener('keyup', e => {handleKeyUp(e)});
-			setInterval(emitMovement, 100);
-			p1.style.top =  curRoom?.p1Pos + "px";
-			p2.style.top =  curRoom?.p2Pos + "px";
+			p1.style.top =  curRoom.p1.baseY + "px";
+			p2.style.top =  curRoom.p2.baseY + "px";
 			gameLaunch = true;
+			setInterval(emitMovement, 50);
 		}
 	}
 
@@ -166,19 +151,19 @@ export const Game = () => {
 				<button onMouseDown={() => clearRoom()}>Clear room</button>
 			</div>
 			{ 
-				curRoom ? 
+				curRoom ?
 				<div className="roomInfo">
 					<div className="playerCard">
-						<img className="playerAvatar" src={curRoom.p1Avatar} width="120px" alt=""></img>
+						<img className="playerAvatar" src={curRoom.p1.user.avatar} width="120px" alt=""></img>
 						<div className="playerInfo">
-							{curRoom.player1}
+							{curRoom.p1.user.name}
 						</div>
 					</div>
 					<div className="versus">VS</div>
 					<div className="playerCard">
-						<img className="playerAvatar" src={curRoom.p2Avatar} width="120px" alt=""></img>
+						<img className="playerAvatar" src={curRoom.p2.user ? curRoom.p2.user.avatar : "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg"} width="120px" alt=""></img>
 						<div className="playerInfo">
-							<div> {curRoom.player2} </div>
+							<div> {curRoom.p2.user ? curRoom.p2.user.name : "search ..."} </div>
 						</div>
 					</div>
 				</div>
