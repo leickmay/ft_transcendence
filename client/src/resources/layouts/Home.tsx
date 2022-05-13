@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Navigate } from "react-router";
 import { Route, Routes } from 'react-router-dom';
 import { SocketContext } from '../../app/context/socket';
-import { User } from '../../app/interfaces/User';
-import { addOnlineUser, removeOnlineUser, setFriends, setOnlineUsers } from '../../app/slices/usersSlice';
+import { UpdateUserDto, User } from '../../app/interfaces/User';
+import { addOnlineUser, removeOnlineUser, setFriends, setOnlineUsers, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
 import Alert from '../components/Alert';
 import Navigation from '../components/Navigation';
@@ -38,10 +38,11 @@ export function Home(props: Props) {
 	}, [connected]);
 
 	useEffect(() => {
-		socket?.on('already-online', (data: Array<User>) => { dispatch(setOnlineUsers(data)); });
-		socket?.on('friends', (data: Array<User>) => { dispatch(setFriends(data)); });
-		socket?.on('online', (data: User) => { dispatch(addOnlineUser(data)); });
-		socket?.on('offline', (data: User) => { dispatch(removeOnlineUser(data)); });
+		socket?.on('already-online', (data: Array<User>)   => { dispatch(setOnlineUsers(data)); });
+		socket?.on('friends',        (data: Array<User>)   => { dispatch(setFriends(data)); });
+		socket?.on('online',         (data: User)          => { dispatch(addOnlineUser(data)); });
+		socket?.on('offline',        (data: User)          => { dispatch(removeOnlineUser(data)); });
+		socket?.on('update-user',    (data: UpdateUserDto) => { dispatch(updateUser(data)); });
 
 		return () => {
 			socket?.off('online');

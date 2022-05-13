@@ -22,8 +22,8 @@ const slice = createSlice({
 				current: action.payload,
 			};
 		},
-		updateUser: (state: State, action: PayloadAction<UpdateUserDto>): State => {			
-			if (state.current?.id == action.payload.id) {
+		updateUser: (state: State, action: PayloadAction<UpdateUserDto>): State => {
+			if (state.current?.id === action.payload.id) {
 				return {
 					...state,
 					current: {...state.current, ...action.payload},
@@ -32,7 +32,7 @@ const slice = createSlice({
 
 			return {
 				...state,
-				friends: state.friends.map(friend => friend.id == action.payload.id ? {...friend, ...action.payload} : friend),
+				friends: state.friends.map(friend => friend.id === action.payload.id ? {...friend, ...action.payload} : friend),
 			};
 		},
 		setTotp: (state: State, action: PayloadAction<boolean>): State => {

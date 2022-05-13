@@ -58,7 +58,7 @@ export class User extends BaseEntity {
 	socket?: Socket;
 
 	@Expose({ name: 'avatar' })
-	avatarUrl() {
+	getAvatarUrl() {
 		return this.avatarId ? '/api/users/avatar/' + this.login : this.intra_picture;
 	}
 }

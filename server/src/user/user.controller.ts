@@ -48,7 +48,7 @@ export class UserController {
 		});		
 		this.eventsService.getServer().emit('update-user', {
 			id: user.id,
-			avatar: user.avatarUrl,
+			avatar: user.getAvatarUrl() + '?r=' + Math.floor(Math.random() * 1000), // avoid same url for image reload
 		});
 	}
 
