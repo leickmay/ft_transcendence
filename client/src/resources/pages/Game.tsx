@@ -74,8 +74,9 @@ export const Game = () => {
 			if (p1Up || p1Down || p2Up || p2Down) {
 				socket.emit('playerMove', {id: curRoom.id, p1Up: p1Up, p1Down: p1Down, p2Up: p2Up, p2Down: p2Down});
 			}
-		}
+			socket.emit('ballMove', {id: curRoom.id});
 		//requestAnimationFrame(emitMovement);
+		}
 	}
 
 	socket?.off("retPlayerMove").on("retPlayerMove", function(ret: Room | null) {
@@ -84,7 +85,7 @@ export const Game = () => {
 		else {
 			setCurRoom(ret);
 			if (curRoom && p1 && p2) {
-				console.log("ret Moove !");
+				//console.log("ret Moove !");
 				p1.style.top =  curRoom.p1.y + "px";
 				p2.style.top =  curRoom.p2.y + "px";
 			}
@@ -92,6 +93,17 @@ export const Game = () => {
 				p1 = document.getElementById('paddle_1');
 				p2 = document.getElementById('paddle_2');
 			}
+		}
+	})
+
+	socket?.off("retBallMove").on("retBallMove", function(ret: Room | null) {
+		setCurRoom(ret);
+		if (curRoom && ball) {
+			ball.style.top = curRoom.balls[0].y + "px";
+			ball.style.left = curRoom.balls[0].x + "px";
+		}
+		else {
+			ball = document.getElementById('ball');
 		}
 	})
 
@@ -130,9 +142,10 @@ export const Game = () => {
 		if (curRoom) {
 			p1 = document.getElementById('paddle_1');
 			p2 = document.getElementById('paddle_2');
+			ball = document.getElementById('ball');
 		}
 
-		if (curRoom && p1 && p2) {
+		if (curRoom && p1 && p2 && ball) {
 			document.removeEventListener('keydown', e => {handleKeyDown(e)});
 			document.removeEventListener('keyup', e => {handleKeyUp(e)});
 			document.addEventListener('keydown', e => {handleKeyDown(e)});
@@ -140,6 +153,10 @@ export const Game = () => {
 			p1.style.top =  curRoom.p1.baseY + "px";
 			p2.style.top =  curRoom.p2.baseY + "px";
 			gameLaunch = true;
+			ball.style.top = curRoom.balls[0].baseY + "px";
+			ball.style.left = curRoom.balls[0].baseX + "px";
+			//console.log("ball y: " + ball.style.top, " ball x: " + ball.style.left);
+			
 			setInterval(emitMovement, 50);
 		}
 	}

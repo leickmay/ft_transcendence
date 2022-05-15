@@ -6,11 +6,11 @@ class Entity {
 	y: number;
 	baseX: number;
 	baseY: number;
-	speed: number;
 }
 
 export class Player extends Entity {
 	user: User;
+	speed: number;
 	up: boolean;
 	down: boolean;
 	score: number;
@@ -22,6 +22,8 @@ export class Spectator {
 
 export class Ball extends Entity {
 	skin: string;
+	speedX: number;
+	speedY: number;
 }
 
 export class Room {

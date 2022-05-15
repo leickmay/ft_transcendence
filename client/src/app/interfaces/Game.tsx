@@ -6,11 +6,11 @@ interface Entity {
 	y: number;
 	baseX: number;
 	baseY: number;
-	speed: number;
 }
 
 export interface Player extends Entity {
 	user: User;
+	speed: number;
 	up: boolean;
 	down: boolean;
 	score: number;
@@ -22,6 +22,8 @@ export interface Spectator {
 
 export interface Ball extends Entity {
 	skin: string;
+	speedX: number;
+	speedY: number;
 }
 
 export interface Room {
@@ -29,7 +31,7 @@ export interface Room {
 	isFull: boolean;
 	p1: Player;
 	p2: Player;
-	nalls: Array<Ball>;
+	balls: Array<Ball>;
 	spectators: Array<Spectator>;
 	sockets: Array<Socket>;
 }

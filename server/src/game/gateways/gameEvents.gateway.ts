@@ -2,7 +2,9 @@ import { SubscribeMessage, MessageBody, WebSocketGateway, ConnectedSocket, OnGat
 import { Socket, Server } from 'socket.io';
 import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
-import { Player, Room } from "../gameEvents.entity"
+import { Ball, Player, Room } from "../gameEvents.entity"
+import { Interval } from '@nestjs/schedule';
+
 
 @Injectable()
 @WebSocketGateway(3001, { cors: true })
@@ -14,6 +16,8 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 	connected: number;
 
 	rooms: Array<Room> = new Array;
+
+	i: number = 0;
 
 	constructor(private authService: AuthService) {}
 
@@ -41,6 +45,7 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 		var newRoom: Room = new Room;
 		var newP1: Player = new Player;
 		var newP2: Player = new Player;
+		var newBall: Ball = new Ball;
 		
 
 		newRoom.id = this.rooms.length === 0 ? 0 : (isClear ? this.rooms[this.rooms.length - 1].id : this.rooms[this.rooms.length - 1].id + 1);
@@ -48,21 +53,29 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 		newP1.y = 225;
 		newP1.up = false;
 		newP1.down = false;
-		newP1.speed = 6;
+		newP1.speed = 12;
 		newP2.baseY = 125;
 		newP2.y = 125;
 		newP2.up = false;
 		newP2.down = false;
-		newP2.speed = 6;
+		newP2.speed = 12;
 		newRoom.p1 = newP1;
 		newRoom.p2 = newP2;
+		newBall.baseX = 435;
+		newBall.baseY = 285;
+		newBall.x = 435;
+		newBall.y = 285;
+		newBall.speedX = 6;
+		newBall.speedY = 6;
+		newRoom.balls = new Array;
+		newRoom.balls.push(newBall);
 		newRoom.isFull = false;
 		newRoom.sockets = new Map;
 		return (newRoom);
 	}
 
 	@SubscribeMessage('joinRoom')
-	joinRoom(@MessageBody() body: any, @ConnectedSocket() client: Socket): Room | null {
+	joinRoom(@MessageBody() body: any, @ConnectedSocket() client: Socket) {
 		var needNew: boolean = true;
 
 		this.rooms.forEach((room: Room) => {
@@ -120,7 +133,7 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 	}
 
 	@SubscribeMessage('playerMove')
-	playerMove(@MessageBody() body: any, @ConnectedSocket() client: Socket): Room | null {
+	playerMove(@MessageBody() body: any, @ConnectedSocket() client: Socket) {
 		if (body.p1Up && this.rooms[body.id].p1.y > this.rooms[body.id].p1.baseY - 245) {
 			this.rooms[body.id].p1.y -= this.rooms[body.id].p1.speed;
 		}
@@ -140,4 +153,22 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 		return;
 	}
 
+	@SubscribeMessage('ballMove')
+	ballMove(@MessageBody() body: any, @ConnectedSocket() client: Socket){
+		if ((this.rooms[body.id].balls[0].y < this.rooms[body.id].balls[0].baseY - 265)
+			|| this.rooms[body.id].balls[0].y > this.rooms[body.id].balls[0].baseY + 265) {
+			this.rooms[body.id].balls[0].speedY *= -1;
+		}
+		if ((this.rooms[body.id].balls[0].x < this.rooms[body.id].balls[0].baseX - 415)
+			|| (this.rooms[body.id].balls[0].x > this.rooms[body.id].balls[0].baseX + 415)) {
+			this.rooms[body.id].balls[0].speedX *= -1;
+		}
+		this.rooms[body.id].balls[0].y -= this.rooms[body.id].balls[0].speedY;
+		this.rooms[body.id].balls[0].x -= this.rooms[body.id].balls[0].speedX;
+		for (const [client, sequenceNumber] of this.rooms[body.id].sockets.entries()) {
+			client.emit("retBallMove",  this.rooms[body.id]);
+			this.rooms[body.id].sockets.set(client, sequenceNumber + 1);
+		}
+		return;
+	}
 }
