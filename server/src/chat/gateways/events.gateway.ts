@@ -1,7 +1,26 @@
-import { SubscribeMessage, MessageBody, WebSocketGateway, ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer, WsException } from '@nestjs/websockets';
-import { Socket, Server } from 'socket.io';
-import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
+import { Player } from 'src/game/gameEvents.entity';
+import { User } from '../../user/user.entity';
+
+enum GameEvents {
+	MOVE,
+}
+
+enum Directions {
+	UP,
+	DOWN,
+}
+
+interface Packet {
+	id: number;
+}
+
+interface PlayerMovePacket extends Packet {
+	direction: Directions,
+}
 
 @Injectable()
 @WebSocketGateway(3001, { cors: true })
@@ -32,5 +51,28 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	handleEvent(@MessageBody('num') num: number, @ConnectedSocket() client: Socket): number {
 		client.emit("increment", {num: ++num});
 		return num;
+	}
+
+	@SubscribeMessage('game')
+	handleGame(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket) {
+		this.gameListener(packet, users[client.id]);
+	}
+
+	// gameService.ts
+	gameListener(packet: Packet, user: User) {
+		let player = findPlayer(user);
+
+		if (packet.id == GameEvents.MOVE) {
+			this.move(packet as PlayerMovePacket, player);
+		}
+	}
+
+	move(packet: PlayerMovePacket, player: Player) {
+		if (packet.direction == Directions.UP) {
+			player.y--;
+		}
+		if (packet.direction == Directions.DOWN) {
+			player.y++;
+		}
 	}
 }

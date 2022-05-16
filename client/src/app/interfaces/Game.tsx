@@ -14,6 +14,8 @@ export interface Player extends Entity {
 	up: boolean;
 	down: boolean;
 	score: number;
+	height: number;
+	width: number;
 }
 
 export interface Spectator {
@@ -28,10 +30,12 @@ export interface Ball extends Entity {
 
 export interface Room {
 	id: number;
+	height: number;
+	width: number;
 	isFull: boolean;
 	p1: Player;
 	p2: Player;
 	balls: Array<Ball>;
 	spectators: Array<Spectator>;
-	sockets: Array<Socket>;
+	sockets: Map<any, any>;
 }

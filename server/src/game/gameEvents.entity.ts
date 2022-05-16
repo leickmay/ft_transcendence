@@ -14,6 +14,8 @@ export class Player extends Entity {
 	up: boolean;
 	down: boolean;
 	score: number;
+	height: number;
+	width: number;
 }
 
 export class Spectator {
@@ -28,6 +30,8 @@ export class Ball extends Entity {
 
 export class Room {
 	id: number;
+	height: number;
+	width: number;
 	isFull: boolean;
 	p1: Player;
 	p2: Player;

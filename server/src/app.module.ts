@@ -7,7 +7,6 @@ import { EventsModule } from './chat/events.module';
 import { GameEventsModule } from './game/gameEvents.module';
 import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
-import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
 	imports: [
@@ -25,7 +24,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 		AuthModule,
 		EventsModule,
 		GameEventsModule,
-		ScheduleModule.forRoot(),
 	],
 	controllers: [AppController],
 	providers: [AppService],

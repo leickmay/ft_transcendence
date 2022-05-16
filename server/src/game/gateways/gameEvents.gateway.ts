@@ -3,12 +3,10 @@ import { Socket, Server } from 'socket.io';
 import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { Ball, Player, Room } from "../gameEvents.entity"
-import { Interval } from '@nestjs/schedule';
-
 
 @Injectable()
 @WebSocketGateway(3001, { cors: true })
-export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class GameEventsGateway implements OnGatewayDisconnect {
 
 	@WebSocketServer()
 	server: Server;
@@ -20,16 +18,6 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 	i: number = 0;
 
 	constructor(private authService: AuthService) {}
-
-	async handleConnection(client: Socket, ...args: any[]) {
-		try {
-			console.log('Connection to Game socket:', await this.authService.verifyJwt(client.handshake.headers.authorization.replace('Bearer ', '')));
-		} catch (e) {
-			client.emit('Error', new UnauthorizedException());
-			client.disconnect();
-			return;
-		}
-	}
 
 	async handleDisconnect(client: Socket) {
 		try {
@@ -49,22 +37,30 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 		
 
 		newRoom.id = this.rooms.length === 0 ? 0 : (isClear ? this.rooms[this.rooms.length - 1].id : this.rooms[this.rooms.length - 1].id + 1);
-		newP1.baseY = 225;
-		newP1.y = 225;
+		newRoom.height = 1080;
+		newRoom.width = 1920;
+		newP1.user = null;
+		newP1.height = newRoom.height / 8;
+		newP1.width = newRoom.width / 100;
+		newP1.baseY = newRoom.height / 2 - (newP1.height / 2);
+		newP1.y = newP1.baseY;
+		newP1.x = newRoom.width / 100;
 		newP1.up = false;
 		newP1.down = false;
 		newP1.speed = 12;
-		newP2.baseY = 125;
-		newP2.y = 125;
+		newP2.user = null;
+		newP2.baseY = newRoom.height / 2 - (newP1.height / 2);
+		newP2.y = newP2.baseY;
+		newP2.x = newRoom.width / 100 * 99; 
 		newP2.up = false;
 		newP2.down = false;
 		newP2.speed = 12;
 		newRoom.p1 = newP1;
 		newRoom.p2 = newP2;
-		newBall.baseX = 435;
-		newBall.baseY = 285;
-		newBall.x = 435;
-		newBall.y = 285;
+		//newBall.baseX = canvasWidth / 2;
+		//newBall.baseY = canvasHeight / 2;
+		newBall.x = newRoom.width / 2;
+		newBall.y = newRoom.height / 2;
 		newBall.speedX = 6;
 		newBall.speedY = 6;
 		newRoom.balls = new Array;
