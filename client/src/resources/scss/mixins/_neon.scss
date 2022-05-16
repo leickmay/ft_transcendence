@@ -1,9 +1,9 @@
-@function generate-neon($color, $power: 1) {
+@function generate-neon($color, $power: 1, $white: $body-color) {
 	$neon:
 		/* White glow */
-		0 0 $power * 7px #fff,
-		0 0 $power * 10px #fff,
-		0 0 $power * 21px #fff,
+		0 0 $power * 7px $white,
+		0 0 $power * 10px $white,
+		0 0 $power * 21px $white,
 		/* Green glow */
 		0 0 $power * 42px $color,
 		0 0 $power * 82px $color,
