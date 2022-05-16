@@ -49,7 +49,7 @@ export class UserService {
 	}
 
 	async setAvatar(user: User, data: UpdateUserAvatarDto): Promise<User> {
-		user.avatar = await Image.merge(user.avatar || new Image(), data.avatar).save();
+		user.avatar = Promise.resolve(await Image.merge(await user.avatar || new Image(), data.avatar).save());
 		return await user.save();
 	}
 }

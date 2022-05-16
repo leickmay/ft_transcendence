@@ -58,7 +58,7 @@ export class UserController {
 		const user: User = await this.userService.getByLogin(login, {
 			relations: ['avatar']
 		});
-		const avatar = user.avatar;
+		const avatar = await user.avatar;
 
 		if (!avatar)
 			throw new NotFoundException();

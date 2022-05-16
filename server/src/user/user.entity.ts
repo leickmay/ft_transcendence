@@ -34,9 +34,11 @@ export class User extends BaseEntity {
 	@Column({ length: 255 })
 	intra_picture: string;
 
-	@JoinColumn({ name: 'avatar' })
-	@OneToOne(() => Image)
-	avatar?: Image;
+	@OneToOne(() => Image, {
+		lazy: true,
+	})
+	@JoinColumn()
+	avatar?: Promise<Image>;
 
 	@RelationId('avatar')
 	avatarId?: number;
