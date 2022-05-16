@@ -1,5 +1,4 @@
-import { ChangeEvent, useContext, useEffect, useState } from 'react';
-import { useCookies } from 'react-cookie';
+import { ChangeEvent, KeyboardEvent, useContext, useEffect, useState } from 'react';
 import QRCode from "react-qr-code";
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
@@ -13,9 +12,12 @@ export const Options = () => {
 	const user = useSelector((state: RootState) => state.users.current);
 	const [totpLoading, setTotpLoading] = useState<boolean>(false);
 	const [totpURL, setTotpURL] = useState<string | null>();
-	const [name, setName] = useState(user?.name);
-    const [img, setImg] = useState("");
-	const [cookies] = useCookies();
+	const [name, setName] = useState(user?.name);	
+
+	useEffect(() => {
+		if (user && name === undefined)
+			setName(user.name);
+	}, [user, name]);
 
 	useEffect(() => {
 		socket?.on('totp', (data: {status: string, totp: string | null}) => {
@@ -40,7 +42,12 @@ export const Options = () => {
 	const newName = (e: ChangeEvent<HTMLInputElement>): void => {
 		setName(e.target.value);
 		setTotpLoading(true);
-		socket?.emit('option', {field: 'name', value: ''});
+	};
+
+	const validateName = (event: KeyboardEvent<HTMLInputElement>): void => {
+		if ((event.key === 'Enter' || event.keyCode === 13) && name) {
+			// socket?.emit('option', {type: PacketOutOption.NAME, value: ''} as OptionPacket);
+		}
 	};
 
 	const getTotp = (): JSX.Element | null => {
@@ -62,7 +69,7 @@ export const Options = () => {
 					<ImageUploader />
 					<h2>Change your username</h2>
 					<label>Enter your name:
-						<input type="text" value={name} onChange={newName} />
+						<input type="text" value={name ?? ''} onChange={newName} onKeyDown={validateName} />
 					</label>
 					<h2>Two factor authentification</h2>
 					<button onClick={newTotp} disabled={totpLoading}>{!user?.totp ? 'Enable ' : 'Disable '}2fa</button>

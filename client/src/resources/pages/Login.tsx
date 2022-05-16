@@ -16,9 +16,9 @@ export const getAuthorizeHref = (): string => {
 export function Login() {
 	const navigate = useNavigate();
 
-	const debugLogin = async (el: KeyboardEvent<HTMLInputElement>): Promise<void> => {
-		if (el.code === 'Enter') {
-			const target: HTMLInputElement = el.currentTarget;
+	const debugLogin = async (event: KeyboardEvent<HTMLInputElement>): Promise<void> => {
+		if (event.code === 'Enter' || event.keyCode === 13) {
+			const target: HTMLInputElement = event.currentTarget;
 			
 			fetch('/api/debug/?id=' + target.value)
 			.then(res => {

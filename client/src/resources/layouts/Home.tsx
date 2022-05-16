@@ -35,7 +35,7 @@ export function Home(props: Props) {
 			socket?.emit('friend', { action: 'get' });
 			setLoadingElement(undefined);
 		}
-	}, [connected]);
+	}, [socket, connected]);
 
 	useEffect(() => {
 		socket?.on('already-online', (data: Array<User>)   => { dispatch(setOnlineUsers(data)); });
