@@ -19,7 +19,7 @@ const Navigation = (props: Props) => {
 	return (
 		<nav>
 			<UserCard />
-			<ul className="overlay border-primary">
+			<ul className="overlay border-purple">
 				{Object.entries(routes).map(([route, name]) => (
 					<li key={route}>
 						<NavLink end to={route} className={({ isActive }) => "nav-link" + (isActive ? " activated text-neon-secondary" : " text-neon-primary")}>

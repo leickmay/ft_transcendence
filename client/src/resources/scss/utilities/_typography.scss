@@ -9,7 +9,7 @@ h3 { font-size: $h3-font-size; }
 h4 { font-size: $h4-font-size; }
 h5 { font-size: $h5-font-size; }
 
-@each $name, $color in $neon-colors {
+@each $name, $color in $colors {
 	.text-neon-#{$name} {
 		text-shadow: generate-neon($color);
 	}

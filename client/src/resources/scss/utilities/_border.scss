@@ -1,11 +1,11 @@
-@each $name, $color in $neon-colors {
+@each $name, $color in $colors {
 	.border-neon-#{$name} {
 		border: 4px solid white;
 		box-shadow: generate-neon($color, 0.2);
 	}
 }
 
-@each $name, $color in $neon-colors {
+@each $name, $color in $colors {
 	.border-#{$name} {
 		border: 2px solid $color;
 	}

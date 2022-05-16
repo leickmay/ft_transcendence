@@ -1,6 +1,7 @@
 $primary:					#ff33a0;
 $secondary:					#00ffaa;
 $tertiary:					#ff3336;
+$purple:					#8800bb;
 $overlay:					#000000;
 
 $overlay-radius:			10px;
@@ -18,10 +19,11 @@ $h4-font-size:				$font-size-base * 1.5 !default;
 $h5-font-size:				$font-size-base * 1.25 !default;
 $h6-font-size:				$font-size-base !default;
 
-$body-color:				white;
+$body-color:				#c8c8c8;
 
-$neon-colors: (
+$colors: (
 	"primary":				$primary,
 	"secondary":			$secondary,
 	"tertiary":				$tertiary,
+	"purple":				$purple,
 );
