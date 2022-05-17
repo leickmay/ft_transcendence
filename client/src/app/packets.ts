@@ -29,10 +29,10 @@ export const DeclarePacket = (type: PacketTypes) => {
 // ========== PacketPlayIn  ========== \\
 // =================================== \\
 
-// interface PacketPlayInPlayerMove extends Packet {
-// 	player: number,
-// 	direction: Directions;
-// }
+export interface PacketPlayInPlayerMove extends Packet {
+	player: number,
+	direction: Directions;
+}
 
 // =================================== \\
 // ========== PacketPlayOut ========== \\
