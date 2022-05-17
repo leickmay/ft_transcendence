@@ -1,6 +1,24 @@
 import { Socket } from "socket.io-client";
 import { User } from "./User";
 
+export enum GameEvents {
+	JOIN,
+	CLEAR,
+	MOVE,
+}
+
+export enum Directions {
+	UP,
+	DOWN,
+}
+
+export interface GamePacket {
+	id: number;
+	user: User;
+	roomId: number;
+	direction: Directions,
+}
+
 interface Entity {
 	x: number;
 	y: number;
@@ -37,5 +55,5 @@ export interface Room {
 	p2: Player;
 	balls: Array<Ball>;
 	spectators: Array<Spectator>;
-	sockets: Map<any, any>;
+	sockets: Map<number, Socket>;
 }

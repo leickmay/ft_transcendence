@@ -3,30 +3,11 @@ import { useContext } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
 import { RootState } from "../../app/store";
-import { Room } from "../../app/interfaces/Game"
+import { Directions, GameEvents, GamePacket, Room } from "../../app/interfaces/Game.interface"
 import { User } from "../../app/interfaces/User";
 
 let canvas: HTMLCanvasElement | null = null;
 let ctx: CanvasRenderingContext2D | null = null;
-
-enum GameEvents {
-	JOIN,
-	CLEAR,
-	MOVE,
-}
-
-enum Directions {
-	UP,
-	DOWN,
-}
-
-interface GamePacket {
-	id: number;
-	user: User;
-	roomId: number;
-	direction: Directions,
-
-}
 
 export const Game = () => {
 	const socket = useContext(SocketContext);
@@ -48,14 +29,14 @@ export const Game = () => {
 	}, [curRoom?.isFull]);
 	
 	const draw = () => {
-	
+		emitMovement();
 		if (ctx && curRoom) {
-			//console.log(curRoom);
-			
+			console.log("draw:\n p1y: ", curRoom.p1.y , "\np2y: ", curRoom.p2.y );
 			ctx.fillStyle = "black";
 			ctx.fillRect(0, 0, curRoom.height, curRoom.width);
 			ctx.fillStyle = "purple";
 			ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width , curRoom.p1.height);
+			ctx.fillRect(curRoom.p2.x , curRoom.p2.y , curRoom.p2.width , curRoom.p2.height);
 		} 
 		window.requestAnimationFrame(draw);
 	}
@@ -87,8 +68,28 @@ export const Game = () => {
 				moveDown = false;
 			}
 		}
-
+		
 	};
+
+	function joinRoom() {
+		if (!socket || !user)
+			console.log("NO SOCKET OR USER !");
+		else if (!curRoom) {
+			socket!.emit("game", {
+				id: GameEvents.JOIN,
+				user: user,
+			} as GamePacket);
+		}
+	}
+
+	socket?.off("retJoinRoom").on("retJoinRoom", function(ret: Room | null) {
+		if (ret === null)
+			console.log("Cannot join room");
+		else {
+			setCurRoom(ret);
+			setPressEnter("");
+		}
+	})
 
 	function emitMovement() {
 		let direction: Directions | undefined;
@@ -102,9 +103,9 @@ export const Game = () => {
 				socket!.emit("game", {
 					id: GameEvents.MOVE,
 					user: user,
-					roomId: curRoom.id;
+					roomId: curRoom.id,
 					direction: direction,
-				} as PlayerMovePacket);
+				} as GamePacket);
 			}
 		}
 	}
@@ -114,45 +115,20 @@ export const Game = () => {
 			console.log("Problem in retPlayerMove");
 		else {
 			setCurRoom(ret);
-			if (curRoom && p1 && p2) {
-				//console.log("ret Moove !");
-				p1.style.top =  curRoom.p1.y + "px";
-				p2.style.top =  curRoom.p2.y + "px";
-			}
-			else if (curRoom) {
-				p1 = document.getElementById('paddle_1');
-				p2 = document.getElementById('paddle_2');
-			}
 		}
 	})
 
-	socket?.off("retBallMove").on("retBallMove", function(ret: Room | null) {
-		setCurRoom(ret);
-		if (curRoom && ball) {
-			ball.style.top = curRoom.balls[0].y + "px";
-			ball.style.left = curRoom.balls[0].x + "px";
-		}
-		else {
-			ball = document.getElementById('ball');
-		}
-	})
+	//socket?.off("retBallMove").on("retBallMove", function(ret: Room | null) {
+	//	setCurRoom1(ret);
+	//	if (curRoom1 && ball) {
+	//		ball.style.top = curRoom1.balls[0].y + "px";
+	//		ball.style.left = curRoom1.balls[0].x + "px";
+	//	}
+	//	else {
+	//		ball = document.getElementById('ball');
+	//	}
+	//})
 
-	socket?.off("retJoinRoom").on("retJoinRoom", function(ret: Room | null) {
-		if (ret === null)
-			console.log("Cannot join room");
-		else {
-			setCurRoom(ret);
-			setPressEnter("");
-		}
-	})
-	
-	function joinRoom() {
-		if (!socket || !user)
-			console.log("NO SOCKET OR USER !");
-		else if (!curRoom) {
-			socket.emit('joinRoom', {user: user});
-		}
-	}
 
 	socket?.off("retClearRoom").on("retClearRoom", function(ret: number) {
 		gameLaunch = false;
@@ -179,15 +155,8 @@ export const Game = () => {
 			document.removeEventListener('keyup', e => {handleKeyUp(e)});
 			document.addEventListener('keydown', e => {handleKeyDown(e)});
 			document.addEventListener('keyup', e => {handleKeyUp(e)});
-			/*p1.style.top =  curRoom.p1.baseY + "px";
-			p2.style.top =  curRoom.p2.baseY + "px";
-			gameLaunch = true;
-			ball.style.top = curRoom.balls[0].baseY + "px";
-			ball.style.left = curRoom.balls[0].baseX + "px";*/
-			//console.log("ball y: " + ball.style.top, " ball x: " + ball.style.left);
 			
 			window.requestAnimationFrame(draw);
-			//setInterval(emitMovement, 50);
 		}
 	}
 

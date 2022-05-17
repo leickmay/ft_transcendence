@@ -4,7 +4,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { EventsModule } from './Events/events.module';
-import { GameEventsModule } from './game/gameEvents.module';
 import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
 
@@ -23,7 +22,6 @@ import { UserModule } from './user/user.module';
 		UserModule,
 		AuthModule,
 		EventsModule,
-		GameEventsModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

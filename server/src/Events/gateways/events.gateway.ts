@@ -39,7 +39,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('game')
 	handleGame(@MessageBody() packet: GamePacket, @ConnectedSocket() client: Socket) {
-		this.gameService.gameListener(packet);
+		this.gameService.gameListener(packet, client);
 	}
 
 }
