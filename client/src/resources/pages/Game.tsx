@@ -4,11 +4,14 @@ import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
 import { RootState } from "../../app/store";
 import { Room } from "../../app/interfaces/Game"
+import { User } from "../../app/interfaces/User";
 
 let canvas: HTMLCanvasElement | null = null;
 let ctx: CanvasRenderingContext2D | null = null;
 
 enum GameEvents {
+	JOIN,
+	CLEAR,
 	MOVE,
 }
 
@@ -17,14 +20,13 @@ enum Directions {
 	DOWN,
 }
 
-interface Packet {
+interface GamePacket {
 	id: number;
-}
-
-interface PlayerMovePacket extends Packet {
+	user: User;
+	roomId: number;
 	direction: Directions,
-}
 
+}
 
 export const Game = () => {
 	const socket = useContext(SocketContext);
@@ -90,20 +92,20 @@ export const Game = () => {
 
 	function emitMovement() {
 		let direction: Directions | undefined;
-		// @ts-ignore
-		if (moveUp && moveDown) {
-			return;
-		}
-		// @ts-ignore
-		if (moveUp)   direction = Directions.UP;
-		// @ts-ignore
-		if (moveDown) direction = Directions.DOWN;
-
-		if (direction) {
-			socket!.emit("game", {
-				id: GameEvents.MOVE,
-				direction: direction,
-			} as PlayerMovePacket);
+		if (curRoom) {
+			if (moveUp && moveDown) {
+				return;
+			}
+			if (moveUp) direction = Directions.UP;
+			if (moveDown) direction = Directions.DOWN;
+			if (direction) {
+				socket!.emit("game", {
+					id: GameEvents.MOVE,
+					user: user,
+					roomId: curRoom.id;
+					direction: direction,
+				} as PlayerMovePacket);
+			}
 		}
 	}
 

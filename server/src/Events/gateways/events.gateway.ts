@@ -1,26 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { GamePacket } from 'src/Events/game/game.interfaces';
 import { AuthService } from 'src/auth/auth.service';
-import { Player } from 'src/app/interfaces/gameEvents.entity';
-import { User } from '../../user/user.entity';
-
-enum GameEvents {
-	MOVE,
-}
-
-enum Directions {
-	UP,
-	DOWN,
-}
-
-interface Packet {
-	id: number;
-}
-
-interface PlayerMovePacket extends Packet {
-	direction: Directions,
-}
+import { User } from 'src/user/user.entity';
+import { gameService } from '../game/game.service'
 
 @Injectable()
 @WebSocketGateway(3001, { cors: true })
@@ -31,7 +15,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	connected: number;
 
-	constructor(private authService: AuthService) {}
+	constructor(private authService: AuthService, private gameService: gameService) {}
 
 	async handleConnection(client: Socket, ...args: any[]) {
 		try {
@@ -54,25 +38,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	}
 
 	@SubscribeMessage('game')
-	handleGame(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket) {
-		this.gameListener(packet, users[client.id]);
+	handleGame(@MessageBody() packet: GamePacket, @ConnectedSocket() client: Socket) {
+		this.gameService.gameListener(packet);
 	}
 
-	// gameService.ts
-	gameListener(packet: Packet, user: User) {
-		let player = findPlayer(user);
-
-		if (packet.id == GameEvents.MOVE) {
-			this.move(packet as PlayerMovePacket, player);
-		}
-	}
-
-	move(packet: PlayerMovePacket, player: Player) {
-		if (packet.direction == Directions.UP) {
-			player.y--;
-		}
-		if (packet.direction == Directions.DOWN) {
-			player.y++;
-		}
-	}
 }

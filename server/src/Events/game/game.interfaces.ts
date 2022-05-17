@@ -1,15 +1,34 @@
 import { Socket } from "socket.io";
 import { User } from "../../user/user.entity";
 
-interface EntityI {
+export enum GameEvents {
+	JOIN,
+	CLEAR,
+	MOVE,
+}
+
+export enum Directions {
+	UP,
+	DOWN,
+}
+
+export interface GamePacket {
+	id: number;
+	user: User;
+	roomId: number;
+	direction: Directions,
+}
+
+interface IEntity {
 	x: number;
 	y: number;
 	baseX: number;
 	baseY: number;
 }
 
-interface PlayerI extends EntityI {
+export interface IPlayer extends IEntity {
 	user: User;
+	socket: Socket;
 	speed: number;
 	up: boolean;
 	down: boolean;
@@ -18,29 +37,28 @@ interface PlayerI extends EntityI {
 	width: number;
 }
 
-interface SpectatorI {
+export interface ISpectator {
 	user: User;
 }
 
-interface BallI extends EntityI {
+export interface IBall extends IEntity {
 	skin: string;
 	speedX: number;
 	speedY: number;
 }
 
-interface RoomI {
+interface IRoom {
 	id: number;
 	height: number;
 	width: number;
 	isFull: boolean;
-	p1: PlayerI;
-	p2: PlayerI;
-	balls: Array<BallI>;
-	spectators: Array<SpectatorI>;
-	sockets: Map<any, any>;
+	p1: IPlayer;
+	p2: IPlayer;
+	balls: Array<IBall>;
+	spectators: Array<ISpectator>;
 }
 
-export class Room implements RoomI {
+export class Room implements IRoom {
 	id = -1;
 	height = 1080;
 	width = 1920;
@@ -48,6 +66,7 @@ export class Room implements RoomI {
 
 	p1 = {
 		user: null,
+		socket: -1,
 		speed : 12,
 		up : false,
 		down : false,
@@ -61,7 +80,8 @@ export class Room implements RoomI {
 	};
 
 	p2 = {
-		user: User : null,
+		user: null,
+		socket: -1,
 		speed : 12,
 		up : false,
 		down : false,
@@ -74,8 +94,8 @@ export class Room implements RoomI {
 		y : this.height / 2 - ((this.height / 8) / 2)
 	};
 
-	balls = [{
-		baseX: 
-	}];
+	balls = null;
+
+	spectators = null;
 
 }
