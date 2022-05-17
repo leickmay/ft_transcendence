@@ -1,14 +1,15 @@
+import { User } from "src/user/user.entity";
+
 export enum PacketInTypes {
-	USER_CONNECTION,
-	USER_DISCONNECTED,
-	USER_UPDATE,
-	TOTP_STATUS,
+	TOTP_REQUEST,
 	MOVE,
 }
 
 export enum PacketOutTypes {
-	TOTP_REQUEST,
-	OPTION_UPDATE,
+	USER_CONNECTION,
+	USER_DISCONNECTED,
+	USER_UPDATE,
+	TOTP_STATUS,
 	MOVE,
 }
 
@@ -41,9 +42,8 @@ export const DeclarePacket = (type: PacketOutTypes) => {
 // ========== PacketPlayIn  ========== \\
 // =================================== \\
 
-export interface PacketPlayInPlayerMove extends Packet {
-	player: number,
-	direction: Directions;
+export interface PacketPlayInTotpRequest extends Packet {
+	action: 'toggle' | 'get',
 }
 
 // =================================== \\
@@ -53,21 +53,36 @@ export interface PacketPlayInPlayerMove extends Packet {
 @DeclarePacket(PacketOutTypes.MOVE)
 export class PacketPlayOutPlayerMove {
 	constructor(
+		public player: number,
 		public direction: Directions,
 	) {}
 }
 
-@DeclarePacket(PacketOutTypes.TOTP_REQUEST)
-export class PacketPlayOutTotpRequest {
+@DeclarePacket(PacketOutTypes.USER_CONNECTION)
+export class PacketPlayOutUserConnection {
 	constructor(
-		public action: 'toggle' | 'get',
+		public users: Record<string, any>,
 	) {}
 }
 
-@DeclarePacket(PacketOutTypes.OPTION_UPDATE)
-export class PacketPlayOutOptionUpdate {
+@DeclarePacket(PacketOutTypes.USER_DISCONNECTED)
+export class PacketPlayOutUserDisconnected {
 	constructor(
-		public option: UserOptions,
-		public value: any,
+		public user: number,
+	) {}
+}
+
+@DeclarePacket(PacketOutTypes.USER_UPDATE)
+export class PacketPlayOutUserUpdate {
+	constructor(
+		public user: any,
+	) {}
+}
+
+@DeclarePacket(PacketOutTypes.TOTP_STATUS)
+export class PacketPlayOutTotpStatus {
+	constructor(
+		public status: 'enabled' | 'disabled',
+		public totp?: string,
 	) {}
 }

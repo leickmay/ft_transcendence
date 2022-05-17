@@ -1,6 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EventsModule } from 'src/chat/events.module';
+import { EventsModule } from 'src/socket/events.module';
 import { ImageModule } from 'src/images/image.module';
 import { UserController } from './user.controller';
 import { User } from './user.entity';

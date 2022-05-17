@@ -43,11 +43,17 @@ export function Home(props: Props) {
 		socket?.on('online',         (data: User)          => { dispatch(addOnlineUser(data)); });
 		socket?.on('offline',        (data: User)          => { dispatch(removeOnlineUser(data)); });
 		socket?.on('update-user',    (data: UpdateUserDto) => { dispatch(updateUser(data)); });
+		
+		socket?.off('user').on('user',    (data: UpdateUserDto) => {
+			console.log(data);
+		});
 
 		return () => {
+			socket?.off('already-online');
+			socket?.off('friends');
 			socket?.off('online');
 			socket?.off('offline');
-			socket?.off('online-users');
+			socket?.off('update-user');
 		}
 	}, [socket, dispatch]);
 

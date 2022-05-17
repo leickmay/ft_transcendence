@@ -2,12 +2,13 @@ import { ClassSerializerInterceptor, Controller, forwardRef, Get, Inject, NotFou
 import { Response } from 'express';
 import { HttpExceptionFilter } from 'src/auth/filters/totp-exception.filter';
 import { TwoFactorJwtAuthGuard } from 'src/auth/guards/two-factor-jwt-auth.guard';
-import { EventsService } from 'src/chat/events.service';
+import { EventsService } from 'src/socket/events.service';
 import { ApiFile } from 'src/images/decorators/api-file.decorator';
 import { fileMimetypeFilter } from 'src/images/filters/file-mimetype-filter';
 import { Readable } from 'stream';
 import { User } from './user.entity';
 import { UserService } from './user.service';
+import { PacketPlayOutUserUpdate } from 'src/socket/packets';
 
 export const Public = () => SetMetadata("isPublic", true );
 
@@ -46,10 +47,10 @@ export class UserController {
 				filename: file.originalname,
 			},
 		});		
-		this.eventsService.getServer().emit('update-user', {
+		this.eventsService.getServer().emit('user', new PacketPlayOutUserUpdate({
 			id: user.id,
 			avatar: user.getAvatarUrl() + '?r=' + Math.floor(Math.random() * 1000), // avoid same url for image reload
-		});
+		}));
 	}
 
 	@Public()

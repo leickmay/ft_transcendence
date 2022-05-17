@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { EventsModule } from './chat/events.module';
+import { EventsModule } from './socket/events.module';
 import { Image } from './images/image.entity';
 import { ImageModule } from './images/image.module';
 import { User } from './user/user.entity';

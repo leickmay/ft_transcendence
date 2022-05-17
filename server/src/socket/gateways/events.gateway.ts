@@ -6,6 +6,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { EventsService } from '../events.service';
+import { PacketPlayOutTotpStatus, PacketPlayOutUserConnection, PacketPlayOutUserDisconnected, PacketPlayOutUserUpdate } from '../packets';
 
 @Injectable()
 @WebSocketGateway(3001, { cors: true })
@@ -40,10 +41,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			if (!user || Object.values(this.eventsService.users).find(e => e.id === user.id)) {
 				throw Error('Already connected');
 			}
-
-			client.broadcast.emit('online', instanceToPlain(user));
-			client.emit('already-online', instanceToPlain(Object.values(this.eventsService.users)));
-			this.eventsService.addUser(client, user);			
+			client.broadcast.emit('user', new PacketPlayOutUserConnection([instanceToPlain(user)]));
+			client.emit('user', new PacketPlayOutUserConnection(instanceToPlain(Object.values(this.eventsService.users))));
+			this.eventsService.addUser(client, user);
 		} catch (e) {
 			client.emit('error', new UnauthorizedException());
 			client.disconnect();
@@ -55,7 +55,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		if (!user)
 			return;
 
-		client.broadcast.emit('offline', instanceToPlain(user));
+		client.broadcast.emit('user', new PacketPlayOutUserDisconnected(user.id));
 		this.eventsService.removeUser(client);
 	}
 
@@ -69,7 +69,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		if (action == 'toggle')
 			url = await this.userService.toggleTotp(user);
 
-		client.emit('totp', {status: 'success', totp: url});
+		client.emit('totp', new PacketPlayOutTotpStatus(url ? 'enabled' : 'disabled', url));
 	}
 
 	@SubscribeMessage('option')
