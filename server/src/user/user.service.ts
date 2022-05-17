@@ -1,35 +1,41 @@
 import { Injectable } from '@nestjs/common';
 import * as OTPAuth from 'otpauth';
-import { use } from 'passport';
 import { Image } from 'src/images/image.entity';
-import { FindOneOptions } from 'typeorm';
+import { BaseEntity, FindOneOptions } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserAvatarDto } from './dto/update-user-avatar.dto';
 import { UpdateUserNameDto } from './dto/update-user-name.dto';
 import { User } from './user.entity';
+import { DeepPartial } from 'typeorm/common/DeepPartial';
 
 @Injectable()
 export class UserService {
 	constructor() {}
 
 	async create(data: CreateUserDto) : Promise<User> {
-		return await User.create(data).save();
+		return await User.create(data as any).save();
 	}
 
 	async get(id: number) : Promise<User> {
-		return await User.findOne(id);
+		return await User.findOneBy({id});
 	}
 
 	async getById42(id42: number) : Promise<User> {
-		return await User.findOne({id42});
+		return await User.findOneBy({id42});
 	}
 
 	async getByLogin(login: string, options?: FindOneOptions<User>) : Promise<User> {
-		return await User.findOne({login}, options);
+		return await User.findOne({
+			...options,
+			where: {
+				login: login,
+			}
+		});
 	}
 
 	async setName(user: User, data: UpdateUserNameDto): Promise<User> {
-		return await User.merge(user, data).save();
+		// to change when typeorm update to 0.3.7
+		return await User.merge(user, data as any).save();
 	}
 
 	async toggleTotp(user: User): Promise<string | undefined> {

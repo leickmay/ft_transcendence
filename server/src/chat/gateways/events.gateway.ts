@@ -73,8 +73,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	}
 
 	@SubscribeMessage('option')
-	async optionEvent(@MessageBody('action') action: string, @MessageBody('id') id: number, @ConnectedSocket() client: Socket): Promise<void> {
-		
+	async optionEvent(@MessageBody() action: any, @ConnectedSocket() client: Socket): Promise<void> {
+		console.log(action);
 	}
 
 	@SubscribeMessage('friend')
@@ -85,7 +85,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 		let friends = await user.friends;
 		if (action == 'add') {
-			let target = await User.findOne(id);
+			let target = await User.findOneBy({id});
 
 			if (target && !friends.find(o => o.id === id)) {
 				friends.push(target);
@@ -94,11 +94,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			user.friends = Promise.resolve(friends);
 			await (await user.save()).reload();
 		} else if (action == 'remove') {
-			let target = await User.findOne(id);
-
-			if (target) {
-				friends = friends.filter(e => e.id != target.id);
-			}
+			friends = friends.filter(e => e.id != id);
 
 			user.friends = Promise.resolve(friends);
 			await (await user.save()).reload();
