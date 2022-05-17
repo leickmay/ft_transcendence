@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import { Player } from 'src/game/gameEvents.entity';
+import { Player } from 'src/app/interfaces/gameEvents.entity';
 import { User } from '../../user/user.entity';
 
 enum GameEvents {

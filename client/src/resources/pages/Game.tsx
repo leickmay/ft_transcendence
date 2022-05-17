@@ -8,10 +8,6 @@ import { Room } from "../../app/interfaces/Game"
 let canvas: HTMLCanvasElement | null = null;
 let ctx: CanvasRenderingContext2D | null = null;
 
-
-let canvasHeight: number = 1080;
-let canvasWidth: number = 1920;
-
 enum GameEvents {
 	MOVE,
 }
@@ -35,15 +31,8 @@ export const Game = () => {
 	const user = useSelector((state: RootState) => state.users.current);
 	const [curRoom, setCurRoom] = useState<Room | null>();
 	
-	let p1 = document.getElementById('paddle_1');
-	let p1Down: boolean = false;
-	let p2 = document.getElementById('paddle_2');
-	let p2Up: boolean = false;
-	let p2Down: boolean = false;
-	let ball = document.getElementById('ball');
-	let p1Up: boolean = false;
-	
-	
+	let moveUp: boolean = false;
+	let moveDown: boolean = false;
 	
 	let gameLaunch = false;
 	const [pressEnter, setPressEnter] = useState("Press Enter to Play Pong");
@@ -62,7 +51,7 @@ export const Game = () => {
 			//console.log(curRoom);
 			
 			ctx.fillStyle = "black";
-			ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+			ctx.fillRect(0, 0, curRoom.height, curRoom.width);
 			ctx.fillStyle = "purple";
 			ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width , curRoom.p1.height);
 		} 
@@ -71,21 +60,13 @@ export const Game = () => {
 
 	function handleKeyDown(e: any) {
 		if (socket  && curRoom && user) {
-			if (e.key === 'w' && curRoom.p1.user.login === user.login && curRoom.p1.y > curRoom.p1.baseY - 245) {
-				p1Up = true;
-				p1Down = false;
+			if (e.key === 'w') {
+				moveUp = true;
+				moveDown = false;
 			}
-			if (e.key === 's' && curRoom.p1.user.login === user.login && curRoom.p1.y < curRoom.p1.baseY + 240) {
-				p1Up = false;
-				p1Down = true;
-			}
-			if (e.key === 'w' && curRoom.p2.user.login === user.login && curRoom.p2.y > curRoom.p2.baseY - 245) {
-				p2Up = true;
-				p2Down = false;
-			}
-			if (e.key === 's' && curRoom.p2.user.login === user.login && curRoom.p2.y < curRoom.p2.baseY + 240) {
-				p2Up = false;
-				p2Down = true;
+			if (e.key === 's') {
+				moveUp = false;
+				moveDown = true;
 			}
 		}
 		//if (e.key === "Enter") {
@@ -97,17 +78,11 @@ export const Game = () => {
 
 	function handleKeyUp(e: any) {
 		if (socket && curRoom && user) {
-			if (e.key === 'w' && curRoom.p1.user.login === user.login) {
-				p1Up = false;
+			if (e.key === 'w') {
+				moveUp = false;
 			}
-			if (e.key === 's' && curRoom.p1.user.login === user.login) {
-				p1Down = false;
-			}
-			if (e.key === 'w' && curRoom.p2.user.login === user.login) {
-				p2Up = false;
-			}
-			if (e.key === 's' && curRoom.p2.user.login === user.login) {
-				p2Down = false;
+			if (e.key === 's') {
+				moveDown = false;
 			}
 		}
 
@@ -244,7 +219,7 @@ export const Game = () => {
 			}
 			{
 				curRoom && curRoom.isFull ?
-				<canvas ref={canvasRef} height={canvasHeight} width={canvasWidth} />
+				<canvas ref={canvasRef} height={curRoom.height} width={curRoom.width} />
 				:
 				<div>Room is not Full</div>
 		}

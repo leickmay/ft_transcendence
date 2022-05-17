@@ -2,7 +2,7 @@ import { SubscribeMessage, MessageBody, WebSocketGateway, ConnectedSocket, OnGat
 import { Socket, Server } from 'socket.io';
 import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
-import { Ball, Player, Room } from "../gameEvents.entity"
+import { Ball, Player, Room } from "../../app/interfaces/gameEvents.entity"
 
 @Injectable()
 @WebSocketGateway(3001, { cors: true })
@@ -57,10 +57,10 @@ export class GameEventsGateway implements OnGatewayDisconnect {
 		newP2.speed = 12;
 		newRoom.p1 = newP1;
 		newRoom.p2 = newP2;
-		//newBall.baseX = canvasWidth / 2;
-		//newBall.baseY = canvasHeight / 2;
-		newBall.x = newRoom.width / 2;
-		newBall.y = newRoom.height / 2;
+		newBall.baseX = newRoom.width / 2;
+		newBall.baseY = newRoom.height / 2;
+		newBall.x = newBall.baseX;
+		newBall.y = newBall.baseY;
 		newBall.speedX = 6;
 		newBall.speedY = 6;
 		newRoom.balls = new Array;
