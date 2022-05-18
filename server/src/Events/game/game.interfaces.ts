@@ -56,7 +56,7 @@ interface IRoom {
 	p2: IPlayer;
 	balls: Array<IBall>;
 	spectators: Array<ISpectator>;
-	sockets: Map<number, Socket>;
+	sockets: Map<any, any>;
 }
 
 export class Room implements IRoom {
@@ -72,8 +72,8 @@ export class Room implements IRoom {
 		up : false,
 		down : false,
 		score : 0,
-		height : this.height / 8,
-		width : this.width / 100,
+		height : this.height / 6,
+		width : this.width / 80,
 		baseX : this.width / 100,
 		baseY : this.height / 2 - ((this.height / 8) / 2),
 		x : this.width / 100,
@@ -87,11 +87,11 @@ export class Room implements IRoom {
 		up : false,
 		down : false,
 		score : 0,
-		height : this.height / 8,
-		width : this.width / 100,
-		baseX : this.width / 100,
+		height : this.height / 6,
+		width : this.width / 80,
+		baseX : this.width / 1.02,
 		baseY : this.height / 2 - ((this.height / 8) / 2),
-		x : this.width / 100,
+		x : this.width / 1.02,
 		y : this.height / 2 - ((this.height / 8) / 2),
 	};
 

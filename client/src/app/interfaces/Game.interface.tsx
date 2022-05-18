@@ -55,5 +55,5 @@ export interface Room {
 	p2: Player;
 	balls: Array<Ball>;
 	spectators: Array<Spectator>;
-	sockets: Map<number, Socket>;
+	sockets: Map<any, any>;
 }
