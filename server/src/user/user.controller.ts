@@ -46,7 +46,7 @@ export class UserController {
 				content: file.buffer,
 				filename: file.originalname,
 			},
-		});		
+		});
 		this.eventsService.getServer().emit('user', new PacketPlayOutUserUpdate({
 			id: user.id,
 			avatar: user.getAvatarUrl() + '?r=' + Math.floor(Math.random() * 1000), // avoid same url for image reload

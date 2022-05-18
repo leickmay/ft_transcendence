@@ -1,7 +1,8 @@
 import { User } from "src/user/user.entity";
 
 export enum PacketInTypes {
-	TOTP_REQUEST,
+	TOTP,
+	OPTION_UPDATE,
 	MOVE,
 }
 
@@ -27,12 +28,11 @@ export interface Packet {
 }
 
 export interface PacketOut {
-	packet_id: PacketOutTypes;
 }
 
 export const DeclarePacket = (type: PacketOutTypes) => {
 	return <T extends { new (...args: any[]): {} }>(constructor: T) => {
-		return class extends constructor implements PacketOut {
+		return class extends constructor {
 			packet_id = type;
 		}
 	}
@@ -42,8 +42,7 @@ export const DeclarePacket = (type: PacketOutTypes) => {
 // ========== PacketPlayIn  ========== \\
 // =================================== \\
 
-export interface PacketPlayInTotpRequest extends Packet {
-	action: 'toggle' | 'get',
+export interface PacketPlayInTotp extends Packet {
 }
 
 // =================================== \\
@@ -51,7 +50,7 @@ export interface PacketPlayInTotpRequest extends Packet {
 // =================================== \\
 
 @DeclarePacket(PacketOutTypes.MOVE)
-export class PacketPlayOutPlayerMove {
+export class PacketPlayOutPlayerMove implements PacketOut {
 	constructor(
 		public player: number,
 		public direction: Directions,
@@ -59,28 +58,28 @@ export class PacketPlayOutPlayerMove {
 }
 
 @DeclarePacket(PacketOutTypes.USER_CONNECTION)
-export class PacketPlayOutUserConnection {
+export class PacketPlayOutUserConnection implements PacketOut {
 	constructor(
 		public users: Record<string, any>,
 	) {}
 }
 
 @DeclarePacket(PacketOutTypes.USER_DISCONNECTED)
-export class PacketPlayOutUserDisconnected {
+export class PacketPlayOutUserDisconnected implements PacketOut {
 	constructor(
 		public user: number,
 	) {}
 }
 
 @DeclarePacket(PacketOutTypes.USER_UPDATE)
-export class PacketPlayOutUserUpdate {
+export class PacketPlayOutUserUpdate implements PacketOut {
 	constructor(
 		public user: any,
 	) {}
 }
 
 @DeclarePacket(PacketOutTypes.TOTP_STATUS)
-export class PacketPlayOutTotpStatus {
+export class PacketPlayOutTotpStatus implements PacketOut {
 	constructor(
 		public status: 'enabled' | 'disabled',
 		public totp?: string,

@@ -7,7 +7,7 @@ export enum PacketInTypes {
 }
 
 export enum PacketOutTypes {
-	TOTP_REQUEST,
+	TOTP,
 	OPTION_UPDATE,
 	MOVE,
 }
@@ -57,7 +57,7 @@ export class PacketPlayOutPlayerMove {
 	) {}
 }
 
-@DeclarePacket(PacketOutTypes.TOTP_REQUEST)
+@DeclarePacket(PacketOutTypes.TOTP)
 export class PacketPlayOutTotpRequest {
 	constructor(
 		public action: 'toggle' | 'get',

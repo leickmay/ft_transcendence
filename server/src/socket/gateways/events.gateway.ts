@@ -6,7 +6,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { EventsService } from '../events.service';
-import { PacketPlayOutTotpStatus, PacketPlayOutUserConnection, PacketPlayOutUserDisconnected, PacketPlayOutUserUpdate } from '../packets';
+import { Packet, PacketPlayOutTotpStatus, PacketPlayOutUserConnection, PacketPlayOutUserDisconnected, PacketPlayOutUserUpdate } from '../packets';
 
 @Injectable()
 @WebSocketGateway(3001, { cors: true })
@@ -64,7 +64,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		let user = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		
+
 		let url: string | undefined;
 		if (action == 'toggle')
 			url = await this.userService.toggleTotp(user);
@@ -77,29 +77,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		console.log(action);
 	}
 
-	@SubscribeMessage('friend')
-	async friendEvent(@MessageBody('action') action: string, @MessageBody('id') id: number, @ConnectedSocket() client: Socket): Promise<void> {
-		let user = this.eventsService.users[client.id];
-		if (!user)
-			return;
-
-		let friends = await user.friends;
-		if (action == 'add') {
-			let target = await User.findOneBy({id});
-
-			if (target && !friends.find(o => o.id === id)) {
-				friends.push(target);
-			}
-
-			user.friends = Promise.resolve(friends);
-			await (await user.save()).reload();
-		} else if (action == 'remove') {
-			friends = friends.filter(e => e.id != id);
-
-			user.friends = Promise.resolve(friends);
-			await (await user.save()).reload();
-		} else if (action == 'get') {
-		}
-		client.emit('friends', instanceToPlain(await user.friends));
+	@SubscribeMessage('user')
+	async user(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket): Promise<void> {
+		
 	}
 }

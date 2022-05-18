@@ -1,6 +1,7 @@
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { Socket } from 'socket.io';
 import { Image } from 'src/images/image.entity';
+import { Packet, PacketOut } from 'src/socket/packets';
 import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn, RelationId } from 'typeorm';
 
 @Exclude()
@@ -62,5 +63,9 @@ export class User extends BaseEntity {
 	@Expose({ name: 'avatar' })
 	getAvatarUrl() {
 		return this.avatarId ? '/api/users/avatar/' + this.login : this.intra_picture;
+	}
+
+	send(event: string, packet: PacketOut) {
+		this.socket?.emit(event, packet);
 	}
 }

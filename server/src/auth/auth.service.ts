@@ -8,7 +8,7 @@ import { UserService } from 'src/user/user.service';
 export class AuthService {
 	constructor(
 		private userService: UserService,
-		private jwtService: JwtService
+		private jwtService: JwtService,
 	) {}
 
 	async get42Token(authCode: string): Promise<string> {

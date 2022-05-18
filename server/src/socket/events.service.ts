@@ -7,9 +7,9 @@ export class EventsService {
 
 	server: Server = null;
 
-	users: {[socket: string]: User} = {};
+	users: { [socket: string]: User } = {};
 
-	constructor() {}
+	constructor() { }
 
 	getServer(): Server {
 		return this.server;
