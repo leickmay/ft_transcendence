@@ -1,3 +1,4 @@
+import { interval } from 'rxjs';
 import { Socket } from 'socket.io';
 import { User } from '../../user/user.entity';
 import { Directions, GameEvents, GamePacket, IPlayer, Room } from "./game.interfaces"
@@ -99,6 +100,7 @@ export class gameService {
 
 	playerMove(packet: GamePacket) {
 		if (packet.user.login === this.rooms[packet.roomId].p1.user.login) {
+			console.log("p1 Move");
 			if (packet.direction === Directions.UP && this.rooms[packet.roomId].p1.y > 0) {
 				this.rooms[packet.roomId].p1.y -= this.rooms[packet.roomId].p1.speed;
 			}
@@ -108,6 +110,7 @@ export class gameService {
 			else return;
 		}
 		else if (packet.user.login === this.rooms[packet.roomId].p2.user.login) {
+			console.log("p2 Move");
 			if (packet.direction === Directions.UP && this.rooms[packet.roomId].p2.y > 0) {
 				this.rooms[packet.roomId].p2.y -= this.rooms[packet.roomId].p2.speed;;
 			}
@@ -118,7 +121,8 @@ export class gameService {
 		}
 		for (const [client, sequenceNumber] of this.rooms[packet.roomId].sockets.entries()) {
 			client.emit("retPlayerMove",  this.rooms[packet.roomId]);
-			this.rooms[packet.roomId].sockets.set(client, sequenceNumber + 1);	
+			this.rooms[packet.roomId].sockets.set(client, sequenceNumber + 1);
 		}
 	}
 }
+

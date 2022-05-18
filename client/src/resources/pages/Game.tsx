@@ -12,6 +12,7 @@ export const Game = () => {
 	const socket = useContext(SocketContext);
 	const user = useSelector((state: RootState) => state.users.current);
 	const [curRoom, setCurRoom] = useState<Room | null>();
+	let raf: any;
 	
 	let moveUp: boolean = false;
 	let moveDown: boolean = false;
@@ -36,14 +37,12 @@ export const Game = () => {
 			document.addEventListener('keydown', e => {handleKeyDown(e)});
 			document.addEventListener('keyup', e => {handleKeyUp(e)});
 			
-			//window.requestAnimationFrame(draw);
-			setInterval(emitMovement, 50);
+			raf = setInterval(emitMovement, 16);
 			draw();
 	}
 
 	const draw = () => {
 		if (ctx && curRoom) {
-			//console.log("draw:\n p1y: ", curRoom.p1.y , "\np2y: ", curRoom.p2.y );
 			ctx.fillStyle = "black";
 			ctx.fillRect(0, 0, curRoom.width, curRoom.height);
 			ctx.fillStyle = "pink";
@@ -53,11 +52,10 @@ export const Game = () => {
 			ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width , curRoom.p1.height);
 			ctx.fillRect(curRoom.p2.x , curRoom.p2.y , curRoom.p2.width , curRoom.p2.height);
 		} 
-		//window.requestAnimationFrame(draw);
 	}
 
 	function emitMovement() {
-		if (curRoom) {
+		if (curRoom && curRoom.isFull) {
 			if ((moveUp && moveDown) || (!moveUp && !moveDown)) {
 				return;
 			}
@@ -157,6 +155,7 @@ export const Game = () => {
 	socket?.off("retClearRoom").on("retClearRoom", function() {
 		console.log("CLEAR!");
 		setCurRoom(null);
+		clearInterval(raf);
 	})
 
 	return (
