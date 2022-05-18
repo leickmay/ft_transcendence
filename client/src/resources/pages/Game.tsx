@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
 import { RootState } from "../../app/store";
 import { Directions, GameEvents, GamePacket, Room } from "../../app/interfaces/Game.interface"
-import { User } from "../../app/interfaces/User";
 
 let canvas: HTMLCanvasElement | null = null;
 let ctx: CanvasRenderingContext2D | null = null;
@@ -17,9 +16,7 @@ export const Game = () => {
 	let moveUp: boolean = false;
 	let moveDown: boolean = false;
 	
-	let gameLaunch = false;
 	const [waitForPlay, setWaitForPlay] = useState(false);
-	const [pressEnter, setPressEnter] = useState("Press Enter to Play Pong");
 	
 	let canvasRef = useRef<HTMLCanvasElement>(null)
 	
@@ -122,7 +119,6 @@ export const Game = () => {
 		}
 		else {
 			setCurRoom(ret);
-			setPressEnter("");
 			setWaitForPlay(false);
 		}
 	})
@@ -160,9 +156,6 @@ export const Game = () => {
 
 	socket?.off("retClearRoom").on("retClearRoom", function() {
 		console.log("CLEAR!");
-		
-		gameLaunch = false;
-		setPressEnter("Press Enter to Play Pong");
 		setCurRoom(null);
 	})
 
