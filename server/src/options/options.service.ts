@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { instanceToPlain } from 'class-transformer';
 import { EventsService } from 'src/socket/events.service';
-import { Packet, PacketInTypes, PacketPlayInFriend, PacketPlayInOptionUpdate, PacketPlayInTotp, PacketPlayOutFriendsUpdate, PacketPlayOutTotp, PacketPlayOutUserUpdate } from 'src/socket/packets';
+import { Packet, PacketInTypes, PacketPlayInFriend, PacketPlayInOptionUpdate, PacketPlayInTotp, PacketPlayOutFriendsUpdate, PacketPlayOutUserUpdate } from 'src/socket/packets';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 
@@ -18,7 +18,7 @@ export class OptionsService {
 			case PacketInTypes.USER_UPDATE:
 				this.optionHandler(packet as PacketPlayInOptionUpdate, user);
 				break;
-			case PacketInTypes.TOTP:
+			case PacketInTypes.TOTP:				
 				this.totpHandler(packet as PacketPlayInTotp, user);
 				break;
 			case PacketInTypes.FRIENDS:
@@ -36,13 +36,16 @@ export class OptionsService {
 		this.eventService.getServer().emit('user', new PacketPlayOutUserUpdate({
 			id: user.id,
 			...validated,
-		}))
+		}));
 	}
 
 	async totpHandler(packet: PacketPlayInTotp, user: User): Promise<void> {
 		let url: string | undefined;
 		url = await this.userService.toggleTotp(user);
-		user.send('user', new PacketPlayOutTotp(url ? 'enabled' : 'disabled', url));
+		user.send('user', new PacketPlayOutUserUpdate({
+			id: user.id,
+			totp: url || false,
+		}));
 	}
 
 	async friendHandler(packet: PacketPlayInFriend, user: User): Promise<void> {
@@ -50,7 +53,7 @@ export class OptionsService {
 		if (packet.action === 'add' || packet.action === 'remove') {
 			if (packet.action == 'add') {
 				let target = await User.findOneBy({ id: packet.id });
-				if (target && friends.find(e => e.id !== packet.id)) {
+				if (target && !friends.find(e => e.id !== packet.id)) {
 					friends.push(target);
 				}
 			} else {

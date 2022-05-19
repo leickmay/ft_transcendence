@@ -89,11 +89,11 @@ const slice = createSlice({
 				],
 			};
 		},
-		removeOnlineUser: (state: State, action: PayloadAction<User>): State => {
+		removeOnlineUser: (state: State, action: PayloadAction<number>): State => {
 			return {
 				...state,
 				online: [
-					...state.online.filter(e => e.id !== action.payload.id),
+					...state.online.filter(e => e.id !== action.payload),
 				],
 			};
 		},

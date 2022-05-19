@@ -4,7 +4,7 @@ export interface User {
 	login: string;
 	name: string;
 	avatar: string;
-	totp?: boolean;
+	totp?: boolean | string;
 }
 
 export type UpdateUserDto = Partial<User> & { id: number };

@@ -1,13 +1,13 @@
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
-import { ReactElement, useContext, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useContext, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { Navigate } from "react-router";
 import { Route, Routes } from 'react-router-dom';
 import { SocketContext } from '../../app/context/socket';
-import { UpdateUserDto, User } from '../../app/interfaces/User';
-import { addOnlineUser, removeOnlineUser, setFriends, setOnlineUsers, updateUser } from '../../app/slices/usersSlice';
-import { RootState } from '../../app/store';
+import { Packet, PacketInTypes, PacketPlayInFriendsUpdate, PacketPlayInUserConnection, PacketPlayInUserDisconnected, PacketPlayInUserUpdate } from '../../app/packets';
+import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import Alert from '../components/Alert';
+import { Loader } from '../components/Loader';
 import Navigation from '../components/Navigation';
 import { Friends } from '../pages/Friends';
 import { Game } from '../pages/Game';
@@ -20,32 +20,39 @@ interface Props {
 }
 
 export function Home(props: Props) {
-	const [loadingElement, setLoadingElement] = useState<ReactElement>();
-
-	const connected = useSelector((state: RootState) => state.socket.connected);
-
 	const socket = useContext(SocketContext);
 
 	const dispatch: Dispatch<AnyAction> = useDispatch();
 
-	useEffect(() => {
-		if (!connected) {
-			setLoadingElement(<div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}><div className="spinner-grow" role="status"></div></div>);
-		} else {
-			socket?.emit('friend', { action: 'get' });
-			setLoadingElement(undefined);
-		}
-	}, [socket, connected]);
+	console.log('-------- fresh --------');
 
 	useEffect(() => {
-		socket?.on('already-online', (data: Array<User>)   => { dispatch(setOnlineUsers(data)); });
-		socket?.on('friends',        (data: Array<User>)   => { dispatch(setFriends(data)); });
-		socket?.on('online',         (data: User)          => { dispatch(addOnlineUser(data)); });
-		socket?.on('offline',        (data: User)          => { dispatch(removeOnlineUser(data)); });
-		socket?.on('update-user',    (data: UpdateUserDto) => { dispatch(updateUser(data)); });
-		
-		socket?.off('user').on('user',    (data: UpdateUserDto) => {
-			console.log(data);
+		const online = (packet: PacketPlayInUserConnection) => {
+			for (const user of packet.users)
+				dispatch(addOnlineUser(user));
+		}
+
+		const offline = (packet: PacketPlayInUserDisconnected) => {
+			dispatch(removeOnlineUser(packet.user));
+		}
+
+		const update = (packet: PacketPlayInUserUpdate) => {
+			dispatch(updateUser(packet.user));
+		}
+
+		const friends = (packet: PacketPlayInFriendsUpdate) => {
+			dispatch(setFriends(packet.friends));
+		}
+
+		socket?.off('user').on('user',    (packet: Packet) => {
+			if (packet.packet_id === PacketInTypes.USER_CONNECTION)
+				online(packet as PacketPlayInUserConnection);
+			if (packet.packet_id === PacketInTypes.USER_DISCONNECTED)
+				offline(packet as PacketPlayInUserDisconnected);
+			if (packet.packet_id === PacketInTypes.USER_UPDATE)
+				update(packet as PacketPlayInUserUpdate);
+			if (packet.packet_id === PacketInTypes.FRIENDS_UPDATE)
+				friends(packet as PacketPlayInFriendsUpdate);
 		});
 
 		return () => {
@@ -61,7 +68,7 @@ export function Home(props: Props) {
 		<>
 			<Alert />
 			<Navigation />
-			{ loadingElement }
+			<Loader />
 			<Routes>
 				<Route path="/" element={<Menu />} />
 				<Route path="/game" element={<Game />} />

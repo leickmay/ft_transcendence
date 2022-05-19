@@ -1,16 +1,18 @@
+import { UpdateUserDto, User } from "./interfaces/User";
+
 export enum PacketInTypes {
 	TOTP,
 	USER_CONNECTION,
 	USER_DISCONNECTED,
 	USER_UPDATE,
 	FRIENDS_UPDATE,
-	MOVE,
+	PLAYER_MOVE,
 }
 
 export enum PacketOutTypes {
 	TOTP,
 	USER_UPDATE,
-	MOVE,
+	PLAYER_MOVE,
 	FRIENDS,
 }
 
@@ -43,21 +45,34 @@ export interface PacketPlayInPlayerMove extends Packet {
 	direction: Directions;
 }
 
+export interface PacketPlayInUserConnection extends Packet {
+	users: Array<User>;
+}
+
+export interface PacketPlayInUserDisconnected extends Packet {
+	user: number;
+}
+
+export interface PacketPlayInUserUpdate extends Packet {
+	user: UpdateUserDto;
+}
+
+export interface PacketPlayInFriendsUpdate extends Packet {
+	friends: Array<User>;
+}
+
 // =================================== \\
 // ========== PacketPlayOut ========== \\
 // =================================== \\
 
-@DeclarePacket(PacketOutTypes.MOVE)
+@DeclarePacket(PacketOutTypes.TOTP)
+export class PacketPlayOutTotp {
+}
+
+@DeclarePacket(PacketOutTypes.PLAYER_MOVE)
 export class PacketPlayOutPlayerMove {
 	constructor(
 		public direction: Directions,
-	) {}
-}
-
-@DeclarePacket(PacketOutTypes.TOTP)
-export class PacketPlayOutTotp {
-	constructor(
-		public action: 'toggle' | 'get',
 	) {}
 }
 
@@ -65,5 +80,13 @@ export class PacketPlayOutTotp {
 export class PacketPlayOutUserUpdate {
 	constructor(
 		public options: {[option: string]: any},
+	) {}
+}
+
+@DeclarePacket(PacketOutTypes.FRIENDS)
+export class PacketPlayOutFriends {
+	constructor(
+		public action: 'add' | 'remove' | 'get',
+		public id?: number,
 	) {}
 }

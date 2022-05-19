@@ -5,6 +5,7 @@ import { User } from "../../app/interfaces/User";
 import { RootState } from "../../app/store";
 import icon_online from '../../assets/images/online.png';
 import icon_offline from '../../assets/images/offline.png';
+import { PacketPlayOutFriends } from "../../app/packets";
 
 interface Props {
 	user: User;
@@ -15,10 +16,7 @@ const FriendCard = (props: Props) => {
 	const online = useSelector((state: RootState) => state.users.online);
 
 	let button = (): JSX.Element => {
-		return (<div onClick={() => socket?.emit('friend', {
-			action: 'remove',
-			id: props.user.id,
-		})}>
+		return (<div onClick={() => socket?.emit('user', new PacketPlayOutFriends('remove', props.user.id))}>
 			<p className="pointer" style={{fontSize: '1rem'}}>Retirer l'amis</p>
 		</div>);
 	}

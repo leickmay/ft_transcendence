@@ -1,61 +1,42 @@
 import { ChangeEvent, KeyboardEvent, useContext, useEffect, useState } from 'react';
 import QRCode from "react-qr-code";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
-import { PacketPlayInTotp, PacketPlayOutUserUpdate } from '../../app/packets';
-import { setTotp } from "../../app/slices/usersSlice";
+import { PacketPlayOutTotp, PacketPlayOutUserUpdate } from '../../app/packets';
 import { RootState } from '../../app/store';
 import { ImageUploader } from '../components/ImageUploader';
 
 export const Options = () => {
 	const socket = useContext(SocketContext);
-	const dispatch = useDispatch();
 	const user = useSelector((state: RootState) => state.users.current);
-	const [totpLoading, setTotpLoading] = useState<boolean>(false);
-	const [totpURL, setTotpURL] = useState<string | null>();
-	const [name, setName] = useState(user?.name);	
+	const [name, setName] = useState(user?.name);
+
+	console.log('---- fresh options ----');	
 
 	useEffect(() => {
 		if (user && name === undefined)
 			setName(user.name);
 	}, [user, name]);
 
-	useEffect(() => {
-		socket?.on('totp', (data: {status: string, totp: string | null}) => {
-			setTotpLoading(false);
-			if (data.status === 'success') {
-				setTotpURL(data.totp);
-				dispatch(setTotp(!!data.totp));
-			}
-		});
-		// socket?.on('option')
-
-		return () => {
-			socket?.off('totp');
-		};
-	}, [socket, dispatch]);
-
 	const newTotp = (): void => {
-		setTotpLoading(true);
-		socket?.emit('totp', new PacketPlayInTotp('toggle'));
+		socket?.emit('user', new PacketPlayOutTotp());
 	};
 
 	const newName = (e: ChangeEvent<HTMLInputElement>): void => {
 		setName(e.target.value);
-		setTotpLoading(true);
 	};
 
 	const validateName = (event: KeyboardEvent<HTMLInputElement>): void => {
-		if ((event.key === 'Enter' || event.keyCode === 13) && name) {
-			socket?.emit('option', new PacketPlayOutUserUpdate({name: name}));
+		if ((event.key === 'Enter' || event.keyCode === 13) && name && name !== user?.name) {
+			socket?.emit('user', new PacketPlayOutUserUpdate({name: name}));
 		}
 	};
 
 	const getTotp = (): JSX.Element | null => {
-		if (totpURL) {
+		if (user?.totp && typeof user?.totp === 'string') {
 			return (<div style={{ backgroundColor: 'white', padding: '15px', display: 'flex', justifyContent: 'center' }}>
 				<div style={{ padding: '6px', border: '4px solid' }}>
-					<QRCode style={{ display: 'block' }} value={totpURL} />
+					<QRCode style={{ display: 'block' }} value={user.totp} />
 				</div>
 			</div>);
 		}
@@ -73,7 +54,7 @@ export const Options = () => {
 						<input type="text" value={name ?? ''} onChange={newName} onKeyDown={validateName} />
 					</label>
 					<h2>Two factor authentification</h2>
-					<button onClick={newTotp} disabled={totpLoading}>{!user?.totp ? 'Enable ' : 'Disable '}2fa</button>
+					<button onClick={newTotp}>{!user?.totp ? 'Enable ' : 'Disable '}2fa</button>
 					{ getTotp() }
 				</div>
 			</div>

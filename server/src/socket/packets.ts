@@ -1,7 +1,7 @@
 export enum PacketInTypes {
 	TOTP,
 	USER_UPDATE,
-	MOVE,
+	PLAYER_MOVE,
 	FRIENDS,
 }
 
@@ -11,7 +11,7 @@ export enum PacketOutTypes {
 	USER_DISCONNECTED,
 	USER_UPDATE,
 	FRIENDS_UPDATE,
-	MOVE,
+	PLAYER_MOVE,
 }
 
 export enum Directions {
@@ -56,7 +56,7 @@ export interface PacketPlayInFriend extends Packet {
 // ========== PacketPlayOut ========== \\
 // =================================== \\
 
-@DeclarePacket(PacketOutTypes.MOVE)
+@DeclarePacket(PacketOutTypes.PLAYER_MOVE)
 export class PacketPlayOutPlayerMove implements PacketOut {
 	constructor(
 		public player: number,
@@ -89,13 +89,5 @@ export class PacketPlayOutFriendsUpdate implements PacketOut {
 export class PacketPlayOutUserUpdate implements PacketOut {
 	constructor(
 		public user: any,
-	) { }
-}
-
-@DeclarePacket(PacketOutTypes.TOTP)
-export class PacketPlayOutTotp implements PacketOut {
-	constructor(
-		public status: 'enabled' | 'disabled',
-		public totp?: string,
 	) { }
 }
