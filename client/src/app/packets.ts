@@ -1,15 +1,17 @@
 export enum PacketInTypes {
+	TOTP,
 	USER_CONNECTION,
 	USER_DISCONNECTED,
 	USER_UPDATE,
-	TOTP_STATUS,
+	FRIENDS_UPDATE,
 	MOVE,
 }
 
 export enum PacketOutTypes {
 	TOTP,
-	OPTION_UPDATE,
+	USER_UPDATE,
 	MOVE,
+	FRIENDS,
 }
 
 export enum Directions {
@@ -17,21 +19,16 @@ export enum Directions {
 	DOWN,
 }
 
-export enum UserOptions {
-	NAME,
-}
-
 export interface Packet {
 	packet_id: PacketInTypes;
 }
 
 export interface PacketOut {
-	packet_id: PacketOutTypes;
 }
 
 export const DeclarePacket = (type: PacketOutTypes) => {
-	return <T extends { new (...args: any[]): {} }>(constructor: T) => {
-		return class extends constructor implements PacketOut {
+	return <T extends { new(...args: any[]): {} }>(constructor: T) => {
+		return class extends constructor {
 			packet_id = type;
 		}
 	}
@@ -58,16 +55,15 @@ export class PacketPlayOutPlayerMove {
 }
 
 @DeclarePacket(PacketOutTypes.TOTP)
-export class PacketPlayOutTotpRequest {
+export class PacketPlayOutTotp {
 	constructor(
 		public action: 'toggle' | 'get',
 	) {}
 }
 
-@DeclarePacket(PacketOutTypes.OPTION_UPDATE)
-export class PacketPlayOutOptionUpdate {
+@DeclarePacket(PacketOutTypes.USER_UPDATE)
+export class PacketPlayOutUserUpdate {
 	constructor(
-		public option: UserOptions,
-		public value: any,
+		public options: {[option: string]: any},
 	) {}
 }

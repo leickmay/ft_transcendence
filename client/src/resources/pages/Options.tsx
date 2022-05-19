@@ -2,7 +2,7 @@ import { ChangeEvent, KeyboardEvent, useContext, useEffect, useState } from 'rea
 import QRCode from "react-qr-code";
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
-import { PacketPlayOutOptionUpdate, PacketPlayOutTotpRequest, UserOptions } from '../../app/packets';
+import { PacketPlayInTotp, PacketPlayOutUserUpdate } from '../../app/packets';
 import { setTotp } from "../../app/slices/usersSlice";
 import { RootState } from '../../app/store';
 import { ImageUploader } from '../components/ImageUploader';
@@ -37,7 +37,7 @@ export const Options = () => {
 
 	const newTotp = (): void => {
 		setTotpLoading(true);
-		socket?.emit('totp', new PacketPlayOutTotpRequest('toggle'));
+		socket?.emit('totp', new PacketPlayInTotp('toggle'));
 	};
 
 	const newName = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -47,7 +47,7 @@ export const Options = () => {
 
 	const validateName = (event: KeyboardEvent<HTMLInputElement>): void => {
 		if ((event.key === 'Enter' || event.keyCode === 13) && name) {
-			socket?.emit('option', new PacketPlayOutOptionUpdate(UserOptions.NAME, name));
+			socket?.emit('option', new PacketPlayOutUserUpdate({name: name}));
 		}
 	};
 
