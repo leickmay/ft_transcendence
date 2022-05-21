@@ -1,12 +1,16 @@
-import { Module } from '@nestjs/common';
-import { UserService } from './user.service';
+import { forwardRef, Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { EventsModule } from 'src/socket/events.module';
+import { ImageModule } from 'src/images/image.module';
 import { UserController } from './user.controller';
 import { User } from './user.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserService } from './user.service';
 
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([User]),
+		ImageModule,
+		forwardRef(() => EventsModule),
 	],
 	providers: [UserService],
 	controllers: [UserController],

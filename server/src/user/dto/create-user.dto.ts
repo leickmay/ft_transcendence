@@ -5,5 +5,5 @@ export class CreateUserDto {
 	@MaxLength(50)
 	name: string;
 	login: string;
-	avatar: string;
+	intra_picture: string;
 }

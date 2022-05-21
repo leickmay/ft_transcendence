@@ -11,12 +11,13 @@ interface Props {
 
 const UserCard = (props: Props) => {
 	const navigate = useNavigate();
-	const [,, removeCookie] = useCookies(['access_token']);
+	const [,, removeCookie] = useCookies(['access_token']);	
 	const user = useSelector((state: RootState) => state.users.current);
 
 	return (
 		<div className="userCard">
-			<img className="userCardAvatar" src={user?.avatar} width="120px" height="120px" alt=""></img>
+			<img className="userCardAvatar" src={user?.avatar} width="120px" height="120px" alt=""></img> 
+
 			<div className="userCardInfo"> 
 				<div>{ user?.name || '...' }</div>
 				<div>lvl { /*user.level */ 0 }</div>

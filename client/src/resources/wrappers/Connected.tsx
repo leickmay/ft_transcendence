@@ -30,14 +30,10 @@ export function Connected(props: Props) {
 			let res: Response = await fetch('/api/users', {headers});
 
 			let data: any = await res.json();
-			console.log(-1);
 			if (data.totp_validation) {
-				res = await fetch('/api/totp', {method: 'POST', headers, body: JSON.stringify({token: prompt('Double authentification token :')})});
-				console.log(0);
+				res = await fetch('/api/login/totp', {method: 'POST', headers, body: JSON.stringify({token: prompt('Double authentification token :')})});
 				if (res.ok) {
-					setCookie('access_token', await res.text());
-					console.log(1);
-					
+					setCookie('access_token', await res.text());		
 					return;
 				}
 			}
@@ -54,8 +50,9 @@ export function Connected(props: Props) {
 				dispatch({ type: 'socket/connected', payload: true });
 			});
 			instance.on('error', (e: any) => {
-				if (e.status === 401)
+				if (e.status === 401) {
 					navigate('/login');
+				}
 			});
 			instance.on('disconnect', () => {
 				dispatch({ type: 'socket/connected', payload: false });

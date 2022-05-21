@@ -48,8 +48,8 @@
 	}
 }
 
- @keyframes shine {
-    0% { text-shadow: 5px 3px 0px $color-3; color: $color-2; }
-    14% { text-shadow: 5px 3px 0px $color-3; color: $color-1; }
-    100% { text-shadow: 5px 3px 0px $color-3; color: $color-1; }
+@keyframes shine {
+	0% { text-shadow: 5px 3px 0px $color-3; color: $color-2; }
+	14% { text-shadow: 5px 3px 0px $color-3; color: $color-1; }
+	100% { text-shadow: 5px 3px 0px $color-3; color: $color-1; }
 }

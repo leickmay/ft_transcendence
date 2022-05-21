@@ -4,8 +4,10 @@ export interface User {
 	login: string;
 	name: string;
 	avatar: string;
-	totp?: boolean;
+	totp?: boolean | string;
 }
+
+export type UpdateUserDto = Partial<User> & { id: number };
 
 export function containsUser(users: Array<User>, user: User): boolean {
 	return !!users.find(e => e.id === user.id);
