@@ -1,0 +1,47 @@
+@import "../variables";
+
+.input-file-container {
+	display: flex;
+	justify-content: center;
+	font-weight: bold;
+
+	&>div {
+		&>label {
+			display: block;
+			padding: 14px 45px;
+			background: $secondary;
+			color: $grey;
+			transition: all .4s;
+			font-size: 1.4em;
+	
+			&:hover {
+				background: $grey;
+				color: $secondary;
+			}
+
+			&>input {
+				position: absolute;
+				overflow: hidden;
+				width: 0;
+				height: 0;
+			}
+		}
+	}
+}
+
+.file-return {
+	margin: 0;
+	font-style: italic;
+	font-size: .9em;
+	font-weight: bold;
+
+	&:not(:empty) {
+		margin: 1em 0;
+
+		&:before {
+			content: "Selected file: ";
+			font-style: normal;
+			font-weight: normal;
+		}
+	}
+}

@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { useCookies } from "react-cookie";
 import { alertType } from "../../app/slices/alertSlice";
 import store from "../../app/store";
+import '../scss/components/uploader.scss';
 
 export function ImageUploader() {
-	const [selectedFile, setSelectedFile] = useState<File>();
 	const [cookies] = useCookies();
 
 	const getHeaders = useCallback(async (): Promise<HeadersInit> => {
@@ -15,56 +15,49 @@ export function ImageUploader() {
 		};
 	}, [cookies]);
 
-	const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const filelist = e.target.files;
-		if (filelist) {
-			setSelectedFile(filelist[0]);
-		}
-	}
-
-	const handleSubmission = async () => {
+	const submit = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		let file = e.target.files?.[0];
 		let formData = new FormData();
 
-		if (!selectedFile) {
+		if (!file) {
 			store.dispatch(alertType("File is missing !"));
-		} else if (selectedFile.size > 2000000) {
+		} else if (file.size > 2000000) {
 			store.dispatch(alertType("File size is limited to 2MB"));
-		} else if (selectedFile.type !== 'image/png' && selectedFile.type !== 'image/jpeg') {
+		} else if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
 			store.dispatch(alertType("Please upload a PNG or JPEG image only"));
 		} else {
-			formData.set('avatar', selectedFile);
-			const headers = await getHeaders();
+			formData.set('avatar', file);
 
 			await fetch("/api/users/avatar", {
 				method: "POST",
-				headers: headers,
+				headers: await getHeaders(),
 				body: formData,
 			}).then((response) => {
-				if (response.ok) {
-					store.dispatch(alertType("Avatar succesfully uploaded"));
-				} else {
+				if (!response.ok) {
 					store.dispatch(alertType("Avatar upload failed"));
 				}
-			})
-			.catch((error) => {
+			}).catch((error) => {
 				console.log("Error : ", error);
 			});
 		}
 	}
 
+	// var fileInput = document.querySelector(".input-file"),
+	// the_return = document.querySelector(".file-return");
+
+	// fileInput.addEventListener("change", function (event) {
+	// 	the_return.innerHTML = this.value;
+	// });
+
 	return (
-		<div>
-			<input type="file" accept="image/png,image/jpeg" name="image" onChange={changeHandler} />
+		<div className="input-file-container">
 			<div>
-				{(selectedFile) ? (
-					<p>Image to upload : {selectedFile.name} </p>
-				) : (
-					<p>Select an image to upload (PNG or JPEG)</p>
-				)}
+				<label className="pointer">
+					Select a file...
+					<input accept="image/png,image/jpeg" type="file" onChange={submit} />
+				</label>
 			</div>
-			<div>
-				<button onClick={handleSubmission}>Submit</button>
-			</div>
+			<p className="file-return"></p>
 		</div>
 	)
 }
