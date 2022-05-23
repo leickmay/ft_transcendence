@@ -3,6 +3,8 @@ import { User } from "./User";
 
 export enum GameEvents {
 	JOIN,
+	START,
+	OVER,
 	CLEAR,
 	MOVE,
 }
@@ -28,6 +30,7 @@ interface Entity {
 
 export interface Player extends Entity {
 	user: User;
+	isReady: boolean;
 	speed: number;
 	up: boolean;
 	down: boolean;
@@ -42,6 +45,7 @@ export interface Spectator {
 
 export interface Ball extends Entity {
 	skin: string;
+	size: number;
 	speedX: number;
 	speedY: number;
 }
@@ -51,6 +55,8 @@ export interface Room {
 	height: number;
 	width: number;
 	isFull: boolean;
+	isStart: boolean;
+	isOver: boolean;
 	p1: Player;
 	p2: Player;
 	balls: Array<Ball>;

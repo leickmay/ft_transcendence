@@ -12,7 +12,11 @@ export const Game = () => {
 	const socket = useContext(SocketContext);
 	const user = useSelector((state: RootState) => state.users.current);
 	const [curRoom, setCurRoom] = useState<Room | null>();
-	let raf: any;
+	let p1IsReady: boolean = false;
+	let p2IsReady: boolean = false;
+	let isStart: boolean = false;
+	let isOver: boolean = false;
+	let raf: NodeJS.Timeout;
 	
 	let moveUp: boolean = false;
 	let moveDown: boolean = false;
@@ -36,10 +40,9 @@ export const Game = () => {
 			document.removeEventListener('keyup', e => {handleKeyUp(e)});
 			document.addEventListener('keydown', e => {handleKeyDown(e)});
 			document.addEventListener('keyup', e => {handleKeyUp(e)});
-			
-			raf = setInterval(emitMovement, 16);
+
 			draw();
-	}
+		}
 
 	const draw = () => {
 		if (ctx && curRoom) {
@@ -51,11 +54,25 @@ export const Game = () => {
 			ctx.fillStyle = "purple";
 			ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width , curRoom.p1.height);
 			ctx.fillRect(curRoom.p2.x , curRoom.p2.y , curRoom.p2.width , curRoom.p2.height);
-		} 
+			ctx.fillStyle = "pink";
+			ctx.beginPath();
+			ctx.arc(curRoom.balls[0].x, curRoom.balls[0].y, curRoom.balls[0].size, 0, Math.PI*2);
+			ctx.fill();
+
+			ctx.font = "50px Arial";
+			ctx.fillStyle = "purple";
+			if(!p1IsReady) {
+				ctx.fillText("Wait " + curRoom.p1.user.login + " for press space to start", curRoom.width / 3, curRoom.height / 2);
+			}
+			if (!p2IsReady) {
+				ctx.fillText("Wait " + curRoom.p2.user.login + " for press space to start", curRoom.width / 3, curRoom.height / 1.8);
+			}
+		}
+
 	}
 
 	function emitMovement() {
-		if (curRoom && curRoom.isFull) {
+		if (curRoom && isStart) {
 			if ((moveUp && moveDown) || (!moveUp && !moveDown)) {
 				return;
 			}
@@ -70,7 +87,7 @@ export const Game = () => {
 		}
 	}
 
-	function handleKeyDown(e: any) {
+	function handleKeyDown(e: KeyboardEvent) {
 		if (socket  && curRoom && user) {
 			if (e.key === 'w') {
 				moveUp = true;
@@ -81,14 +98,16 @@ export const Game = () => {
 				moveDown = true;
 			}
 		}
-		//if (e.key === "Enter") {
-		//	initGame();		
-		//	gameLaunch = true;
-		//	setPressEnter("");
-		//}
+		if (socket && e.key === " " && curRoom && !isStart) {
+			socket.emit("game", {
+				id: GameEvents.START,
+				roomId: curRoom.id,
+				user: user,
+			} as GamePacket);
+		}
 	};
 
-	function handleKeyUp(e: any) {
+	function handleKeyUp(e: KeyboardEvent) {
 		if (socket && curRoom && user) {
 			if (e.key === 'w') {
 				moveUp = false;
@@ -121,12 +140,35 @@ export const Game = () => {
 		}
 	})
 
+	socket?.off("retStartRoom").on("retStartRoom", function(ret: Room | null) {
+		if (ret === null) {
+			
+		}
+		else {
+			setCurRoom(ret);
+			p1IsReady = ret.p1.isReady;
+			p2IsReady = ret.p2.isReady;
+			isStart = ret.isStart;
+			if (ret.isStart) {
+				document.removeEventListener('keydown', e => {handleKeyDown(e)});
+				document.removeEventListener('keyup', e => {handleKeyUp(e)});
+				document.addEventListener('keydown', e => {handleKeyDown(e)});
+				document.addEventListener('keyup', e => {handleKeyUp(e)});
+				raf = setInterval(emitMovement, 16);
+			}
+			draw();
+		}
+	})
+
 	socket?.off("retPlayerMove").on("retPlayerMove", function(ret: Room | null) {
 		if (ret === null)
 			console.log("Problem in retPlayerMove");
 		else {
-			console.log("ret: ", ret);
+			//console.log("ret: ", ret);
 			setCurRoom(ret);
+			p1IsReady = ret.p1.isReady;
+			p2IsReady = ret.p2.isReady;
+			isStart = ret.isStart;
 			draw();
 		}
 	})
@@ -197,6 +239,7 @@ export const Game = () => {
 			}
 			{
 				curRoom && curRoom.isFull ?
+
 				<canvas ref={canvasRef} height={curRoom.height} width={curRoom.width}/>
 				:
 				<div></div>

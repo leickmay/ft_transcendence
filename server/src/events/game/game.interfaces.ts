@@ -3,6 +3,8 @@ import { User } from "../../user/user.entity";
 
 export enum GameEvents {
 	JOIN,
+	START,
+	OVER,
 	CLEAR,
 	MOVE,
 }
@@ -28,6 +30,7 @@ interface IEntity {
 
 export interface IPlayer extends IEntity {
 	user: User;
+	isReady: boolean;
 	socket: Socket;
 	speed: number;
 	up: boolean;
@@ -43,6 +46,7 @@ export interface ISpectator {
 
 export interface IBall extends IEntity {
 	skin: string;
+	size: number;
 	speedX: number;
 	speedY: number;
 }
@@ -52,6 +56,8 @@ interface IRoom {
 	height: number;
 	width: number;
 	isFull: boolean;
+	isStart: boolean;
+	isOver: boolean;
 	p1: IPlayer;
 	p2: IPlayer;
 	balls: Array<IBall>;
@@ -64,9 +70,12 @@ export class Room implements IRoom {
 	height = 1080;
 	width = 1920;
 	isFull = false;
+	isStart= false;
+	isOver = false;
 
 	p1 = {
 		user: null,
+		isReady: false,
 		socket: null,
 		speed : 12,
 		up : false,
@@ -82,6 +91,7 @@ export class Room implements IRoom {
 
 	p2 = {
 		user: null,
+		isReady: false,
 		socket: null,
 		speed : 12,
 		up : false,
@@ -97,6 +107,7 @@ export class Room implements IRoom {
 
 	balls = [{
 		skin: null,
+		size: this.height / 100,
 		speedX: 6,
 		speedY: 6,
 		baseX: this.width / 2,
