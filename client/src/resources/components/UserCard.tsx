@@ -4,7 +4,6 @@ import { useNavigate } from "react-router";
 import { logout } from "../../app/Helpers";
 import { User } from "../../app/interfaces/User";
 import { RootState } from "../../app/store";
-import '../scss/components/user_card.scss';
 
 interface Props {
 	user?: User;

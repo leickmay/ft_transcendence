@@ -2,7 +2,6 @@ import React, { useCallback } from "react";
 import { useCookies } from "react-cookie";
 import { alertType } from "../../app/slices/alertSlice";
 import store from "../../app/store";
-import '../scss/components/uploader.scss';
 
 export function ImageUploader() {
 	const [cookies] = useCookies();
@@ -50,14 +49,11 @@ export function ImageUploader() {
 	// });
 
 	return (
-		<div className="input-file-container">
-			<div>
-				<label className="pointer">
-					Select a file...
-					<input accept="image/png,image/jpeg" type="file" onChange={submit} />
-				</label>
-			</div>
-			<p className="file-return"></p>
-		</div>
+		<>
+			<input id="avatar-select" accept="image/png,image/jpeg" type="file" onChange={submit} />
+			<label htmlFor="avatar-select" className="pointer border-primary">
+				Select an image (jpeg or png)
+			</label>
+		</>
 	)
 }

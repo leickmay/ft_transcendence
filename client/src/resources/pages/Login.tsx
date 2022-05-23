@@ -1,6 +1,5 @@
 import { KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router';
-import '../scss/pages/login.scss';
 
 const authEndpoint = 'https://api.intra.42.fr/oauth/authorize';
 

@@ -1,6 +1,5 @@
 import { NavLink } from "react-router-dom";
 import { UserCard } from "./UserCard";
-import '../scss/components/navigation.scss';
 
 interface Props {
 }
