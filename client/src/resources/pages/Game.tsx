@@ -12,6 +12,7 @@ export const Game = () => {
 	const socket = useContext(SocketContext);
 	const user = useSelector((state: RootState) => state.users.current);
 	const [curRoom, setCurRoom] = useState<Room | null>();
+	const [counter, setCounter] = useState<number>(0);
 	let p1IsReady: boolean = false;
 	let p2IsReady: boolean = false;
 	let isStart: boolean = false;
@@ -29,6 +30,14 @@ export const Game = () => {
 			initGame();
 		}
 	}, [curRoom?.isFull]);
+
+	useEffect(() => {
+		counter > 0 && setTimeout(() => setCounter(counter - 1), 1000);
+		if (counter === 1) {
+			clearRoom();
+			setCounter(0);
+		}
+	}, [counter]);
 	
 	function initGame() {
 			canvas = canvasRef.current;
@@ -47,24 +56,33 @@ export const Game = () => {
 		if (ctx && curRoom) {
 			ctx.fillStyle = "black";
 			ctx.fillRect(0, 0, curRoom.width, curRoom.height);
-			ctx.fillStyle = "pink";
-			ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width * 1.3 , curRoom.p1.height * 1.05);
-			ctx.fillRect(curRoom.p2.x * 0.9965 , curRoom.p2.y , curRoom.p2.width * 1.3 , curRoom.p2.height * 1.05);
-			ctx.fillStyle = "purple";
-			ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width , curRoom.p1.height);
-			ctx.fillRect(curRoom.p2.x , curRoom.p2.y , curRoom.p2.width , curRoom.p2.height);
-			ctx.fillStyle = "pink";
-			ctx.beginPath();
-			ctx.arc(curRoom.balls[0].x, curRoom.balls[0].y, curRoom.balls[0].size, 0, Math.PI*2);
-			ctx.fill();
-
-			ctx.font = "50px Arial";
-			ctx.fillStyle = "purple";
-			if(!p1IsReady) {
-				ctx.fillText("Wait " + curRoom.p1.user.login + " for press space to start", curRoom.width / 3, curRoom.height / 2);
+			if (isStart && !isOver) {
+				ctx.fillStyle = "pink";
+				ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width * 1.3 , curRoom.p1.height * 1.05);
+				ctx.fillRect(curRoom.p2.x * 0.9965 , curRoom.p2.y , curRoom.p2.width * 1.3 , curRoom.p2.height * 1.05);
+				ctx.fillStyle = "purple";
+				ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width , curRoom.p1.height);
+				ctx.fillRect(curRoom.p2.x , curRoom.p2.y , curRoom.p2.width , curRoom.p2.height);
+				ctx.fillStyle = "pink";
+				ctx.beginPath();
+				ctx.arc(curRoom.balls[0].x, curRoom.balls[0].y, curRoom.balls[0].size, 0, Math.PI*2);
+				ctx.fill();
 			}
-			if (!p2IsReady) {
-				ctx.fillText("Wait " + curRoom.p2.user.login + " for press space to start", curRoom.width / 3, curRoom.height / 1.8);
+			if (!isStart) {
+				ctx.font = "50px Arial";
+				ctx.fillStyle = "purple";
+				if(!p1IsReady) {
+					ctx.fillText("Wait " + curRoom.p1.user.login + " for press space to start", curRoom.width / 3, curRoom.height / 2);
+				}
+				if (!p2IsReady) {
+					ctx.fillText("Wait " + curRoom.p2.user.login + " for press space to start", curRoom.width / 3, curRoom.height / 1.8);
+				}
+			}
+			if(isOver) {
+				ctx.font = "50px Arial";
+				ctx.fillStyle = "purple";
+				ctx.fillText("THE WINNER IS: " + (curRoom.p1.score > curRoom.p2.score ? curRoom.p1.user.login : curRoom.p2.user.login) + ", quel incroyable BG du 69", curRoom.width / 4, curRoom.height / 2);
+				ctx.fillText("leave in " + (counter - 1) + " seconds", curRoom.width / 2.5, curRoom.height / 1.8);
 			}
 		}
 
@@ -76,7 +94,7 @@ export const Game = () => {
 				return;
 			}
 			else {
-				console.log("emit Move");
+				console.log("emit Move!");
 				socket!.emit("game", {
 					id: GameEvents.MOVE,
 					user: user,
@@ -126,7 +144,7 @@ export const Game = () => {
 	function joinRoom() {
 		if (!socket || !user)
 			console.log("NO SOCKET OR USER !");
-		else if (!curRoom) {
+		else if (!curRoom && !waitForPlay) {
 			socket!.emit("game", {
 				id: GameEvents.JOIN,
 				user: user,
@@ -153,6 +171,7 @@ export const Game = () => {
 			p1IsReady = ret.p1.isReady;
 			p2IsReady = ret.p2.isReady;
 			isStart = ret.isStart;
+			isOver = ret.isOver;
 			if (ret.isStart) {
 				document.removeEventListener('keydown', e => {handleKeyDown(e)});
 				document.removeEventListener('keyup', e => {handleKeyUp(e)});
@@ -172,6 +191,7 @@ export const Game = () => {
 			p1IsReady = ret.p1.isReady;
 			p2IsReady = ret.p2.isReady;
 			isStart = ret.isStart;
+			isOver = ret.isOver;
 			draw();
 		}
 	})
@@ -192,14 +212,27 @@ export const Game = () => {
 		p1IsReady = false;
 		p2IsReady = false;
 		isStart = false;
+		isOver = false;
+	})
+
+	socket?.off("retGameOver").on("retGameOver", function() {
+		console.log("GameOver!");
+		setCounter(11);
+		isStart = false;
+		isOver = true;
 	})
 
 	return (
 		<div id="game" className="game">
-			<div className="buttonWindow">
-				<button onMouseDown={() => joinRoom()}>Join room</button>
-				<button onMouseDown={() => clearRoom()}>Clear room</button>
-			</div>
+			{
+				curRoom || waitForPlay ?
+				<div></div>
+				:
+				<div className="buttonWindow">
+					<button onMouseDown={() => joinRoom()}>Join room</button>
+					<button onMouseDown={() => clearRoom()}>Clear room</button>
+				</div>
+			}
 			{ 
 				curRoom ?
 				<div>
@@ -227,7 +260,10 @@ export const Game = () => {
 				</div>
 				:
 				waitForPlay ?
-				<div>search room...</div>
+				<div className="roomSearchMatch">
+					<div>search matchmaking</div>
+					<div className="spinner-grow" role="status"></div>
+				</div>
 				:
 				<div></div>
 			}

@@ -43,7 +43,7 @@
 	.roomInfo {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: space-between;
+		justify-content: space-around;
 		background: rgba(0, 0, 0, 0.541);
 		border: 2px inset $color-1;
 		width: 90%;
@@ -88,6 +88,19 @@
 			align-items: center;
 		}
 
+	}
+
+	.roomSearchMatch {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-evenly;
+		align-items: center;
+		background: rgba(0, 0, 0, 0.541);
+		border: 5px inset $color-1;
+		border-radius: 10%;
+		width: 60%;
+		margin: 0px 20%;
+		padding: 0px 0px 0px 0px;
 	}
 
 }
