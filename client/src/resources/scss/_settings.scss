@@ -8,6 +8,7 @@ $color-3: #e1fcb7;
 $color-4: #25ff66;
 $color-5: #007222;
 $white: rgb(243, 243, 243);
+$invisible: rgba(243, 243, 243, 0);
 
 * {
 	box-sizing: border-box;
@@ -118,4 +119,39 @@ textarea:active {
 
 .spec:hover {
 	cursor: url("/assets/img/cursor_little_pink.png") 50 50, auto;
+}
+
+@keyframes shine {
+	0% { text-shadow: 5px 3px 0px $color-3; color: $color-2; }
+    14% { text-shadow: 5px 3px 0px $color-3; color: $color-1; }
+    100% { text-shadow: 5px 3px 0px $color-3; color: $color-1; }
+}
+
+@keyframes shine2 {
+	0% { color: $color-2 }
+	54% { color: $color-1; }
+	100% { color: $color-1; }
+}
+
+@keyframes appear {
+	0% {width: 0%; margin: 0px 50%}
+	100% {width: 90%; margin: 0px 5%}
+}
+
+@keyframes appear2 {
+	0% {width: 0px; background-size: 0%; border: 0px inset $color-1;}
+	25% {width: 0px; background-size: 0%; border: 0px inset $color-1;}
+	50% {background-size: 125%; border: 0px inset $color-1;}
+	100% {width: 120px; background-size: 125%; border: 2px inset $color-1;}
+}
+
+@keyframes appear3 {
+	0% {font-size: 0rem;}
+	25% {font-size: 0rem;}
+	100% {font-size: 1.5rem;}
+}
+
+@keyframes appear4 {
+	0% {margin: 500px 0px 0px 0px;opacity: 0%;}
+	100% {margin: 0px 0px 0px 0px;opacity: 100%;}
 }

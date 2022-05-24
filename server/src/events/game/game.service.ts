@@ -82,7 +82,7 @@ export class gameService {
 		}
 	}
 
-	startGame(packet: GamePacket, client: Socket) {
+	async startGame(packet: GamePacket, client: Socket) {
 		if (!this.rooms[packet.roomId].isStart) {
 			if (!this.rooms[packet.roomId].p1.isReady && packet.user.login === this.rooms[packet.roomId].p1.user.login) {
 				this.rooms[packet.roomId].p1.isReady = true;
@@ -92,13 +92,16 @@ export class gameService {
 			}
 			if (this.rooms[packet.roomId].p1.isReady && this.rooms[packet.roomId].p2.isReady) {
 				this.rooms[packet.roomId].isStart = true;
-				this.raf = setInterval(() => {
-					this.emitRoomData(packet);
-				}, 24);
 			}
 			for (const [client, sequenceNumber] of this.rooms[packet.roomId].sockets.entries()) {
 				client.emit("retStartRoom", this.rooms[packet.roomId]);
 				this.rooms[packet.roomId].sockets.set(client, sequenceNumber + 1);
+			}
+			if (this.rooms[packet.roomId].isStart === true) {
+				//await new Promise(r => setTimeout(r, 1000));
+				this.raf = setInterval(() => {
+					this.emitRoomData(packet);
+				}, 24);
 			}
 		}
 	}	
@@ -106,14 +109,13 @@ export class gameService {
 	clearRoom(packet: GamePacket, client: Socket) {
 		let newRoom = new Room;
 		newRoom.id = packet.roomId;
-		clearInterval(this.raf);
 
 		for (const [client, sequenceNumber] of this.rooms[packet.roomId].sockets.entries()) {
 			client.emit("retClearRoom");
 			this.rooms[packet.roomId].sockets.set(client, sequenceNumber + 1);
 		}
 		this.rooms[packet.roomId] = newRoom;
-		//console.log(this.rooms[packet.roomId]);//
+		//console.log(this.rooms[packet.roomId]);
 		
 		if (this.waitList.length > 1 && this.rooms.length < 42) {
 			this.rooms[packet.roomId].p1.user = this.waitList.shift();
@@ -131,6 +133,8 @@ export class gameService {
 
 	gameOver(packet: GamePacket) {
 		this.rooms[packet.roomId].isOver = true;
+		this.rooms[packet.roomId].isStart = false;
+		clearInterval(this.raf);
 
 		for (const [client, sequenceNumber] of this.rooms[packet.roomId].sockets.entries()) {
 			client.emit("retGameOver",  this.rooms[packet.roomId]);
@@ -264,10 +268,9 @@ export class gameService {
 					this.rooms[packet.roomId].balls[0].speedX *= -1;
 				else
 					this.rooms[packet.roomId].balls[0].speedX = this.rooms[packet.roomId].balls[0].speedX * -1.1;
-				//handleAngle(this.rooms[packet.roomId].playerY);
 				var impact = this.rooms[packet.roomId].balls[0].y - this.rooms[packet.roomId].p1.y - this.rooms[packet.roomId].p1.height / 2;
 				var ratio = 100 / ( this.rooms[packet.roomId].p1.height / 2);
-				// Get a value between 0 and 10 
+				// Get a value between 0 and 10
 				this.rooms[packet.roomId].balls[0].speedY = Math.round(impact * ratio / 10);
 			}
 		}
@@ -280,7 +283,6 @@ export class gameService {
 					this.rooms[packet.roomId].balls[0].speedX *= -1;
 				else
 					this.rooms[packet.roomId].balls[0].speedX = this.rooms[packet.roomId].balls[0].speedX * -1.1;
-				//handleAngle(this.rooms[packet.roomId].opponentY);
 				var impact = this.rooms[packet.roomId].balls[0].y - this.rooms[packet.roomId].p2.y - this.rooms[packet.roomId].p2.height / 2;
 				var ratio = 100 / ( this.rooms[packet.roomId].p2.height / 2);
 				// Get a value between 0 and 10
