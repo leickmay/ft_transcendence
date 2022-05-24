@@ -16,7 +16,6 @@ export const Game = () => {
 	let p2IsReady: boolean = false;
 	let isStart: boolean = false;
 	let isOver: boolean = false;
-	let raf: NodeJS.Timeout;
 	
 	let moveUp: boolean = false;
 	let moveDown: boolean = false;
@@ -73,15 +72,16 @@ export const Game = () => {
 
 	function emitMovement() {
 		if (curRoom && isStart) {
-			if ((moveUp && moveDown) || (!moveUp && !moveDown)) {
+			if ((moveUp && moveDown)) {
 				return;
 			}
 			else {
+				console.log("emit Move");
 				socket!.emit("game", {
 					id: GameEvents.MOVE,
 					user: user,
-					roomId: curRoom.id,
-					direction: moveUp ? Directions.UP : moveDown ? Directions.DOWN : undefined,
+					roomId: curRoom!.id,
+					direction: moveUp ? Directions.UP : moveDown ? Directions.DOWN : Directions.STATIC,
 				} as GamePacket);
 			}
 		}
@@ -89,13 +89,15 @@ export const Game = () => {
 
 	function handleKeyDown(e: KeyboardEvent) {
 		if (socket  && curRoom && user) {
-			if (e.key === 'w') {
+			if (e.key === 'w' && !moveUp) {
 				moveUp = true;
 				moveDown = false;
+				emitMovement();
 			}
-			if (e.key === 's') {
+			if (e.key === 's' && !moveDown) {
 				moveUp = false;
 				moveDown = true;
+				emitMovement();
 			}
 		}
 		if (socket && e.key === " " && curRoom && !isStart) {
@@ -111,9 +113,11 @@ export const Game = () => {
 		if (socket && curRoom && user) {
 			if (e.key === 'w') {
 				moveUp = false;
+				emitMovement();
 			}
 			if (e.key === 's') {
 				moveDown = false;
+				emitMovement();
 			}
 		}
 		
@@ -154,15 +158,14 @@ export const Game = () => {
 				document.removeEventListener('keyup', e => {handleKeyUp(e)});
 				document.addEventListener('keydown', e => {handleKeyDown(e)});
 				document.addEventListener('keyup', e => {handleKeyUp(e)});
-				raf = setInterval(emitMovement, 16);
 			}
 			draw();
 		}
 	})
 
-	socket?.off("retPlayerMove").on("retPlayerMove", function(ret: Room | null) {
+	socket?.off("retRoomData").on("retRoomData", function(ret: Room | null) {
 		if (ret === null)
-			console.log("Problem in retPlayerMove");
+			console.log("Problem in retRoomData");
 		else {
 			//console.log("ret: ", ret);
 			setCurRoom(ret);
@@ -172,17 +175,6 @@ export const Game = () => {
 			draw();
 		}
 	})
-
-	//socket?.off("retBallMove").on("retBallMove", function(ret: Room | null) {
-	//	setCurRoom1(ret);
-	//	if (curRoom1 && ball) {
-	//		ball.style.top = curRoom1.balls[0].y + "px";
-	//		ball.style.left = curRoom1.balls[0].x + "px";
-	//	}
-	//	else {
-	//		ball = document.getElementById('ball');
-	//	}
-	//})
 
 	function clearRoom() {
 		if (socket && curRoom) {
@@ -197,7 +189,9 @@ export const Game = () => {
 	socket?.off("retClearRoom").on("retClearRoom", function() {
 		console.log("CLEAR!");
 		setCurRoom(null);
-		clearInterval(raf);
+		p1IsReady = false;
+		p2IsReady = false;
+		isStart = false;
 	})
 
 	return (

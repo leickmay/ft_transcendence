@@ -12,6 +12,7 @@ export enum GameEvents {
 export enum Directions {
 	UP,
 	DOWN,
+	STATIC,
 }
 
 export interface GamePacket {

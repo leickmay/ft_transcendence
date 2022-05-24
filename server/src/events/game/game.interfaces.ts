@@ -12,6 +12,7 @@ export enum GameEvents {
 export enum Directions {
 	UP,
 	DOWN,
+	STATIC,
 }
 
 export interface GamePacket {
@@ -107,9 +108,9 @@ export class Room implements IRoom {
 
 	balls = [{
 		skin: null,
-		size: this.height / 100,
-		speedX: 6,
-		speedY: 6,
+		size: this.height / 50,
+		speedX: 0,
+		speedY: 0,
 		baseX: this.width / 2,
 		baseY: this.width / 2,
 		x: this.width / 2,
