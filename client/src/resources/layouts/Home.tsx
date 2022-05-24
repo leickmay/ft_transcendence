@@ -1,15 +1,17 @@
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import { useContext, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Navigate } from "react-router";
 import { Route, Routes } from 'react-router-dom';
 import { SocketContext } from '../../app/context/socket';
+import { PacketPlayOutFriends } from '../../app/packets';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketTypesMisc, Packet, PacketTypesUser } from '../../app/packets/packetTypes';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
+import { RootState } from '../../app/store';
 import Alert from '../components/Alert';
 import { Loader } from '../components/Loader';
 import Navigation from '../components/Navigation';
@@ -26,6 +28,7 @@ interface Props {
 
 export function Home(props: Props) {
 	const socket = useContext(SocketContext);
+	const ready = useSelector((state: RootState) => state.socket.ready);
 
 	const dispatch: Dispatch<AnyAction> = useDispatch();
 
@@ -61,15 +64,12 @@ export function Home(props: Props) {
 		socket?.off('chat').on('chat', (packet: Packet) => {
 			console.log(packet);
 		});
-
-		return () => {
-			socket?.off('already-online');
-			socket?.off('friends');
-			socket?.off('online');
-			socket?.off('offline');
-			socket?.off('update-user');
-		}
 	}, [socket, dispatch]);
+	
+	useEffect(() => {
+		if (ready)
+			socket?.emit('user', new PacketPlayOutFriends('get'));
+	}, [socket, ready]);
 
 	return (
 		<>

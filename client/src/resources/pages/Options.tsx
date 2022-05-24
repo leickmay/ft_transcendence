@@ -50,7 +50,8 @@ export const Options = () => {
 	};
 
 	const closeTotp = (evt: any) => {
-		dispatch(updateUser({ id: 1, totp: !!user?.totp }));
+		if (user)
+			dispatch(updateUser({ id: user.id, totp: !!user.totp }));
 	}
 
 	return (

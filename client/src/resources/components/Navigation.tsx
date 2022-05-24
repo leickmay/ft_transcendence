@@ -10,7 +10,7 @@ const Navigation = (props: Props) => {
 		'/game': 'Game',
 		'/friends': 'Friends',
 		'/chat': 'Chat',
-		'/statistics': 'Statisitcs',
+		'/statistics': 'Statistics',
 		'/history': 'History',
 		'/options': 'Options',
 	};

@@ -37,7 +37,7 @@ export class OptionsService {
 		if (packet.options['name'])
 			user.name = validated['name'] = packet.options['name'];
 
-		user.save();
+		await user.save();
 		this.eventService.getServer().emit('user', new PacketPlayOutUserUpdate({
 			id: user.id,
 			...validated,

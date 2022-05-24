@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import * as OTPAuth from 'otpauth';
 import { Image } from 'src/images/image.entity';
-import { BaseEntity, FindOneOptions } from 'typeorm';
+import { FindOneOptions } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserAvatarDto } from './dto/update-user-avatar.dto';
 import { UpdateUserNameDto } from './dto/update-user-name.dto';
 import { User } from './user.entity';
-import { DeepPartial } from 'typeorm/common/DeepPartial';
 
 @Injectable()
 export class UserService {

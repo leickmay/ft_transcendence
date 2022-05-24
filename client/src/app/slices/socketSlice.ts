@@ -1,25 +1,25 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface State {
-	connected: boolean;
+	ready: boolean;
 }
 
 const initialState: State = {
-	connected: false,
+	ready: false,
 };
 
 const slice = createSlice({
 	name: 'socket',
 	initialState,
 	reducers: {
-		connected: (state: State, action: PayloadAction<boolean>): State => {
+		ready: (state: State, action: PayloadAction<boolean>): State => {
 			return {
 				...state,
-				connected: action.payload,
+				ready: action.payload,
 			}
 		}
 	},
 });
 
-export const { connected } = slice.actions;
+export const { ready } = slice.actions;
 export default slice.reducer;

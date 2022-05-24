@@ -46,8 +46,8 @@ export function Connected(props: Props) {
 			dispatch(setCurrentUser(user));
 
 			let instance = io(':3001', {extraHeaders: headers as any});
-			instance.on('connect', () => {
-				dispatch({ type: 'socket/connected', payload: true });
+			instance.on('ready', () => {
+				dispatch({ type: 'socket/ready', payload: true });
 			});
 			instance.on('error', (e: any) => {
 				if (e.status === 401) {
@@ -55,7 +55,7 @@ export function Connected(props: Props) {
 				}
 			});
 			instance.on('disconnect', () => {
-				dispatch({ type: 'socket/connected', payload: false });
+				dispatch({ type: 'socket/ready', payload: false });
 			});
 			setSocket(instance);
 		}

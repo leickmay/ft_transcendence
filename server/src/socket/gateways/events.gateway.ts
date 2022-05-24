@@ -1,6 +1,5 @@
 import { forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { instanceToPlain } from 'class-transformer';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { ChatService } from 'src/chat/chat.service';
@@ -34,7 +33,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		this.eventsService.server = server;
 	}
 
-	async handleConnection(client: Socket, ...args: any[]) {
+	async handleConnection(client: Socket) {
 		try {
 			let jwt = await this.authService.verifyJwt(
 				client.handshake.headers.authorization.replace('Bearer ', '')
@@ -48,8 +47,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			if (!user || Object.values(this.eventsService.users).find(e => e.id === user.id)) {
 				throw Error('Already connected');
 			}
-			client.broadcast.emit('user', new PacketPlayOutUserConnection([instanceToPlain(user)]));
-			client.emit('user', new PacketPlayOutUserConnection(instanceToPlain(Object.values(this.eventsService.users))));
+			client.emit('ready');
+			client.broadcast.emit('user', new PacketPlayOutUserConnection([user.id]));
+			client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => u.id)));
 			this.eventsService.addUser(client, user);
 			client.join("channel_World Random");
 		} catch (e) {
