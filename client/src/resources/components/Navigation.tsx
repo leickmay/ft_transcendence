@@ -4,7 +4,7 @@ import { UserCard } from "./UserCard";
 interface Props {
 }
 
-const Navigation = (props: Props) => {
+export const Navigation = (props: Props) => {
 	const routes = {
 		'/': 'Home',
 		'/game': 'Game',
@@ -30,5 +30,3 @@ const Navigation = (props: Props) => {
 		</nav>
 	);
 };
-
-export default Navigation;

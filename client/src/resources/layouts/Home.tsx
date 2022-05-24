@@ -1,20 +1,21 @@
-import { AnyAction, Dispatch } from '@reduxjs/toolkit';
+import { AnyAction, Dispatch, ThunkDispatch } from '@reduxjs/toolkit';
 import { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navigate } from "react-router";
 import { Route, Routes } from 'react-router-dom';
+import { addNotification } from '../../app/actions/notificationsActions';
 import { SocketContext } from '../../app/context/socket';
-import { PacketPlayOutFriends } from '../../app/packets';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
-import { PacketTypesMisc, Packet, PacketTypesUser } from '../../app/packets/packetTypes';
+import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
+import { Packet, PacketTypesMisc, PacketTypesUser } from '../../app/packets/packetTypes';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
-import Alert from '../components/Alert';
 import { Loader } from '../components/Loader';
-import Navigation from '../components/Navigation';
+import { Navigation } from '../components/Navigation';
+import { Notifications } from '../components/notification/Notifications';
 import { Chat } from '../pages/Chat';
 import { Friends } from '../pages/Friends';
 import { Game } from '../pages/Game';
@@ -65,15 +66,28 @@ export function Home(props: Props) {
 			console.log(packet);
 		});
 	}, [socket, dispatch]);
-	
+
 	useEffect(() => {
 		if (ready)
 			socket?.emit('user', new PacketPlayOutFriends('get'));
 	}, [socket, ready]);
 
+	useEffect(() => {
+		let test = async () => {
+			(dispatch as ThunkDispatch<RootState, unknown, AnyAction>)(addNotification('Simon'));
+			await new Promise(resolve => setTimeout(resolve, 2000));
+			(dispatch as ThunkDispatch<RootState, unknown, AnyAction>)(addNotification('Charles'));
+			await new Promise(resolve => setTimeout(resolve, 2000));
+			(dispatch as ThunkDispatch<RootState, unknown, AnyAction>)(addNotification('Loïc'));
+			await new Promise(resolve => setTimeout(resolve, 2000));
+			(dispatch as ThunkDispatch<RootState, unknown, AnyAction>)(addNotification('Dylan'));
+		}
+		test();
+	}, [dispatch]);
+
 	return (
 		<>
-			<Alert />
+			<Notifications />
 			<Navigation />
 			<Loader />
 			<Routes>
