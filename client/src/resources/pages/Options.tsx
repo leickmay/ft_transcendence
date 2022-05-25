@@ -2,7 +2,7 @@ import { ChangeEvent, KeyboardEvent, useContext, useEffect, useState } from 'rea
 import QRCode from "react-qr-code";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
-import { PacketPlayOutTotp, PacketPlayOutUserUpdate } from '../../app/packets';
+import { PacketPlayOutTotp, PacketPlayOutUserUpdate } from '../../app/packets/packets';
 import { RootState } from '../../app/store';
 import { ImageUploader } from '../components/ImageUploader';
 

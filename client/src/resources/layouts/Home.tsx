@@ -4,11 +4,12 @@ import { useDispatch } from 'react-redux';
 import { Navigate } from "react-router";
 import { Route, Routes } from 'react-router-dom';
 import { SocketContext } from '../../app/context/socket';
-import { Packet, PacketInTypes, PacketPlayInFriendsUpdate, PacketPlayInUserConnection, PacketPlayInUserDisconnected, PacketPlayInUserUpdate } from '../../app/packets';
+import { Packet, PacketInTypes, PacketPlayInFriendsUpdate, PacketPlayInUserConnection, PacketPlayInUserDisconnected, PacketPlayInUserUpdate } from '../../app/packets/packets';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import Alert from '../components/Alert';
 import { Loader } from '../components/Loader';
 import Navigation from '../components/Navigation';
+import { Chat } from '../pages/Chat';
 import { Friends } from '../pages/Friends';
 import { Game } from '../pages/Game';
 import { History } from '../pages/History';
@@ -73,6 +74,7 @@ export function Home(props: Props) {
 				<Route path="/" element={<Menu />} />
 				<Route path="/game" element={<Game />} />
 				<Route path="/friends" element={<Friends />} />
+				<Route path="/chat" element={<Chat />} />
 				<Route path="/statistics" element={<Statistics />} />
 				<Route path="/history" element={<History />} />
 				<Route path="/options" element={<Options />} />

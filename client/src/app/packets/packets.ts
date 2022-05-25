@@ -1,12 +1,13 @@
-import { UpdateUserDto, User } from "./interfaces/User";
+import { UpdateUserDto, User } from "../interfaces/User";
 
 export enum PacketInTypes {
 	TOTP,
 	USER_CONNECTION,
 	USER_DISCONNECTED,
 	USER_UPDATE,
-	FRIENDS_UPDATE,
 	PLAYER_MOVE,
+	FRIENDS_UPDATE,
+	CHAT,
 }
 
 export enum PacketOutTypes {
@@ -14,6 +15,7 @@ export enum PacketOutTypes {
 	USER_UPDATE,
 	PLAYER_MOVE,
 	FRIENDS,
+	CHAT,
 }
 
 export enum Directions {

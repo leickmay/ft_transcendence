@@ -5,7 +5,7 @@ import { User } from "../../app/interfaces/User";
 import { RootState } from "../../app/store";
 import icon_online from '../../assets/images/online.png';
 import icon_offline from '../../assets/images/offline.png';
-import { PacketPlayOutFriends } from "../../app/packets";
+import { PacketPlayOutFriends } from "../../app/packets/packets";
 
 interface Props {
 	user: User;

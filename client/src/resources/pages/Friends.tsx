@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
-import { PacketPlayOutFriends } from "../../app/packets";
+import { PacketPlayOutFriends } from "../../app/packets/packets";
 import { RootState } from "../../app/store";
 import FriendCard from "../components/FriendCard";
 

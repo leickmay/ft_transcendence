@@ -3,11 +3,12 @@ import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect,
 import { instanceToPlain } from 'class-transformer';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
+import { ChatService } from 'src/chat/chat.service';
 import { OptionsService } from 'src/options/options.service';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { EventsService } from '../events.service';
-import { Packet, PacketPlayOutUserConnection, PacketPlayOutUserDisconnected } from '../packets';
+import { Packet, PacketPlayOutUserConnection, PacketPlayOutUserDisconnected } from '../packets/packets';
 
 @Injectable()
 @WebSocketGateway(3001, { cors: true })
@@ -24,6 +25,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		private userService: UserService,
 		@Inject(forwardRef(() => OptionsService))
 		private optionsService: OptionsService,
+		private chatService: ChatService,
 	) { }
 
 	afterInit(server: Server) {
@@ -47,6 +49,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			client.broadcast.emit('user', new PacketPlayOutUserConnection([instanceToPlain(user)]));
 			client.emit('user', new PacketPlayOutUserConnection(instanceToPlain(Object.values(this.eventsService.users))));
 			this.eventsService.addUser(client, user);
+			client.join("channel_World Random");
 		} catch (e) {
 			client.emit('error', new UnauthorizedException());
 			client.disconnect();
@@ -57,7 +60,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-
+		client.leave("channel_World Random");
 		client.broadcast.emit('user', new PacketPlayOutUserDisconnected(user.id));
 		this.eventsService.removeUser(client);
 	}
@@ -68,5 +71,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		if (!user)
 			return;
 		this.optionsService.dispatch(packet, user);
+	}
+
+	@SubscribeMessage('chat')
+	handleChat(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket) {
+		let user: User = this.eventsService.users[client.id];
+		if (!user)
+			return;
+		this.chatService.dispatch(packet, user);
 	}
 }

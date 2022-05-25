@@ -3,6 +3,7 @@ export enum PacketInTypes {
 	USER_UPDATE,
 	PLAYER_MOVE,
 	FRIENDS,
+	CHAT,
 }
 
 export enum PacketOutTypes {
@@ -10,8 +11,9 @@ export enum PacketOutTypes {
 	USER_CONNECTION,
 	USER_DISCONNECTED,
 	USER_UPDATE,
-	FRIENDS_UPDATE,
 	PLAYER_MOVE,
+	FRIENDS_UPDATE,
+	CHAT,
 }
 
 export enum Directions {
@@ -20,7 +22,7 @@ export enum Directions {
 }
 
 export interface Packet {
-	packet_id: PacketInTypes;
+	//packet_id: PacketInTypes;
 }
 
 export interface PacketOut {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { instanceToPlain } from 'class-transformer';
 import { EventsService } from 'src/socket/events.service';
-import { Packet, PacketInTypes, PacketPlayInFriend, PacketPlayInOptionUpdate, PacketPlayInTotp, PacketPlayOutFriendsUpdate, PacketPlayOutUserUpdate } from 'src/socket/packets';
+import { Packet, PacketInTypes, PacketPlayInFriend, PacketPlayInOptionUpdate, PacketPlayInTotp, PacketPlayOutFriendsUpdate, PacketPlayOutUserUpdate } from 'src/socket/packets/packets';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 

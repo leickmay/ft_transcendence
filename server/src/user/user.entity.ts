@@ -1,7 +1,7 @@
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { Socket } from 'socket.io';
 import { Image } from 'src/images/image.entity';
-import { Packet, PacketOut } from 'src/socket/packets';
+import { PacketOut } from 'src/socket/packets/packets';
 import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn, RelationId } from 'typeorm';
 
 @Exclude()
