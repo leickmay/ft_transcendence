@@ -1,9 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { EventsService } from "src/socket/events.service";
-import { PacketChatIn, PacketChatOut } from "src/socket/packets/packetChat";
-import { Packet, PacketInTypes } from "src/socket/packets/packets";
+import { PacketPlayInChatMessage } from "src/socket/packets/in/PacketPlayInChatMessage";
+import { PacketPlayOutChatMessage } from "src/socket/packets/out/PacketPlayOutChatMessage";
+import { ChatPacketTypes, Packet, PacketTypes} from "src/socket/packets/packetTypes";
 import { User } from "src/user/user.entity";
-import { UserService } from "src/user/user.service";
 import { ChatEvents, RoomBack } from "./chat.interface";
 
 @Injectable()
@@ -23,24 +22,23 @@ export class ChatService {
 	constructor() {}
 
 	dispatch(packet: Packet, user: User): void {
-		let chatPacket: PacketChatIn = packet as PacketChatIn;
-		switch (chatPacket.event) {
-			case ChatEvents.MESSAGE:
-				this.messageHandler(packet as PacketChatIn, user);
+		switch (packet.packet_id) {
+			case ChatPacketTypes.CHAT_MESSAGE:
+				this.messageHandler(packet as PacketPlayInChatMessage, user);
 				break;
 			default:
 				break;
 		}
 	}
 
-	async messageHandler(packet: PacketChatIn, user: User): Promise<void> {
+	async messageHandler(packet: PacketPlayInChatMessage, user: User): Promise<void> {
 		let room: RoomBack;
 		if (packet.msg === undefined)
 			return;
 		
 		room = this.rooms.find(x => x.name === packet.msg.to);
 		room.messages.push(packet.msg);
-		user?.socket.to(packet.msg.to).emit('MESSAGE', new PacketChatOut(packet.event, undefined, packet.msg));
+		user?.socket.to(packet.msg.to).emit('MESSAGE', new PacketPlayOutChatMessage(packet.packet_id, packet.msg));
 		console.log(packet.msg);
 	}
 }

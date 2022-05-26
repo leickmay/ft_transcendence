@@ -8,7 +8,9 @@ import { OptionsService } from 'src/options/options.service';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { EventsService } from '../events.service';
-import { Packet, PacketPlayOutUserConnection, PacketPlayOutUserDisconnected } from '../packets/packets';
+import { PacketPlayOutUserConnection } from '../packets/out/PacketPlayOutUserConnection';
+import { PacketPlayOutUserDisconnected } from '../packets/out/PacketPlayOutUserDisconnected';
+import { Packet } from '../packets/packetTypes';
 
 @Injectable()
 @WebSocketGateway(3001, { cors: true })

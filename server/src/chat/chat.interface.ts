@@ -1,4 +1,3 @@
-import { PacketChatOut } from "src/socket/packets/packetChat";
 import { User } from "src/user/user.entity";
 
 export enum ChatEvents {

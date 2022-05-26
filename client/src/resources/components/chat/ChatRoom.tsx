@@ -2,9 +2,10 @@ import { AnyAction } from "@reduxjs/toolkit";
 import { Dispatch, KeyboardEvent, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/socket";
-import { ChatEvents, Message } from "../../../app/interfaces/Chat";
+import { Message } from "../../../app/interfaces/Chat";
 import { User } from "../../../app/interfaces/User";
-import { PacketChatOut } from "../../../app/packets/packetsChat";
+import { PacketPlayOutChatMessage } from "../../../app/packets/out/PacketPlayOutChatMessage";
+import { ChatPacketTypes } from "../../../app/packets/packetTypes";
 import { newMessages } from "../../../app/slices/chatSlice";
 import store from "../../../app/store";
 import { scrollToBottomById } from "../../pages/Chat";
@@ -31,9 +32,8 @@ const ChatRoom = () => {
 				date: date.getHours().toString() + ":" + date.getMinutes().toString(),
 				message: newMessage,
 			};
-			let packet: PacketChatOut = new PacketChatOut(
-				ChatEvents.MESSAGE,
-				undefined,
+			let packet: PacketPlayOutChatMessage = new PacketPlayOutChatMessage(
+				ChatPacketTypes.MESSAGE,
 				msg,
 			);
 			dispatch(newMessages(msg));

@@ -13,7 +13,6 @@ const ChatNavigation = () => {
 		setRooms(store.getState().chat.rooms);
 	}, [alertRooms]);
 
-
 	const changeRoom = (name: string): void => {
 
 	}

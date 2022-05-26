@@ -1,15 +1,5 @@
 import { User } from "./User";
 
-export enum ChatEvents {
-	COMMAND,
-    MESSAGE,
-	CREATE,
-    JOIN,
-	UP,
-    QUIT,
-    DELETE,
-}
-
 export interface Message {
 	from: string;
 	to: string;

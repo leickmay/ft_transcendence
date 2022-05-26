@@ -4,7 +4,11 @@ import { useDispatch } from 'react-redux';
 import { Navigate } from "react-router";
 import { Route, Routes } from 'react-router-dom';
 import { SocketContext } from '../../app/context/socket';
-import { Packet, PacketInTypes, PacketPlayInFriendsUpdate, PacketPlayInUserConnection, PacketPlayInUserDisconnected, PacketPlayInUserUpdate } from '../../app/packets/packets';
+import { PacketPlayInFriendsUpdate } from '../../app/packets/in/PacketPlayInFriendsUpdate';
+import { PacketPlayInUserConnection } from '../../app/packets/in/PacketPlayInUserConnection';
+import { PacketPlayInUserDisconnected } from '../../app/packets/in/PacketPlayInUserDisconnected';
+import { PacketPlayInUserUpdate } from '../../app/packets/in/PacketPlayInUserUpdate';
+import { MiscPacketTypes, Packet, UserPacketTypes } from '../../app/packets/packetTypes';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import Alert from '../components/Alert';
 import { Loader } from '../components/Loader';
@@ -46,13 +50,13 @@ export function Home(props: Props) {
 		}
 
 		socket?.off('user').on('user',    (packet: Packet) => {
-			if (packet.packet_id === PacketInTypes.USER_CONNECTION)
+			if (packet.packet_id === UserPacketTypes.USER_CONNECTION)
 				online(packet as PacketPlayInUserConnection);
-			if (packet.packet_id === PacketInTypes.USER_DISCONNECTED)
+			if (packet.packet_id === UserPacketTypes.USER_DISCONNECTED)
 				offline(packet as PacketPlayInUserDisconnected);
-			if (packet.packet_id === PacketInTypes.USER_UPDATE)
+			if (packet.packet_id === UserPacketTypes.USER_UPDATE)
 				update(packet as PacketPlayInUserUpdate);
-			if (packet.packet_id === PacketInTypes.FRIENDS_UPDATE)
+			if (packet.packet_id === MiscPacketTypes.FRIENDS)
 				friends(packet as PacketPlayInFriendsUpdate);
 		});
 

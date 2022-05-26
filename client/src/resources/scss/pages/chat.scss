@@ -1,7 +1,7 @@
 $max-width: 742px;
 
 #chat {
-	height: 75%;
+	height: 60%;
 	width: 100%;
 	display: flex;
 	flex-direction:row;
@@ -72,6 +72,13 @@ $max-width: 742px;
 		}
 	}
 
+	.chatLeft {
+		@media (max-width: $max-width) {
+			min-height: 8rem;
+			height: auto;
+		}
+	}
+
 	input {
 		width: 100%;
 	}
@@ -102,5 +109,5 @@ html, body, #root, .App {
 	height: 100%;
 }
 #navigation {
-	display: none;
+	//display: none;
 }

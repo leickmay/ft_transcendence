@@ -8,7 +8,7 @@ import { fileMimetypeFilter } from 'src/images/filters/file-mimetype-filter';
 import { Readable } from 'stream';
 import { User } from './user.entity';
 import { UserService } from './user.service';
-import { PacketPlayOutUserUpdate } from 'src/socket/packets/packets';
+import { PacketPlayOutUserUpdate } from 'src/socket/packets/out/PacketPlayOutUserUpdate';
 
 export const Public = () => SetMetadata("isPublic", true );
 

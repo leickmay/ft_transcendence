@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { instanceToPlain } from 'class-transformer';
 import { EventsService } from 'src/socket/events.service';
-import { Packet, PacketInTypes, PacketPlayInFriend, PacketPlayInOptionUpdate, PacketPlayInTotp, PacketPlayOutFriendsUpdate, PacketPlayOutUserUpdate } from 'src/socket/packets/packets';
+import { PacketPlayInFriend } from 'src/socket/packets/in/PacketPlayInFriend';
+import { PacketPlayInOptionUpdate } from 'src/socket/packets/in/PacketPlayInOptionUpdate';
+import { PacketPlayInTotp } from 'src/socket/packets/in/PacketPlayInTotp';
+import { PacketPlayOutFriendsUpdate } from 'src/socket/packets/out/PacketPlayOutFriendsUpdate';
+import { PacketPlayOutUserUpdate } from 'src/socket/packets/out/PacketPlayOutUserUpdate';
+import { MiscPacketTypes, Packet, UserPacketTypes } from 'src/socket/packets/packetTypes';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 
@@ -15,13 +20,13 @@ export class OptionsService {
 
 	dispatch(packet: Packet, user: User): void {
 		switch (packet.packet_id) {
-			case PacketInTypes.USER_UPDATE:
+			case UserPacketTypes.USER_UPDATE:
 				this.optionHandler(packet as PacketPlayInOptionUpdate, user);
 				break;
-			case PacketInTypes.TOTP:				
+			case MiscPacketTypes.TOTP:				
 				this.totpHandler(packet as PacketPlayInTotp, user);
 				break;
-			case PacketInTypes.FRIENDS:
+			case MiscPacketTypes.FRIENDS:
 				this.friendHandler(packet as PacketPlayInFriend, user);
 				break;
 		}
