@@ -1,31 +1,25 @@
 import { User } from "./User";
 
 export interface Message {
+	date: number;
 	from: string;
-	to: string;
-	date: string;
-	message: string;
+	text: string;
 }
 
-export interface RoomFront {
-	name: string;
-	users: User[];
-	isPrivateMsg: boolean;
-	isChannel: boolean;
-	operator: string | undefined;
-	isPrivate: boolean;
-	messages: Message[];
-}
+// export enum RoomType {
+// 	PUBLIC,
+// 	PASSWORD,
+// 	PRIVATE,
+// 	PRIVATE_PASSWORD,
+// 	PRIVATE_MESSAGE,
+// }
 
-export interface RoomBack {
+export interface Room {
+	id: number,
 	name: string;
-	users: User[];
-	isPrivateMsg: boolean;
-	isChannel: boolean;
-	operator: string | undefined;
-	isPrivate: boolean;
-	password: string | undefined;
 	messages: Message[];
+	operator?: string;
+	flags: number;
 }
 
 export interface Command {

@@ -1,4 +1,4 @@
-import { DeclarePacket, MiscPacketTypes } from "../packetTypes";
+import { DeclarePacket, MiscPacketTypes } from "./packetTypes";
 
 @DeclarePacket(MiscPacketTypes.FRIENDS)
 export class PacketPlayOutFriends {

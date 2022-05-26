@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import store from "../../../app/store";
-import { hideDivById } from "../../pages/Chat";
 
 const ChatNavigation = () => {
 
@@ -22,7 +21,7 @@ const ChatNavigation = () => {
 			id="chatNavigation"
 			className="chatLeft"
 		>
-			<button
+			{/* <button
 				onClick={() => {
 					hideDivById("chatNavigation");
 					hideDivById("chatChannel");
@@ -59,7 +58,7 @@ const ChatNavigation = () => {
 							);
 					})
 				}
-			</div>
+			</div> */}
 		</div>
 	);
 };

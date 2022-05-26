@@ -2,7 +2,8 @@ import { AnyAction } from "@reduxjs/toolkit";
 import { Dispatch, useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
-import { PacketPlayInChatMessage } from "../../app/packets/in/PacketPlayInChatMessage";
+import { PacketPlayInChatMessage } from "../../app/packets/PacketPlayInChatMessage";
+import { PacketPlayOutChatRoomCreate } from "../../app/packets/PacketPlayOutChatRoomCreate";
 import { newMessages } from "../../app/slices/chatSlice";
 import ChatChannel from "../components/chat/ChatChannel";
 import ChatNavigation from "../components/chat/ChatNavigation";
@@ -29,17 +30,17 @@ export const Chat = () => {
 	const socket = useContext(SocketContext);
 	const dispatch: Dispatch<AnyAction> = useDispatch();
 
-	useEffect(() => {
-		if (socket) {
-			socket.off('MESSAGE');
-			socket.on('MESSAGE', (packet: PacketPlayInChatMessage) => {
-				console.log("HEY");
-				if (!packet.msg)
-					return;
-				dispatch(newMessages(packet.msg));
-			});
-		}
-	}, [socket, dispatch]);
+	// useEffect(() => {
+	// 	if (socket) {
+	// 		socket.off('MESSAGE');
+	// 		socket.on('MESSAGE', (packet: PacketPlayInChatMessage) => {
+	// 			console.log("HEY");
+	// 			if (!packet.msg)
+	// 				return;
+	// 			dispatch(newMessages(packet.msg));
+	// 		});
+	// 	}
+	// }, [socket, dispatch]);
 
 	return (
 		<div id="chat">

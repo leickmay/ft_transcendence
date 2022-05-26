@@ -1,29 +1,20 @@
 import { Injectable } from "@nestjs/common";
-import { PacketPlayInChatMessage } from "src/socket/packets/in/PacketPlayInChatMessage";
-import { PacketPlayOutChatMessage } from "src/socket/packets/out/PacketPlayOutChatMessage";
-import { ChatPacketTypes, Packet, PacketTypes} from "src/socket/packets/packetTypes";
+import { instanceToPlain } from "class-transformer";
+import { PacketPlayInChatMessage } from "src/socket/packets/PacketPlayInChatMessage";
+import { PacketPlayOutChatRoomList } from "src/socket/packets/PacketPlayOutChatRoomList";
+import { ChatPacketTypes, Packet } from "src/socket/packets/packetTypes";
 import { User } from "src/user/user.entity";
-import { ChatEvents, RoomBack } from "./chat.interface";
+import { Room } from "./chat.interface";
 
 @Injectable()
 export class ChatService {
-
-	rooms: RoomBack[] = [{
-		name: "channel_World Random",
-		users: [],
-		isPrivateMsg: false,
-		isChannel: true,
-		operator: undefined,
-		isPrivate: false,
-		password: undefined,
-		messages: [],
-	}];
+	rooms: Array<Room> = [new Room("World Random")];
 
 	constructor() {}
 
 	dispatch(packet: Packet, user: User): void {
 		switch (packet.packet_id) {
-			case ChatPacketTypes.CHAT_MESSAGE:
+			case ChatPacketTypes.MESSAGE:
 				this.messageHandler(packet as PacketPlayInChatMessage, user);
 				break;
 			default:
@@ -31,14 +22,19 @@ export class ChatService {
 		}
 	}
 
+	getPublicRooms(): Array<Room> {
+		return this.rooms; // to change
+	}
+
+	onJoin(user: User) {
+		user.send('chat', new PacketPlayOutChatRoomList(instanceToPlain(this.getPublicRooms().map((room: Room) => {
+			return {id: room.id, name: room.name};
+		})) as any));
+	}
+
 	async messageHandler(packet: PacketPlayInChatMessage, user: User): Promise<void> {
-		let room: RoomBack;
-		if (packet.msg === undefined)
-			return;
-		
-		room = this.rooms.find(x => x.name === packet.msg.to);
-		room.messages.push(packet.msg);
-		user?.socket.to(packet.msg.to).emit('MESSAGE', new PacketPlayOutChatMessage(packet.packet_id, packet.msg));
-		console.log(packet.msg);
+		let room: Room | undefined = this.rooms.find(x => x.id === packet.room);
+		if (room?.containsUser(user))
+			room.send(user, packet.text);
 	}
 }

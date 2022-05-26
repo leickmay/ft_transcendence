@@ -4,10 +4,10 @@ import { useDispatch } from 'react-redux';
 import { Navigate } from "react-router";
 import { Route, Routes } from 'react-router-dom';
 import { SocketContext } from '../../app/context/socket';
-import { PacketPlayInFriendsUpdate } from '../../app/packets/in/PacketPlayInFriendsUpdate';
-import { PacketPlayInUserConnection } from '../../app/packets/in/PacketPlayInUserConnection';
-import { PacketPlayInUserDisconnected } from '../../app/packets/in/PacketPlayInUserDisconnected';
-import { PacketPlayInUserUpdate } from '../../app/packets/in/PacketPlayInUserUpdate';
+import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
+import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
+import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
+import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { MiscPacketTypes, Packet, UserPacketTypes } from '../../app/packets/packetTypes';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import Alert from '../components/Alert';
@@ -29,8 +29,6 @@ export function Home(props: Props) {
 
 	const dispatch: Dispatch<AnyAction> = useDispatch();
 
-	console.log('-------- fresh --------');
-
 	useEffect(() => {
 		const online = (packet: PacketPlayInUserConnection) => {
 			for (const user of packet.users)
@@ -49,7 +47,7 @@ export function Home(props: Props) {
 			dispatch(setFriends(packet.friends));
 		}
 
-		socket?.off('user').on('user',    (packet: Packet) => {
+		socket?.off('user').on('user', (packet: Packet) => {
 			if (packet.packet_id === UserPacketTypes.USER_CONNECTION)
 				online(packet as PacketPlayInUserConnection);
 			if (packet.packet_id === UserPacketTypes.USER_DISCONNECTED)
@@ -58,6 +56,10 @@ export function Home(props: Props) {
 				update(packet as PacketPlayInUserUpdate);
 			if (packet.packet_id === MiscPacketTypes.FRIENDS)
 				friends(packet as PacketPlayInFriendsUpdate);
+		});
+
+		socket?.off('chat').on('chat', (packet: Packet) => {
+			console.log(packet);
 		});
 
 		return () => {

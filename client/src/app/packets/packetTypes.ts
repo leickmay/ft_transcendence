@@ -16,7 +16,7 @@ export enum ChatPacketTypes {
 	CREATE,
 	JOIN,
 	UP,
-	QUIT,
+	LEAVE,
 	DELETE,
 }
 
