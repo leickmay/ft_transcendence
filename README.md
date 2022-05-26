@@ -1,10 +1,7 @@
 # Ft_transcendence
 
-## [React](http://localhost)
+### [React](http://localhost)
 
-## [Swagger](http://localhost:3080)
-## [Swagger](https://localhost:3443)
+### [Swagger](http://localhost:3080)
 
-## Postgres
-
-## [Adminer](http://localhost:8080)
+### [Adminer](http://localhost:8080)
