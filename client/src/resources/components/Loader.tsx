@@ -1,7 +1,7 @@
 import { ReactElement, useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { SocketContext } from '../../app/context/socket';
-import { PacketPlayOutFriends } from '../../app/packets';
+import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { RootState } from '../../app/store';
 
 interface Props {

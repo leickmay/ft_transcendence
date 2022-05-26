@@ -2,10 +2,10 @@ import { useContext } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
 import { User } from "../../app/interfaces/User";
+import { PacketPlayOutFriends } from "../../app/packets/PacketPlayOutFriends";
 import { RootState } from "../../app/store";
-import icon_online from '../../assets/images/online.png';
 import icon_offline from '../../assets/images/offline.png';
-import { PacketPlayOutFriends } from "../../app/packets";
+import icon_online from '../../assets/images/online.png';
 
 interface Props {
 	user: User;
