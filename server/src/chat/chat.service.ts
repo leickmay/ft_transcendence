@@ -17,7 +17,7 @@ export class ChatService {
 		isPrivate: false,
 		password: undefined,
 		messages: [],
-    }];
+	}];
 
 	constructor() {}
 

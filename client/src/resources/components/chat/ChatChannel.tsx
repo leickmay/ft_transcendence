@@ -65,7 +65,7 @@ const ChatChannel = () => {
 					onChange={event => setPassword(event.target.value)}
 					style={{display: "none"}}
 			/>
-    	    <button onClick={createChannel}>Create</button>
+			<button onClick={createChannel}>Create</button>
 			<button onClick={joinChannel}>Join</button>
 		</div>
 	);

@@ -48,7 +48,7 @@ const ChatRoom = () => {
 		setName(store.getState().chat.currentRooms.name.substring(8, 42));
 	}, [alertCurrentRoom]);
 
-    useEffect(() => {
+	useEffect(() => {
 		scrollToBottomById('chatRoomMesssages');
 	}, [messages]);
 
