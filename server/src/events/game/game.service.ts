@@ -5,6 +5,7 @@ import { Directions, GameEvents, GamePacket, IPlayer, Room } from "./game.interf
 
 export class gameService {
 	rooms: Array<Room> = new Array;
+	scoreMax: number = 1;
 	waitList: Array<User> = new Array;
 	waitListSocket: Array<Socket> = new Array;
 	raf: NodeJS.Timer;
@@ -40,7 +41,7 @@ export class gameService {
 			console.log("Add <", packet.user.login, "> to waitList");
 		}
 		else {
-			//already in wait list !
+			//already in wait list ! 
 			return;
 		}
 		if (this.waitList.length > 1) {
@@ -52,7 +53,7 @@ export class gameService {
 						room.p2.user = this.waitList.shift();
 						room.sockets.set(this.waitListSocket.shift(), 2);
 						room.isFull = true;
-						console.log("Add <", room.p1.user.login, "> and <",room.p2.user.login ,"> to existing room[", room, "]");
+						console.log("Add <", room.p1.user.login, "> and <",room.p2.user.login ,"> to existing room");
 						for (const [client, sequenceNumber] of room.sockets.entries()) {
 							client.emit("retJoinRoom",  room);
 							room.sockets.set(client, sequenceNumber + 1);
@@ -70,7 +71,7 @@ export class gameService {
 				this.rooms[this.rooms.length - 1].sockets.set(this.waitListSocket.shift(), 2);
 				this.rooms[this.rooms.length - 1].isFull = true;
 				
-				console.log("Add <", this.rooms[this.rooms.length - 1].p1.user.login, "> and <",this.rooms[this.rooms.length - 1].p2.user.login ,"> to new room:\n", this.rooms[this.rooms.length - 1], "]");
+				console.log("Add <", this.rooms[this.rooms.length - 1].p1.user.login, "> and <",this.rooms[this.rooms.length - 1].p2.user.login ,"> to new room");
 				for (const [client, sequenceNumber] of this.rooms[this.rooms.length - 1].sockets.entries()) {
 					client.emit("retJoinRoom",  this.rooms[this.rooms.length - 1]);
 					this.rooms[this.rooms.length - 1].sockets.set(client, sequenceNumber + 1);
@@ -98,7 +99,7 @@ export class gameService {
 				this.rooms[packet.roomId].sockets.set(client, sequenceNumber + 1);
 			}
 			if (this.rooms[packet.roomId].isStart === true) {
-				//await new Promise(r => setTimeout(r, 1000));
+				await new Promise(r => setTimeout(r, 3000));
 				this.raf = setInterval(() => {
 					this.emitRoomData(packet);
 				}, 24);
@@ -115,7 +116,6 @@ export class gameService {
 			this.rooms[packet.roomId].sockets.set(client, sequenceNumber + 1);
 		}
 		this.rooms[packet.roomId] = newRoom;
-		//console.log(this.rooms[packet.roomId]);
 		
 		if (this.waitList.length > 1 && this.rooms.length < 42) {
 			this.rooms[packet.roomId].p1.user = this.waitList.shift();
@@ -232,7 +232,7 @@ export class gameService {
 						this.rooms[packet.roomId].p1.score += 1;
 						this.rooms[packet.roomId].balls[0].speedX = 5;
 					}
-				if (this.rooms[packet.roomId].p2.score === 5 || this.rooms[packet.roomId].p1.score === 5) {
+				if (this.rooms[packet.roomId].p2.score === this.scoreMax || this.rooms[packet.roomId].p1.score === this.scoreMax) {
 					this.gameOver(packet);
 					return;
 				}

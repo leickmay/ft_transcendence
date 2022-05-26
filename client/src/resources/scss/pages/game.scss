@@ -7,42 +7,64 @@
 
 	.buttonWindow {
 		display: flex;
-		justify-content: center;
-		width: 90%;
-		margin: 0px 5%;
-
-		//border: 2px solid $color-1;
-		//background-color: black;
+		flex-wrap: wrap;
+		flex-direction: column;
+		justify-content: space-evenly;
+		align-items: center;
+		background: rgba(0, 0, 0, 0.541);
+		border: 3px inset $color-1;
+		border-radius: 10%;
+		width: 70%;
+		margin: 30px 15%;
+		padding: 20px 0px 10px 0px;
+		animation-name: appearBtnWin;
+		animation-duration: 1s;
+		animation-iteration-count: 1;
+		animation-timing-function: ease-in-out;
 
 		button {
-			width: 150px;
-			height: 150px;
+			background: rgba(79, 3, 109, 0.541);
+			border: 3px inset $color-1;
+			border-radius: 10%;
 			padding: 15px;
 			color: $color-3;
 			margin: 20px;
+			animation-name: appearBtn, appearText;
+			animation-duration: 1s;
+			animation-iteration-count: 1;
+			animation-timing-function: ease-in-out;
+			animation-fill-mode: forwards;
 			&:hover {
-				color: $color-2;
+				color: $color-3;
+				background: $color-1;
+				border: 3px inset $color-2;
 			}
 			&:active {
 				color: $color-4;
+				background: $color-4;
+				border: 3px inset $color-4;
 			}
 		}
 	}
 
 	canvas {
-		//position: absolute;
-		//top: 0px;
-		//left: 0px;
-		//right: 0px;
-		//bottom: 0px;
-		//margin: auto;
 		border: 2px solid $color-2;
 		top: 100px;
 		bottom: 100px;
-		animation-name: appear4;
-		animation-duration: 3s;
+		animation-name: appearCvs;
+		animation-duration: 1s;
 		animation-iteration-count: 1;
 		animation-timing-function: ease-in-out;
+		//animation-direction: reverse;
+		transition: all 1s ease-in-out;
+		opacity: 1;
+		width: 100%;
+	}
+
+	.canvasHide {
+		margin: -500px 0px 0px 0px;
+		opacity: 0;
+		transition: all 1s ease-in-out;
 	}
 
 	.roomInfo {
@@ -52,63 +74,75 @@
 		background: rgba(0, 0, 0, 0.541);
 		border: 2px inset $color-1;
 		width: 90%;
+		//min-height: 210px;
 		margin: 0px 5%;
 		padding: 0px 0px 0px 0px;
-		animation-name: appear;
-		animation-duration: 2s;
+		animation-name: appearRoomInfo;
+		animation-duration: 1s;
 		animation-iteration-count: 1;
 		animation-timing-function: ease-in-out;
+		animation-fill-mode: forwards;
+		transition: all 2s ease-in-out;
+		opacity: 1;
+	}
 
-		.playerCard {
-			display: flex;
-			flex-wrap: wrap;
-			flex-direction: column;
-			justify-content: flex-start;
-			align-items:center;
-			//background: rgba(0, 0, 0, 0.541);
-			//border-radius: 10%;
-			//border: 2px solid $color-1;
-			//margin: 50px 12%;
-			padding: 10px 10px 10px 10px;
-			min-width: 20%;
-		}
-		
-		.playerAvatar {
-			//background: rgba(0, 0, 0, 0.541);
-			background: url("/assets/img/bg_friendCard.png")  no-repeat center/cover;
-			background-size: 125%;
-			border: 2px inset $color-1;
-			border-radius: 50%;
-			//margin: 50px 20%;
-			padding: 10px;
-			animation-name: appear2;
-			animation-duration: 2s;
-			animation-iteration-count: 1;
-			animation-timing-function: ease-in-out;
-		}
+	.roomInfoHide {
+		background: rgba(0, 0, 0, 0.541);
+		border: 2px inset $color-1;
+		opacity: 0;
+		width: 90%;
+		margin: 0px 5%;
+		transition: all 2s ease-in-out;
+	}
 
-		.playerInfo {
-			flex-direction: row;
-			padding: 0px 10px 0px 15px;
-			font-size: 1.5rem;
-			border-radius: 10%;
-			justify-content: center;
-			//border: 2px solid $color-1;
-			animation-name: appear3;
-			animation-duration: 2s;
-			animation-iteration-count: 1;
-			animation-timing-function: ease-in-out;
-		}
+	.playerCard {
+		display: flex;
+		flex-wrap: wrap;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items:center;
+		//background: rgba(0, 0, 0, 0.541);
+		//border-radius: 10%;
+		//border: 2px solid $color-1;
+		//margin: 50px 12%;
+		padding: 10px 10px 10px 10px;
+		min-width: 20%;
+	}
+	
+	.playerAvatar {
+		//background: rgba(0, 0, 0, 0.541);
+		background: url("/assets/img/bg_friendCard.png")  no-repeat center/cover;
+		background-size: 125%;
+		border: 2px inset $color-1;
+		border-radius: 50%;
+		//margin: 50px 20%;
+		padding: 10px;
+		animation-name: appearAvatar;
+		animation-duration: 1s;
+		animation-iteration-count: 1;
+		animation-timing-function: ease-in-out;
+	}
 
-		.versus {
-			display: flex;
-			align-items: center;
-			animation-name: appear3;
-			animation-duration: 2s;
-			animation-iteration-count: 1;
-			animation-timing-function: ease-in-out;
-		}
+	.playerInfo {
+		flex-direction: row;
+		padding: 0px 10px 0px 15px;
+		font-size: 1.5rem;
+		border-radius: 10%;
+		justify-content: center;
+		//border: 2px solid $color-1;
+		animation-name: appearText;
+		animation-duration: 1s;
+		animation-iteration-count: 1;
+		animation-timing-function: ease-in-out;
+	}
 
+	.versus {
+		display: flex;
+		align-items: center;
+		animation-name: appearText;
+		animation-duration: 1s;
+		animation-iteration-count: 1;
+		animation-timing-function: ease-in-out;
 	}
 
 	.roomSearchMatch {
@@ -120,7 +154,7 @@
 		border: 5px inset $color-1;
 		border-radius: 10%;
 		width: 60%;
-		margin: 0px 20%;
+		margin: 30px 20%;
 		padding: 0px 0px 0px 0px;
 	}
 

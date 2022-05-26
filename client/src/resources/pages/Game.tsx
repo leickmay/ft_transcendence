@@ -7,25 +7,21 @@ import { Directions, GameEvents, GamePacket, Room } from "../../app/interfaces/G
 
 let canvas: HTMLCanvasElement | null = null;
 let ctx: CanvasRenderingContext2D | null = null;
-let ballImg: HTMLImageElement = new Image;
 
 export const Game = () => {
+	let canvasRef = useRef<HTMLCanvasElement>(null)
 	const socket = useContext(SocketContext);
 	const user = useSelector((state: RootState) => state.users.current);
+
 	const [curRoom, setCurRoom] = useState<Room | null>();
+	const [waitForPlay, setWaitForPlay] = useState<boolean>(false);
 	const [counter, setCounter] = useState<number>(0);
-	let p1IsReady: boolean = false;
-	let p2IsReady: boolean = false;
-	let isStart: boolean = false;
-	//let isOver: boolean = false;
+	const [showCanvas, setShowCanvas] = useState<boolean>(true);
+	const [showGameResult, setShowGameResult] = useState<boolean>(true);
 	
+	let isStart: boolean = false;
 	let moveUp: boolean = false;
 	let moveDown: boolean = false;
-	
-	const [waitForPlay, setWaitForPlay] = useState<boolean>(false);
-	const [isOver, setIsOver] = useState<boolean>(false);
-	
-	let canvasRef = useRef<HTMLCanvasElement>(null)
 	
 	useEffect(() => {
 		if (curRoom?.isFull) {
@@ -36,8 +32,17 @@ export const Game = () => {
 	useEffect(() => {
 		counter > 0 && setTimeout(() => setCounter(counter - 1), 1000);
 		draw();
+		if (counter === 4) {
+			setShowGameResult(false);
+		}
 		if (counter === 1 && curRoom?.isOver) {
 			clearRoom();
+		}
+		if (counter === 1 && isStart) {
+			document.removeEventListener('keydown', e => {handleKeyDown(e)});
+			document.removeEventListener('keyup', e => {handleKeyUp(e)});
+			document.addEventListener('keydown', e => {handleKeyDown(e)});
+			document.addEventListener('keyup', e => {handleKeyUp(e)});
 		}
 	}, [counter]);
 	
@@ -46,7 +51,6 @@ export const Game = () => {
 			if (!canvas)
 				return ;
 			ctx = canvas!.getContext('2d');
-			//ballImg = document.getElementById("src").
 
 			document.removeEventListener('keydown', e => {handleKeyDown(e)});
 			document.removeEventListener('keyup', e => {handleKeyUp(e)});
@@ -60,43 +64,36 @@ export const Game = () => {
 		if (ctx && curRoom) {
 			ctx.fillStyle = "black";
 			ctx.fillRect(0, 0, curRoom.width, curRoom.height);
-			//if (curRoom.isStart && !curRoom.isOver) {
-				ctx.fillStyle = "pink";
-				ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width * 1.3 , curRoom.p1.height * 1.05);
-				ctx.fillRect(curRoom.p2.x * 0.9965 , curRoom.p2.y , curRoom.p2.width * 1.3 , curRoom.p2.height * 1.05);
-				ctx.fillStyle = "purple";
-				ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width , curRoom.p1.height);
-				ctx.fillRect(curRoom.p2.x , curRoom.p2.y , curRoom.p2.width , curRoom.p2.height);
-				ctx.fillStyle = "pink";
-				ctx.beginPath();
-				ctx.arc(curRoom.balls[0].x, curRoom.balls[0].y, curRoom.balls[0].size, 0, Math.PI*2);
-				ctx.fill();
-				ctx.drawImage(ballImg, 0, 0);
-			//}
-			if(curRoom.isOver) {
+			ctx.fillStyle = "pink";
+			ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width * 1.3 , curRoom.p1.height * 1.05);
+			ctx.fillRect(curRoom.p2.x * 0.9965 , curRoom.p2.y , curRoom.p2.width * 1.3 , curRoom.p2.height * 1.05);
+			ctx.fillStyle = "purple";
+			ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width , curRoom.p1.height);
+			ctx.fillRect(curRoom.p2.x , curRoom.p2.y , curRoom.p2.width , curRoom.p2.height);
+			ctx.fillStyle = "pink";
+			ctx.beginPath();
+			ctx.arc(curRoom.balls[0].x, curRoom.balls[0].y, curRoom.balls[0].size, 0, Math.PI*2);
+			ctx.fill();
+			if (counter !== 0 && !curRoom.isOver) {
 				ctx.font = "50px Arial";
 				ctx.fillStyle = "purple";
-				ctx.fillText("THE WINNER IS: " + (curRoom.p1.score > curRoom.p2.score ? curRoom.p1.user.login : curRoom.p2.user.login) + ", quel incroyable BG du 69", curRoom.width / 4, curRoom.height / 2);
-				ctx.fillText("leave in " + (counter - 1) + " seconds", curRoom.width / 2.5, curRoom.height / 1.8);
+				ctx.fillText("Start in " + (counter - 1) + " seconds", curRoom.width / 2.5, curRoom.height / 1.8);
 			}
 		}
 
 	}
 
 	function emitMovement() {
-		if (curRoom && isStart) {
-			if ((moveUp && moveDown)) {
-				return;
-			}
-			else {
-				console.log("emit Move!");
+		if ((moveUp && moveDown)) {
+			return;
+		}
+		else if (curRoom && isStart) {
 				socket!.emit("game", {
 					id: GameEvents.MOVE,
 					user: user,
 					roomId: curRoom!.id,
 					direction: moveUp ? Directions.UP : moveDown ? Directions.DOWN : Directions.STATIC,
 				} as GamePacket);
-			}
 		}
 	}
 
@@ -153,11 +150,10 @@ export const Game = () => {
 		}
 		else {
 			setCurRoom(ret);
-			p1IsReady = ret.p1.isReady;
-			p2IsReady = ret.p2.isReady;
 			isStart = ret.isStart;
-			setIsOver(ret.isOver);
 			setWaitForPlay(false);
+			setShowCanvas(true);
+			setShowGameResult(true);
 		}
 	})
 
@@ -167,15 +163,13 @@ export const Game = () => {
 		}
 		else {
 			setCurRoom(ret);
-			p1IsReady = ret.p1.isReady;
-			p2IsReady = ret.p2.isReady;
 			isStart = ret.isStart;
-			setIsOver(ret.isOver);
 			if (ret.isStart) {
 				document.removeEventListener('keydown', e => {handleKeyDown(e)});
 				document.removeEventListener('keyup', e => {handleKeyUp(e)});
 				document.addEventListener('keydown', e => {handleKeyDown(e)});
 				document.addEventListener('keyup', e => {handleKeyUp(e)});
+				setCounter(3);
 			}
 			draw();
 		}
@@ -185,12 +179,8 @@ export const Game = () => {
 		if (ret === null)
 			console.log("Problem in retRoomData");
 		else {
-			//console.log("ret: ", ret);
 			setCurRoom(ret);
-			p1IsReady = ret.p1.isReady;
-			p2IsReady = ret.p2.isReady;
 			isStart = ret.isStart;
-			setIsOver(ret.isOver);
 			draw();
 		}
 	})
@@ -206,74 +196,84 @@ export const Game = () => {
 	}
  
 	socket?.off("retClearRoom").on("retClearRoom", function() {
-		console.log("CLEAR!");
 		setCurRoom(null);
-		p1IsReady = false;
-		p2IsReady = false;
 		isStart = false;
-		setIsOver(false);
 	})
 
 	socket?.off("retGameOver").on("retGameOver", function(ret: Room | null) {
 		if (ret) {
-			console.log("GameOver!");
-			setCounter(6);
+			setCounter(9);
+			setShowCanvas(false);
 			isStart = ret.isStart;
-			setIsOver(ret.isOver);
 		}
 	})
 
 	return (
 		<div id="game" className="game">
-		{
-			!waitForPlay ?
-			<div className="buttonWindow">
-				<button onMouseDown={() => joinRoom()}>Search Match</button> 
-			</div>
-			:
-			<div className="roomSearchMatch">
-				<div>search matchmaking</div>
-				<div className="spinner-grow" role="status"></div>
-			</div>		
-		}
-		{ 
-			curRoom ?
-			!curRoom.isOver ?
-			<div className="roomInfo">
-				<div className="playerCard">
-					<img className="playerAvatar" src={curRoom.p1.user.avatar} width="120px" alt=""></img>
-					<div className="playerInfo">
-						{curRoom.p1.user.login}
-					</div>
-					<div className="playerInfo">
-						{curRoom.p1.isReady ? curRoom.p2.isReady ? curRoom.p1.score : <div className="ready">Ready</div> : <div className="pressSpace">press space</div>}
-					</div>
-				</div>
-				<div className="versus">VS</div>
-				<div className="playerCard">
-					<img className="playerAvatar" src={curRoom.p2.user ? curRoom.p2.user.avatar : "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg"} width="120px" alt=""></img>
-					<div className="playerInfo">
-						<div> {curRoom.p2.user.login} </div>
-					</div>
-					<div className="playerInfo">
-						{curRoom.p2.isReady ? curRoom.p1.isReady ? curRoom.p2.score : <div className="ready">Ready</div> : <div className="pressSpace">press space</div>}
-					</div>
-				</div>
-			</div>
-			:
-			<div>xd1</div>
-			:
-			<div>xd2</div>	
-		}
-		{
-			curRoom ?
-			!curRoom.isOver ?
-			<canvas ref={canvasRef} height={curRoom.height} width={curRoom.width}></canvas>
-			:
-			<div>lol1</div>
-			:
-			<div>lol2</div>
-		}
+		{(() => {
+			if (!curRoom) {
+				if (!waitForPlay) {
+					return (
+						<div className="buttonWindow">
+							<button onMouseDown={() => joinRoom()}>Search Match</button>
+							<button onMouseDown={() => joinRoom()}>Create private room</button>
+						</div>);
+				}
+				if (waitForPlay) {
+					return (
+						<div className="roomSearchMatch">
+							<div>search matchmaking</div>
+							<div className="spinner-grow" role="status"></div>
+						</div>);
+				}
+			}
+			if (curRoom) {
+				return (
+					<div>
+					{
+						!curRoom.isOver ?
+						<div className="roomInfo">
+							<div className="playerCard">
+								<img className="playerAvatar" src={curRoom.p1.user.avatar} width="120px" alt=""></img>
+								<div className="playerInfo">
+									{curRoom.p1.user.login}
+								</div>
+								<div className="playerInfo">
+									{curRoom.p1.isReady ? curRoom.p2.isReady ? counter === 0 ? curRoom.p1.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">press space</div>}
+								</div>
+							</div>
+							<div className="versus">VS</div>
+								<div className="playerCard">
+								<img className="playerAvatar" src={curRoom.p2.user ? curRoom.p2.user.avatar : "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg"} width="120px" alt=""></img>
+								<div className="playerInfo">
+									{curRoom.p2.user.login}
+								</div>
+								<div className="playerInfo">
+									{curRoom.p2.isReady ? curRoom.p1.isReady ? counter === 0 ? curRoom.p2.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">press space</div>}
+								</div>
+							</div>
+						</div>
+						:
+						<div className={showGameResult ? "roomInfo" : "roomInfoHide"}>
+							<div className="playerCard">
+								<div className="playerInfo">
+									The winner is
+								</div>
+								<img className="playerAvatar" src={curRoom.p1.score > curRoom.p2.score ? curRoom.p1.user.avatar : curRoom.p2.user.avatar} width="120px" alt=""></img>
+								<div></div>
+								<div className="playerInfo">
+									{curRoom.p1.score > curRoom.p2.score ? curRoom.p1.user.login : curRoom.p2.user.login}
+								</div>
+								<div className="playerInfo">
+									leave in {counter - 1} seconds
+								</div>
+							</div>
+						</div>
+					}
+						<canvas className={showCanvas ? "" : "canvasHide"} ref={canvasRef} height={curRoom.height} width={curRoom.width} ></canvas>
+					</div>);
+				}
+		})()}
 		</div>
 	);
 };
