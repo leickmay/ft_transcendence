@@ -1,6 +1,6 @@
-import { DeclarePacket, PacketOut, UserPacketTypes } from "./packetTypes";
+import { DeclarePacket, PacketOut, PacketTypesUser } from "./packetTypes";
 
-@DeclarePacket(UserPacketTypes.UPDATE)
+@DeclarePacket(PacketTypesUser.UPDATE)
 export class PacketPlayOutUserUpdate implements PacketOut {
 	constructor(
 		public user: any,

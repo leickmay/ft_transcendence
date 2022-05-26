@@ -1,6 +1,6 @@
-import { DeclarePacket, UserPacketTypes } from "./packetTypes";
+import { DeclarePacket, PacketTypesUser } from "./packetTypes";
 
-@DeclarePacket(UserPacketTypes.USER_UPDATE)
+@DeclarePacket(PacketTypesUser.USER_UPDATE)
 export class PacketPlayOutUserUpdate {
 	constructor(
 		public options: {[option: string]: any},

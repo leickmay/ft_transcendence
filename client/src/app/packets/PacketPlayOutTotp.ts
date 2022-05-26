@@ -1,5 +1,5 @@
-import { DeclarePacket, MiscPacketTypes } from "./packetTypes";
+import { DeclarePacket, PacketTypesMisc } from "./packetTypes";
 
-@DeclarePacket(MiscPacketTypes.TOTP)
+@DeclarePacket(PacketTypesMisc.TOTP)
 export class PacketPlayOutTotp {
 }

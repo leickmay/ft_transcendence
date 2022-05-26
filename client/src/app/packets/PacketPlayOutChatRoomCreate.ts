@@ -1,7 +1,7 @@
 import { PacketOutChatRoom } from "./PacketOutChatRoom";
-import { ChatPacketTypes, DeclarePacket } from "./packetTypes";
+import { PacketTypesChat, DeclarePacket } from "./packetTypes";
 
-@DeclarePacket(ChatPacketTypes.CREATE)
+@DeclarePacket(PacketTypesChat.CREATE)
 export class PacketPlayOutChatRoomCreate extends PacketOutChatRoom {
 	public password?: string;
 

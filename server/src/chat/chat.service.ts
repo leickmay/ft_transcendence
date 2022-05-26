@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { instanceToPlain } from "class-transformer";
 import { PacketPlayInChatMessage } from "src/socket/packets/PacketPlayInChatMessage";
 import { PacketPlayOutChatRoomList } from "src/socket/packets/PacketPlayOutChatRoomList";
-import { ChatPacketTypes, Packet } from "src/socket/packets/packetTypes";
+import { PacketTypesChat, Packet } from "src/socket/packets/packetTypes";
 import { User } from "src/user/user.entity";
 import { Room } from "./chat.interface";
 
@@ -14,7 +14,7 @@ export class ChatService {
 
 	dispatch(packet: Packet, user: User): void {
 		switch (packet.packet_id) {
-			case ChatPacketTypes.MESSAGE:
+			case PacketTypesChat.MESSAGE:
 				this.messageHandler(packet as PacketPlayInChatMessage, user);
 				break;
 			default:

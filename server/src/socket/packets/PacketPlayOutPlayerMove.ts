@@ -1,6 +1,6 @@
-import { DeclarePacket, Directions, MiscPacketTypes, Packet, PacketOut } from "./packetTypes";
+import { DeclarePacket, Directions, PacketTypesMisc, Packet, PacketOut } from "./packetTypes";
 
-@DeclarePacket(MiscPacketTypes.PLAYER_MOVE)
+@DeclarePacket(PacketTypesMisc.PLAYER_MOVE)
 export class PacketPlayOutPlayerMove implements PacketOut {
 	constructor(
 		public player: number,

@@ -1,5 +1,5 @@
 import { PacketOutChatRoom } from "./PacketOutChatRoom";
-import { ChatPacketTypes, DeclarePacket } from "./packetTypes";
+import { PacketTypesChat, DeclarePacket } from "./packetTypes";
 
-@DeclarePacket(ChatPacketTypes.JOIN)
+@DeclarePacket(PacketTypesChat.JOIN)
 export class PacketPlayOutChatRoomJoin extends PacketOutChatRoom {}

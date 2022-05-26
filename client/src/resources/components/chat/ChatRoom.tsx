@@ -28,7 +28,7 @@ const ChatRoom = () => {
 		// 		message: newMessage,
 		// 	};
 		// 	let packet: PacketPlayOutChatMessage = new PacketPlayOutChatMessage(
-		// 		ChatPacketTypes.MESSAGE,
+		// 		PacketTypesChat.MESSAGE,
 		// 		msg,
 		// 	);
 		// 	dispatch(newMessages(msg));

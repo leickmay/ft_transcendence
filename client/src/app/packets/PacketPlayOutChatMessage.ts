@@ -1,6 +1,6 @@
-import { ChatPacketTypes, DeclarePacket } from "./packetTypes";
+import { PacketTypesChat, DeclarePacket } from "./packetTypes";
 
-@DeclarePacket(ChatPacketTypes.MESSAGE)
+@DeclarePacket(PacketTypesChat.MESSAGE)
 export class PacketPlayOutChatMessage {
 	constructor(
 		public room: string,

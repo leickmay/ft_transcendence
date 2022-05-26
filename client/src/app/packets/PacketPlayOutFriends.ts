@@ -1,6 +1,6 @@
-import { DeclarePacket, MiscPacketTypes } from "./packetTypes";
+import { DeclarePacket, PacketTypesMisc } from "./packetTypes";
 
-@DeclarePacket(MiscPacketTypes.FRIENDS)
+@DeclarePacket(PacketTypesMisc.FRIENDS)
 export class PacketPlayOutFriends {
 	constructor(
 		public action: 'add' | 'remove' | 'get',

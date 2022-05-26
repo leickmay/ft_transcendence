@@ -6,7 +6,7 @@ import { PacketPlayInOptionUpdate } from 'src/socket/packets/PacketPlayInOptionU
 import { PacketPlayInTotp } from 'src/socket/packets/PacketPlayInTotp';
 import { PacketPlayOutFriendsUpdate } from 'src/socket/packets/PacketPlayOutFriendsUpdate';
 import { PacketPlayOutUserUpdate } from 'src/socket/packets/PacketPlayOutUserUpdate';
-import { MiscPacketTypes, Packet, UserPacketTypes } from 'src/socket/packets/packetTypes';
+import { PacketTypesMisc, Packet, PacketTypesUser } from 'src/socket/packets/packetTypes';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 
@@ -20,13 +20,13 @@ export class OptionsService {
 
 	dispatch(packet: Packet, user: User): void {
 		switch (packet.packet_id) {
-			case UserPacketTypes.UPDATE:
+			case PacketTypesUser.UPDATE:
 				this.optionHandler(packet as PacketPlayInOptionUpdate, user);
 				break;
-			case MiscPacketTypes.TOTP:				
+			case PacketTypesMisc.TOTP:				
 				this.totpHandler(packet as PacketPlayInTotp, user);
 				break;
-			case MiscPacketTypes.FRIENDS:
+			case PacketTypesMisc.FRIENDS:
 				this.friendHandler(packet as PacketPlayInFriend, user);
 				break;
 		}

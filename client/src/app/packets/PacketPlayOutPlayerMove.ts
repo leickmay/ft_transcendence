@@ -1,6 +1,6 @@
-import { DeclarePacket, Directions, MiscPacketTypes } from "./packetTypes";
+import { DeclarePacket, Directions, PacketTypesMisc } from "./packetTypes";
 
-@DeclarePacket(MiscPacketTypes.PLAYER_MOVE)
+@DeclarePacket(PacketTypesMisc.PLAYER_MOVE)
 export class PacketPlayOutPlayerMove {
 	constructor(
 		public direction: Directions,

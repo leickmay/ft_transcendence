@@ -1,6 +1,6 @@
-import { ChatPacketTypes, DeclarePacket } from "./packetTypes";
+import { PacketTypesChat, DeclarePacket } from "./packetTypes";
 
-@DeclarePacket(ChatPacketTypes.LIST)
+@DeclarePacket(PacketTypesChat.LIST)
 export class PacketPlayOutChatRoomList {
 	constructor(
 		public rooms: Array<{

@@ -1,16 +1,16 @@
-export enum MiscPacketTypes {
+export enum PacketTypesMisc {
 	TOTP = 1,
 	FRIENDS,
 	PLAYER_MOVE,
 }
 
-export enum UserPacketTypes {
+export enum PacketTypesUser {
 	USER_CONNECTION = 101,
 	USER_DISCONNECTED,
 	USER_UPDATE,
 }
 
-export enum ChatPacketTypes {
+export enum PacketTypesChat {
 	COMMAND = 201,
 	MESSAGE,
 	CREATE,
@@ -20,7 +20,7 @@ export enum ChatPacketTypes {
 	DELETE,
 }
 
-export type PacketTypes = MiscPacketTypes | UserPacketTypes | ChatPacketTypes;
+export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat;
 
 export enum Directions {
 	UP,

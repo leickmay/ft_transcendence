@@ -8,7 +8,7 @@ import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriends
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
-import { MiscPacketTypes, Packet, UserPacketTypes } from '../../app/packets/packetTypes';
+import { PacketTypesMisc, Packet, PacketTypesUser } from '../../app/packets/packetTypes';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import Alert from '../components/Alert';
 import { Loader } from '../components/Loader';
@@ -48,13 +48,13 @@ export function Home(props: Props) {
 		}
 
 		socket?.off('user').on('user', (packet: Packet) => {
-			if (packet.packet_id === UserPacketTypes.USER_CONNECTION)
+			if (packet.packet_id === PacketTypesUser.USER_CONNECTION)
 				online(packet as PacketPlayInUserConnection);
-			if (packet.packet_id === UserPacketTypes.USER_DISCONNECTED)
+			if (packet.packet_id === PacketTypesUser.USER_DISCONNECTED)
 				offline(packet as PacketPlayInUserDisconnected);
-			if (packet.packet_id === UserPacketTypes.USER_UPDATE)
+			if (packet.packet_id === PacketTypesUser.USER_UPDATE)
 				update(packet as PacketPlayInUserUpdate);
-			if (packet.packet_id === MiscPacketTypes.FRIENDS)
+			if (packet.packet_id === PacketTypesMisc.FRIENDS)
 				friends(packet as PacketPlayInFriendsUpdate);
 		});
 

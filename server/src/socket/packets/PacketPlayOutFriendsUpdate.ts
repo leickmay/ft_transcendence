@@ -1,6 +1,6 @@
-import { DeclarePacket, MiscPacketTypes, PacketOut } from "./packetTypes";
+import { DeclarePacket, PacketTypesMisc, PacketOut } from "./packetTypes";
 
-@DeclarePacket(MiscPacketTypes.FRIENDS)
+@DeclarePacket(PacketTypesMisc.FRIENDS)
 export class PacketPlayOutFriendsUpdate implements PacketOut {
 	constructor(
 		public friends: Record<string, any>,
