@@ -5,6 +5,8 @@ interface Props {
 
 export const Notification = (props: Props) => {
 	return (
-		<p>{props.text}</p>
+		<div>
+			<span>{props.text}</span>
+		</div>
 	)
 }

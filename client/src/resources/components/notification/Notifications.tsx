@@ -9,7 +9,7 @@ export const Notifications = (props: Props) => {
 	const notifications = useSelector((state: RootState) => state.notifications.visibles);
 
 	return (
-		<div style={{
+		<div id="notification" style={{
 			position: 'fixed',
 			right: 0,
 			top: 0,

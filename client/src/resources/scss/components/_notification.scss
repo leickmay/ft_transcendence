@@ -1,0 +1,14 @@
+@import "../variables";
+
+#notification {
+	&>div {
+		border: 3px double $primary;
+		clip-path: polygon(0 0, 90% 0, 100% 100%, 10% 100%);
+		padding: 5px 15px;
+		width: 250px;
+
+		// TMP
+		background-color: white;
+		color: black;
+	}
+}

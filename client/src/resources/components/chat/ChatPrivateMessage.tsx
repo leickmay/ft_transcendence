@@ -26,7 +26,7 @@ const ChatPrivateMessage = () => {
 				}}
 			>..</button>
 			<h2>Players Online</h2>
-			{
+			{/* {
 				usersOnline.map((value, index) => {
 					return (
 						<div key={index}>
@@ -34,7 +34,7 @@ const ChatPrivateMessage = () => {
 						</div>
 					)
 				})
-			}
+			} */}
 		</div>
 	);
 };
