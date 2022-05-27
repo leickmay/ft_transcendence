@@ -1,4 +1,4 @@
-import { Exclude, Expose, instanceToPlain, Transform } from "class-transformer";
+import { Exclude, Expose, Transform } from "class-transformer";
 import { PacketPlayOutChatMessage } from "src/socket/packets/PacketPlayOutChatMessage";
 import { User } from "src/user/user.entity";
 
