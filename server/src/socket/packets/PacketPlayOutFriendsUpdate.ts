@@ -1,7 +1,7 @@
-import { DeclarePacket, PacketTypesMisc, PacketOut } from "./packetTypes";
+import { DeclarePacket, PacketTypesMisc } from "./packetTypes";
 
 @DeclarePacket(PacketTypesMisc.FRIENDS)
-export class PacketPlayOutFriendsUpdate implements PacketOut {
+export class PacketPlayOutFriendsUpdate {
 	constructor(
 		public friends: Record<string, any>,
 	) { }

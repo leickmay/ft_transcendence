@@ -32,9 +32,6 @@ export interface Packet {
 	packet_id: PacketTypes;
 }
 
-export interface PacketOut {
-}
-
 export const DeclarePacket = (type: PacketTypes) => {
 	return <T extends { new(...args: any[]): {} }>(constructor: T) => {
 		return class extends constructor {

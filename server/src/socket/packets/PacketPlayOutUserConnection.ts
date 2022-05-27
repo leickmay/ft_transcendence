@@ -1,7 +1,7 @@
-import { DeclarePacket, PacketOut, PacketTypesUser } from "./packetTypes";
+import { DeclarePacket, PacketTypesUser } from "./packetTypes";
 
 @DeclarePacket(PacketTypesUser.CONNECTION)
-export class PacketPlayOutUserConnection implements PacketOut {
+export class PacketPlayOutUserConnection {
 	constructor(
 		public users: Record<string, any>,
 	) { }
