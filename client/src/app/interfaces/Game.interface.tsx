@@ -39,6 +39,7 @@ export interface Player extends Entity {
 	up: boolean;
 	down: boolean;
 	score: number;
+	paddleSrc: string;
 	height: number;
 	width: number;
 }
@@ -48,7 +49,7 @@ export interface Spectator {
 }
 
 export interface Ball extends Entity {
-	skin: string;
+	ballSrc: string;
 	size: number;
 	speedX: number;
 	speedY: number;

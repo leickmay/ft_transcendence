@@ -5,6 +5,16 @@
 	justify-content: center;
 	text-align: center;
 
+	div:focus {
+		border: 0px;
+		outline: 0px;
+	}
+
+	div:focus-within {
+		border: 0px;
+		outline: 0px;
+	}
+
 	.buttonWindow {
 		display: flex;
 		flex-wrap: wrap;
@@ -165,6 +175,10 @@
 		width: 60%;
 		margin: 30px 20%;
 		padding: 0px 0px 0px 0px;
+		animation-name: appearRoomSearch, appearText;
+		animation-duration: 1s;
+		animation-iteration-count: 1;
+		animation-timing-function: ease-in-out;
 	}
 
 	.pressSpace {

@@ -40,6 +40,7 @@ export interface IPlayer extends IEntity {
 	up: boolean;
 	down: boolean;
 	score: number;
+	paddleSrc: string;
 	height: number;
 	width: number;
 }
@@ -49,7 +50,7 @@ export interface ISpectator {
 }
 
 export interface IBall extends IEntity {
-	skin: string;
+	ballSrc: string;
 	size: number;
 	speedX: number;
 	speedY: number;
@@ -87,12 +88,13 @@ export class Room implements IRoom {
 		up : false,
 		down : false,
 		score : 0,
-		height : this.height / 6,
-		width : this.width / 80,
-		baseX : this.width / 100,
-		baseY : this.height / 2 - ((this.height / 8) / 2),
-		x : this.width / 100,
-		y : this.height / 2 - ((this.height / 8) / 2),
+		paddleSrc: './assets/images/paddle1.png',
+		height : this.height / 4,
+		width : this.width / 40,
+		baseX : this.width / 200,
+		baseY : this.height / 2 - ((this.height / 4) / 2),
+		x : this.width / 200,
+		y : this.height / 2 - ((this.height / 4) / 2),
 	};
 
 	p2 = {
@@ -103,23 +105,24 @@ export class Room implements IRoom {
 		up : false,
 		down : false,
 		score : 0,
-		height : this.height / 6,
-		width : this.width / 80,
-		baseX : this.width / 1.02,
-		baseY : this.height / 2 - ((this.height / 8) / 2),
-		x : this.width / 1.02,
-		y : this.height / 2 - ((this.height / 8) / 2),
+		paddleSrc: './assets/images/paddle2.png',
+		height : this.height / 4,
+		width : this.width / 40,
+		baseX : this.width / 1.03,
+		baseY : this.height / 2 - ((this.height / 4) / 2),
+		x : this.width / 1.03,
+		y : this.height / 2 - ((this.height / 4) / 2),
 	};
 
 	balls = [{
-		skin: null,
-		size: this.height / 50,
+		ballSrc: './assets/images/ball.png',
+		size: this.height / 10,
 		speedX: 0,
 		speedY: 0,
-		baseX: this.width / 2,
-		baseY: this.width / 2,
-		x: this.width / 2,
-		y: this.width / 2,
+		baseX: this.width / 2 - ((this.height / 10) / 2),
+		baseY: this.height / 2 - ((this.height / 10) / 2),
+		x: this.width / 2 - ((this.height / 10) / 2),
+		y: this.height / 2 - ((this.height / 10) / 2),
 	}];
 
 	spectators = new Array;

@@ -7,6 +7,10 @@ import { Directions, GameEvents, GamePacket, Room } from "../../app/interfaces/G
 
 let canvas: HTMLCanvasElement | null = null;
 let ctx: CanvasRenderingContext2D | null = null;
+let ball: HTMLImageElement = new Image();
+let paddle1: HTMLImageElement = new Image();
+let paddle2: HTMLImageElement = new Image();
+//document.body.appendChild(ball);
 
 export const Game = () => {
 	let canvasRef = useRef<HTMLCanvasElement>(null)
@@ -14,12 +18,11 @@ export const Game = () => {
 	const user = useSelector((state: RootState) => state.users.current);
 
 	const [curRoom, setCurRoom] = useState<Room | null>();
-	const [waitForPlay, setWaitForPlay] = useState<boolean>(false);
 	const [counter, setCounter] = useState<number>(0);
+	const [waitForPlay, setWaitForPlay] = useState<boolean>(false);
 	const [showCanvas, setShowCanvas] = useState<boolean>(true);
 	const [showGameResult, setShowGameResult] = useState<boolean>(true);
 	
-	let isStart: boolean = false;
 	let moveUp: boolean = false;
 	let moveDown: boolean = false;
 	
@@ -34,18 +37,9 @@ export const Game = () => {
 		draw();
 		if (counter === 3 && curRoom?.isOver) {
 			setShowGameResult(false);
-			//setCounter(0);
 		}
 		if (counter === 1 && curRoom?.isOver) {
 			clearRoom();
-			//setCounter(0);
-		}
-		if (counter === 1 && !curRoom?.isOver && isStart) {
-			document.removeEventListener('keydown', e => {handleKeyDown(e)});
-			document.removeEventListener('keyup', e => {handleKeyUp(e)});
-			document.addEventListener('keydown', e => {handleKeyDown(e)});
-			document.addEventListener('keyup', e => {handleKeyUp(e)});
-			//setCounter(0);
 		}
 	}, [counter]);
 	
@@ -54,12 +48,9 @@ export const Game = () => {
 			if (!canvas)
 				return ;
 			ctx = canvas!.getContext('2d');
-
-			document.removeEventListener('keydown', e => {handleKeyDown(e)});
-			document.removeEventListener('keyup', e => {handleKeyUp(e)});
-			document.addEventListener('keydown', e => {handleKeyDown(e)});
-			document.addEventListener('keyup', e => {handleKeyUp(e)});
-
+			ball.src = curRoom!.balls[0].ballSrc;
+			paddle1.src = curRoom!.p1.paddleSrc;
+			paddle2.src = curRoom!.p2.paddleSrc;
 			draw();
 	}
 
@@ -67,16 +58,23 @@ export const Game = () => {
 		if (ctx && curRoom) {
 			ctx.fillStyle = "black";
 			ctx.fillRect(0, 0, curRoom.width, curRoom.height);
-			ctx.fillStyle = "pink";
-			ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width * 1.3 , curRoom.p1.height * 1.05);
-			ctx.fillRect(curRoom.p2.x * 0.9965 , curRoom.p2.y , curRoom.p2.width * 1.3 , curRoom.p2.height * 1.05);
-			ctx.fillStyle = "purple";
-			ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width , curRoom.p1.height);
-			ctx.fillRect(curRoom.p2.x , curRoom.p2.y , curRoom.p2.width , curRoom.p2.height);
-			ctx.fillStyle = "pink";
-			ctx.beginPath();
-			ctx.arc(curRoom.balls[0].x, curRoom.balls[0].y, curRoom.balls[0].size, 0, Math.PI*2);
-			ctx.fill();
+			//ctx.fillStyle = "pink";
+			//ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width * 1.3 , curRoom.p1.height * 1.05);
+			//ctx.fillRect(curRoom.p2.x * 0.9965 , curRoom.p2.y , curRoom.p2.width * 1.3 , curRoom.p2.height * 1.05);
+			//ctx.fillStyle = "purple";
+			//ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width , curRoom.p1.height);
+			//ctx.fillRect(curRoom.p2.x * 1.0020 , curRoom.p2.y , curRoom.p2.width , curRoom.p2.height);
+			//ctx.fillStyle = "pink";
+			//ctx.beginPath();
+			//ctx.arc(curRoom.balls[0].x, curRoom.balls[0].y, curRoom.balls[0].size, 0, Math.PI*2);
+			//ctx.fill();
+			paddle1.src = curRoom!.p1.paddleSrc;
+			paddle2.src = curRoom!.p2.paddleSrc;
+			ball.src = curRoom!.balls[0].ballSrc;
+
+			ctx.drawImage(paddle1, curRoom.p1.x, curRoom.p1.y + curRoom.p1.height/4, curRoom.p1.width * 1.5, curRoom.p1.height);
+			ctx.drawImage(paddle2, curRoom.p2.x - curRoom.p2.height / 10, curRoom.p2.y + curRoom.p1.height/4, curRoom.p2.width * 1.5, curRoom.p2.height);
+			ctx.drawImage(ball, curRoom.balls[0].x, curRoom.balls[0].y, curRoom.balls[0].size , curRoom.balls[0].size);
 			if (counter !== 0 && !curRoom.isOver) {
 				ctx.font = "50px Arial";
 				ctx.fillStyle = "purple";
@@ -90,7 +88,8 @@ export const Game = () => {
 		if ((moveUp && moveDown)) {
 			return;
 		}
-		else if (curRoom && isStart) {
+		else {
+			console.log("Movement emit");
 				socket!.emit("game", {
 					id: GameEvents.MOVE,
 					user: user,
@@ -101,8 +100,20 @@ export const Game = () => {
 		}
 	}
 
-	function handleKeyDown(e: KeyboardEvent) {
-		if (socket  && curRoom && user) {
+	function handleMouseDown() {
+		if (socket  && curRoom && user && !curRoom.isStart) {
+			socket.emit("game", {
+				id: GameEvents.START,
+				user: user,
+				roomId: curRoom!.id,
+				isPriv: curRoom!.isPriv,
+				direction: Directions.STATIC,
+			} as GamePacket);
+		}
+	};
+
+	function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+		if (socket  && curRoom && user && curRoom.isStart) {
 			if (e.key === 'w' && !moveUp) {
 				moveUp = true;
 				moveDown = false;
@@ -114,19 +125,10 @@ export const Game = () => {
 				emitMovement();
 			}
 		}
-		if (socket && e.key === " " && curRoom && !isStart) {
-			socket.emit("game", {
-				id: GameEvents.START,
-				user: user,
-				roomId: curRoom!.id,
-				isPriv: curRoom!.isPriv,
-				direction: Directions.STATIC,
-			} as GamePacket);
-		}
 	};
 
-	function handleKeyUp(e: KeyboardEvent) {
-		if (socket && curRoom && user) {
+	function handleKeyUp(e: React.KeyboardEvent<HTMLDivElement>) {
+		if (socket && curRoom && user && curRoom.isStart) {
 			if (e.key === 'w') {
 				moveUp = false;
 				emitMovement();
@@ -175,14 +177,23 @@ export const Game = () => {
 		}
 	}
 
+	function clearRoom() {
+		if (socket && curRoom) {
+			socket!.emit("game", {
+				id: GameEvents.CLEAR,
+				user: user,
+				roomId: curRoom.id,
+				isPriv: curRoom!.isPriv,
+			} as GamePacket);
+		}
+	}
+
 	socket?.off("retJoinRoom").on("retJoinRoom", function(ret: Room | null) {
 		if (ret === null) {
 			setWaitForPlay(true);
 		}
 		else {
-			console.log(ret.isPriv);
 			setCurRoom(ret);
-			isStart = ret.isStart;
 			setWaitForPlay(false);
 			setShowCanvas(true);
 			setShowGameResult(true);
@@ -195,12 +206,7 @@ export const Game = () => {
 		}
 		else {
 			setCurRoom(ret);
-			isStart = ret.isStart;
 			if (ret.isStart) {
-				document.removeEventListener('keydown', e => {handleKeyDown(e)});
-				document.removeEventListener('keyup', e => {handleKeyUp(e)});
-				document.addEventListener('keydown', e => {handleKeyDown(e)});
-				document.addEventListener('keyup', e => {handleKeyUp(e)});
 				setCounter(3);
 			}
 			draw();
@@ -212,33 +218,19 @@ export const Game = () => {
 			console.log("Problem in retRoomData");
 		else {
 			setCurRoom(ret);
-			isStart = ret.isStart;
 			draw();
 		}
 	})
-
-	function clearRoom() {
-		if (socket && curRoom) {
-			socket!.emit("game", {
-				id: GameEvents.CLEAR,
-				user: user,
-				roomId: curRoom.id,
-				isPriv: curRoom!.isPriv,
-			} as GamePacket);
-		}
-	}
- 
-	socket?.off("retClearRoom").on("retClearRoom", function() {
-		setCurRoom(null);
-		isStart = false;
-	})
-
+	
 	socket?.off("retGameOver").on("retGameOver", function(ret: Room | null) {
 		if (ret) {
 			setCounter(8);
 			setShowCanvas(false);
-			isStart = ret.isStart;
 		}
+	})
+	
+	socket?.off("retClearRoom").on("retClearRoom", function() {
+		setCurRoom(null);
 	})
 
 	return (
@@ -263,17 +255,17 @@ export const Game = () => {
 			}
 			if (curRoom) {
 				return (
-					<div>
+					<div onKeyDown={(e) => handleKeyDown(e)} onKeyUp={(e) => handleKeyUp(e)} onMouseDown={() => handleMouseDown()} tabIndex={-1}>
 					{
 						!curRoom.isOver ?
-						<div className="roomInfo">
+						<div className="roomInfo" >
 							<div className="playerCard">
 								<img className="playerAvatar" src={curRoom.p1.user.avatar} width="120px" alt=""></img>
 								<div className="playerInfo">
 									{curRoom.p1.user.login}
 								</div>
 								<div className="playerInfo">
-									{curRoom.p2.user ? curRoom.p1.isReady ? curRoom.p2.isReady ? counter === 0 ? curRoom.p1.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">press space</div> : <div className="pressSpace">room ID : {curRoom.id}</div>}
+									{curRoom.p2.user ? curRoom.p1.isReady ? curRoom.p2.isReady ? counter === 0 ? curRoom.p1.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">Click to start !</div> : <div className="pressSpace">room ID : {curRoom.id}</div>}
 								</div>
 							</div>
 							<div className="versus">VS</div>
@@ -283,7 +275,7 @@ export const Game = () => {
 									{curRoom.p2.user ? curRoom.p2.user.login : "invite a friend"}
 								</div>
 								<div className="playerInfo">
-									{curRoom.p2.user ? curRoom.p2.isReady ? curRoom.p1.isReady ? counter === 0 ? curRoom.p2.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">press space </div> : <div className="pressSpace">wait...</div>}
+									{curRoom.p2.user ? curRoom.p2.isReady ? curRoom.p1.isReady ? counter === 0 ? curRoom.p2.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">Click to start ! </div> : <div className="pressSpace">wait...</div>}
 								</div>
 							</div>
 						</div>
@@ -304,7 +296,7 @@ export const Game = () => {
 							</div>
 						</div>
 					}
-						<canvas className={showCanvas ? "" : "canvasHide"} ref={canvasRef} height={curRoom.height} width={curRoom.width} ></canvas>
+						<canvas className={showCanvas ? "" : "canvasHide"} ref={canvasRef} height={curRoom.height} width={curRoom.width}></canvas>
 					</div>);
 				}
 		})()}

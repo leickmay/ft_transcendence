@@ -27,9 +27,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 	}
 
-	handleDisconnect(client: Socket) {
-		this.gameService.rooms = new Array;
-		this.gameService.privRooms = new Array;
+	async handleDisconnect(client: Socket) {
+		this.gameService.handleGameDisconnection(await this.authService.verifyJwt(client.handshake.headers.authorization.replace('Bearer ', '')).login);
 	}
 
 	@SubscribeMessage('increment')

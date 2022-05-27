@@ -6,7 +6,7 @@ import { Directions, GameEvents, GamePacket, IPlayer, Room } from "./game.interf
 export class gameService {
 	rooms: Array<Room> = new Array;
 	privRooms: Array<Room> = new Array;
-	scoreMax: number = 1;
+	scoreMax: number = 10;
 	waitList: Array<User> = new Array;
 	waitListSocket: Array<Socket> = new Array;
 	raf: NodeJS.Timer;
@@ -40,6 +40,33 @@ export class gameService {
 			default:
 				break;
 		}
+	}
+
+	handleGameDisconnection(cliLogin: string) {
+		this.rooms.forEach((room: Room) => {
+			if (cliLogin === room.p1.user?.login || cliLogin === room.p2.user?.login) {
+				this.clearRoom({
+					id: GameEvents.CLEAR,
+					user: cliLogin === room.p1.user.login ? room.p1.user.login : room.p2.user.login,
+					roomId: room.id,
+					isPriv: room.isPriv,
+				} as GamePacket)
+				return;
+			}
+
+		});
+		this.privRooms.forEach((room: Room) => {
+			if (cliLogin === room.p1.user?.login || cliLogin === room.p2.user?.login) {
+				this.clearRoom({
+					id: GameEvents.CLEAR,
+					user: cliLogin === room.p1.user.login ? room.p1.user.login : room.p2.user.login,
+					roomId: room.id,
+					isPriv: room.isPriv,
+				} as GamePacket)
+				return;
+			}
+
+		});
 	}
 
 	joinWaitList(packet: GamePacket, client: Socket) {
@@ -134,7 +161,10 @@ export class gameService {
 
 	async startGame(packet: GamePacket) {
 		let room: Room = packet.isPriv ? this.privRooms[packet.roomId] : this.rooms[packet.roomId];
-		//console.log(packet);
+		//console.log(packet); 
+		if (!room) {
+			return;
+		}
 		if (!room.isStart && packet.user) {
 			if (!room.p1.isReady && packet.user.login === room.p1.user.login) {
 				packet.isPriv ? (this.privRooms[packet.roomId].p1.isReady = true) : (this.rooms[packet.roomId].p1.isReady = true);
@@ -233,25 +263,31 @@ export class gameService {
 		if (packet.user.login === room.p1.user.login) {
 			if (packet.direction === Directions.UP) {
 				room.p1.up = true;
+				room.p1.paddleSrc = './assets/images/paddle1Up.png';
 			}
 			else if (packet.direction === Directions.DOWN) {
 				room.p1.down = true;
+				room.p1.paddleSrc = './assets/images/paddle1Down.png';
 			}
 			else if (packet.direction === Directions.STATIC) {
 				room.p1.up = false;
 				room.p1.down = false;
+				room.p1.paddleSrc = './assets/images/paddle1.png';
 			}
 		}
 		else if (packet.user.login === room.p2.user.login) {
 			if (packet.direction === Directions.UP) {
 				room.p2.up = true;
+				room.p2.paddleSrc = './assets/images/paddle2Up.png';
 			}
 			else if (packet.direction === Directions.DOWN) {
 				room.p2.down = true;
+				room.p2.paddleSrc = './assets/images/paddle2Down.png';
 			}
 			else if (packet.direction === Directions.STATIC) {
 				room.p2.up = false;
 				room.p2.down = false;
+				room.p2.paddleSrc = './assets/images/paddle2.png';
 			}
 		}
 		packet.isPriv ? this.privRooms[packet.roomId] = room : this.rooms[packet.roomId] = room;
@@ -312,7 +348,7 @@ export class gameService {
 
 	handleCollisionTop(packet: GamePacket) {
 		let room: Room = packet.isPriv ? this.privRooms[packet.roomId] : this.rooms[packet.roomId];
-		if (room.balls[0].y - room.balls[0].size <= 0){
+		if (room.balls[0].y <= 0){
 			room.balls[0].speedY = Math.abs(room.balls[0].speedY);
 			packet.isPriv ? this.privRooms[packet.roomId] = room : this.rooms[packet.roomId] = room;
 		}
@@ -328,7 +364,7 @@ export class gameService {
 
 	handleCollisionLeft(packet: GamePacket) {
 		let room: Room = packet.isPriv ? this.privRooms[packet.roomId] : this.rooms[packet.roomId];
-		if (room.balls[0].x - room.balls[0].size + room.balls[0].speedX <= room.p1.x + room.p1.width && room.balls[0].x - room.balls[0].size + room.balls[0].speedX >= room.p1.x) {
+		if (room.balls[0].x + room.balls[0].speedX <= room.p1.x + room.p1.width && room.balls[0].x + room.balls[0].speedX >= room.p1.x) {
 			if (room.balls[0].y + room.balls[0].size + room.balls[0].speedY >= room.p1.y && room.balls[0].y - room.balls[0].size - room.balls[0].speedY <= room.p1.y + room.p1.height ) {
 				if (room.balls[0].speedX < -14)
 					room.balls[0].speedX *= -1;

@@ -133,6 +133,11 @@ textarea:active {
 	100% { color: $color-1; }
 }
 
+@keyframes appearRoomSearch {
+	0% {width: 0%; margin: 0px 50%;border: 0px inset $color-2;}
+	100% {width: 60%; margin: 30px 20%;border: 5px inset $color-1;}
+}
+
 @keyframes appearRoomInfo {
 	0% {width: 0%; margin: 0px 50%;border: 2px inset $color-2;}
 	99% {min-height: auto;}
