@@ -32,17 +32,20 @@ export const Game = () => {
 	useEffect(() => {
 		counter > 0 && setTimeout(() => setCounter(counter - 1), 1000);
 		draw();
-		if (counter === 4) {
+		if (counter === 3 && curRoom?.isOver) {
 			setShowGameResult(false);
+			//setCounter(0);
 		}
 		if (counter === 1 && curRoom?.isOver) {
 			clearRoom();
+			//setCounter(0);
 		}
-		if (counter === 1 && isStart) {
+		if (counter === 1 && !curRoom?.isOver && isStart) {
 			document.removeEventListener('keydown', e => {handleKeyDown(e)});
 			document.removeEventListener('keyup', e => {handleKeyUp(e)});
 			document.addEventListener('keydown', e => {handleKeyDown(e)});
 			document.addEventListener('keyup', e => {handleKeyUp(e)});
+			//setCounter(0);
 		}
 	}, [counter]);
 	
@@ -92,6 +95,7 @@ export const Game = () => {
 					id: GameEvents.MOVE,
 					user: user,
 					roomId: curRoom!.id,
+					isPriv: curRoom!.isPriv,
 					direction: moveUp ? Directions.UP : moveDown ? Directions.DOWN : Directions.STATIC,
 				} as GamePacket);
 		}
@@ -113,8 +117,10 @@ export const Game = () => {
 		if (socket && e.key === " " && curRoom && !isStart) {
 			socket.emit("game", {
 				id: GameEvents.START,
-				roomId: curRoom.id,
 				user: user,
+				roomId: curRoom!.id,
+				isPriv: curRoom!.isPriv,
+				direction: Directions.STATIC,
 			} as GamePacket);
 		}
 	};
@@ -138,8 +144,33 @@ export const Game = () => {
 			console.log("NO SOCKET OR USER !");
 		else if (!curRoom && !waitForPlay) {
 			socket!.emit("game", {
-				id: GameEvents.JOIN,
+				id: GameEvents.JOINRAND,
 				user: user,
+			} as GamePacket);
+		}
+	}
+
+	function createPrivRoom() {
+		if (!socket || !user)
+			console.log("NO SOCKET OR USER !");
+		else if (!curRoom && !waitForPlay) {
+			socket!.emit("game", {
+				id: GameEvents.CREATEPRIV,
+				user: user,
+			} as GamePacket);
+		}
+	}
+
+	function joinPrivRoom(e: React.KeyboardEvent<HTMLInputElement>) {
+		const target: HTMLInputElement = e.currentTarget;
+		if (!socket || !user)
+			console.log("NO SOCKET OR USER !");
+		else if (!curRoom && !waitForPlay && e.code === "Enter") {
+			socket!.emit("game", {
+				id: GameEvents.JOINPRIV,
+				user: user,
+				roomId: target ? target.value : -1,
+				isPriv: true,
 			} as GamePacket);
 		}
 	}
@@ -149,6 +180,7 @@ export const Game = () => {
 			setWaitForPlay(true);
 		}
 		else {
+			console.log(ret.isPriv);
 			setCurRoom(ret);
 			isStart = ret.isStart;
 			setWaitForPlay(false);
@@ -189,8 +221,9 @@ export const Game = () => {
 		if (socket && curRoom) {
 			socket!.emit("game", {
 				id: GameEvents.CLEAR,
-				roomId: curRoom.id,
 				user: user,
+				roomId: curRoom.id,
+				isPriv: curRoom!.isPriv,
 			} as GamePacket);
 		}
 	}
@@ -202,7 +235,7 @@ export const Game = () => {
 
 	socket?.off("retGameOver").on("retGameOver", function(ret: Room | null) {
 		if (ret) {
-			setCounter(9);
+			setCounter(8);
 			setShowCanvas(false);
 			isStart = ret.isStart;
 		}
@@ -216,7 +249,8 @@ export const Game = () => {
 					return (
 						<div className="buttonWindow">
 							<button onMouseDown={() => joinRoom()}>Search Match</button>
-							<button onMouseDown={() => joinRoom()}>Create private room</button>
+							<button onMouseDown={() => createPrivRoom()}>Create private room</button>
+							<input type="number" onKeyDown={joinPrivRoom} placeholder=" debug privRoom ID"/>
 						</div>);
 				}
 				if (waitForPlay) {
@@ -239,17 +273,17 @@ export const Game = () => {
 									{curRoom.p1.user.login}
 								</div>
 								<div className="playerInfo">
-									{curRoom.p1.isReady ? curRoom.p2.isReady ? counter === 0 ? curRoom.p1.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">press space</div>}
+									{curRoom.p2.user ? curRoom.p1.isReady ? curRoom.p2.isReady ? counter === 0 ? curRoom.p1.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">press space</div> : <div className="pressSpace">room ID : {curRoom.id}</div>}
 								</div>
 							</div>
 							<div className="versus">VS</div>
 								<div className="playerCard">
 								<img className="playerAvatar" src={curRoom.p2.user ? curRoom.p2.user.avatar : "https://t3.ftcdn.net/jpg/02/55/85/18/360_F_255851873_s0dXKtl0G9QHOeBvDCRs6mlj0GGQJwk2.jpg"} width="120px" alt=""></img>
 								<div className="playerInfo">
-									{curRoom.p2.user.login}
+									{curRoom.p2.user ? curRoom.p2.user.login : "invite a friend"}
 								</div>
 								<div className="playerInfo">
-									{curRoom.p2.isReady ? curRoom.p1.isReady ? counter === 0 ? curRoom.p2.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">press space</div>}
+									{curRoom.p2.user ? curRoom.p2.isReady ? curRoom.p1.isReady ? counter === 0 ? curRoom.p2.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">press space </div> : <div className="pressSpace">wait...</div>}
 								</div>
 							</div>
 						</div>

@@ -2,7 +2,9 @@ import { Socket } from "socket.io-client";
 import { User } from "./User";
 
 export enum GameEvents {
-	JOIN,
+	JOINRAND,
+	CREATEPRIV,
+	JOINPRIV,
 	START,
 	OVER,
 	CLEAR,
@@ -19,7 +21,8 @@ export interface GamePacket {
 	id: number;
 	user: User;
 	roomId: number;
-	direction: Directions,
+	isPriv: boolean;
+	direction: Directions;
 }
 
 interface Entity {
@@ -55,6 +58,7 @@ export interface Room {
 	id: number;
 	height: number;
 	width: number;
+	isPriv: boolean;
 	isFull: boolean;
 	isStart: boolean;
 	isOver: boolean;

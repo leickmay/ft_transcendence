@@ -2,7 +2,9 @@ import { Socket } from "socket.io";
 import { User } from "../../user/user.entity";
 
 export enum GameEvents {
-	JOIN,
+	JOINRAND,
+	CREATEPRIV,
+	JOINPRIV,
 	START,
 	OVER,
 	CLEAR,
@@ -19,7 +21,8 @@ export interface GamePacket {
 	id: number;
 	user: User;
 	roomId: number;
-	direction: Directions,
+	isPriv: boolean;
+	direction: Directions;
 }
 
 interface IEntity {
@@ -31,8 +34,8 @@ interface IEntity {
 
 export interface IPlayer extends IEntity {
 	user: User;
-	isReady: boolean;
 	socket: Socket;
+	isReady: boolean;
 	speed: number;
 	up: boolean;
 	down: boolean;
@@ -56,6 +59,7 @@ interface IRoom {
 	id: number;
 	height: number;
 	width: number;
+	isPriv: boolean;
 	isFull: boolean;
 	isStart: boolean;
 	isOver: boolean;
@@ -70,14 +74,15 @@ export class Room implements IRoom {
 	id = -1;
 	height = 1080;
 	width = 1920;
+	isPriv = false;
 	isFull = false;
 	isStart= false;
 	isOver = false;
 
 	p1 = {
 		user: null,
-		isReady: false,
 		socket: null,
+		isReady: false,
 		speed : 12,
 		up : false,
 		down : false,
@@ -92,8 +97,8 @@ export class Room implements IRoom {
 
 	p2 = {
 		user: null,
-		isReady: false,
 		socket: null,
+		isReady: false,
 		speed : 12,
 		up : false,
 		down : false,

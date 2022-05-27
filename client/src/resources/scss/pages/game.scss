@@ -45,9 +45,18 @@
 				border: 3px inset $color-4;
 			}
 		}
+		
+		input {
+			animation-name: appearBtn, appearText;
+			animation-duration: 1s;
+			animation-iteration-count: 1;
+			animation-timing-function: ease-in-out;
+			animation-fill-mode: forwards;
+		}
 	}
 
 	canvas {
+		background: rgba(0, 0, 0);
 		border: 2px solid $color-2;
 		top: 100px;
 		bottom: 100px;

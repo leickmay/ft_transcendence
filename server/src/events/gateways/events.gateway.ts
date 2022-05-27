@@ -29,6 +29,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	handleDisconnect(client: Socket) {
 		this.gameService.rooms = new Array;
+		this.gameService.privRooms = new Array;
 	}
 
 	@SubscribeMessage('increment')
