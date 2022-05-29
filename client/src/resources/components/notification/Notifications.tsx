@@ -6,17 +6,13 @@ interface Props {
 }
 
 export const Notifications = (props: Props) => {
-	const notifications = useSelector((state: RootState) => state.notifications.visibles);
+	const notifications = useSelector((state: RootState) => state.notifications.actives);
 
 	return (
-		<div id="notification" style={{
-			position: 'fixed',
-			right: 0,
-			top: 0,
-		}}>
-			{
-				notifications.map(n => (<Notification key={n.id} text={n.message}></Notification>))
-			}
+		<div id="notifications">
+			{notifications.map(n => (
+				<Notification key={n.id} visible={n.visible} text={n.message}></Notification>
+			))}
 		</div>
 	)
 }

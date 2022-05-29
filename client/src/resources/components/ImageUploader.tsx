@@ -1,8 +1,13 @@
+import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import React, { useCallback } from "react";
 import { useCookies } from "react-cookie";
+import { useDispatch } from "react-redux";
+import { pushNotification } from "../../app/actions/notificationsActions";
+import { RootState } from "../../app/store";
 
 export function ImageUploader() {
 	const [cookies] = useCookies();
+	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 
 	const getHeaders = useCallback(async (): Promise<HeadersInit> => {
 		const token = cookies.access_token;
@@ -17,11 +22,11 @@ export function ImageUploader() {
 		let formData = new FormData();
 
 		if (!file) {
-			// store.dispatch(alertType("File is missing !"));
+			dispatch(pushNotification('A file is required'));
 		} else if (file.size > 2000000) {
-			// store.dispatch(alertType("File size is limited to 2MB"));
+			dispatch(pushNotification('The file size is limited to 2MB'));
 		} else if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
-			// store.dispatch(alertType("Please upload a PNG or JPEG image only"));
+			dispatch(pushNotification('Only images of type JPEG or PNG are accepted'));
 		} else {
 			formData.set('avatar', file);
 
@@ -31,7 +36,7 @@ export function ImageUploader() {
 				body: formData,
 			}).then((response) => {
 				if (!response.ok) {
-					// store.dispatch(alertType("Avatar upload failed"));
+					dispatch(pushNotification('Upload failed'));
 				}
 			}).catch((error) => {
 				console.log("Error : ", error);

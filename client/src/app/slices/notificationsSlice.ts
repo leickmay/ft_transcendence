@@ -2,42 +2,52 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface State {
 	next: number,
-	visibles: Array<{
+	duration: number,
+	actives: Array<{
 		id: number,
 		message: string,
+		visible: boolean,
 	}>;
 }
 
 const initialState: State = {
 	next: 0,
-	visibles: [],
+	duration: 4000,
+	actives: [],
 }
 
 const slice = createSlice({
 	name: 'alerts',
 	initialState,
 	reducers: {
-		pushNotification: (state: State, action: PayloadAction<string>): State => {
+		addNotification: (state: State, data: PayloadAction<string>): State => {
 			return {
 				...state,
 				next: state.next + 1,
-				visibles: [
+				actives: [
 					{
 						id: state.next,
-						message: action.payload,
+						message: data.payload,
+						visible: true,
 					},
-					...state.visibles,
+					...state.actives,
 				],
+			}
+		},
+		hideNotification: (state: State, data: PayloadAction<number>) => {
+			return {
+				...state,
+				actives: state.actives.map(n => n.id == data.payload ? {...n, visible: false} : n),
 			}
 		},
 		popNotification: (state: State) => {
 			return {
 				...state,
-				visibles: state.visibles.slice(0, state.visibles.length - 1),
+				actives: state.actives.slice(0, state.actives.length - 1),
 			}
 		},
 	}
 });
 
-export const { pushNotification, popNotification } = slice.actions;
+export const { addNotification, hideNotification, popNotification } = slice.actions;
 export default slice.reducer;

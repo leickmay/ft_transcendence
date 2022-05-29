@@ -1,11 +1,13 @@
+import { useEffect, useState } from "react"
 
 interface Props {
 	text: string,
+	visible: boolean,
 }
 
 export const Notification = (props: Props) => {
 	return (
-		<div>
+		<div className={'overlay ' + (props.visible ? 'show' : '')}>
 			<span>{props.text}</span>
 		</div>
 	)
