@@ -1,6 +1,8 @@
+import { useContext } from "react";
 import { useCookies } from "react-cookie";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import { SocketContext } from "../../app/context/socket";
 import { logout } from "../../app/Helpers";
 import { User } from "../../app/interfaces/User";
 import { RootState } from "../../app/store";
@@ -11,6 +13,7 @@ interface Props {
 
 export const UserCard = (props: Props) => {
 	const navigate = useNavigate();
+	const socket = useContext(SocketContext);
 	const [,, removeCookie] = useCookies(['access_token']);	
 	const user = useSelector((state: RootState) => state.users.current);
 
@@ -21,7 +24,7 @@ export const UserCard = (props: Props) => {
 				<h4>{ user?.name || '...' }</h4>
 				<h5>lvl { /*user.level */ 0 }</h5>
 				{/* To change */}
-				<div className="btn" onClick={() => {logout(removeCookie, navigate)}}></div>
+				<div className="btn" onClick={() => {logout(removeCookie, navigate, socket)}}></div>
 			</div>
 		</div>
 	);

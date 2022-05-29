@@ -38,7 +38,7 @@ export function Connected(props: Props) {
 				}
 			}
 			if (!res.ok) {
-				logout(removeCookie, navigate);
+				logout(removeCookie, navigate, socket);
 				throw res.statusText;
 			}
 
