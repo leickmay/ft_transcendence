@@ -37,7 +37,7 @@ const slice = createSlice({
 		hideNotification: (state: State, data: PayloadAction<number>) => {
 			return {
 				...state,
-				actives: state.actives.map(n => n.id == data.payload ? {...n, visible: false} : n),
+				actives: state.actives.map(n => n.id === data.payload ? {...n, visible: false} : n),
 			}
 		},
 		popNotification: (state: State) => {

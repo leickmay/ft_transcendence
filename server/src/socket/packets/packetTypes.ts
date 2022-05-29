@@ -2,23 +2,23 @@ export enum PacketTypesMisc {
 	TOTP = 1,
 	FRIENDS,
 	PLAYER_MOVE,
+	SEARCH_USER,
 }
 
 export enum PacketTypesUser {
-	CONNECTION = 101,
-	DISCONNECTED,
-	UPDATE,
+	USER_CONNECTION = 101,
+	USER_DISCONNECTED,
+	USER_UPDATE,
 }
 
 export enum PacketTypesChat {
 	COMMAND = 201,
-    MESSAGE,
-    LIST,
+	MESSAGE,
 	CREATE,
-    JOIN,
+	JOIN,
 	UP,
-    QUIT,
-    DELETE,
+	LEAVE,
+	DELETE,
 }
 
 export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat;

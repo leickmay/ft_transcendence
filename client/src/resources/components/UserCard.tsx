@@ -20,7 +20,7 @@ export const UserCard = (props: Props) => {
 	return (
 		<div className="user-card overlay">
 			<img src={user?.avatar || 'https://cdn.intra.42.fr/users/scros.jpg'} width="75px" height="75px" alt=""></img>
-			<div> 
+			<div>
 				<h4>{ user?.name || '...' }</h4>
 				<h5>lvl { /*user.level */ 0 }</h5>
 				{/* To change */}

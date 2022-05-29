@@ -6,6 +6,12 @@ export interface User {
 	totp?: boolean | string;
 }
 
+export interface UserPreview {
+	id: number;
+	login: string;
+	name: string;
+}
+
 export type UpdateUserDto = Partial<User> & { id: number };
 
 export function containsUser(users: Array<User>, user: User): boolean {

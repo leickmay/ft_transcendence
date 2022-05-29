@@ -6,7 +6,7 @@ import { RootState } from '../../app/store';
 interface Props {
 }
 
-export function Loader(props: Props) {
+export const Loader = (props: Props) => {
 	const [loadingElement, setLoadingElement] = useState<ReactElement>();
 
 	const ready = useSelector((state: RootState) => state.socket.ready);

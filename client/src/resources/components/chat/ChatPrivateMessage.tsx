@@ -3,8 +3,7 @@ import { useSelector } from "react-redux";
 import store from "../../../app/store";
 import { hideDivById } from "../../pages/Chat";
 
-const ChatPrivateMessage = () => {
-
+export const ChatPrivateMessage = () => {
 	const [usersOnline, setUsersOnline] = useState(store.getState().users.online);
 
 	const alertUsersOnline = useSelector(() => store.getState().users.online);
@@ -38,5 +37,3 @@ const ChatPrivateMessage = () => {
 		</div>
 	);
 };
-
-export default ChatPrivateMessage;

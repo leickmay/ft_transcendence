@@ -1,0 +1,42 @@
+@import "../variables";
+
+#friends {
+	width: 100%;
+	background-color: rgba($overlay, $overlay-opacity);
+
+	&>section {
+		display: flex;
+		width: 100%;
+		flex-wrap: wrap;
+
+		&>div {
+			padding: 20px;
+			border: 1px solid $primary;
+			flex: 1;
+
+			&>h3 {
+				margin-top: 0;
+				text-align: center;
+			}
+
+			&.add-friend {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+
+				span.online {
+					color: green;
+				}
+
+				span.offline {
+					color: red;
+				}
+			}
+
+			&.friends {
+				flex: 1;
+				flex-basis: 400px;
+			}
+		}
+	}
+}

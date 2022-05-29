@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { pushNotification } from "../../app/actions/notificationsActions";
 import { RootState } from "../../app/store";
 
-export function ImageUploader() {
+export const ImageUploader = () => {
 	const [cookies] = useCookies();
 	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 

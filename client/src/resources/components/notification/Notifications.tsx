@@ -10,9 +10,9 @@ export const Notifications = (props: Props) => {
 
 	return (
 		<div id="notifications">
-			{notifications.map(n => (
+			{notifications.map(n =>
 				<Notification key={n.id} visible={n.visible} text={n.message}></Notification>
-			))}
+			)}
 		</div>
 	)
 }
