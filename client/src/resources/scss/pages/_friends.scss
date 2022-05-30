@@ -23,14 +23,6 @@
 				display: flex;
 				flex-direction: column;
 				align-items: center;
-
-				span.online {
-					color: green;
-				}
-
-				span.offline {
-					color: red;
-				}
 			}
 
 			&.friends {
