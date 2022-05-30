@@ -1,4 +1,4 @@
-import { Socket } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { User } from "../../user/user.entity";
 
 export enum GameEvents {
@@ -34,7 +34,6 @@ interface IEntity {
 
 export interface IPlayer extends IEntity {
 	user: User;
-	socket: Socket;
 	isReady: boolean;
 	speed: number;
 	up: boolean;
@@ -58,6 +57,7 @@ export interface IBall extends IEntity {
 
 interface IRoom {
 	id: number;
+	raf: NodeJS.Timer;
 	height: number;
 	width: number;
 	isPriv: boolean;
@@ -68,11 +68,11 @@ interface IRoom {
 	p2: IPlayer;
 	balls: Array<IBall>;
 	spectators: Array<ISpectator>;
-	sockets: Map<any, any>;
 }
 
 export class Room implements IRoom {
 	id = -1;
+	raf = null;
 	height = 1080;
 	width = 1920;
 	isPriv = false;
@@ -82,15 +82,14 @@ export class Room implements IRoom {
 
 	p1 = {
 		user: null,
-		socket: null,
 		isReady: false,
 		speed : 12,
 		up : false,
 		down : false,
 		score : 0,
 		paddleSrc: './assets/images/paddle1.png',
-		height : this.height / 4,
-		width : this.width / 40,
+		height : (this.height / 4),
+		width : (this.width / 40),
 		baseX : this.width / 200,
 		baseY : this.height / 2 - ((this.height / 4) / 2),
 		x : this.width / 200,
@@ -99,32 +98,38 @@ export class Room implements IRoom {
 
 	p2 = {
 		user: null,
-		socket: null,
 		isReady: false,
 		speed : 12,
 		up : false,
 		down : false,
 		score : 0,
 		paddleSrc: './assets/images/paddle2.png',
-		height : this.height / 4,
-		width : this.width / 40,
-		baseX : this.width / 1.03,
+		height : (this.height / 4),
+		width : (this.width / 40),
+		baseX : this.width / 1.035,
 		baseY : this.height / 2 - ((this.height / 4) / 2),
-		x : this.width / 1.03,
+		x : this.width / 1.035,
 		y : this.height / 2 - ((this.height / 4) / 2),
 	};
 
 	balls = [{
 		ballSrc: './assets/images/ball.png',
-		size: this.height / 10,
+		size: this.height / 80,
 		speedX: 0,
 		speedY: 0,
-		baseX: this.width / 2 - ((this.height / 10) / 2),
-		baseY: this.height / 2 - ((this.height / 10) / 2),
-		x: this.width / 2 - ((this.height / 10) / 2),
-		y: this.height / 2 - ((this.height / 10) / 2),
+		baseX: this.width / 2 - ((this.height / 80) / 2),
+		baseY: this.height / 2 - ((this.height / 80) / 2),
+		x: this.width / 2 - ((this.height / 80) / 2),
+		y: this.height / 2 - ((this.height / 80) / 2),
 	}];
 
 	spectators = new Array;
-	sockets = new Map;
+
+	registerSocket(client: Socket): void {
+		client.join(this.id.toString());
+	}
+
+	emitToAll(server: Server, key: string ,data: Room): void {
+		server.to(this.id.toString()).emit(key, data);
+	}
 }

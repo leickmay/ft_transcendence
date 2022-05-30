@@ -65,25 +65,21 @@
 		}
 	}
 
-	canvas {
-		background: rgba(0, 0, 0);
+	.canvas {
+		background: rgba(0, 0, 0, 0);
 		border: 2px solid $color-2;
 		top: 100px;
 		bottom: 100px;
-		animation-name: appearCvs;
+		margin: 500px 0px 0px 0px;
+		animation-name: none;
 		animation-duration: 1s;
 		animation-iteration-count: 1;
 		animation-timing-function: ease-in-out;
+		animation-fill-mode: forwards;
 		//animation-direction: reverse;
-		transition: all 1s ease-in-out;
-		opacity: 1;
-		width: 100%;
-	}
-
-	.canvasHide {
-		margin: -500px 0px 0px 0px;
+		//transition: all 1s ease-in-out;
 		opacity: 0;
-		transition: all 1s ease-in-out;
+		width: 100%;
 	}
 
 	.roomInfo {

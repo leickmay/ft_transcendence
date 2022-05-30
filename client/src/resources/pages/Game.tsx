@@ -7,6 +7,7 @@ import { Directions, GameEvents, GamePacket, Room } from "../../app/interfaces/G
 
 let canvas: HTMLCanvasElement | null = null;
 let ctx: CanvasRenderingContext2D | null = null;
+let background: HTMLImageElement = new Image();
 let ball: HTMLImageElement = new Image();
 let paddle1: HTMLImageElement = new Image();
 let paddle2: HTMLImageElement = new Image();
@@ -20,7 +21,6 @@ export const Game = () => {
 	const [curRoom, setCurRoom] = useState<Room | null>();
 	const [counter, setCounter] = useState<number>(0);
 	const [waitForPlay, setWaitForPlay] = useState<boolean>(false);
-	const [showCanvas, setShowCanvas] = useState<boolean>(true);
 	const [showGameResult, setShowGameResult] = useState<boolean>(true);
 	
 	let moveUp: boolean = false;
@@ -29,6 +29,7 @@ export const Game = () => {
 	useEffect(() => {
 		if (curRoom?.isFull) {
 			initGame();
+			draw();
 		}
 	}, [curRoom?.isFull]);
 
@@ -43,21 +44,20 @@ export const Game = () => {
 		}
 	}, [counter]);
 	
-	function initGame() {
+	async function initGame() {
 			canvas = canvasRef.current;
 			if (!canvas)
 				return ;
 			ctx = canvas!.getContext('2d');
-			ball.src = curRoom!.balls[0].ballSrc;
 			paddle1.src = curRoom!.p1.paddleSrc;
 			paddle2.src = curRoom!.p2.paddleSrc;
-			draw();
+			ball.src = curRoom!.balls[0].ballSrc;
 	}
 
 	const draw = () => {
 		if (ctx && curRoom) {
-			ctx.fillStyle = "black";
-			ctx.fillRect(0, 0, curRoom.width, curRoom.height);
+			//ctx.fillStyle = "black";
+			//ctx.fillRect(0, 0, curRoom.width, curRoom.height);
 			//ctx.fillStyle = "pink";
 			//ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width * 1.3 , curRoom.p1.height * 1.05);
 			//ctx.fillRect(curRoom.p2.x * 0.9965 , curRoom.p2.y , curRoom.p2.width * 1.3 , curRoom.p2.height * 1.05);
@@ -68,35 +68,37 @@ export const Game = () => {
 			//ctx.beginPath();
 			//ctx.arc(curRoom.balls[0].x, curRoom.balls[0].y, curRoom.balls[0].size, 0, Math.PI*2);
 			//ctx.fill();
-			paddle1.src = curRoom!.p1.paddleSrc;
-			paddle2.src = curRoom!.p2.paddleSrc;
-			ball.src = curRoom!.balls[0].ballSrc;
-
-			ctx.drawImage(paddle1, curRoom.p1.x, curRoom.p1.y + curRoom.p1.height/4, curRoom.p1.width * 1.5, curRoom.p1.height);
-			ctx.drawImage(paddle2, curRoom.p2.x - curRoom.p2.height / 10, curRoom.p2.y + curRoom.p1.height/4, curRoom.p2.width * 1.5, curRoom.p2.height);
-			ctx.drawImage(ball, curRoom.balls[0].x, curRoom.balls[0].y, curRoom.balls[0].size , curRoom.balls[0].size);
-			if (counter !== 0 && !curRoom.isOver) {
+			background.src = './assets/images/background.png'
+			ctx.drawImage(background, 0, 0, curRoom.width, curRoom.height);
+			if (counter !== 0 && curRoom.isStart && !curRoom.isOver) {
 				ctx.font = "50px Arial";
 				ctx.fillStyle = "purple";
 				ctx.fillText("Start in " + (counter - 1) + " seconds", curRoom.width / 2.5, curRoom.height / 1.8);
 			}
+			paddle1.src = curRoom.p1.paddleSrc;
+			ctx.drawImage(paddle1, curRoom.p1.x * 0.20, curRoom.p1.y * 0.98, curRoom.p1.width * 1.6, curRoom.p1.height * 1.1);
+			
+			paddle2.src = curRoom.p2.paddleSrc;
+			ctx.drawImage(paddle2, curRoom.p2.x * 0.993, curRoom.p2.y * 0.98, curRoom.p2.width * 1.6, curRoom.p2.height * 1.1);
+			
+			ball.src = curRoom.balls[0].ballSrc;
+			ctx.drawImage(ball, curRoom.balls[0].x * 0.95, curRoom.balls[0].y * 0.91, curRoom.balls[0].size * 7 , curRoom.balls[0].size * 7);
 		}
 
 	}
 
 	function emitMovement() {
-		if ((moveUp && moveDown)) {
+		if (moveUp && moveDown) {
 			return;
 		}
 		else {
-			console.log("Movement emit");
-				socket!.emit("game", {
-					id: GameEvents.MOVE,
-					user: user,
-					roomId: curRoom!.id,
-					isPriv: curRoom!.isPriv,
-					direction: moveUp ? Directions.UP : moveDown ? Directions.DOWN : Directions.STATIC,
-				} as GamePacket);
+			socket!.emit("game", {
+				id: GameEvents.MOVE,
+				user: user,
+				roomId: curRoom!.id,
+				isPriv: curRoom!.isPriv,
+				direction: moveUp ? Directions.UP : moveDown ? Directions.DOWN : Directions.STATIC,
+			} as GamePacket);
 		}
 	}
 
@@ -114,13 +116,11 @@ export const Game = () => {
 
 	function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
 		if (socket  && curRoom && user && curRoom.isStart) {
-			if (e.key === 'w' && !moveUp) {
+			if (e.key === 'w') {
 				moveUp = true;
-				moveDown = false;
 				emitMovement();
 			}
-			if (e.key === 's' && !moveDown) {
-				moveUp = false;
+			if (e.key === 's') {
 				moveDown = true;
 				emitMovement();
 			}
@@ -138,7 +138,7 @@ export const Game = () => {
 				emitMovement();
 			}
 		}
-		
+	
 	};
 
 	function joinRoom() {
@@ -195,8 +195,9 @@ export const Game = () => {
 		else {
 			setCurRoom(ret);
 			setWaitForPlay(false);
-			setShowCanvas(true);
+			//setShowCanvas(true);
 			setShowGameResult(true);
+			//draw();
 		}
 	})
 
@@ -208,8 +209,9 @@ export const Game = () => {
 			setCurRoom(ret);
 			if (ret.isStart) {
 				setCounter(3);
+				canvas = canvasRef.current;
+				canvas!.style.animationName = "appearCvs";
 			}
-			draw();
 		}
 	})
 
@@ -224,8 +226,11 @@ export const Game = () => {
 	
 	socket?.off("retGameOver").on("retGameOver", function(ret: Room | null) {
 		if (ret) {
+			setCurRoom(ret);
 			setCounter(8);
-			setShowCanvas(false);
+			canvas = canvasRef.current;
+			canvas!.style.animationName = "hideCvs";
+
 		}
 	})
 	
@@ -296,7 +301,19 @@ export const Game = () => {
 							</div>
 						</div>
 					}
-						<canvas className={showCanvas ? "" : "canvasHide"} ref={canvasRef} height={curRoom.height} width={curRoom.width}></canvas>
+					{
+						curRoom.isStart ?
+						<div></div>
+						:
+						curRoom.isOver ?
+						<div></div>
+						:
+						<div className="roomSearchMatch">
+							<div>wait for player</div>
+							<div className="spinner-grow" role="status"></div>
+						</div>
+					}
+					<canvas className="canvas" ref={canvasRef} height={curRoom.height} width={curRoom.width}></canvas>
 					</div>);
 				}
 		})()}

@@ -20,6 +20,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	async handleConnection(client: Socket, ...args: any[]) {
 		try {
 			console.log('socket:', await this.authService.verifyJwt(client.handshake.headers.authorization.replace('Bearer ', '')));
+			this.gameService.handleGameConnection( await this.authService.verifyJwt(client.handshake.headers.authorization.replace('Bearer ', '')).login, client, this.server)
 		} catch (e) {
 			client.emit('error', new UnauthorizedException());
 			client.disconnect();
@@ -28,7 +29,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	}
 
 	async handleDisconnect(client: Socket) {
-		this.gameService.handleGameDisconnection(await this.authService.verifyJwt(client.handshake.headers.authorization.replace('Bearer ', '')).login);
+		this.gameService.handleGameDisconnection(await this.authService.verifyJwt(client.handshake.headers.authorization.replace('Bearer ', '')).login, this.server);
 	}
 
 	@SubscribeMessage('increment')
@@ -39,7 +40,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('game')
 	handleGame(@MessageBody() packet: GamePacket, @ConnectedSocket() client: Socket) {
-		this.gameService.gameListener(packet, client);
+		this.gameService.gameListener(packet, client, this.server);
 	}
 
 }

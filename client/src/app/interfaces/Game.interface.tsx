@@ -57,6 +57,7 @@ export interface Ball extends Entity {
 
 export interface Room {
 	id: number;
+	raf: NodeJS.Timer;
 	height: number;
 	width: number;
 	isPriv: boolean;
@@ -67,5 +68,4 @@ export interface Room {
 	p2: Player;
 	balls: Array<Ball>;
 	spectators: Array<Spectator>;
-	sockets: Map<any, any>;
 }
