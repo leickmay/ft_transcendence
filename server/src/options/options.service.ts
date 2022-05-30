@@ -33,11 +33,15 @@ export class OptionsService {
 	}
 
 	async optionHandler(packet: PacketPlayInOptionUpdate, user: User): Promise<void> {
-		let validated = {};
-		if (packet.options['name'])
-			user.name = validated['name'] = packet.options['name'];
+		let validated: Partial<User> = {};
+		if (typeof packet.options['name'] === 'string') {
+			let name: string = packet.options['name'];
+			name = name.replace(/ +/, ' ').trim();
+			if (name.length <= 20 && /^[A-Za-zÀ-ÖØ-öø-ÿ]+(( |-)?[A-Za-zÀ-ÖØ-öø-ÿ]+)*$/.test(name))
+				validated.name = name;
+		}
 
-		await user.save();
+		await User.update(user.id, validated);
 		this.eventService.getServer()?.emit('user', new PacketPlayOutUserUpdate({
 			id: user.id,
 			...validated,

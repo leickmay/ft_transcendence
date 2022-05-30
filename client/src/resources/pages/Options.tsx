@@ -16,9 +16,9 @@ export const Options = () => {
 	const dispatch: Dispatch<AnyAction> = useDispatch();
 
 	useEffect(() => {
-		if (user && name === undefined)
+		if (user?.name)
 			setName(user.name);
-	}, [user, name]);
+	}, [user?.name]);
 
 	const newTotp = (): void => {
 		socket?.emit('user', new PacketPlayOutTotp());
@@ -30,7 +30,10 @@ export const Options = () => {
 
 	const validateName = (event: KeyboardEvent<HTMLInputElement>): void => {
 		if ((event.key === 'Enter' || event.keyCode === 13) && name && name !== user?.name) {
-			socket?.emit('user', new PacketPlayOutUserUpdate({ name: name }));
+			if (!event.currentTarget.checkValidity())
+				event.currentTarget.reportValidity();
+			else
+				socket?.emit('user', new PacketPlayOutUserUpdate({ name: name }));
 		}
 	};
 
@@ -59,7 +62,7 @@ export const Options = () => {
 			<h2>Choose your Avatar</h2>
 			<ImageUploader />
 			<h2>Change your username</h2>
-			<input className='border-primary' type="text" value={name ?? ''} onChange={newName} onKeyDown={validateName} />
+			<input maxLength={20} pattern="^[A-Za-zÀ-ÖØ-öø-ÿ]+(( |-)?[A-Za-zÀ-ÖØ-öø-ÿ]+)*$" className='border-primary' type="text" value={name ?? ''} onChange={newName} onKeyDown={validateName} />
 			<h2>Two factor authentification</h2>
 			<button className='border-primary' onClick={newTotp}>{!user?.totp ? 'Enable ' : 'Disable '}2fa</button>
 			{getTotp()}
