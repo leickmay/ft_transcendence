@@ -6,9 +6,9 @@ export enum PacketTypesMisc {
 }
 
 export enum PacketTypesUser {
-	USER_CONNECTION = 101,
-	USER_DISCONNECTED,
-	USER_UPDATE,
+	CONNECTION = 101,
+	DISCONNECTED,
+	UPDATE,
 }
 
 export enum PacketTypesChat {

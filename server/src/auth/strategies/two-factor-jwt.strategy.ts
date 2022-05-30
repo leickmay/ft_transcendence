@@ -18,7 +18,7 @@ export class TwoFactorJwtStrategy extends PassportStrategy(Strategy, 'two-factor
 		});
 	}
 
-	async validate(payload: any): Promise<User> {
+	async validate(payload: any): Promise<User | null> {
 		if (payload.restricted) {
 			throw new TotpException();
 		}

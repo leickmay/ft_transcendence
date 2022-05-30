@@ -11,19 +11,19 @@ import { User } from './user.entity';
 export class UserService {
 	constructor() {}
 
-	async create(data: CreateUserDto) : Promise<User> {
+	async create(data: CreateUserDto) : Promise<User | null> {
 		return await User.create(data as any).save();
 	}
 
-	async get(id: number) : Promise<User> {
+	async get(id: number) : Promise<User | null> {
 		return await User.findOneBy({id});
 	}
 
-	async getById42(id42: number) : Promise<User> {
+	async getById42(id42: number) : Promise<User | null> {
 		return await User.findOneBy({id42});
 	}
 
-	async getByLogin(login: string, options?: FindOneOptions<User>) : Promise<User> {
+	async getByLogin(login: string, options?: FindOneOptions<User>) : Promise<User | null> {
 		return await User.findOne({
 			...options,
 			where: {
@@ -32,13 +32,13 @@ export class UserService {
 		});
 	}
 
-	async setName(user: User, data: UpdateUserNameDto): Promise<User> {
+	async setName(user: User, data: UpdateUserNameDto): Promise<User | null> {
 		// to change when typeorm update to 0.3.7
 		return await User.merge(user, data as any).save();
 	}
 
-	async toggleTotp(user: User): Promise<string | undefined> {
-		let totp: OTPAuth.TOTP;
+	async toggleTotp(user: User): Promise<string | null> {
+		let totp: OTPAuth.TOTP | null = null;
 		if (!user.totp) {
 			totp = new OTPAuth.TOTP({
 				issuer: 'Stonks Pong 3000',
@@ -48,12 +48,13 @@ export class UserService {
 				period: 30,
 			});
 		}
+		// @ts-ignore
 		user.totp = totp?.secret.base32 || null;
 		await user.save();
-		return totp?.toString();
+		return totp?.toString() || null;
 	}
 
-	async setAvatar(user: User, data: UpdateUserAvatarDto): Promise<User> {
+	async setAvatar(user: User, data: UpdateUserAvatarDto): Promise<User | null> {
 		user.avatar = Promise.resolve(await Image.merge(await user.avatar || new Image(), data.avatar).save());
 		return await user.save();
 	}

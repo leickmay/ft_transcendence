@@ -1,5 +1,3 @@
-import { PickType } from "@nestjs/swagger";
-import { User } from "src/user/user.entity";
 import { DeclarePacket, PacketTypesMisc } from "./packetTypes";
 
 @DeclarePacket(PacketTypesMisc.SEARCH_USER)

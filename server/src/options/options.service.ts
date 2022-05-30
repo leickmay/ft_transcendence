@@ -38,14 +38,14 @@ export class OptionsService {
 			user.name = validated['name'] = packet.options['name'];
 
 		await user.save();
-		this.eventService.getServer().emit('user', new PacketPlayOutUserUpdate({
+		this.eventService.getServer()?.emit('user', new PacketPlayOutUserUpdate({
 			id: user.id,
 			...validated,
 		}));
 	}
 
 	async totpHandler(packet: PacketPlayInTotp, user: User): Promise<void> {
-		let url: string | undefined;
+		let url: string | null;
 		url = await this.userService.toggleTotp(user);
 		user.send('user', new PacketPlayOutUserUpdate({
 			id: user.id,

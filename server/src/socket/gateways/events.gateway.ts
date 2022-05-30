@@ -4,6 +4,7 @@ import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { ChatService } from 'src/chat/chat.service';
 import { OptionsService } from 'src/options/options.service';
+import { SearchService } from 'src/search/search.service';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { EventsService } from '../events.service';
@@ -26,6 +27,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		private userService: UserService,
 		@Inject(forwardRef(() => OptionsService))
 		private optionsService: OptionsService,
+		@Inject(forwardRef(() => SearchService))
+		private searchService: SearchService,
 		private chatService: ChatService,
 	) { }
 
@@ -36,14 +39,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	async handleConnection(client: Socket) {
 		try {
 			let jwt = await this.authService.verifyJwt(
-				client.handshake.headers.authorization.replace('Bearer ', '')
+				client.handshake.headers.authorization?.replace('Bearer ', '') || ''
 			);
 
 			if (jwt.restricted) {
 				throw Error('Operation not permited');
 			}
 
-			const user: User = await this.userService.get(jwt.id);
+			const user: User | null = await this.userService.get(jwt.id);
 			if (!user || Object.values(this.eventsService.users).find(e => e.id === user.id)) {
 				throw Error('Already connected');
 			}
@@ -81,5 +84,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		if (!user)
 			return;
 		this.chatService.dispatch(packet, user);
+	}
+
+	@SubscribeMessage('search')
+	handleSearch(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket) {
+		let user: User = this.eventsService.users[client.id];
+		if (!user)
+			return;
+		this.searchService.dispatch(packet, user);
 	}
 }

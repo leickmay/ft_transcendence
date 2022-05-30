@@ -11,7 +11,7 @@ export class AuthService {
 		private jwtService: JwtService,
 	) {}
 
-	async get42Token(authCode: string): Promise<string> {
+	async get42Token(authCode: string): Promise<string | undefined> {
 		const base_url = 'https://api.intra.42.fr/oauth/token';
 
 		const params = {
@@ -22,7 +22,7 @@ export class AuthService {
 			code: authCode,
 		};
 
-		let token: string;
+		let token: string | undefined;
 
 		await axios({
 			method: 'post',
@@ -41,7 +41,7 @@ export class AuthService {
 		return token;
 	}
 
-	async validateUser(authCode: string): Promise<User> {
+	async validateUser(authCode: string): Promise<User | null> {
 		const token = await this.get42Token(authCode);
 		const api_endpoint = 'https://api.intra.42.fr/v2';
 
@@ -80,9 +80,11 @@ export class AuthService {
 		return this.jwtService.sign(payload);
 	}
 
-	async login(code: string): Promise<string> {
+	async login(code: string): Promise<string | null> {
 		const user = await this.validateUser(code);
-		
+
+		if (!user)
+			return null;
 		return this.makeJWTToken(user);
 	}
 }
