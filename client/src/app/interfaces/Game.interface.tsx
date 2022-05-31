@@ -1,15 +1,4 @@
-import { Socket } from "socket.io-client";
 import { User } from "./User";
-
-export enum GameEvents {
-	JOINRAND,
-	CREATEPRIV,
-	JOINPRIV,
-	START,
-	OVER,
-	CLEAR,
-	MOVE,
-}
 
 export enum Directions {
 	UP,
@@ -17,31 +6,27 @@ export enum Directions {
 	STATIC,
 }
 
-export interface GamePacket {
-	id: number;
-	user: User;
-	roomId: number;
-	isPriv: boolean;
-	direction: Directions;
-}
-
 interface Entity {
 	x: number;
 	y: number;
-	baseX: number;
-	baseY: number;
 }
 
 export interface Player extends Entity {
 	user: User;
 	isReady: boolean;
 	speed: number;
-	up: boolean;
-	down: boolean;
-	score: number;
-	paddleSrc: string;
+	direction: Directions;
 	height: number;
 	width: number;
+	score: number;
+}
+
+export interface CreatePlayerDto {
+	user: User;
+	x: number;
+	y: number;
+	width: number;
+	height: number;
 }
 
 export interface Spectator {

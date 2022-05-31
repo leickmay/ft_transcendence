@@ -1,3 +1,4 @@
+import { forwardRef, Inject } from '@nestjs/common';
 import { EventsService } from 'src/socket/events.service';
 import { PacketPlayInPlayerJoin } from 'src/socket/packets/PacketPlayInPlayerJoin';
 import { PacketPlayInPlayerMove } from 'src/socket/packets/PacketPlayInPlayerMove';
@@ -12,10 +13,11 @@ export class GameService {
 	waitList: Array<User> = new Array;
 
 	constructor(
-		private readonly eventsService: EventsService,
+		@Inject(forwardRef(() => EventsService))
+		private eventsService: EventsService,
 	) {
 		setInterval(() => {
-			while (this.waitList.length >= 2) {
+			while (this.waitList.length >= 2 && eventsService.getServer()) {
 				let room = new Room(eventsService.getServer());
 				room.join(this.waitList.shift()!);
 				room.join(this.waitList.shift()!);
@@ -54,7 +56,8 @@ export class GameService {
 	}
 
 	handleJoin(packet: PacketPlayInPlayerJoin, user: User): void {
-		this.waitList.push(user);
+		if (!user.player)
+			this.waitList.push(user);
 	}
 
 	handleReady(packet: PacketPlayInPlayerReady, user: User): void {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { instanceToPlain } from 'class-transformer';
 import { EventsService } from 'src/socket/events.service';
 import { PacketPlayInFriend } from 'src/socket/packets/PacketPlayInFriend';
@@ -14,7 +14,9 @@ import { UserService } from 'src/user/user.service';
 export class OptionsService {
 
 	constructor(
+		@Inject(forwardRef(() => EventsService))
 		private eventsService: EventsService,
+		@Inject(forwardRef(() => UserService))
 		private userService: UserService,
 	) { }
 

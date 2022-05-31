@@ -48,18 +48,14 @@ export function Home(props: Props) {
 		}
 
 		socket?.off('user').on('user', (packet: Packet) => {
-			if (packet.packet_id === PacketTypesUser.USER_CONNECTION)
+			if (packet.packet_id === PacketTypesUser.CONNECTION)
 				online(packet as PacketPlayInUserConnection);
-			if (packet.packet_id === PacketTypesUser.USER_DISCONNECTED)
+			if (packet.packet_id === PacketTypesUser.DISCONNECTED)
 				offline(packet as PacketPlayInUserDisconnected);
-			if (packet.packet_id === PacketTypesUser.USER_UPDATE)
+			if (packet.packet_id === PacketTypesUser.UPDATE)
 				update(packet as PacketPlayInUserUpdate);
 			if (packet.packet_id === PacketTypesMisc.FRIENDS)
 				friends(packet as PacketPlayInFriendsUpdate);
-		});
-
-		socket?.off('chat').on('chat', (packet: Packet) => {
-			console.log(packet);
 		});
 
 		return () => {

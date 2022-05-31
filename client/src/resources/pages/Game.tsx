@@ -1,9 +1,12 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useContext } from "react";
-import { useSelector } from "react-redux";
-import { SocketContext } from "../../app/context/socket";
-import { RootState } from "../../app/store";
-import { Directions, GameEvents, GamePacket, Room } from "../../app/interfaces/Game.interface"
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { SocketContext } from '../../app/context/socket';
+import { Directions, Room } from '../../app/interfaces/Game.interface';
+import { PacketPlayOutPlayerJoin } from '../../app/packets/PacketPlayOutPlayerJoin';
+import { PacketPlayOutPlayerMove } from '../../app/packets/PacketPlayOutPlayerMove';
+import { PacketPlayOutPlayerReady } from '../../app/packets/PacketPlayOutPlayerReady';
+import { Packet } from '../../app/packets/packetTypes';
+import { RootState } from '../../app/store';
 
 let canvas: HTMLCanvasElement | null = null;
 let ctx: CanvasRenderingContext2D | null = null;
@@ -12,12 +15,18 @@ let ball: HTMLImageElement = new Image();
 let paddle1: HTMLImageElement = new Image();
 let paddle2: HTMLImageElement = new Image();
 
+const spriteUrl = '/assets/images/paddles.png';
+const spriteWidth = 110;
+const spriteHeight = 450;
+let paddle: HTMLImageElement = new Image();
+paddle.src = spriteUrl;
+
 export const Game = () => {
 	let canvasRef = useRef<HTMLCanvasElement>(null)
 	const socket = useContext(SocketContext);
 	const user = useSelector((state: RootState) => state.users.current);
 
-	const [curRoom, setCurRoom] = useState<Room | null>();
+	const [curRoom, setCurRoom] = useState<Room>();
 	const [counter, setCounter] = useState<number>(0);
 	const [waitForPlay, setWaitForPlay] = useState<boolean>(false);
 	const [showGameResult, setShowGameResult] = useState<boolean>(true);
@@ -38,41 +47,26 @@ export const Game = () => {
 		if (counter === 3 && curRoom?.isOver) {
 			setShowGameResult(false);
 		}
-		if (counter === 1 && curRoom?.isOver) {
-			clearRoom();
-		}
 	}, [counter]);
 	
 	async function initGame() {
-			canvas = canvasRef.current;
-			if (!canvas)
-				return ;
-			ctx = canvas!.getContext('2d');
-			paddle1.src = curRoom!.p1.paddleSrc;
-			paddle2.src = curRoom!.p2.paddleSrc;
-			ball.src = curRoom!.balls[0].ballSrc;
+		canvas = canvasRef.current;
+		if (!canvas)
+			return ;
+		ctx = canvas!.getContext('2d');
+		paddle1.src = curRoom!.p1.paddleSrc;
+		paddle2.src = curRoom!.p2.paddleSrc;
+		ball.src = curRoom!.balls[0].ballSrc;
 	}
 
 	const draw = () => {
 		if (ctx && curRoom) {
-			//ctx.fillStyle = "black";
-			//ctx.fillRect(0, 0, curRoom.width, curRoom.height);
-			//ctx.fillStyle = "pink";
-			//ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width * 1.3 , curRoom.p1.height * 1.05);
-			//ctx.fillRect(curRoom.p2.x * 0.9965 , curRoom.p2.y , curRoom.p2.width * 1.3 , curRoom.p2.height * 1.05);
-			//ctx.fillStyle = "purple";
-			//ctx.fillRect(curRoom.p1.x , curRoom.p1.y , curRoom.p1.width , curRoom.p1.height);
-			//ctx.fillRect(curRoom.p2.x * 1.0020 , curRoom.p2.y , curRoom.p2.width , curRoom.p2.height);
-			//ctx.fillStyle = "pink";
-			//ctx.beginPath();
-			//ctx.arc(curRoom.balls[0].x, curRoom.balls[0].y, curRoom.balls[0].size, 0, Math.PI*2);
-			//ctx.fill();
 			background.src = './assets/images/background.png'
 			ctx.drawImage(background, 0, 0, curRoom.width, curRoom.height);
 			if (counter !== 0 && curRoom.isStart && !curRoom.isOver) {
-				ctx.font = "50px Arial";
-				ctx.fillStyle = "purple";
-				ctx.fillText("Start in " + (counter - 1) + " seconds", curRoom.width / 2.5, curRoom.height / 1.8);
+				ctx.font = '50px Arial';
+				ctx.fillStyle = 'purple';
+				ctx.fillText('Start in ' + (counter - 1) + ' seconds', curRoom.width / 2.5, curRoom.height / 1.8);
 			}
 			paddle1.src = curRoom.p1.paddleSrc;
 			ctx.drawImage(paddle1, curRoom.p1.x * 0.20, curRoom.p1.y * 0.98, curRoom.p1.width * 1.6, curRoom.p1.height * 1.1);
@@ -86,30 +80,20 @@ export const Game = () => {
 
 	}
 
+	function joinRoom() {
+		socket?.emit('game', new PacketPlayOutPlayerJoin());
+	}
+
 	function emitMovement() {
 		if (moveUp && moveDown) {
 			return;
 		}
-		else {
-			socket!.emit("game", {
-				id: GameEvents.MOVE,
-				user: user,
-				roomId: curRoom!.id,
-				isPriv: curRoom!.isPriv,
-				direction: moveUp ? Directions.UP : moveDown ? Directions.DOWN : Directions.STATIC,
-			} as GamePacket);
-		}
+		socket?.emit('game', new PacketPlayOutPlayerMove(moveUp ? Directions.UP : moveDown ? Directions.DOWN : Directions.STATIC));
 	}
 
-	function handleMouseDown() {
-		if (socket  && curRoom && user && !curRoom.isStart) {
-			socket.emit("game", {
-				id: GameEvents.START,
-				user: user,
-				roomId: curRoom!.id,
-				isPriv: curRoom!.isPriv,
-				direction: Directions.STATIC,
-			} as GamePacket);
+	function handleClick() {
+		if (socket && curRoom && user && !curRoom.isStart) {
+			socket.emit('game', new PacketPlayOutPlayerReady());
 		}
 	};
 
@@ -140,54 +124,7 @@ export const Game = () => {
 	
 	};
 
-	function joinRoom() {
-		if (!socket || !user)
-			console.log("NO SOCKET OR USER !");
-		else if (!curRoom && !waitForPlay) {
-			socket!.emit("game", {
-				id: GameEvents.JOINRAND,
-				user: user,
-			} as GamePacket);
-		}
-	}
-
-	function createPrivRoom() {
-		if (!socket || !user)
-			console.log("NO SOCKET OR USER !");
-		else if (!curRoom && !waitForPlay) {
-			socket!.emit("game", {
-				id: GameEvents.CREATEPRIV,
-				user: user,
-			} as GamePacket);
-		}
-	}
-
-	function joinPrivRoom(e: React.KeyboardEvent<HTMLInputElement>) {
-		const target: HTMLInputElement = e.currentTarget;
-		if (!socket || !user)
-			console.log("NO SOCKET OR USER !");
-		else if (!curRoom && !waitForPlay && e.code === "Enter") {
-			socket!.emit("game", {
-				id: GameEvents.JOINPRIV,
-				user: user,
-				roomId: target ? target.value : -1,
-				isPriv: true,
-			} as GamePacket);
-		}
-	}
-
-	function clearRoom() {
-		if (socket && curRoom) {
-			socket!.emit("game", {
-				id: GameEvents.CLEAR,
-				user: user,
-				roomId: curRoom.id,
-				isPriv: curRoom!.isPriv,
-			} as GamePacket);
-		}
-	}
-
-	socket?.off("retJoinRoom").on("retJoinRoom", function(ret: Room | null) {
+	socket?.off('retJoinRoom').on('retJoinRoom', function(ret: Room | null) {
 		if (ret === null) {
 			setWaitForPlay(true);
 		}
@@ -200,42 +137,9 @@ export const Game = () => {
 		}
 	})
 
-	socket?.off("retStartRoom").on("retStartRoom", function(ret: Room | null) {
-		if (ret === null) {
-			
-		}
-		else {
-			setCurRoom(ret);
-			if (ret.isStart) {
-				setCounter(3);
-				canvas = canvasRef.current;
-				canvas!.style.animationName = "appearCvs";
-			}
-		}
-	})
-
-	socket?.off("retRoomData").on("retRoomData", function(ret: Room | null) {
-		if (ret === null)
-			console.log("Problem in retRoomData");
-		else {
-			setCurRoom(ret);
-			draw();
-		}
-	})
-	
-	socket?.off("retGameOver").on("retGameOver", function(ret: Room | null) {
-		if (ret) {
-			setCurRoom(ret);
-			setCounter(8);
-			canvas = canvasRef.current;
-			canvas!.style.animationName = "hideCvs";
-
-		}
-	})
-	
-	socket?.off("retClearRoom").on("retClearRoom", function() {
-		setCurRoom(null);
-	})
+	socket?.off('game').on('game', (packet: Packet): void => {
+		console.log(packet);
+	});
 
 	return (
 		<div id="game" className="game">
@@ -245,8 +149,8 @@ export const Game = () => {
 					return (
 						<div className="buttonWindow">
 							<button onMouseDown={() => joinRoom()}>Search Match</button>
-							<button onMouseDown={() => createPrivRoom()}>Create private room</button>
-							<input type="number" onKeyDown={joinPrivRoom} placeholder=" debug privRoom ID"/>
+							{/* <button onMouseDown={() => createPrivRoom()}>Create private room</button>
+							<input type="number" onKeyDown={joinPrivRoom} placeholder=" debug privRoom ID"/> */}
 						</div>);
 				}
 				if (waitForPlay) {
@@ -259,7 +163,7 @@ export const Game = () => {
 			}
 			if (curRoom) {
 				return (
-					<div onKeyDown={(e) => handleKeyDown(e)} onKeyUp={(e) => handleKeyUp(e)} onMouseDown={() => handleMouseDown()} tabIndex={-1}>
+					<div onKeyDown={(e) => handleKeyDown(e)} onKeyUp={(e) => handleKeyUp(e)} onClick={() => handleClick()} tabIndex={-1}>
 					{
 						!curRoom.isOver ?
 						<div className="roomInfo" >

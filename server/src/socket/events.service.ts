@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
 import { GameService } from 'src/game/game.service';
@@ -12,7 +12,9 @@ export class EventsService {
 	users: { [socket: string]: User } = {};
 
 	constructor(
+		@Inject(forwardRef(() => ChatService))
 		private chatService: ChatService,
+		@Inject(forwardRef(() => GameService))
 		private gameService: GameService,
 	) { }
 
