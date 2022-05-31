@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
+import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
 	constructor(
 		private userService: UserService,
-		private jwtService: JwtService
+		private jwtService: JwtService,
 	) {}
 
 	async get42Token(authCode: string): Promise<string> {
@@ -15,9 +16,9 @@ export class AuthService {
 
 		const params = {
 			grant_type: 'authorization_code',
-			client_id: '32e445666f212da52b3a7811bf1ff13d37cfb105f4870eb38365337172af351a',
-			client_secret: 'dfe506a4d179da98961261974e2ccb7dbc23f131de64890281224d8d75d78783',
-			redirect_uri: 'http://127.0.0.1:80/loading',
+			client_id: process.env.API42_UID,
+			client_secret: process.env.API42_SECRET,
+			redirect_uri: process.env.API42_REDIRECT,
 			code: authCode,
 		};
 
@@ -40,56 +41,48 @@ export class AuthService {
 		return token;
 	}
 
-	async validateUser(authCode: string): Promise<any> {
+	async validateUser(authCode: string): Promise<User> {
 		const token = await this.get42Token(authCode);
 		const api_endpoint = 'https://api.intra.42.fr/v2';
 
-		let name: string;
-		let data: any;
-
-		await axios({
+		let response = await axios({
 			method: 'get',
 			url: api_endpoint + '/me',
 			headers: {
 				authorization: 'Bearer ' + token,
 			},
-		})
-		.then(function (res) {
-			name = res.data.usual_full_name;
-			data = res.data;
-		})
-		.catch((err) => {
-			console.log(err);
 		});
-
+		let data = response.data;
 		let tmpUser = await this.userService.getById42(data.id);
 		
 		if (!tmpUser) {
-			await this.userService.create({
-				"id42": data.id,
-				"name": data.displayname,
-				"login": data.login,
-				"avatar": data.image_url
+			tmpUser = await this.userService.create({
+				'id42': data.id,
+				'name': data.displayname,
+				'login': data.login,
+				'intra_picture': data.image_url
 			});
-	
-			tmpUser = await this.userService.getById42(data.id);
 		}
 		return tmpUser;
 	}
 
-	verifyJwt(token: string) {
+	verifyJwt(token: string): any {
 		return this.jwtService.verify(token);
 	}
 
-	async login(code: string) {
-		const user = await this.validateUser(code);
+	makeJWTToken(user: User, totp: boolean = true): string {
 		const payload = {
 			id: user.id,
 			login: user.login,
+			restricted: !!user.totp && totp
 		};
 
-		return {
-			access_token: this.jwtService.sign(payload),
-		};
+		return this.jwtService.sign(payload);
+	}
+
+	async login(code: string): Promise<string> {
+		const user = await this.validateUser(code);
+		
+		return this.makeJWTToken(user);
 	}
 }

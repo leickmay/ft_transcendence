@@ -1,47 +1,61 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateUserDto } from './dto/createUser.dto';
-import { GetUserDto } from './dto/getUser.dto';
+import * as OTPAuth from 'otpauth';
+import { Image } from 'src/images/image.entity';
+import { BaseEntity, FindOneOptions } from 'typeorm';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserAvatarDto } from './dto/update-user-avatar.dto';
+import { UpdateUserNameDto } from './dto/update-user-name.dto';
 import { User } from './user.entity';
+import { DeepPartial } from 'typeorm/common/DeepPartial';
 
 @Injectable()
 export class UserService {
-	constructor(
-		@InjectRepository(User)
-		private userRepository: Repository<User>,
-	) {}
+	constructor() {}
 
-	async all(): Promise<GetUserDto[]> {
-		return await this.userRepository.find();
+	async create(data: CreateUserDto) : Promise<User> {
+		return await User.create(data as any).save();
 	}
 
-	async create(user: CreateUserDto): Promise<GetUserDto> {
-		const newUser: User = User.create(user);
-		await this.userRepository.save(newUser);
-		return (newUser);
+	async get(id: number) : Promise<User> {
+		return await User.findOneBy({id});
 	}
 
-	async remove(id: number): Promise<void> {
-		const user: User = await this.userRepository.findOne(id);
-		await this.userRepository.remove(user);
+	async getById42(id42: number) : Promise<User> {
+		return await User.findOneBy({id42});
 	}
 
-	async get(id: number): Promise<GetUserDto> {
-		return await this.userRepository.findOne(id);
-	}
-
-	async getById42(id: number) : Promise<GetUserDto> {
-		const user = await this.userRepository.findOne({
-			id42: id
+	async getByLogin(login: string, options?: FindOneOptions<User>) : Promise<User> {
+		return await User.findOne({
+			...options,
+			where: {
+				login: login,
+			}
 		});
-		return user;
-	  }
+	}
 
-	async getByLogin(login: string) : Promise<User> {
-		const user = await this.userRepository.findOne ({
-			login: login
-		})
-		return user;
+	async setName(user: User, data: UpdateUserNameDto): Promise<User> {
+		// to change when typeorm update to 0.3.7
+		return await User.merge(user, data as any).save();
+	}
+
+	async toggleTotp(user: User): Promise<string | undefined> {
+		let totp: OTPAuth.TOTP;
+		if (!user.totp) {
+			totp = new OTPAuth.TOTP({
+				issuer: 'Stonks Pong 3000',
+				label: user.login,
+				algorithm: 'SHA1',
+				digits: 6,
+				period: 30,
+			});
+		}
+		user.totp = totp?.secret.base32 || null;
+		await user.save();
+		return totp?.toString();
+	}
+
+	async setAvatar(user: User, data: UpdateUserAvatarDto): Promise<User> {
+		user.avatar = Promise.resolve(await Image.merge(await user.avatar || new Image(), data.avatar).save());
+		return await user.save();
 	}
 }

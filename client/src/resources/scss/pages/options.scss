@@ -17,8 +17,8 @@
 		//padding: 50px 0px 50px 0px;
 		align-items: center;
 		font-family: $font-1;
-  		font-size: 2rem;
-  		color: $color-1;
+		font-size: 2rem;
+		color: $color-1;
 		text-shadow: none;
 	
 		.optionsAvatar {
@@ -28,14 +28,6 @@
 			justify-content: center;
 			padding: 20px;
 
-			.title {
-				display: flex;
-				flex-wrap: wrap;
-				justify-content: center;
-				padding: 0px 0px 20px 0px;
-				font-size: 3rem;
-			}
-
 			.avatarList {
 				display: flex;
 				flex-wrap: wrap;
@@ -43,7 +35,7 @@
 				justify-content: center;
 				.avatar{
 					//background: rgba(0, 0, 0, 0.541);
-					background: url("/assets/img/bg_friendCard.png")  no-repeat center/cover;
+					background: url("/assets/images/bg_friendCard.png") no-repeat center/cover;
 					background-size: 125%;
 					border-radius: 50%;
 					border: 2px inset $color-1;
@@ -53,21 +45,20 @@
 				}
 
 				.avatar:hover {
-					background: url("/assets/img/button_hover_rainbow.png")  no-repeat center/cover;
+					background: url("/assets/images/button_hover_rainbow.png") no-repeat center/cover;
 					background-size: 125%;
 					border: 2px inset rgb(58, 253, 40);
-					cursor: url("/assets/img/cursor_little_pink.png")50 50, auto;
 				}
 
 				.avatar:active {
-					background: url("/assets/img/button_active.png") no-repeat center/cover;
+					background: url("/assets/images/button_active.png") no-repeat center/cover;
 					background-size: 125%;
 					color: #25ff66;
 					transition: all 0s ease-out;
 				}
 
 				.avatarActive {
-					background: url("/assets/img/button_hover_rainbow.png") no-repeat center/cover;
+					background: url("/assets/images/button_hover_rainbow.png") no-repeat center/cover;
 					background-size: 125%;
 					border-radius: 50%;
 					border: 2px inset rgb(58, 253, 40);

@@ -12,7 +12,6 @@
 
 		&:hover {
 			text-shadow: 5px 3px 0px $color-3;
-			color: $color-1; 
 		}
 	}
 
@@ -32,7 +31,7 @@
 					content: '';
 					width: 110%;
 					height: 20px;
-					background: url("/assets/img/activeNav.png") no-repeat center/cover;
+					background: url("/assets/images/activeNav.png") no-repeat center/cover;
 					position: absolute;
 					bottom: -9px;
 					left: 50%;
@@ -48,5 +47,3 @@
 		}
 	}
 }
-
-

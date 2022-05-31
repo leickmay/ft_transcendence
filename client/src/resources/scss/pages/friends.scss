@@ -1,5 +1,4 @@
 .friends {
-
 	.friendsSearch {
 		display: flex;
 		flex-wrap: wrap;
@@ -11,8 +10,8 @@
 		padding: 20px 0px 20px 0px;
 		align-items: center;
 		font-family: $font-1;
-  		font-size: 2rem;
-  		color: $color-1;
+		font-size: 2rem;
+		color: $color-1;
 		text-shadow: none;
 
 		button {
@@ -31,10 +30,5 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-evenly;
-
-		.trash {
-			cursor: url("/assets/img/cursor_little_pink.png")32 32, auto;
-		}
 	}
-
 }
