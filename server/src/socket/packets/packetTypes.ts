@@ -21,12 +21,19 @@ export enum PacketTypesChat {
     DELETE,
 }
 
-export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat;
-
-export enum Directions {
-	UP,
-	DOWN,
+export enum PacketTypesPlayer {
+	JOIN = 401,
+	READY,
+	MOVE,
+	LIST,
 }
+
+export enum PacketTypesGame {
+	UPDATE = 501,
+	DESTROY,
+}
+
+export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat | PacketTypesPlayer | PacketTypesGame;
 
 export interface Packet {
 	packet_id: PacketTypes;

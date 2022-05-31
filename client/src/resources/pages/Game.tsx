@@ -11,7 +11,6 @@ let background: HTMLImageElement = new Image();
 let ball: HTMLImageElement = new Image();
 let paddle1: HTMLImageElement = new Image();
 let paddle2: HTMLImageElement = new Image();
-//document.body.appendChild(ball);
 
 export const Game = () => {
 	let canvasRef = useRef<HTMLCanvasElement>(null)

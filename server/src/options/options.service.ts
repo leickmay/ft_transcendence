@@ -14,7 +14,7 @@ import { UserService } from 'src/user/user.service';
 export class OptionsService {
 
 	constructor(
-		private eventService: EventsService,
+		private eventsService: EventsService,
 		private userService: UserService,
 	) { }
 
@@ -38,7 +38,7 @@ export class OptionsService {
 			user.name = validated['name'] = packet.options['name'];
 
 		user.save();
-		this.eventService.getServer().emit('user', new PacketPlayOutUserUpdate({
+		this.eventsService.getServer().emit('user', new PacketPlayOutUserUpdate({
 			id: user.id,
 			...validated,
 		}));

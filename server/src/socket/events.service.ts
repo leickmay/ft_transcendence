@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
+import { GameService } from 'src/game/game.service';
 import { User } from 'src/user/user.entity';
 
 @Injectable()
@@ -12,6 +13,7 @@ export class EventsService {
 
 	constructor(
 		private chatService: ChatService,
+		private gameService: GameService,
 	) { }
 
 	getServer(): Server {
@@ -21,10 +23,13 @@ export class EventsService {
 	addUser(socket: Socket, user: User): void {
 		this.users[socket.id] = user;
 		user.socket = socket;
+
 		this.chatService.onJoin(user);
 	}
 
-	removeUser(socket: Socket): void {
+	removeUser(socket: Socket, user: User): void {
+		this.gameService.onLeave(user);
+
 		this.users[socket.id].socket = undefined;
 		delete this.users[socket.id];
 	}

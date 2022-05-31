@@ -4,6 +4,7 @@ import { instanceToPlain } from 'class-transformer';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { ChatService } from 'src/chat/chat.service';
+import { GameService } from 'src/game/game.service';
 import { OptionsService } from 'src/options/options.service';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -27,6 +28,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		private userService: UserService,
 		@Inject(forwardRef(() => OptionsService))
 		private optionsService: OptionsService,
+		@Inject(forwardRef(() => GameService))
+		private gameService: GameService,
 		private chatService: ChatService,
 	) { }
 
@@ -64,7 +67,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			return;
 		client.leave("channel_World Random");
 		client.broadcast.emit('user', new PacketPlayOutUserDisconnected(user.id));
-		this.eventsService.removeUser(client);
+		this.eventsService.removeUser(client, user);
 	}
 
 	@SubscribeMessage('user')
@@ -81,5 +84,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		if (!user)
 			return;
 		this.chatService.dispatch(packet, user);
+	}
+
+	@SubscribeMessage('game')
+	handleGame(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket) {
+		let user: User = this.eventsService.users[client.id];
+		if (!user)
+			return;
+		this.gameService.dispatch(packet, user);
 	}
 }
