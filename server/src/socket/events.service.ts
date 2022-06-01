@@ -10,9 +10,7 @@ export class EventsService {
 
 	users: { [socket: string]: User } = {};
 
-	constructor(
-		private chatService: ChatService,
-	) { }
+	constructor() { }
 
 	getServer(): Server | null {
 		return this.server;
@@ -21,7 +19,6 @@ export class EventsService {
 	addUser(socket: Socket, user: User): void {
 		this.users[socket.id] = user;
 		user.socket = socket;
-		this.chatService.onJoin(user);
 	}
 
 	removeUser(socket: Socket): void {
