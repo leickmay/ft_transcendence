@@ -1,4 +1,4 @@
-import { Packet } from "./packetTypes";
+import { Packet } from "../packetTypes";
 
 export interface PacketPlayInChatMessage extends Packet {
 	room: string;

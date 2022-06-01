@@ -1,18 +1,20 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ChatFlags, Room } from "../interfaces/Chat";
-import { PacketPlayInChatMessage } from "../packets/PacketPlayInChatMessage";
+import { ChatTypes, ChatRoom } from "../interfaces/Chat";
+import { PacketPlayInChatMessage } from "../packets/InChat/PacketPlayInChatMessage";
+import { PacketPlayInChatRoomCreate } from "../packets/PacketPlayInChatRoomCreate";
 
 interface State {
 	current: string;
-	rooms: Array<Room>;
+	rooms: Array<ChatRoom>;
 }
 
-const worldRandom: Room = {
+const worldRandom: ChatRoom = {
+	type: ChatTypes.CHANNEL,
 	id: "channel_World Random",
 	name: "World Random",
 	messages: [],
 	operator: undefined,
-	flags: ChatFlags.CHANNEL,
+	visible: true,
 }
 
 const initialState: State = {
@@ -31,15 +33,31 @@ const slice = createSlice({
 			}
 			return (state);
 		},
-		addRoom: (state: State, action: PayloadAction<Room>): State => {
+		//addRoom: (state: State, action: PayloadAction<ChatRoom>): State => {
+		//	if (state.rooms.find(x => x.id === action.payload.id))
+		//		return (state);
+		//	if (state.rooms.find(x => x.name === action.payload.name))
+		//		return (state);
+		//	state.rooms.push(action.payload);
+		//	return (state);
+		//},
+		addRoom: (state: State, action: PayloadAction<PacketPlayInChatRoomCreate>): State => {
 			if (state.rooms.find(x => x.id === action.payload.id))
 				return (state);
 			if (state.rooms.find(x => x.name === action.payload.name))
 				return (state);
-			state.rooms.push(action.payload);
+			let room: ChatRoom = {
+				id: action.payload.id,
+				type: action.payload.type,
+				name: action.payload.name,
+				messages: [],
+				visible: action.payload.visible,
+				operator: action.payload.operator,
+			}
+			state.rooms.push(room);
 			return (state);
 		},
-		delRoom: (state: State, action: PayloadAction<Room>): State => {
+		delRoom: (state: State, action: PayloadAction<ChatRoom>): State => {
 			if (action.payload.id === worldRandom.id)
 			 	return (state);
 			if (action.payload.id === state.current)

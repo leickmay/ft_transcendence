@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { ChatFlags } from "../../../app/interfaces/Chat";
+import { ChatTypes, ChatRoom } from "../../../app/interfaces/Chat";
+import { setCurrentRooms } from "../../../app/slices/chatSlice";
 import store from "../../../app/store";
-import { hideDivById } from "../../pages/Chat";
+import { getRoomByName, hideDivById } from "../../pages/Chat";
 
 export const ChatNavigation = () => {
 
@@ -15,7 +16,9 @@ export const ChatNavigation = () => {
 	}, [alertRooms]);
 
 	const changeRoom = (name: string): void => {
-
+		let room: ChatRoom | undefined = getRoomByName(name);
+		if (room)
+			store.dispatch(setCurrentRooms(room.id));
 	}
 
 	return (
@@ -32,7 +35,7 @@ export const ChatNavigation = () => {
 			<div className="chatRoomList">
 				{
 					rooms
-						.filter((x) => x.flags === ChatFlags.CHANNEL)
+						.filter((x) => x.type === ChatTypes.CHANNEL)
 						.map((value, index) => {
 							return (
 								<div onClick={() => {changeRoom(value.name)}} key={index}>
@@ -51,7 +54,7 @@ export const ChatNavigation = () => {
 			<div className="chatRoomList">
 				{
 					rooms
-						.filter((x) => x.flags === ChatFlags.PRIVATE_MESSAGE)
+						.filter((x) => x.type === ChatTypes.PRIVATE_MESSAGE)
 						.map((value, index) => {
 							return (
 								<div onClick={() => {changeRoom(value.name)}} key={index}>
