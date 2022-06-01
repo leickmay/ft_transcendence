@@ -62,7 +62,9 @@ export const Options = () => {
 			<h2>Choose your Avatar</h2>
 			<ImageUploader />
 			<h2>Change your username</h2>
-			<input maxLength={20} pattern="^[A-Za-zÀ-ÖØ-öø-ÿ]+(( |-)?[A-Za-zÀ-ÖØ-öø-ÿ]+)*$" className='border-primary' type="text" value={name ?? ''} onChange={newName} onKeyDown={validateName} />
+			<input maxLength={20}
+			//  pattern="^[A-Za-zÀ-ÖØ-öø-ÿ]+(( |-)?[A-Za-zÀ-ÖØ-öø-ÿ]+)*$" 
+			 className='border-primary' type="text" value={name ?? ''} onChange={newName} onKeyDown={validateName} />
 			<h2>Two factor authentification</h2>
 			<button className='border-primary' onClick={newTotp}>{!user?.totp ? 'Enable ' : 'Disable '}2fa</button>
 			{getTotp()}

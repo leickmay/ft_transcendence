@@ -37,8 +37,13 @@ export class OptionsService {
 		if (typeof packet.options['name'] === 'string') {
 			let name: string = packet.options['name'];
 			name = name.replace(/ +/, ' ').trim();
-			if (name.length <= 20 && /^[A-Za-zÀ-ÖØ-öø-ÿ]+(( |-)?[A-Za-zÀ-ÖØ-öø-ÿ]+)*$/.test(name))
+			console.log(name);
+			
+			if (name.length <= 20 && /^[A-Za-zÀ-ÖØ-öø-ÿ]+(( |-)?[A-Za-zÀ-ÖØ-öø-ÿ]+)*$/.test(name)) {
+				console.log('ok');
+				
 				validated.name = name;
+			}
 		}
 
 		await User.update(user.id, validated);
@@ -63,7 +68,10 @@ export class OptionsService {
 		if (packet.action === 'add' || packet.action === 'remove') {
 			if (packet.action == 'add') {
 				let target = await User.findOneBy({ id: packet.id });
+				console.log(target?.name);
+
 				if (target && target.id !== user.id && !friends.find(e => e.id !== packet.id)) {
+					console.log('pushed');
 					friends.push(target);
 				}
 			} else {
