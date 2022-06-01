@@ -13,7 +13,7 @@ interface Entity {
 
 export interface Player extends Entity {
 	user: User;
-	isReady: boolean;
+	ready: boolean;
 	speed: number;
 	direction: Directions;
 	height: number;
@@ -27,6 +27,7 @@ export interface CreatePlayerDto {
 	y: number;
 	width: number;
 	height: number;
+	direction: Directions;
 }
 
 export interface Spectator {
@@ -34,23 +35,20 @@ export interface Spectator {
 }
 
 export interface Ball extends Entity {
-	ballSrc: string;
 	size: number;
-	speedX: number;
-	speedY: number;
 }
 
 export interface Room {
 	id: number;
-	raf: NodeJS.Timer;
+	raf: NodeJS.Timer | undefined;
 	height: number;
 	width: number;
 	isPriv: boolean;
 	isFull: boolean;
 	isStart: boolean;
 	isOver: boolean;
-	p1: Player;
-	p2: Player;
+	p1: Player | undefined;
+	p2: Player | undefined;
 	balls: Array<Ball>;
 	spectators: Array<Spectator>;
 }

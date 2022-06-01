@@ -3,6 +3,7 @@ import { EventsService } from 'src/socket/events.service';
 import { PacketPlayInPlayerJoin } from 'src/socket/packets/PacketPlayInPlayerJoin';
 import { PacketPlayInPlayerMove } from 'src/socket/packets/PacketPlayInPlayerMove';
 import { PacketPlayInPlayerReady } from 'src/socket/packets/PacketPlayInPlayerReady';
+import { PacketPlayOutPlayerJoinWL } from 'src/socket/packets/PacketPlayOutPlayerJoinWL';
 import { Packet, PacketTypesPlayer } from 'src/socket/packets/packetTypes';
 import { User } from '../user/user.entity';
 import { Player, Room } from "./game.interfaces";
@@ -56,8 +57,10 @@ export class GameService {
 	}
 
 	handleJoin(packet: PacketPlayInPlayerJoin, user: User): void {
-		if (!user.player)
+		if (!user.player) {
 			this.waitList.push(user);
+			user.send("game",new PacketPlayOutPlayerJoinWL(true));
+		}
 	}
 
 	handleReady(packet: PacketPlayInPlayerReady, user: User): void {
@@ -72,7 +75,7 @@ export class GameService {
 	handlePlayerMove(packet: PacketPlayInPlayerMove, user: User): void {
 		let player: Player | null = user.player;
 
-		if (player && !player.room.isRunning()) {
+		if (player && player.room.isRunning()) {
 			player.direction = packet.direction;
 		}
 	}

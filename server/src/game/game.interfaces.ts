@@ -1,7 +1,9 @@
 import { Exclude, Expose, instanceToPlain } from "class-transformer";
 import { Server } from "socket.io";
+import { PacketPlayOutBallsMove } from "src/socket/packets/PacketPlayOutBallsMove";
 import { PacketPlayOutPlayerJoin } from "src/socket/packets/PacketPlayOutPlayerJoin";
 import { PacketPlayOutPlayerList } from "src/socket/packets/PacketPlayOutPlayerList";
+import { PacketPlayOutPlayerMove } from "src/socket/packets/PacketPlayOutPlayerMove";
 import { PacketPlayOutPlayerReady } from "src/socket/packets/PacketPlayOutPlayerReady";
 import { clearInterval } from "timers";
 import { User } from "../user/user.entity";
@@ -42,14 +44,15 @@ export class Room {
 	isPriv: boolean = false;
 	isOver: boolean = false;
 
-	private players: Array<Player> = [];
-	private balls: Array<Ball> = [];
+	players: Array<Player> = [];
+	readonly balls: Array<Ball> = [];
 	spectators: Array<Spectator> = [];
 
 	maxScore: number = 5;
 
 	constructor(private readonly server: Server) {
 		this.id = ++Room.current;
+		this.balls.push(new Ball(this, this.height / 80, 4));
 	}
 
 	private chooseSide(): Sides {
@@ -60,7 +63,7 @@ export class Room {
 		return 'game_' + this.id.toString();
 	}
 
-	canStart(): boolean { return this.players.length >= this.minPlayers; }
+	canStart(): boolean { return /*this.players.length >= this.minPlayers;*/ this.players[0]?.isReady() && this.players[1]?.isReady() }
 	isFull(): boolean { return this.players.length >= this.maxPlayers; }
 
 	join(user: User): void {
@@ -68,7 +71,7 @@ export class Room {
 		if (!this.isFull()) {
 			user.send('game', new PacketPlayOutPlayerList(instanceToPlain(this.players))); // TODO classtransformer
 
-			let player = new Player(user, this, this.chooseSide(), this.height / 4, this.width / 40);
+			let player = new Player(user, this, this.chooseSide(), this.width / 40, this.height / 4);
 
 			user.player = player;
 			this.players.push(player);
@@ -92,11 +95,9 @@ export class Room {
 		this.interval = undefined;
 	}
 
-	private loop(): void {
-		this.balls.forEach(ball => {
-			if (ball.willCollideVertical())
-				ball.y *= -1;
-			ball.move();
+	private loop = (): void  => {
+		this.balls.forEach((ball: Ball, index: number) => {
+			ball.move(index);
 		});
 		this.players.forEach(player => player.move());
 	}
@@ -106,8 +107,8 @@ export class Room {
 	}
 
 	clear(): void {
-		stop();
-		this.players.forEach(player => {
+		this.stop();
+		this.players.forEach((player: Player) => {
 			player.user.socket?.leave(this.getSocketRoom());
 			player.user.player = null;
 		})
@@ -130,8 +131,10 @@ export class Player implements Entity {
 	@Expose()
 	height: number;
 
+	@Expose()
 	ready: boolean = false;
 
+	@Expose()
 	direction: Directions;
 
 	room: Room;
@@ -154,7 +157,7 @@ export class Player implements Entity {
 	setReady(): void {
 		if (!this.ready) {
 			this.ready = true;
-			this.room.broadcast(new PacketPlayOutPlayerReady(this.user.id));
+			this.room.broadcast(new PacketPlayOutPlayerReady(instanceToPlain(this)));
 		}
 	}
 
@@ -164,14 +167,15 @@ export class Player implements Entity {
 		if (this.side == Sides.LEFT)
 			this.x = 0;
 		else
-			this.x = this.room.width - this.width;
+			this.x = this.room.width - this.width * 1.3;
 	}
 
 	move() {
-		if (this.direction === Directions.UP)
+		if (this.direction === Directions.UP && (this.y - this.speed > 0 - this.height * 0.05))
 			this.y -= this.speed;
-		else if (this.direction === Directions.DOWN)
+		else if (this.direction === Directions.DOWN && (this.y + this.speed < this.room.height - this.height))
 			this.y += this.speed;
+		this.room.broadcast(new PacketPlayOutPlayerMove(instanceToPlain(this)));
 	}
 }
 
@@ -191,7 +195,7 @@ export class Ball implements Entity {
 	resetLocation(): void {
 		this.x = this.room.width / 2 - this.size / 2;
 		this.y = this.room.height / 2 - this.size / 2;
-		this.setDirection(0, 0);
+		this.setDirection(0, 1);
 	}
 
 	setDirection(x: number, y: number): void {
@@ -208,8 +212,18 @@ export class Ball implements Entity {
 		return nextY < 0 || nextY > this.room.height;
 	}
 
-	move() {
+	willCollideHorizontal(): boolean {
+		let nextX = this.x + (this.direction[1] * this.speed);
+		return nextX < 0 || nextX > this.room.width;
+	}
+
+	move(index: number) {
+		if (this.willCollideVertical() || this.willCollideHorizontal()) {;
+				this.speed *= -1;
+		}
 		this.x += this.direction[0] * this.speed;
 		this.y += this.direction[1] * this.speed;
+		this.room.broadcast(new PacketPlayOutBallsMove(index, this.size, this.x, this.y));
+
 	}
 }

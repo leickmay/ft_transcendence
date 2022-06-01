@@ -23,17 +23,22 @@ export enum PacketTypesChat {
 
 export enum PacketTypesPlayer {
 	JOIN = 401,
+	JOINWL,
 	READY,
 	MOVE,
 	LIST,
 }
 
+export enum PacketTypesBalls {
+	MOVE = 501,
+}
+
 export enum PacketTypesGame {
-	UPDATE = 501,
+	UPDATE = 601,
 	DESTROY,
 }
 
-export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat | PacketTypesPlayer | PacketTypesGame;
+export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat | PacketTypesPlayer | PacketTypesBalls | PacketTypesGame;
 
 export interface Packet {
 	packet_id: PacketTypes;
