@@ -51,7 +51,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			client.broadcast.emit('user', new PacketPlayOutUserConnection([instanceToPlain(user)]));
 			client.emit('user', new PacketPlayOutUserConnection(instanceToPlain(Object.values(this.eventsService.users))));
 			this.eventsService.addUser(client, user);
-			client.join("channel_World Random");
+			this.chatService.join(user);
 		} catch (e) {
 			client.emit('error', new UnauthorizedException());
 			client.disconnect();
@@ -62,7 +62,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		client.leave("channel_World Random");
+		this.chatService.leave(user);
 		client.broadcast.emit('user', new PacketPlayOutUserDisconnected(user.id));
 		this.eventsService.removeUser(client);
 	}

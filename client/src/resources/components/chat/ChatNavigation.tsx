@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { ChatFlags } from "../../../app/interfaces/Chat";
 import store from "../../../app/store";
+import { hideDivById } from "../../pages/Chat";
 
 const ChatNavigation = () => {
 
@@ -21,7 +23,7 @@ const ChatNavigation = () => {
 			id="chatNavigation"
 			className="chatLeft"
 		>
-			{/* <button
+			<button
 				onClick={() => {
 					hideDivById("chatNavigation");
 					hideDivById("chatChannel");
@@ -30,7 +32,7 @@ const ChatNavigation = () => {
 			<div className="chatRoomList">
 				{
 					rooms
-						.filter((x) => x.isChannel)
+						.filter((x) => x.flags === ChatFlags.CHANNEL)
 						.map((value, index) => {
 							return (
 								<div onClick={() => {changeRoom(value.name)}} key={index}>
@@ -49,7 +51,7 @@ const ChatNavigation = () => {
 			<div className="chatRoomList">
 				{
 					rooms
-						.filter((x) => x.isPrivateMsg)
+						.filter((x) => x.flags === ChatFlags.PRIVATE_MESSAGE)
 						.map((value, index) => {
 							return (
 								<div onClick={() => {changeRoom(value.name)}} key={index}>
@@ -58,7 +60,7 @@ const ChatNavigation = () => {
 							);
 					})
 				}
-			</div> */}
+			</div>
 		</div>
 	);
 };

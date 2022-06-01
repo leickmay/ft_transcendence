@@ -6,20 +6,17 @@ export interface Message {
 	text: string;
 }
 
-// export enum RoomType {
-// 	PUBLIC,
-// 	PASSWORD,
-// 	PRIVATE,
-// 	PRIVATE_PASSWORD,
-// 	PRIVATE_MESSAGE,
-// }
+export enum ChatFlags {
+	CHANNEL,
+	PRIVATE_MESSAGE,
+}
 
 export interface Room {
-	id: number,
+	id: string,
 	name: string;
 	messages: Message[];
 	operator?: string;
-	flags: number;
+	flags: ChatFlags;
 }
 
 export interface Command {

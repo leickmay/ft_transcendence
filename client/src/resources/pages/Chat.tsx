@@ -2,9 +2,11 @@ import { AnyAction } from "@reduxjs/toolkit";
 import { Dispatch, useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
+import { Room } from "../../app/interfaces/Chat";
 import { PacketPlayInChatMessage } from "../../app/packets/PacketPlayInChatMessage";
-import { PacketPlayOutChatRoomCreate } from "../../app/packets/PacketPlayOutChatRoomCreate";
+import { Packet, PacketTypesChat } from "../../app/packets/packetTypes";
 import { newMessages } from "../../app/slices/chatSlice";
+import store from "../../app/store";
 import ChatChannel from "../components/chat/ChatChannel";
 import ChatNavigation from "../components/chat/ChatNavigation";
 import ChatPrivateMessage from "../components/chat/ChatPrivateMessage";
@@ -26,21 +28,46 @@ export const scrollToBottomById = async (id: string) => {
 	element?.scrollTo({top: height});
 }
 
+export const getCurrentRoom = (): Room => {
+	let room = store.getState().chat.rooms.find(x => x.id === store.getState().chat.current);
+	if (room)
+		return (room);
+	else
+		return (store.getState().chat.rooms[0]);
+}
+
+export const getRoomById = (id: string): Room | undefined => {
+	return store.getState().chat.rooms.find(x => x.id === id);
+}
+
+export const getRoomByName = (name: string): Room | undefined => {
+	return store.getState().chat.rooms.find(x => x.name=== name);
+}
+
+export const getTime = (time: number): string => {
+	let tmp = new Date(time);
+	return (tmp.getHours().toString() + ":" + tmp.getMinutes().toString());
+}
+
 export const Chat = () => {
 	const socket = useContext(SocketContext);
 	const dispatch: Dispatch<AnyAction> = useDispatch();
 
-	// useEffect(() => {
-	// 	if (socket) {
-	// 		socket.off('MESSAGE');
-	// 		socket.on('MESSAGE', (packet: PacketPlayInChatMessage) => {
-	// 			console.log("HEY");
-	// 			if (!packet.msg)
-	// 				return;
-	// 			dispatch(newMessages(packet.msg));
-	// 		});
-	// 	}
-	// }, [socket, dispatch]);
+	useEffect(() => {
+		if (socket) {
+			socket.off('chat');
+			socket.on('chat', (packet: Packet) => {
+				console.log("chat");
+				switch (packet.packet_id) {
+					case PacketTypesChat.MESSAGE:
+						dispatch(newMessages(packet as PacketPlayInChatMessage));
+						break;
+					default:
+						break;
+				}
+			});
+		}
+	}, [socket, dispatch]);
 
 	return (
 		<div id="chat">

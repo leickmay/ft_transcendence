@@ -58,10 +58,6 @@ export function Home(props: Props) {
 				friends(packet as PacketPlayInFriendsUpdate);
 		});
 
-		socket?.off('chat').on('chat', (packet: Packet) => {
-			console.log(packet);
-		});
-
 		return () => {
 			socket?.off('already-online');
 			socket?.off('friends');
