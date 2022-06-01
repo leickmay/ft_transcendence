@@ -12,13 +12,12 @@ export enum PacketTypesUser {
 
 export enum PacketTypesChat {
 	COMMAND = 201,
-    MESSAGE,
-    LIST,
+	MESSAGE,
 	CREATE,
-    JOIN,
+	JOIN,
 	UP,
-    QUIT,
-    DELETE,
+	LEAVE,
+	DELETE,
 }
 
 export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat;

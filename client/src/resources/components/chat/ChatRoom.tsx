@@ -1,11 +1,11 @@
 import { KeyboardEvent, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/socket";
-import { PacketPlayOutChatMessage } from "../../../app/packets/PacketPlayOutChatMessage";
+import { PacketPlayOutChatMessage } from "../../../app/packets/OutChat/PacketPlayOutChatMessage";
 import store from "../../../app/store";
 import { getCurrentRoom, getTime, scrollToBottomById } from "../../pages/Chat";
 
-const ChatRoom = () => {
+const ChatCurrentRoom = () => {
 	const socket = useContext(SocketContext);
 	//const dispatch: Dispatch<AnyAction> = useDispatch();
 
@@ -71,4 +71,4 @@ const ChatRoom = () => {
 	);
 };
 
-export default ChatRoom;
+export default ChatCurrentRoom;

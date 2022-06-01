@@ -1,5 +1,5 @@
 import { Message } from "src/chat/chat.interface";
-import { DeclarePacket, PacketTypesChat } from "./packetTypes";
+import { DeclarePacket, PacketTypesChat } from "../packetTypes";
 
 @DeclarePacket(PacketTypesChat.MESSAGE)
 export class PacketPlayOutChatMessage {

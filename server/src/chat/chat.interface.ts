@@ -1,5 +1,7 @@
 import { Exclude, Expose, Transform } from "class-transformer";
-import { PacketPlayOutChatMessage } from "src/socket/packets/PacketPlayOutChatMessage";
+import { PacketPlayInChatCreate } from "src/socket/packets/InChat/PacketPlayInChatCreate";
+import { PacketPlayOutChatMessage } from "src/socket/packets/OutChat/PacketPlayOutChatMessage";
+import { Packet, PacketTypes } from "src/socket/packets/packetTypes";
 import { User } from "src/user/user.entity";
 
 export interface Message {
@@ -8,13 +10,13 @@ export interface Message {
 	text: string;
 }
 
-export enum ChatFlags {
+export enum ChatTypes {
 	CHANNEL,
 	PRIVATE_MESSAGE,
 }
 
 @Exclude()
-export class Room { // instanceToPlain to send (BACK)
+export class ChatRoom { // instanceToPlain to send (BACK)
 	private static current = 0;
 
 	@Expose()
@@ -24,11 +26,14 @@ export class Room { // instanceToPlain to send (BACK)
 	name: string;
 
 	@Expose()
-	flags: ChatFlags;
+	type: ChatTypes;
 
 	@Expose()
-	operator?: string;
+	visible: boolean;
 
+	@Expose()
+	operator?: number;
+	
 	@Expose()
 	@Transform(({value}) => !!value)
 	password?: string;
@@ -37,23 +42,27 @@ export class Room { // instanceToPlain to send (BACK)
 	@Transform(({value}) => value.map((user: User) => user.id))
 	users: Array<User>;
 
-	constructor(name: string, flags: ChatFlags) {
-		++Room.current;
-		switch (flags) {
-			case ChatFlags.CHANNEL:
-				this.id = "channel_" + name;
+	constructor(type: ChatTypes, packet: PacketPlayInChatCreate, user?: User) {
+		++ChatRoom.current;
+		switch (type) {
+			case ChatTypes.CHANNEL: {
+				this.id = "channel_" + packet.name;
 				break;
-			case ChatFlags.PRIVATE_MESSAGE:
-				this.id = "privMsg_" + name;
+			}
+			case ChatTypes.PRIVATE_MESSAGE: {
+				this.id = "privMsg_" + packet.name;
 				break;
-			default:
+			}
+			default: {
 				this.id = "";
 				break;
+			}
 		}
-		this.name = name;
-		this.flags = flags;
-		this.operator = undefined;
-		this.password = undefined;
+		this.name = packet.name;
+		this.type = type;
+		this.visible = packet.visible
+		this.operator = user?.id;
+		this.password = packet.password;
 		this.users = [];
 	}
 
@@ -88,7 +97,7 @@ export class Room { // instanceToPlain to send (BACK)
 			from: sender.login,
 			text: text,
 		};
-		sender.socket.emit('chat', new PacketPlayOutChatMessage(this.id, message));
-		sender.socket.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
+		sender.socket?.emit('chat', new PacketPlayOutChatMessage(this.id, message));
+		sender.socket?.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
 	}
 }

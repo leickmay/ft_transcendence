@@ -1,4 +1,4 @@
-import { PacketTypesChat, DeclarePacket } from "./packetTypes";
+import { PacketTypesChat, DeclarePacket } from "../packetTypes";
 
 @DeclarePacket(PacketTypesChat.MESSAGE)
 export class PacketPlayOutChatMessage {
