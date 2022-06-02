@@ -46,11 +46,13 @@ export class OptionsService {
 			}
 		}
 
-		await User.update(user.id, validated);
-		this.eventService.getServer()?.emit('user', new PacketPlayOutUserUpdate({
-			id: user.id,
-			...validated,
-		}));
+		if (Object.keys(validated).length) {
+			await User.update(user.id, validated);
+			this.eventService.getServer()?.emit('user', new PacketPlayOutUserUpdate({
+				id: user.id,
+				...validated,
+			}));
+		}
 	}
 
 	async totpHandler(packet: PacketPlayInTotp, user: User): Promise<void> {
