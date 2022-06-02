@@ -8,6 +8,7 @@ export class PacketPlayOutChatRoomCreate {
 		public type: ChatTypes,
 		public name: string,
 		public visible: boolean,
+		public users: number[],
 		public operator?: number,
 	) { }
 }

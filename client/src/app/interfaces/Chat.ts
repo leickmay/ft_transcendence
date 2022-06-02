@@ -4,6 +4,7 @@ export interface Message {
 	date: number;
 	from: string;
 	text: string;
+	cmd: boolean;
 }
 
 export enum ChatTypes {
@@ -18,6 +19,7 @@ export interface ChatRoom {
 	messages: Message[];
 	visible: boolean;
 	operator?: number;
+	users: number[];
 }
 
 export interface Command {
