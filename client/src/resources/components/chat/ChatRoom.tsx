@@ -35,6 +35,10 @@ const ChatCurrentRoom = () => {
 	return (
 		<div id="chatRoom" className="chatRight">
 			<h2>{name}</h2>
+			{
+				(store.getState().users.current?.id === getCurrentRoom().operator) &&
+				<button>Operator</button>
+			}
 			<div id="chatRoomMesssages">
 			{
 					messages
