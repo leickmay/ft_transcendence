@@ -7,4 +7,5 @@ export interface PacketPlayInChatRoomCreate extends Packet {
 	name: string,
 	visible: boolean,
 	operator?: number,
+	users: number[],
 }

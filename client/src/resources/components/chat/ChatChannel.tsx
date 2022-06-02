@@ -1,11 +1,19 @@
 import { useContext, useState } from "react";
 import { SocketContext } from "../../../app/context/socket";
 import { PacketPlayOutChatChannelCreate } from "../../../app/packets/OutChat/PacketPlayOutChatChannelCreate";
+import { PacketPlayOutChatChannelJoin } from "../../../app/packets/OutChat/PacketPlayOutChatChannelJoin";
+import { setCurrentRooms } from "../../../app/slices/chatSlice";
+import store from "../../../app/store";
 import { hideDivById } from "../../pages/Chat";
 
-const ChatChannel = () => {
+export const switchConfigChannel = () => {
+	hideDivById("chatNavigation");
+	hideDivById("chatChannel");
+}
 
+const ChatChannel = () => {
 	const socket = useContext(SocketContext);
+	//const dispatch: Dispatch<AnyAction> = useDispatch();
 
 	const [name, setName] = useState('');
 	const [isPrivate, setIsPrivate] = useState(false);
@@ -25,10 +33,25 @@ const ChatChannel = () => {
 		setIsPrivate(false);
 		setHasPassword(false);
 		setPassword('');
+		hideDivById('input_password');
+
+		store.dispatch(setCurrentRooms(roomPacket.name));
 	}
 
 	const joinChannel = (): void => {
+		let roomPacket : PacketPlayOutChatChannelJoin;
 		
+		roomPacket = new PacketPlayOutChatChannelJoin(name);
+		if (hasPassword && password !== "")
+			roomPacket.withPassword(password);
+
+		socket?.emit('chat', roomPacket);
+		
+		setName('');
+		setIsPrivate(false);
+		setHasPassword(false);
+		setPassword('');
+		hideDivById('input_password');
 	}
 
 	return (
@@ -38,10 +61,7 @@ const ChatChannel = () => {
 			style={{display: "none"}}
 		>
 			<button
-				onClick={() => {
-					hideDivById("chatNavigation");
-					hideDivById("chatChannel");
-				}}
+				onClick={() => {switchConfigChannel()}}
 			>..</button>
 			<label>
 				Name
@@ -80,8 +100,18 @@ const ChatChannel = () => {
 					onChange={event => setPassword(event.target.value)}
 					style={{display: "none"}}
 			/>
-			<button onClick={createChannel}>Create</button>
-			<button onClick={joinChannel}>Join</button>
+			<button
+				onClick={() => {
+					createChannel();
+					switchConfigChannel();
+				}}
+			>Create</button>
+			<button
+				onClick={() => {
+					joinChannel();
+					switchConfigChannel();
+				}}
+			>Join</button>
 		</div>
 	);
 };

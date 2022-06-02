@@ -44,8 +44,11 @@ const ChatCurrentRoom = () => {
 					messages
 						.map((value, index) => {
 							let from: string = "otherMessage";
-							if (value.from === store.getState().users.current?.name) {
+							if (value.from === store.getState().users.current?.login) {
 								from = "myMessage";
+							}
+							if (value.cmd === true) {
+								from = "cmd"
 							}
 							return (
 								<div className={from} key={index}>

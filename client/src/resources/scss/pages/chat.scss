@@ -35,7 +35,7 @@ $max-width: 742px;
 			overflow: auto;
 			display: flex;
 			flex-direction:column;
-			.myMessage, .otherMessage {
+			.myMessage, .otherMessage, .cmd {
 				width: auto;
 				max-width: 70%;
 				border: 0.1rem solid #8900b3;
@@ -52,6 +52,13 @@ $max-width: 742px;
 	
 			.otherMessage {
 				align-self: flex-start
+			}
+
+			.cmd {
+				align-self: center;
+				div {
+					text-align: center;
+				}
 			}
 		}
 		textarea {

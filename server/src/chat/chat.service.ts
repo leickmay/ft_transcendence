@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PacketPlayInChatCreate } from "src/socket/packets/InChat/PacketPlayInChatCreate";
+import { PacketPlayInChatJoin } from "src/socket/packets/InChat/PacketPlayInChatJoin";
 import { PacketPlayInChatMessage } from "src/socket/packets/InChat/PacketPlayInChatMessage";
 import { PacketPlayOutChatRoomCreate } from "src/socket/packets/OutChat/PacketPlayOutChatRoomCreate";
 import { PacketTypesChat, Packet } from "src/socket/packets/packetTypes";
@@ -19,15 +20,15 @@ export class ChatService {
 	constructor() {}
 
 	dispatch(packet: Packet, user: User): void {
-		console.log("Dispatch ChatService")
 		switch (packet.packet_id) {
 			case PacketTypesChat.MESSAGE:
-				console.log("Dispatch ChatService MESSAGE")
 				this.messageHandler(packet as PacketPlayInChatMessage, user);
 				break;
 			case PacketTypesChat.CREATE:
-				console.log("Dispatch ChatService CREATE")
 				this.createHandler(packet as PacketPlayInChatCreate, user);
+				break;
+			case PacketTypesChat.JOIN:
+				this.joinHandler(packet as PacketPlayInChatJoin, user);
 				break;
 			default:
 				break;
@@ -40,8 +41,11 @@ export class ChatService {
 
 	join(user: User) {
 		this.rooms.map((room) => {
-			if (room.isPresent(user) || room.name === "World Random")
+			if (room.isPresent(user) || room.name === "World Random") {
+				this.upRoom(user, room);
 				room.join(user);
+				room.command(user, "/JOIN " + room.name);
+			}
 		})
 	}
 
@@ -51,12 +55,38 @@ export class ChatService {
 		})
 	}
 
-	async messageHandler(packet: PacketPlayInChatMessage, user: User): Promise<void> {
-		console.log(packet)
+	upRoom(user: User, room: ChatRoom) {
+		let roomOut: PacketPlayOutChatRoomCreate;
+
+		roomOut = new PacketPlayOutChatRoomCreate(
+					room.id,
+					ChatTypes.CHANNEL,
+					room.name,
+					room.visible,
+					room.users,
+					room.operator,
+		);
+
+		user.socket?.emit('chat', roomOut);
+		if (room.visible)
+			user.socket?.broadcast.emit('chat', roomOut);
+	}
+
+	async commandHandler(packet: PacketPlayInChatMessage, user: User): Promise<void> {
 		let room: ChatRoom | undefined = this.rooms.find(x => x.id === packet.room);
-		console.log(room)
-		//if (room?.isPresent(user))
-			room.send(user, packet.text);
+		if (room?.isPresent(user))
+			room?.command(user, packet.text);
+	}
+
+	async messageHandler(packet: PacketPlayInChatMessage, user: User): Promise<void> {
+		if (packet.text.startsWith('\\')) {
+			this.commandHandler(packet, user);
+			return;
+		}
+
+		let room: ChatRoom | undefined = this.rooms.find(x => x.id === packet.room);
+		if (room?.isPresent(user))
+			room?.send(user, packet.text);
 	}
 
 	async createHandler(packet: PacketPlayInChatCreate, user: User): Promise<void> {
@@ -64,21 +94,26 @@ export class ChatService {
 			return;
 
 		let roomIn: ChatRoom = new ChatRoom(ChatTypes.CHANNEL, packet, user);
+		roomIn.join(user);
 		this.rooms.push(roomIn);
 
-		if (!roomIn.visible)
+		this.upRoom(user, roomIn);
+	}
+
+	async joinHandler(packet: PacketPlayInChatJoin, user: User): Promise<void> {
+		let room: ChatRoom | undefined;
+
+		room = this.rooms.find(x => x.name === packet.name);
+		if (!room)
 			return;
+		
+		if (room.type === ChatTypes.PRIVATE_MESSAGE)
+			return;
+		
+		if (!room.visible)
+			this.upRoom(user, room);
 
-		let roomOut: PacketPlayOutChatRoomCreate = 
-			new PacketPlayOutChatRoomCreate(
-					roomIn.id,
-					ChatTypes.CHANNEL,
-					roomIn.name,
-					true,
-					roomIn.operator,
-		);
-
-		user.socket?.emit('chat', roomOut);
-		user.socket?.broadcast.emit('chat', roomOut);
+		room.join(user, packet.password)
+		room.command(user, "/JOIN " + room.name);
 	}
 }

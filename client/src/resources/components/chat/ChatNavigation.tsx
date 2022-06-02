@@ -3,7 +3,9 @@ import { useSelector } from "react-redux";
 import { ChatTypes, ChatRoom } from "../../../app/interfaces/Chat";
 import { setCurrentRooms } from "../../../app/slices/chatSlice";
 import store from "../../../app/store";
-import { getRoomByName, hideDivById } from "../../pages/Chat";
+import { getRoomByName } from "../../pages/Chat";
+import { switchConfigChannel } from "./ChatChannel";
+import { switchConfigPrivMsg } from "./ChatPrivateMessage";
 
 const ChatNavigation = () => {
 
@@ -28,14 +30,14 @@ const ChatNavigation = () => {
 		>
 			<button
 				onClick={() => {
-					hideDivById("chatNavigation");
-					hideDivById("chatChannel");
+					switchConfigChannel();
 				}}
 			>Channels</button>
 			<div className="chatRoomList">
 				{
 					rooms
 						.filter((x) => x.type === ChatTypes.CHANNEL)
+						.filter((x) => x.name === "World Random" || x.users.find(u => u === store.getState().users.current?.id))
 						.map((value, index) => {
 							return (
 								<div onClick={() => {changeRoom(value.name)}} key={index}>
@@ -47,8 +49,7 @@ const ChatNavigation = () => {
 			</div>
 			<button
 				onClick={() => {
-					hideDivById("chatNavigation");
-					hideDivById("chatPrivateMessage");
+					switchConfigPrivMsg();
 				}}
 			>Privates Messages</button>
 			<div className="chatRoomList">

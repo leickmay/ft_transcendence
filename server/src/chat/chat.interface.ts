@@ -8,6 +8,7 @@ export interface Message {
 	date: number;
 	from: string;
 	text: string;
+	cmd: boolean;
 }
 
 export enum ChatTypes {
@@ -39,31 +40,27 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	password?: string;
 
 	@Expose()
-	@Transform(({value}) => value.map((user: User) => user.id))
-	users: Array<User>;
+	users: Array<number>;
 
 	constructor(type: ChatTypes, packet: PacketPlayInChatCreate, user?: User) {
 		++ChatRoom.current;
-		switch (type) {
-			case ChatTypes.CHANNEL: {
-				this.id = "channel_" + packet.name;
-				break;
-			}
-			case ChatTypes.PRIVATE_MESSAGE: {
-				this.id = "privMsg_" + packet.name;
-				break;
-			}
-			default: {
-				this.id = "";
-				break;
-			}
-		}
+		if (type === ChatTypes.PRIVATE_MESSAGE)
+			this.id = "privMsg_" + packet.name;
+		else
+			this.id = "channel_" + packet.name;
 		this.name = packet.name;
 		this.type = type;
 		this.visible = packet.visible
 		this.operator = user?.id;
 		this.password = packet.password;
-		this.users = [];
+		if (user)
+			this.users = [user.id];
+		else
+			this.users = [];
+	}
+
+	isPresent(user: User): boolean {
+		return !!this.users.find(userID => userID === user.id);
 	}
 
 	join(user: User, password?: string): boolean {
@@ -75,9 +72,9 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		}
 		if (this.password !== password)
 			return false;
-		this.users.push(user);
-		console.log(user.login + " join : " + this.name);
+		this.users.push(user.id);
 		user.socket.join(this.id);
+		console.log(user.login + " new join : " + this.name);
 		return true;
 	}
 
@@ -87,15 +84,23 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		return true;
 	}
 
-	isPresent(user: User): boolean {
-		return !!this.users.find(u => u.id === user.id);
-	}
-
 	send(sender: User, text: string): void {
 		let message: Message = {
 			date: Date.now(),
 			from: sender.login,
 			text: text,
+			cmd: false,
+		};
+		sender.socket?.emit('chat', new PacketPlayOutChatMessage(this.id, message));
+		sender.socket?.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
+	}
+
+	command(sender: User, text: string): void {
+		let message: Message = {
+			date: Date.now(),
+			from: sender.login,
+			text: text,
+			cmd: true,
 		};
 		sender.socket?.emit('chat', new PacketPlayOutChatMessage(this.id, message));
 		sender.socket?.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
