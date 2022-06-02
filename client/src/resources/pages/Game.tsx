@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { SocketContext } from '../../app/context/socket';
-import { Ball, CreatePlayerDto, Directions, Room } from '../../app/interfaces/Game.interface';
+import { Ball, Directions, Room } from '../../app/interfaces/Game.interface';
 import { PacketPlayInBallsMove } from '../../app/packets/PacketPlayInBallsMove';
 import { PacketPlayInPlayerJoin } from '../../app/packets/PacketPlayInPlayerJoin';
 import { PacketPlayInPlayerJoinWL } from '../../app/packets/PacketPlayInPlayerJoinWL';
@@ -16,18 +16,23 @@ import { RootState } from '../../app/store';
 
 let canvas: HTMLCanvasElement | null = null;
 let ctx: CanvasRenderingContext2D | null = null;
-let background: HTMLImageElement = new Image();
-background.src = './assets/images/background.png'
-let ball: HTMLImageElement = new Image();
-ball.src = './assets/images/ball.png'
-let paddle1: HTMLImageElement = new Image();
-let paddle2: HTMLImageElement = new Image();
+
+let numberImg: HTMLImageElement = new Image();
+numberImg.src = './assets/images/NeonNumber.png';
+const numberWidth = 81;
+const numberHeight = 100;
+
+let backgroundImg: HTMLImageElement = new Image();
+backgroundImg.src = './assets/images/background.png';
+
+let ballImg: HTMLImageElement = new Image();
+ballImg.src = './assets/images/ball.png';
 
 const spriteUrl = '/assets/images/paddles.png';
 const spriteWidth = 110;
 const spriteHeight = 450;
-let paddle: HTMLImageElement = new Image();
-paddle.src = spriteUrl;
+let paddleImg: HTMLImageElement = new Image();
+paddleImg.src = spriteUrl;
 
 export const Game = () => {
 	let canvasRef = useRef<HTMLCanvasElement>(null)
@@ -48,7 +53,7 @@ export const Game = () => {
 		balls: [],
 		spectators: [],
 	});
-	const [counter, setCounter] = useState<number>(0);
+	const [counter, setCounter] = useState<number>(-1);
 	const [waitForPlay, setWaitForPlay] = useState<boolean>(false);
 	const [showGameResult, setShowGameResult] = useState<boolean>(true);
 	
@@ -63,7 +68,7 @@ export const Game = () => {
 	}, [curRoom.p1?.ready, curRoom.p2?.ready]);
 
 	useEffect(() => {
-		counter > 0 && setTimeout(() => setCounter(counter - 1), 1000);
+		counter > -1 && setTimeout(() => setCounter(counter - 1), 1000);
 		draw();
 		if (counter === 3 && curRoom?.isOver) {
 			setShowGameResult(false);
@@ -76,24 +81,70 @@ export const Game = () => {
 		canvas = canvasRef.current;
 		if (!canvas)
 			return ;
-		canvas.style.animationName = 'appearCvs';
+		setCounter(5);
+		curRoom.isStart = true;
+		canvas!.style.animationName = 'appearCvs';
 		ctx = canvas!.getContext('2d');
 	}
 
 	const draw = () => {
 		if (ctx && curRoom.p1 && curRoom.p2) {
-			ctx.drawImage(background, 0, 0, curRoom.width, curRoom.height);
-			//if (counter !== 0 && curRoom.isStart && !curRoom.isOver) {
-			//	ctx.font = '50px Arial';
-			//	ctx.fillStyle = 'purple';
-			//	ctx.fillText('Start in ' + (counter - 1) + ' seconds', curRoom.width / 2.5, curRoom.height / 1.8);
-			//}
-			let p1sx:number = curRoom.p1.direction === Directions.UP ? spriteWidth : curRoom.p1.direction === Directions.DOWN ? spriteWidth * 2 : 0;
-			let p2sx:number = curRoom.p2.direction === Directions.UP ? spriteWidth : curRoom.p2.direction === Directions.DOWN ? spriteWidth * 2 : 0;
-			ctx.drawImage(paddle, p1sx, 0, spriteWidth, spriteHeight, curRoom.p1.x * 0.20, curRoom.p1.y * 0.98, curRoom.p1.width * 1.6, curRoom.p1.height * 1.1);
-			ctx.drawImage(paddle, p2sx, spriteHeight, spriteWidth, spriteHeight, curRoom.p2.x * 0.993, curRoom.p2.y * 0.98, curRoom.p2.width * 1.6, curRoom.p2.height * 1.1);
-			if (curRoom.balls[0])
-				ctx.drawImage(ball, curRoom.balls[0].x * 0.95, curRoom.balls[0].y * 0.91, curRoom.balls[0].size * 7 , curRoom.balls[0].size * 7);
+			ctx.drawImage(backgroundImg, 0, 0, curRoom.width, curRoom.height);
+			let p1sx: number = curRoom.p1.direction === Directions.UP ? spriteWidth : curRoom.p1.direction === Directions.DOWN ? spriteWidth * 2 : 0;
+			let p2sx: number = curRoom.p2.direction === Directions.UP ? spriteWidth : curRoom.p2.direction === Directions.DOWN ? spriteWidth * 2 : 0;
+			ctx.drawImage(paddleImg, p1sx, 0, spriteWidth, spriteHeight, curRoom.p1.x * 0.20, curRoom.p1.y * 0.98, curRoom.p1.width * 1.6, curRoom.p1.height * 1.1);
+			ctx.drawImage(paddleImg, p2sx, spriteHeight, spriteWidth, spriteHeight, curRoom.p2.x * 0.993, curRoom.p2.y * 0.98, curRoom.p2.width * 1.6, curRoom.p2.height * 1.1);
+			curRoom.balls.forEach((ball: Ball) => {
+				ctx!.drawImage(ballImg, ball.x * 0.95, ball.y * 0.91, ball.size * 7 , ball.size * 7);
+			})
+			if (counter !== -1 && curRoom.isStart && !curRoom.isOver) {
+				let numsx: number = 0;
+				let numsy: number = 0;
+				switch (counter) {
+					case 0:
+						numsx = numberWidth * 5;
+						numsy = numberHeight;
+						break;
+					case 1:
+						numsx = numberWidth;
+						break;
+					case 2:
+						numsx = numberWidth * 2;
+						break;
+					case 3:
+						numsx = numberWidth * 3;
+						break;
+					case 4:
+						numsx = numberWidth * 4;
+						break;
+					case 5:
+						numsx = 0;
+						numsy = numberHeight;
+						break;
+					case 6:
+						numsx = numberWidth;
+						numsy = numberHeight;
+						break;
+					case 7:
+						numsx = numberWidth * 2;
+						numsy = numberHeight;
+						break;
+					case 8:
+						numsx = numberWidth * 3;
+						numsy = numberHeight;
+						break;
+					case 9:
+						numsx = numberWidth * 4;
+						numsy = numberHeight;
+						break;
+					default:
+						break;
+				}
+				ctx.drawImage(numberImg, numsx, numsy, numberWidth, numberHeight, curRoom.width / 2 - numberWidth, curRoom.height / 2 - numberHeight, numberWidth * 2, numberHeight * 2);
+				//ctx.font = '50px Arial';
+				//ctx.fillStyle = 'purple';
+				//ctx.fillText('Start in ' + (counter - 1) + ' seconds', curRoom.width / 2.5, curRoom.height / 1.8);
+			}
 		}
 
 	}
@@ -150,24 +201,24 @@ export const Game = () => {
 		if(packet.players.length === 0) return
 		else if (packet.players.length === 1) {
 			setCurRoom((prevState: Room) => ({
-                ...prevState,
-                p1: packet.players[0],
-            }));
+				...prevState,
+				p1: packet.players[0],
+			}));
 		}
 	}
 
 	function handleJoin(packet: PacketPlayInPlayerJoin) {
 		if (!curRoom.p1) {
 			setCurRoom((prevState: Room) => ({
-                ...prevState,
-                p1: packet.player,
-            }));
+				...prevState,
+				p1: packet.player,
+			}));
 		}
 		else if (!curRoom.p2) {
 			setCurRoom((prevState: Room) => ({
-                ...prevState,
-                p2: packet.player,
-            }));
+				...prevState,
+				p2: packet.player,
+		}));
 		}
 		if (curRoom.p1 && curRoom.p2) {
 			setWaitForPlay(false);
@@ -205,13 +256,14 @@ export const Game = () => {
 	}
 
 	function handleBallsMove(packet: PacketPlayInBallsMove) {
-		console.log(packet);
 		if(curRoom.balls.length < packet.id + 1) {
 			curRoom.balls.push({size: packet.size, x: packet.x, y: packet.y} as Ball)
 		}
-		curRoom.balls[packet.id].size = packet.size;
-		curRoom.balls[packet.id].x = packet.x;
-		curRoom.balls[packet.id].y = packet.y;
+		else {
+			curRoom.balls[packet.id].size = packet.size;
+			curRoom.balls[packet.id].x = packet.x;
+			curRoom.balls[packet.id].y = packet.y;
+		}
 		draw();
 	}
 
@@ -262,7 +314,7 @@ export const Game = () => {
 			}
 			if (curRoom.p1 && curRoom.p2) {
 				return (
-					<div onKeyDown={(e) => handleKeyDown(e)} onKeyUp={(e) => handleKeyUp(e)} onClick={() => handleClick()} tabIndex={-1}>
+					<div onKeyDown={(e) => handleKeyDown(e)} onKeyUp={(e) => handleKeyUp(e)} onClick={() => handleClick() } tabIndex={1}>
 					{
 						!curRoom.isOver ?
 						<div className="roomInfo" >
@@ -272,7 +324,7 @@ export const Game = () => {
 									{curRoom.p1.user.login}
 								</div>
 								<div className="playerInfo">
-									{curRoom.p2.user ? curRoom.p1.ready ? curRoom.p2.ready ? counter === 0 ? curRoom.p1.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">Click to start !</div> : <div className="pressSpace">room ID : {curRoom.id}</div>}
+									{curRoom.p2.user ? curRoom.p1.ready ? curRoom.p2.ready ? counter === -1 ? curRoom.p1.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">Click to start !</div> : <div className="pressSpace">room ID : {curRoom.id}</div>}
 								</div>
 							</div>
 							<div className="versus">VS</div>
@@ -282,7 +334,7 @@ export const Game = () => {
 									{curRoom.p2.user ? curRoom.p2.user.login : "invite a friend"}
 								</div>
 								<div className="playerInfo">
-									{curRoom.p2.user ? curRoom.p2.ready ? curRoom.p1.ready ? counter === 0 ? curRoom.p2.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">Click to start ! </div> : <div className="pressSpace">wait...</div>}
+									{curRoom.p2.user ? curRoom.p2.ready ? curRoom.p1.ready ? counter === -1 ? curRoom.p2.score : <div className="ready">Ready</div> : <div className="ready">Ready</div> : <div className="pressSpace">Click to start ! </div> : <div className="pressSpace">wait...</div>}
 								</div>
 							</div>
 						</div>

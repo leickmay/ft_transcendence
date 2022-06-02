@@ -53,6 +53,7 @@ export class Room {
 	constructor(private readonly server: Server) {
 		this.id = ++Room.current;
 		this.balls.push(new Ball(this, this.height / 80, 4));
+		//this.balls.push(new Ball(this, this.height / 80, 8));
 	}
 
 	private chooseSide(): Sides {
@@ -63,7 +64,7 @@ export class Room {
 		return 'game_' + this.id.toString();
 	}
 
-	canStart(): boolean { return /*this.players.length >= this.minPlayers;*/ this.players[0]?.isReady() && this.players[1]?.isReady() }
+	canStart(): boolean { return this.players[0]?.isReady() && this.players[1]?.isReady() }
 	isFull(): boolean { return this.players.length >= this.maxPlayers; }
 
 	join(user: User): void {
@@ -85,7 +86,8 @@ export class Room {
 
 	tryStart(): void { this.canStart() && this.start(); }
 
-	start(): void {
+	async start() {
+		await new Promise(r => setTimeout(r, 5000));
 		this.interval = setInterval(this.loop, 1000 / 60);
 	}
 
@@ -195,35 +197,66 @@ export class Ball implements Entity {
 	resetLocation(): void {
 		this.x = this.room.width / 2 - this.size / 2;
 		this.y = this.room.height / 2 - this.size / 2;
-		this.setDirection(0, 1);
+		this.setDirection(0, 0);
 	}
 
 	setDirection(x: number, y: number): void {
 		if (x == 0 && y == 0) {
-			this.direction = [0, 0];
+			this.direction = [Math.floor(Math.random() * 2) === 0 ? -1 : 1, 0];
 		} else {
 			let mag = Math.sqrt(x ** 2 + y ** 2);
 			this.direction = [x / mag, y / mag];
 		}
 	}
 
-	willCollideVertical(): boolean {
-		let nextY = this.y + (this.direction[0] * this.speed);
-		return nextY < 0 || nextY > this.room.height;
+	handleCollisionTop() {
+		if (this.y <= 0) {
+			this.direction[1] = Math.abs(this.direction[1]);
+		}
 	}
 
-	willCollideHorizontal(): boolean {
-		let nextX = this.x + (this.direction[1] * this.speed);
-		return nextX < 0 || nextX > this.room.width;
+	handleCollisionBottom() {
+		if (this.y + this.size >= this.room.height){
+			this.direction[1] = this.direction[1] * -1;
+		}
+	}
+
+	handleCollisionLeft() {
+		if (this.x + this.direction[0] <= this.room.players[0].x + this.room.players[0].width && this.x + this.direction[0] >= this.room.players[0].x) {
+			if (this.y + this.size + this.direction[1] >= this.room.players[0].y && this.y - this.size - this.direction[1] <= this.room.players[0].y + this.room.players[0].height ) {
+				if (this.direction[0] < -14)
+					this.direction[0] *= -1;
+				else
+					this.direction[0] = this.direction[0] * -1.1;
+				var impact = this.y - this.room.players[0].y - this.room.players[0].height / 2;
+				var ratio = 100 / ( this.room.players[0].height / 2);
+				this.direction[1] = Math.round(impact * ratio / 10);
+			}
+		}
+	}
+
+	handleCollisionRight() {
+		if (this.x + this.direction[0] >= this.room.players[1].x && this.x + this.size + this.direction[0] <= this.room.players[1].x + this.room.players[1].width ) {
+			if (this.y + this.size + this.direction[1] >= this.room.players[1].y && this.y - this.size - this.direction[1] <= this.room.players[1].y + this.room.players[1].height ) {
+				if (this.direction[0] > 14)
+					this.direction[0] *= -1;
+				else
+					this.direction[0] = this.direction[0]* -1.1;
+				var impact = this.y - this.room.players[1].y - this.room.players[1].height / 2;
+				var ratio = 100 / ( this.room.players[1].height / 2);
+				this.direction[1] = Math.round(impact * ratio / 10);
+			}
+		}
 	}
 
 	move(index: number) {
-		if (this.willCollideVertical() || this.willCollideHorizontal()) {;
-				this.speed *= -1;
-		}
+		if (this.direction[0] < 0) this.handleCollisionLeft();
+		else if (this.direction[0] >= 0) this.handleCollisionRight();
+		if (this.direction[1] < 0) this.handleCollisionTop();
+		else if (this.direction[1] > 0) this.handleCollisionBottom();
 		this.x += this.direction[0] * this.speed;
 		this.y += this.direction[1] * this.speed;
+		if (this.x < 0 - this.room.players[0].width * 2 || this.x > this.room.width + this.room.players[1].width * 2) this.resetLocation();
 		this.room.broadcast(new PacketPlayOutBallsMove(index, this.size, this.x, this.y));
-
 	}
 }

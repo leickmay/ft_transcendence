@@ -21,15 +21,6 @@ export interface Player extends Entity {
 	score: number;
 }
 
-export interface CreatePlayerDto {
-	user: User;
-	x: number;
-	y: number;
-	width: number;
-	height: number;
-	direction: Directions;
-}
-
 export interface Spectator {
 	user: User;
 }
