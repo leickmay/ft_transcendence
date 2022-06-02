@@ -26,11 +26,16 @@ let backgroundImg: HTMLImageElement = new Image();
 backgroundImg.src = './assets/images/background.png';
 
 let ballImg: HTMLImageElement = new Image();
-ballImg.src = './assets/images/ball.png';
+const ballSize: number = 266;
+let ballSx: number = 0;
+let sXMultiplier: number = 0;
+let ballSy: number = 0; 
+let sYMultiplier: number = 0;
+ballImg.src = './assets/images/ballSheet.png';
 
 const spriteUrl = '/assets/images/paddles.png';
-const spriteWidth = 110;
-const spriteHeight = 450;
+const spriteWidth: number = 110;
+const spriteHeight: number = 450;
 let paddleImg: HTMLImageElement = new Image();
 paddleImg.src = spriteUrl;
 
@@ -63,6 +68,7 @@ export const Game = () => {
 	useEffect(() => {
 		if (curRoom.p1?.ready && curRoom.p2?.ready) {
 			initGame();
+			setInterval(animationBall, 10);
 			draw();
 		}
 	}, [curRoom.p1?.ready, curRoom.p2?.ready]);
@@ -75,7 +81,21 @@ export const Game = () => {
 		}
 	}, [counter]);
 	
+	function animationBall() {
+		ballSx = ballSize * sXMultiplier;
+		ballSy = ballSize * sYMultiplier;
 
+		sXMultiplier += 1;
+		if (sXMultiplier === 11) {
+			sXMultiplier = 0;
+			sYMultiplier += 1;
+			if (sYMultiplier === 10) {
+				sYMultiplier = 0;
+			}
+		}
+
+
+	}
 
 	async function initGame() {
 		canvas = canvasRef.current;
@@ -95,7 +115,7 @@ export const Game = () => {
 			ctx.drawImage(paddleImg, p1sx, 0, spriteWidth, spriteHeight, curRoom.p1.x * 0.20, curRoom.p1.y * 0.98, curRoom.p1.width * 1.6, curRoom.p1.height * 1.1);
 			ctx.drawImage(paddleImg, p2sx, spriteHeight, spriteWidth, spriteHeight, curRoom.p2.x * 0.993, curRoom.p2.y * 0.98, curRoom.p2.width * 1.6, curRoom.p2.height * 1.1);
 			curRoom.balls.forEach((ball: Ball) => {
-				ctx!.drawImage(ballImg, ball.x * 0.95, ball.y * 0.91, ball.size * 7 , ball.size * 7);
+				ctx!.drawImage(ballImg, ballSx, ballSy, ballSize, ballSize, ball.x * 0.97, ball.y * 0.94, ball.size * 5, ball.size * 5);
 			})
 			if (counter !== -1 && curRoom.isStart && !curRoom.isOver) {
 				let numsx: number = 0;
