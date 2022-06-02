@@ -48,9 +48,7 @@ export const Friends = () => {
 						{results.map(u =>
 							<li key={u.id}>
 								<span>{u.name} <small>{u.login}</small></span>
-								{canAdd(u.id) &&
-									<button onClick={() => addFriend(u.id)}>add friend</button>
-								}
+								<button style={{ visibility: canAdd(u.id) ? undefined : 'hidden' }} className="border-primary" onClick={() => addFriend(u.id)}>add</button>
 							</li>
 						)}
 					</ul>

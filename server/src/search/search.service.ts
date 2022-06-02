@@ -9,8 +9,7 @@ import { ILike } from 'typeorm';
 @Injectable()
 export class SearchService {
 
-	constructor(
-	) { }
+	constructor() { }
 
 	dispatch(packet: Packet, user: User): void {
 		switch (packet.packet_id) {
@@ -27,6 +26,10 @@ export class SearchService {
 				where: {
 					login: ILike(`${packet.request}%`),
 				},
+				order: {
+					login: 'ASC',
+				},
+				take: 10,
 			})
 		) as any));
 	}
