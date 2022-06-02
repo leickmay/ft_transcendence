@@ -63,7 +63,7 @@ export class ChatService {
 		if (this.rooms.find(x => x.name === packet.name))
 			return;
 
-		let roomIn: ChatRoom = new ChatRoom(ChatTypes.CHANNEL, packet);
+		let roomIn: ChatRoom = new ChatRoom(ChatTypes.CHANNEL, packet, user);
 		this.rooms.push(roomIn);
 
 		if (!roomIn.visible)

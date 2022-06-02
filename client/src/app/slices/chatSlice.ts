@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ChatTypes, ChatRoom } from "../interfaces/Chat";
 import { PacketPlayInChatMessage } from "../packets/InChat/PacketPlayInChatMessage";
-import { PacketPlayInChatRoomCreate } from "../packets/PacketPlayInChatRoomCreate";
+import { PacketPlayInChatRoomCreate } from "../packets/InChat/PacketPlayInChatRoomCreate";
 
 interface State {
 	current: string;
