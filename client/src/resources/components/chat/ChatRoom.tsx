@@ -1,7 +1,7 @@
 import { KeyboardEvent, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/socket";
-import { PacketPlayOutChatMessage } from "../../../app/packets/OutChat/PacketPlayOutChatMessage";
+import { PacketPlayOutChatMessage } from "../../../app/packets/chat/PacketPlayOutChat";
 import store from "../../../app/store";
 import { getCurrentRoom, getTime, scrollToBottomById } from "../../pages/Chat";
 
@@ -12,20 +12,22 @@ const ChatCurrentRoom = () => {
 	const alertCurrent = useSelector(() => store.getState().chat.current);
 	const alertRooms = useSelector(() => store.getState().chat.rooms);
 
-	const [name, setName] = useState(getCurrentRoom().name);
-	const [messages, setMessages] = useState(getCurrentRoom().messages);
+	const [name, setName] = useState(getCurrentRoom()?.name);
+	const [messages, setMessages] = useState(getCurrentRoom()?.messages);
 	const [newMessage, setNewMessage] = useState('');
 
 	const inputNewMessage = async (element: KeyboardEvent<HTMLTextAreaElement>): Promise<void> => {
 		if (element.key === 'Enter' && newMessage !== '') {
-			socket?.emit('chat', new PacketPlayOutChatMessage(store.getState().chat.current, newMessage));
+			let current = store.getState().chat.current;
+			if (current)
+				socket?.emit('chat', new PacketPlayOutChatMessage(current, newMessage));
 			setNewMessage('');
 		}
 	}
 
 	useEffect(() => {
-		setMessages(getCurrentRoom().messages);
-		setName(getCurrentRoom().name);
+		setMessages(getCurrentRoom()?.messages);
+		setName(getCurrentRoom()?.name);
 	}, [alertCurrent, alertRooms]);
 
 	useEffect(() => {
@@ -36,13 +38,13 @@ const ChatCurrentRoom = () => {
 		<div id="chatRoom" className="chatRight">
 			<h2>{name}</h2>
 			{
-				(store.getState().users.current?.id === getCurrentRoom().operator) &&
+				(store.getState().users.current?.id === getCurrentRoom()?.operator) &&
 				<button>Operator</button>
 			}
 			<div id="chatRoomMesssages">
 			{
 					messages
-						.map((value, index) => {
+						?.map((value, index) => {
 							let from: string = "otherMessage";
 							if (value.from === store.getState().users.current?.login) {
 								from = "myMessage";

@@ -36,7 +36,7 @@ const ChatNavigation = () => {
 			<div className="chatRoomList">
 				{
 					rooms
-						.filter((x) => x.type === ChatTypes.CHANNEL)
+						?.filter((x) => x.type === ChatTypes.CHANNEL)
 						.filter((x) => x.name === "World Random" || x.users.find(u => u === store.getState().users.current?.id))
 						.map((value, index) => {
 							return (
@@ -55,7 +55,7 @@ const ChatNavigation = () => {
 			<div className="chatRoomList">
 				{
 					rooms
-						.filter((x) => x.type === ChatTypes.PRIVATE_MESSAGE)
+						?.filter((x) => x.type === ChatTypes.PRIVATE_MESSAGE)
 						.map((value, index) => {
 							return (
 								<div onClick={() => {changeRoom(value.name)}} key={index}>

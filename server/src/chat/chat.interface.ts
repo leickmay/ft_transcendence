@@ -1,7 +1,5 @@
 import { Exclude, Expose, Transform } from "class-transformer";
-import { PacketPlayInChatCreate } from "src/socket/packets/InChat/PacketPlayInChatCreate";
-import { PacketPlayOutChatMessage } from "src/socket/packets/OutChat/PacketPlayOutChatMessage";
-import { Packet, PacketTypes } from "src/socket/packets/packetTypes";
+import { PacketPlayOutChatMessage } from "src/socket/packets/chat/PacketPlayOutChat";
 import { User } from "src/user/user.entity";
 
 export interface Message {
@@ -24,13 +22,16 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	id: string;
 
 	@Expose()
-	name: string;
-
-	@Expose()
 	type: ChatTypes;
 
 	@Expose()
+	name: string;
+
+	@Expose()
 	visible: boolean;
+
+	@Expose()
+	users: Array<number>;
 
 	@Expose()
 	operator?: number;
@@ -39,48 +40,48 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	@Transform(({value}) => !!value)
 	password?: string;
 
-	@Expose()
-	users: Array<number>;
-
-	constructor(type: ChatTypes, packet: PacketPlayInChatCreate, user?: User) {
+	constructor(
+		type: ChatTypes,
+		name: string,
+		visible: boolean,
+		users: Array<number>,
+		operator?: number,
+		password?: string,
+	) {
 		++ChatRoom.current;
-		if (type === ChatTypes.PRIVATE_MESSAGE)
-			this.id = "privMsg_" + packet.name;
-		else
-			this.id = "channel_" + packet.name;
-		this.name = packet.name;
+		this.id = "ChatRoom_" + ChatRoom.current;
 		this.type = type;
-		this.visible = packet.visible
-		this.operator = user?.id;
-		this.password = packet.password;
-		if (user)
-			this.users = [user.id];
-		else
-			this.users = [];
+		this.name = name;
+		this.visible = visible;
+		this.users = users;
+		this.operator = operator;
+		this.password = password;
 	}
 
-	isPresent(user: User): boolean {
-		return !!this.users.find(userID => userID === user.id);
+	isPresent(userID: number): boolean {
+		return !!this.users.find(x => x === userID);
 	}
 
 	join(user: User, password?: string): boolean {
-		if (this.isPresent(user))
-		{
-			console.log(user.login + " join : " + this.name);
-			user.socket.join(this.id);
-			return true;
-		}
-		if (this.password !== password)
+		if (!this.isPresent(user.id) && this.password !== password)
 			return false;
-		this.users.push(user.id);
+
+		if (!this.isPresent(user.id))
+			this.users.push(user.id);
+
 		user.socket.join(this.id);
 		console.log(user.login + " new join : " + this.name);
 		return true;
 	}
 
 	leave(user: User): boolean {
-		console.log(user.login + " leave : " + this.name)
+		if (!this.isPresent(user.id))
+			return false;
+		
+		this.users = this.users.filter(x => x !== user.id);
+
 		user.socket.leave(this.name);
+		console.log(user.login + " leave : " + this.name);
 		return true;
 	}
 

@@ -1,7 +1,8 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/socket";
-import { PacketPlayOutChatChannelCreate } from "../../../app/packets/OutChat/PacketPlayOutChatChannelCreate";
-import { PacketPlayOutChatChannelJoin } from "../../../app/packets/OutChat/PacketPlayOutChatChannelJoin";
+import { ChatTypes } from "../../../app/interfaces/Chat";
+import { PacketPlayOutChatCreate, PacketPlayOutChatJoin } from "../../../app/packets/chat/PacketPlayOutChat";
 import { setCurrentRooms } from "../../../app/slices/chatSlice";
 import store from "../../../app/store";
 import { hideDivById } from "../../pages/Chat";
@@ -20,28 +21,46 @@ const ChatChannel = () => {
 	const [hasPassword, setHasPassword] = useState(false);
 	const [password, setPassword] = useState('');
 
+	const [rooms, setRooms] = useState(
+		store.getState().chat.rooms?.filter(
+			x => x.users.find(u => u !== store.getState().users.current?.id)
+		)
+	);
+
+	const alertRooms = useSelector(() => store.getState().chat.rooms);
+
+	useEffect(() => {
+		setRooms(
+			store.getState().chat.rooms?.filter(
+				x => x.users.find(u => u === store.getState().users.current?.id) === undefined
+			)
+		);
+	}, [alertRooms]);
+
+
 	const createChannel = (): void => {
-		let roomPacket : PacketPlayOutChatChannelCreate;
+		let roomPacket : PacketPlayOutChatCreate;
 		
-		roomPacket = new PacketPlayOutChatChannelCreate(name, !isPrivate);
+		roomPacket = new PacketPlayOutChatCreate(ChatTypes.CHANNEL).toChannel(name, !isPrivate);
+
 		if (hasPassword && password !== "")
 			roomPacket.withPassword(password);
 
 		socket?.emit('chat', roomPacket);
+
+		store.dispatch(setCurrentRooms(name));
 		
 		setName('');
 		setIsPrivate(false);
 		setHasPassword(false);
 		setPassword('');
 		hideDivById('input_password');
-
-		store.dispatch(setCurrentRooms(roomPacket.name));
 	}
 
 	const joinChannel = (): void => {
-		let roomPacket : PacketPlayOutChatChannelJoin;
+		let roomPacket : PacketPlayOutChatJoin;
 		
-		roomPacket = new PacketPlayOutChatChannelJoin(name);
+		roomPacket = new PacketPlayOutChatJoin(name);
 		if (hasPassword && password !== "")
 			roomPacket.withPassword(password);
 
@@ -66,12 +85,22 @@ const ChatChannel = () => {
 			<label>
 				Name
 				<input
+					list="channel-visible"
 					name="names"
 					type="text"
 					placeholder="Name"
 					value={name}
 					onChange={event => setName(event.target.value)}
 				/>
+				<datalist id="channel-visible">
+					{
+						rooms?.map((x, index) => {
+							return (
+								<option key={index}>{x.name}</option>
+							);
+						})
+					}
+				</datalist>
 			</label>
 			<label>
 				Private

@@ -15,9 +15,9 @@ export enum PacketTypesChat {
 	MESSAGE,
 	CREATE,
 	JOIN,
-	UP,
 	LEAVE,
-	DELETE,
+	UP,
+	INIT,
 }
 
 export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat;

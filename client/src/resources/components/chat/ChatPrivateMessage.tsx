@@ -1,5 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { SocketContext } from "../../../app/context/socket";
+import { ChatRoom, ChatTypes } from "../../../app/interfaces/Chat";
+import { PacketPlayOutChatCreate } from "../../../app/packets/chat/PacketPlayOutChat";
 import store from "../../../app/store";
 import { hideDivById } from "../../pages/Chat";
 
@@ -10,13 +13,34 @@ export const switchConfigPrivMsg = () => {
 
 const ChatPrivateMessage = () => {
 
+	const socket = useContext(SocketContext);
+
 	const [usersOnline, setUsersOnline] = useState(store.getState().users.online);
-
 	const alertUsersOnline = useSelector(() => store.getState().users.online);
-
 	useEffect(() => {
 		setUsersOnline(store.getState().users.online);
 	}, [alertUsersOnline]);
+
+	const [rooms, setRooms] = useState(store.getState().chat.rooms);
+	const alertRooms = useSelector(() => store.getState().chat.rooms);
+	useEffect(() => {
+		setRooms(store.getState().chat.rooms);
+	}, [alertRooms]);
+
+	const hasAlreadyPrivMsg = (userId: number): boolean => {
+		let room: ChatRoom | undefined;
+		room = rooms?.find(r => r.type === ChatTypes.PRIVATE_MESSAGE && r.users.find(u => u === userId));
+		if (room)
+			return (false);
+		return (true);
+	}
+
+	const createPrivateMessage = (id: number) => {
+		let roomPacket : PacketPlayOutChatCreate;
+		roomPacket = new PacketPlayOutChatCreate(ChatTypes.PRIVATE_MESSAGE).toPrivateMessage([id]);
+
+		socket?.emit('chat', roomPacket);
+	}
 
 	return (
 		<div
@@ -31,9 +55,17 @@ const ChatPrivateMessage = () => {
 			>..</button>
 			<h2>Players Online</h2>
 			{
-				usersOnline.map((value, index) => {
+				usersOnline
+					.filter(u => hasAlreadyPrivMsg(u.id))
+					.map((value, index) => {
 					return (
-						<div key={index}>
+						<div
+							key={index} 
+							onClick={() => {
+								createPrivateMessage(value.id);
+								switchConfigPrivMsg();
+							}}
+						>
 							+ {value.login}
 						</div>
 					)

@@ -1,0 +1,49 @@
+import { ChatTypes, Message } from "src/chat/chat.interface";
+import { DeclarePacket, PacketTypesChat } from "../packetTypes";
+
+@DeclarePacket(PacketTypesChat.COMMAND)
+export class PacketPlayOutChatCommand {}
+
+@DeclarePacket(PacketTypesChat.MESSAGE)
+export class PacketPlayOutChatMessage {
+	constructor(
+		public room: string,
+		public message: Message,
+	) {}
+}
+
+@DeclarePacket(PacketTypesChat.CREATE)
+export class PacketPlayOutChatCreate {
+	constructor(
+		public id: string,
+		public type: ChatTypes,
+		public name: string,
+		public visible: boolean,
+		public users: number[],
+		public operator?: number,
+	) {}
+}
+
+@DeclarePacket(PacketTypesChat.JOIN)
+export class PacketPlayOutChatJoin {}
+
+@DeclarePacket(PacketTypesChat.LEAVE)
+export class PacketPlayOutChatLeave {}
+
+@DeclarePacket(PacketTypesChat.UP)
+export class PacketPlayOutChatUp {
+}
+
+@DeclarePacket(PacketTypesChat.INIT)
+export class PacketPlayOutChatInit {
+	constructor(
+		public rooms: Array<{
+			id: string,
+			name: string,
+			type: ChatTypes,
+			visible: boolean,
+			users: Array<number>,
+			operator?: number,
+		}>,
+	) {}
+}
