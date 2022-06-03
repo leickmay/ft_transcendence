@@ -16,10 +16,10 @@ export interface ChatRoom {
 	id: string,
 	type: ChatTypes;
 	name: string;
-	messages: Message[];
 	visible: boolean;
+	users: Array<number>;
 	operator?: number;
-	users: number[];
+	messages: Array<Message>;
 }
 
 export interface Command {

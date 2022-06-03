@@ -1,106 +1,167 @@
 import { Injectable } from "@nestjs/common";
-import { PacketPlayInChatCreate } from "src/socket/packets/InChat/PacketPlayInChatCreate";
-import { PacketPlayInChatJoin } from "src/socket/packets/InChat/PacketPlayInChatJoin";
-import { PacketPlayInChatMessage } from "src/socket/packets/InChat/PacketPlayInChatMessage";
-import { PacketPlayOutChatRoomCreate } from "src/socket/packets/OutChat/PacketPlayOutChatRoomCreate";
+import { instanceToPlain } from "class-transformer";
+import { PacketPlayInChatCreate, PacketPlayInChatJoin, PacketPlayInChatMessage } from "src/socket/packets/chat/PacketPlayInChat";
+import { PacketPlayOutChatCreate, PacketPlayOutChatInit, PacketPlayOutChatUp } from "src/socket/packets/chat/PacketPlayOutChat";
 import { PacketTypesChat, Packet } from "src/socket/packets/packetTypes";
 import { User } from "src/user/user.entity";
 import { ChatTypes, ChatRoom } from "./chat.interface";
 
 @Injectable()
 export class ChatService {
-	private worldRandom: PacketPlayInChatCreate = {
-		packet_id: PacketTypesChat.CREATE,
-		name: "World Random",
-		visible: true,
-		password: undefined,
-	}
-	rooms: Array<ChatRoom> = [new ChatRoom(ChatTypes.CHANNEL, this.worldRandom)];
 
-	constructor() {}
+	rooms: Array<ChatRoom>;
+
+	constructor() {
+		this.rooms = [new ChatRoom(
+			ChatTypes.CHANNEL,
+			"World Random",
+			true,
+			[],
+			undefined,
+			undefined,
+		)];
+	}
 
 	dispatch(packet: Packet, user: User): void {
 		switch (packet.packet_id) {
-			case PacketTypesChat.MESSAGE:
-				this.messageHandler(packet as PacketPlayInChatMessage, user);
+			case PacketTypesChat.COMMAND: {
+				this.event_command();
 				break;
-			case PacketTypesChat.CREATE:
-				this.createHandler(packet as PacketPlayInChatCreate, user);
+			}
+			case PacketTypesChat.MESSAGE: {
+				this.event_message(packet as PacketPlayInChatMessage, user);
 				break;
-			case PacketTypesChat.JOIN:
-				this.joinHandler(packet as PacketPlayInChatJoin, user);
+			}
+			case PacketTypesChat.CREATE: {
+				this.event_create(packet as PacketPlayInChatCreate, user);
 				break;
+			}
+			case PacketTypesChat.JOIN: {
+				this.event_join(packet as PacketPlayInChatJoin, user);
+				break;
+			}
+			case PacketTypesChat.LEAVE: {
+				this.event_leave();
+				break;
+			}
+			case PacketTypesChat.UP: {
+				this.event_up();
+				break;
+			}
 			default:
 				break;
 		}
 	}
 
-	getPublicRooms(): Array<ChatRoom> {
-		return this.rooms;
+	connection(user: User): void {
+
+		let worldRandom: ChatRoom | undefined;
+		worldRandom =  this.rooms.find(r => r.name === "World Random");
+		if (!(worldRandom?.isPresent(user.id)))
+			worldRandom.users.push(user.id)
+
+		this.rooms
+			.filter(r => r.isPresent(user.id))
+			.map((room: ChatRoom) => {
+				room.join(user)
+			});
+
+		console.log(this.rooms
+			.filter(r => r.isPresent(user.id) || r.visible)
+			.map((room: ChatRoom) => {
+				return ({
+					id: room.id,
+					name: room.name,
+					type: room.type,
+					visible: room.visible,
+					users: room.users,
+					operator: room.operator,
+				});
+			}))
+
+		user.send('chat', new PacketPlayOutChatInit(
+			instanceToPlain(
+				this.rooms
+					.filter(r => r.isPresent(user.id) || r.visible)
+					.map((room: ChatRoom) => {
+						return ({
+							id: room.id,
+							name: room.name,
+							type: room.type,
+							visible: room.visible,
+							users: room.users,
+							operator: room.operator,
+						});
+					})
+			) as any
+		));
+	}
+	disconnection(user: User) {
+		//this.rooms.map((room) => {
+		//	room.leave(user);
+		//});
 	}
 
-	join(user: User) {
-		this.rooms.map((room) => {
-			if (room.isPresent(user) || room.name === "World Random") {
-				this.upRoom(user, room);
-				room.join(user);
-				room.command(user, "/JOIN " + room.name);
-			}
-		})
+	async event_command(): Promise<void> {
 	}
-
-	leave(user: User) {
-		this.rooms.map((room) => {
-			room.leave(user);
-		})
-	}
-
-	upRoom(user: User, room: ChatRoom) {
-		let roomOut: PacketPlayOutChatRoomCreate;
-
-		roomOut = new PacketPlayOutChatRoomCreate(
-					room.id,
-					ChatTypes.CHANNEL,
-					room.name,
-					room.visible,
-					room.users,
-					room.operator,
-		);
-
-		user.socket?.emit('chat', roomOut);
-		if (room.visible)
-			user.socket?.broadcast.emit('chat', roomOut);
-	}
-
-	async commandHandler(packet: PacketPlayInChatMessage, user: User): Promise<void> {
+	async event_message(packet: PacketPlayInChatMessage, user: User): Promise<void> {
+		console.log(packet)
 		let room: ChatRoom | undefined = this.rooms.find(x => x.id === packet.room);
-		if (room?.isPresent(user))
-			room?.command(user, packet.text);
-	}
-
-	async messageHandler(packet: PacketPlayInChatMessage, user: User): Promise<void> {
-		if (packet.text.startsWith('\\')) {
-			this.commandHandler(packet, user);
-			return;
-		}
-
-		let room: ChatRoom | undefined = this.rooms.find(x => x.id === packet.room);
-		if (room?.isPresent(user))
+		if (room?.isPresent(user.id))
 			room?.send(user, packet.text);
 	}
-
-	async createHandler(packet: PacketPlayInChatCreate, user: User): Promise<void> {
-		if (this.rooms.find(x => x.name === packet.name))
-			return;
-
-		let roomIn: ChatRoom = new ChatRoom(ChatTypes.CHANNEL, packet, user);
-		roomIn.join(user);
-		this.rooms.push(roomIn);
-
-		this.upRoom(user, roomIn);
+	async event_create(packet: PacketPlayInChatCreate, user: User): Promise<void> {
+		switch (packet.type) {
+			case ChatTypes.CHANNEL: {
+				if (packet.name && packet.visible) {
+					if (this.rooms.find(x => x.type === ChatTypes.CHANNEL && x.name === packet.name))
+						return;
+					let room: ChatRoom = new ChatRoom(
+						ChatTypes.CHANNEL,
+						packet.name,
+						packet.visible,
+						[user.id],
+						user.id,
+						packet.password,
+					);
+					room.join(user);
+					this.rooms.push(room);
+					this.upRoom(user, room);
+				}
+				break;
+			}
+			case ChatTypes.PRIVATE_MESSAGE: {
+				if (packet.users && packet.users.length === 1) {
+					let tmp = this.rooms.find(r => (
+						r.type === ChatTypes.PRIVATE_MESSAGE
+						&& r.isPresent(user.id)
+						&& r.isPresent(packet.users[0])))
+					if (tmp) {
+						tmp.join(user);
+						this.upRoom(user, tmp);
+						return;
+					}
+					let name: string = user.id.toString().padStart(8, "0") + packet.users[0].toString().padStart(8, "0");
+					console.log(name);
+					let room: ChatRoom = new ChatRoom(
+						ChatTypes.PRIVATE_MESSAGE,
+						name,
+						false,
+						[user.id, packet.users[0]],
+						undefined,
+						undefined,
+					);
+					room.join(user);
+					this.rooms.push(room);
+					this.upRoom(user, room);
+				}
+				break;
+			}
+			default:
+				break;
+		}
 	}
-
-	async joinHandler(packet: PacketPlayInChatJoin, user: User): Promise<void> {
+	async event_join(packet: PacketPlayInChatJoin, user: User): Promise<void> {
 		let room: ChatRoom | undefined;
 
 		room = this.rooms.find(x => x.name === packet.name);
@@ -116,4 +177,89 @@ export class ChatService {
 		room.join(user, packet.password)
 		room.command(user, "/JOIN " + room.name);
 	}
+	async event_leave(): Promise<void> {}
+	async event_up(): Promise<void> {}
+
+
+	getPublicRooms(): Array<ChatRoom> {
+		return this.rooms;
+	}
+
+//	join(user: User) {
+//		this.rooms.map((room) => {
+//			if (room.isPresent(user) || room.name === "World Random") {
+//				this.upRoom(user, room);
+//				room.join(user);
+//				room.command(user, "/JOIN " + room.name);
+//			}
+//		})
+//	}
+//
+//	leave(user: User) {
+//		this.rooms.map((room) => {
+//			room.leave(user);
+//		});
+//	}
+
+	upRoom(user: User, room: ChatRoom) {
+		let roomOut: PacketPlayOutChatCreate;
+
+		roomOut = new PacketPlayOutChatCreate(
+			room.id,
+			room.type,
+			room.name,
+			room.visible,
+			room.users,
+			room.operator,
+		);
+
+		user.socket?.emit('chat', roomOut);
+		if (room.visible)
+			user.socket?.broadcast.emit('chat', roomOut);
+	}
+
+//	async commandHandler(packet: PacketPlayInChatMessage, user: User): Promise<void> {
+//		let room: ChatRoom | undefined = this.rooms.find(x => x.id === packet.room);
+//		if (room?.isPresent(user))
+//			room?.command(user, packet.text);
+//	}
+//
+//	async messageHandler(packet: PacketPlayInChatMessage, user: User): Promise<void> {
+//		if (packet.text.startsWith('\\')) {
+//			this.commandHandler(packet, user);
+//			return;
+//		}
+//
+//		let room: ChatRoom | undefined = this.rooms.find(x => x.id === packet.room);
+//		if (room?.isPresent(user))
+//			room?.send(user, packet.text);
+//	}
+//
+//	async createHandler(packet: PacketPlayInChatCreate, user: User): Promise<void> {
+//		if (this.rooms.find(x => x.name === packet.name))
+//			return;
+//
+//		let roomIn: ChatRoom = new ChatRoom(ChatTypes.CHANNEL, packet, user);
+//		roomIn.join(user);
+//		this.rooms.push(roomIn);
+//
+//		this.upRoom(user, roomIn);
+//	}
+//
+//	async joinHandler(packet: PacketPlayInChatJoin, user: User): Promise<void> {
+//		let room: ChatRoom | undefined;
+//
+//		room = this.rooms.find(x => x.name === packet.name);
+//		if (!room)
+//			return;
+//		
+//		if (room.type === ChatTypes.PRIVATE_MESSAGE)
+//			return;
+//		
+//		if (!room.visible)
+//			this.upRoom(user, room);
+//
+//		room.join(user, packet.password)
+//		room.command(user, "/JOIN " + room.name);
+//	}
 }

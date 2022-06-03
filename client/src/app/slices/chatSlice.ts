@@ -1,27 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ChatTypes, ChatRoom, Command } from "../interfaces/Chat";
-import { PacketPlayInChatMessage } from "../packets/InChat/PacketPlayInChatMessage";
-import { PacketPlayInChatRoomCreate } from "../packets/InChat/PacketPlayInChatRoomCreate";
-import store from "../store";
+import { ChatRoom, Command } from "../interfaces/Chat";
+import { PacketPlayInChatMessage, PacketPlayInChatRoomCreate } from "../packets/chat/PacketPlayInChat";
 
 interface State {
-	current: string;
-	rooms: Array<ChatRoom>;
-}
-
-const worldRandom: ChatRoom = {
-	type: ChatTypes.CHANNEL,
-	id: "channel_World Random",
-	name: "World Random",
-	messages: [],
-	operator: undefined,
-	visible: true,
-	users: [],
+	current?: string;
+	rooms?: Array<ChatRoom>;
 }
 
 const initialState: State = {
-	current: worldRandom.id,
-	rooms: [worldRandom],
+	current: "ChatRoom_1",
 };
 
 const slice = createSlice({
@@ -29,16 +16,20 @@ const slice = createSlice({
 	initialState,
 	reducers: {
 		setCurrentRooms: (state: State, action: PayloadAction<string>): State => {
-			let room = state.rooms.find(x => x.id === action.payload);
+			let room = state.rooms?.find(x => x.id === action.payload);
 			if (room) {
 				state.current = room.id;
 			}
 			return (state);
 		},
+		setChatRooms: (state: State, action: PayloadAction<Array<ChatRoom>>): State => {
+			state.rooms = action.payload;
+			return (state);
+		},
 		addRoom: (state: State, action: PayloadAction<PacketPlayInChatRoomCreate>): State => {
-			if (state.rooms.find(x => x.id === action.payload.id))
+			if (state.rooms?.find(x => x.id === action.payload.id))
 				return (state);
-			if (state.rooms.find(x => x.name === action.payload.name))
+			if (state.rooms?.find(x => x.name === action.payload.name))
 				return (state);
 			let room: ChatRoom = {
 				id: action.payload.id,
@@ -49,15 +40,15 @@ const slice = createSlice({
 				operator: action.payload.operator,
 				users: action.payload.users,
 			}
-			state.rooms.push(room);
+			state.rooms?.push(room);
 			return (state);
 		},
 		delRoom: (state: State, action: PayloadAction<ChatRoom>): State => {
-			if (action.payload.id === worldRandom.id)
+			if (action.payload.name === "World Random")
 			 	return (state);
 			if (action.payload.id === state.current)
-				state.current = worldRandom.id;
-			state.rooms = state.rooms.filter(x => x.name !== action.payload.name);
+				state.current = "ChatRoom_1";
+			state.rooms = state.rooms?.filter(x => x.name !== action.payload.name);
 			return (state);
 		},
 		addUser: (state: State, action: PayloadAction<Command>): State => {
@@ -66,18 +57,18 @@ const slice = createSlice({
 			console.log(action.payload.cmd)
 			state
 				.rooms
-				.find(x => x.name === action.payload.cmd[1])
+				?.find(x => x.name === action.payload.cmd[1])
 				?.users.push(action.payload.user.id);
 			return (state);
 		},
 		newMessages: (state: State, action: PayloadAction<PacketPlayInChatMessage>): State => {
 			state.rooms
-				.find(x => x.id === action.payload.room)
+				?.find(x => x.id === action.payload.room)
 				?.messages.push(action.payload.message);
 			return (state);
 		},
 	},
 });
 
-export const {setCurrentRooms, addRoom, delRoom, newMessages, addUser} = slice.actions;
+export const {setCurrentRooms,setChatRooms, addRoom, delRoom, newMessages, addUser} = slice.actions;
 export default slice.reducer;
