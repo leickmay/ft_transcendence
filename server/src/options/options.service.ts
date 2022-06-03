@@ -62,13 +62,14 @@ export class OptionsService {
 
 	async friendHandler(packet: PacketPlayInFriend, user: User): Promise<void> {
 		let friends = await user.friends;
-		
+
 		if (packet.action === 'add' || packet.action === 'remove') {
 			if (packet.action == 'add') {
-				let target = await User.findOneBy({ id: packet.id });
-
-				if (target && target.id !== user.id && !friends.find(e => e.id !== packet.id)) {
-					friends.push(target);
+				if (packet.id !== user.id && !friends.find(e => e.id === packet.id)) {
+					let target = await User.findOneBy({ id: packet.id });
+					if (target) {
+						friends.push(target);
+					}
 				}
 			} else {
 				friends = friends.filter(e => e.id !== packet.id);

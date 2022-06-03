@@ -40,21 +40,21 @@ export const Friends = () => {
 
 	return (
 		<div id="friends">
-			<section>
-				<div className="add-friend">
-					<h3>Add friend</h3>
-					<input type="text" autoComplete="off" name="search" className="border-primary" placeholder="Search for a login" value={searchInputValue} onChange={updateResults} />
-					<ul>
-						{results.map(u =>
-							<li key={u.id}>
-								<span>{u.name} <small>{u.login}</small></span>
-								<button style={{ visibility: canAdd(u.id) ? undefined : 'hidden' }} className="border-primary" onClick={() => addFriend(u.id)}>add</button>
-							</li>
-						)}
-					</ul>
-				</div>
-				<div className="friends">
-					<h3>Friends</h3>
+			<section className="add-friend">
+				<h3>Add friend</h3>
+				<input type="text" autoComplete="off" name="search" className="border-primary" placeholder="Search for a login" value={searchInputValue} onChange={updateResults} />
+				<ul>
+					{results.map(u =>
+						<li key={u.id}>
+							<span>{u.name} <small>{u.login}</small></span>
+							<button style={{ visibility: canAdd(u.id) ? undefined : 'hidden' }} className="border-primary" onClick={() => addFriend(u.id)}>add</button>
+						</li>
+					)}
+				</ul>
+			</section>
+			<section className="friends">
+				<h3>Friends</h3>
+				<div>
 					{friends.map(f =>
 						<FriendCard key={f.id} user={f} />
 					)}
