@@ -4,6 +4,7 @@ import { DeclarePacket, PacketTypesPlayer } from "./packetTypes";
 @DeclarePacket(PacketTypesPlayer.MOVE)
 export class PacketPlayOutPlayerMove {
 	constructor(
-		public player: Record<string, any>,
+		public player: number,
+		public direction: Directions,
 	) { }
 }

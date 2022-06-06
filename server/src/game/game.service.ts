@@ -3,10 +3,11 @@ import { EventsService } from 'src/socket/events.service';
 import { PacketPlayInPlayerJoin } from 'src/socket/packets/PacketPlayInPlayerJoin';
 import { PacketPlayInPlayerMove } from 'src/socket/packets/PacketPlayInPlayerMove';
 import { PacketPlayInPlayerReady } from 'src/socket/packets/PacketPlayInPlayerReady';
+import { PacketPlayOutGameUpdate } from 'src/socket/packets/PacketPlayOutGameUpdate';
 import { PacketPlayOutPlayerJoinWL } from 'src/socket/packets/PacketPlayOutPlayerJoinWL';
-import { Packet, PacketTypesPlayer } from 'src/socket/packets/packetTypes';
+import { Packet, PacketTypesGame, PacketTypesPlayer } from 'src/socket/packets/packetTypes';
 import { User } from '../user/user.entity';
-import { Player, Room } from "./game.interfaces";
+import { GameData, Player, Room } from "./game.interfaces";
 
 export class GameService {
 	rooms: Array<Room> = new Array;
@@ -29,6 +30,9 @@ export class GameService {
 
 	dispatch(packet: Packet, user: User) {
 		switch (packet.packet_id) {
+			case PacketTypesGame.INIT:
+				this.handleInitGame(user);
+				break;
 			case PacketTypesPlayer.JOIN:
 				this.handleJoin(packet as PacketPlayInPlayerJoin, user);
 				break;
@@ -54,6 +58,25 @@ export class GameService {
 
 	destroyRoom(room: Room | undefined): void {
 		room?.clear();
+	}
+
+	handleInitGame(user: User) {
+		let emptyBaseRoom = new Room(null);
+		let newPacket: GameData = {
+			id: emptyBaseRoom.id,
+			height: emptyBaseRoom.height,
+			width: emptyBaseRoom.width,
+			full: emptyBaseRoom.isFull(),
+			started: emptyBaseRoom.isRunning(),
+			over: emptyBaseRoom.isOver,
+			minPlayers: emptyBaseRoom.minPlayers,
+			maxPlayers: emptyBaseRoom.maxPlayers,
+			players: emptyBaseRoom.players,
+			balls: emptyBaseRoom.balls,
+		};
+		console.log(newPacket);
+		
+		user.send("game", new PacketPlayOutGameUpdate(newPacket));
 	}
 
 	handleJoin(packet: PacketPlayInPlayerJoin, user: User): void {

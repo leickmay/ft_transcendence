@@ -1,9 +1,14 @@
 import { User } from "./User";
 
 export enum Directions {
+	STATIC,
 	UP,
 	DOWN,
-	STATIC,
+}
+
+export enum Sides {
+	RIGHT,
+	LEFT,
 }
 
 interface Entity {
@@ -19,6 +24,7 @@ export interface Player extends Entity {
 	height: number;
 	width: number;
 	score: number;
+	side: Sides;
 }
 
 export interface Spectator {
@@ -27,19 +33,19 @@ export interface Spectator {
 
 export interface Ball extends Entity {
 	size: number;
+	dir: number;
 }
 
-export interface Room {
+export interface GameData {
 	id: number;
-	raf: NodeJS.Timer | undefined;
 	height: number;
 	width: number;
-	isPriv: boolean;
-	isFull: boolean;
-	isStart: boolean;
-	isOver: boolean;
-	p1: Player | undefined;
-	p2: Player | undefined;
+	full: boolean;
+	started: boolean;
+	over: boolean;
+	minPlayers: number;
+	maxPlayers: number;
+	players: Array<Player>;
 	balls: Array<Ball>;
-	spectators: Array<Spectator>;
+	// spectators: Array<Spectator>;
 }

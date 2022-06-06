@@ -29,16 +29,14 @@ export enum PacketTypesPlayer {
 	LIST,
 }
 
-export enum PacketTypesBalls {
-	MOVE = 501,
-}
-
 export enum PacketTypesGame {
-	UPDATE = 601,
+	INIT = 501,
+	UPDATE,
 	DESTROY,
+	BALL_MOVE,
 }
 
-export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat | PacketTypesPlayer | PacketTypesBalls | PacketTypesGame;
+export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat | PacketTypesPlayer | PacketTypesGame;
 
 export interface Packet {
 	packet_id: PacketTypes;

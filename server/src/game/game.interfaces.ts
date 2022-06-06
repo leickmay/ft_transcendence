@@ -1,6 +1,6 @@
 import { Exclude, Expose, instanceToPlain } from "class-transformer";
 import { Server } from "socket.io";
-import { PacketPlayOutBallsMove } from "src/socket/packets/PacketPlayOutBallsMove";
+import { PacketPlayOutGameBallMove } from "src/socket/packets/PacketPlayOutGameBallMove";
 import { PacketPlayOutPlayerJoin } from "src/socket/packets/PacketPlayOutPlayerJoin";
 import { PacketPlayOutPlayerList } from "src/socket/packets/PacketPlayOutPlayerList";
 import { PacketPlayOutPlayerMove } from "src/socket/packets/PacketPlayOutPlayerMove";
@@ -21,13 +21,26 @@ export enum Sides {
 }
 
 export enum Directions {
+	STATIC,
 	UP,
 	DOWN,
-	STATIC,
 }
 
 export interface Spectator {
 	user: User;
+}
+
+export interface GameData {
+	id: number;
+	height: number;
+	width: number;
+	full: boolean;
+	started: boolean;
+	over: boolean;
+	minPlayers: number;
+	maxPlayers: number;
+	players: Array<Player>;
+	balls: Array<Ball>;
 }
 
 export class Room {
@@ -52,8 +65,6 @@ export class Room {
 
 	constructor(private readonly server: Server) {
 		this.id = ++Room.current;
-		this.balls.push(new Ball(this, this.height / 80, 4));
-		//this.balls.push(new Ball(this, this.height / 80, 8));
 	}
 
 	private chooseSide(): Sides {
@@ -68,7 +79,6 @@ export class Room {
 	isFull(): boolean { return this.players.length >= this.maxPlayers; }
 
 	join(user: User): void {
-		
 		if (!this.isFull()) {
 			user.send('game', new PacketPlayOutPlayerList(instanceToPlain(this.players))); // TODO classtransformer
 
@@ -87,8 +97,10 @@ export class Room {
 	tryStart(): void { this.canStart() && this.start(); }
 
 	async start() {
+		this.balls.push(new Ball(this.balls.length, this, 75, 8));
+
 		await new Promise(r => setTimeout(r, 5000));
-		this.interval = setInterval(this.loop, 1000 / 60);
+		this.interval = setInterval(this.loop, 1000 / 20);
 	}
 
 	stop(): void {
@@ -97,9 +109,11 @@ export class Room {
 		this.interval = undefined;
 	}
 
-	private loop = (): void  => {
-		this.balls.forEach((ball: Ball, index: number) => {
-			ball.move(index);
+	private loop = (): void => {
+		this.balls.forEach(ball => {
+			if (ball.willCollideVertical())
+				ball.y *= -1;
+			ball.move();
 		});
 		this.players.forEach(player => player.move());
 	}
@@ -139,8 +153,10 @@ export class Player implements Entity {
 	@Expose()
 	direction: Directions;
 
-	room: Room;
+	@Expose()
 	side: Sides;
+
+	room: Room;
 
 	speed: number = 12;
 	score: number = 0;
@@ -159,7 +175,7 @@ export class Player implements Entity {
 	setReady(): void {
 		if (!this.ready) {
 			this.ready = true;
-			this.room.broadcast(new PacketPlayOutPlayerReady(instanceToPlain(this)));
+			this.room.broadcast(new PacketPlayOutPlayerReady(this.user.id));
 		}
 	}
 
@@ -177,7 +193,7 @@ export class Player implements Entity {
 			this.y -= this.speed;
 		else if (this.direction === Directions.DOWN && (this.y + this.speed < this.room.height - this.height))
 			this.y += this.speed;
-		this.room.broadcast(new PacketPlayOutPlayerMove(instanceToPlain(this)));
+		this.room.broadcast(new PacketPlayOutPlayerMove(this.user.id, this.direction));
 	}
 }
 
@@ -187,6 +203,7 @@ export class Ball implements Entity {
 	direction: [number, number];
 
 	constructor(
+		public id: number,
 		public room: Room,
 		public size: number,
 		public speed: number,
@@ -209,54 +226,18 @@ export class Ball implements Entity {
 		}
 	}
 
-	handleCollisionTop() {
-		if (this.y <= 0) {
-			this.direction[1] = Math.abs(this.direction[1]);
-		}
+	willCollideVertical(): boolean {
+		let nextY = this.y + (this.direction[0] * this.speed);
+		return nextY < 0 || nextY > this.room.height;
 	}
 
-	handleCollisionBottom() {
-		if (this.y + this.size >= this.room.height){
-			this.direction[1] = this.direction[1] * -1;
+	move() {
+		if (this.x < 0 - this.size || this.x > this.room.width + this.size) {
+			this.resetLocation();
+		} else {
+			this.x += this.direction[0] * this.speed;
+			this.y += this.direction[1] * this.speed;
 		}
-	}
-
-	handleCollisionLeft() {
-		if (this.x + this.direction[0] <= this.room.players[0].x + this.room.players[0].width && this.x + this.direction[0] >= this.room.players[0].x) {
-			if (this.y + this.size + this.direction[1] >= this.room.players[0].y && this.y - this.size - this.direction[1] <= this.room.players[0].y + this.room.players[0].height ) {
-				if (this.direction[0] < -14)
-					this.direction[0] *= -1;
-				else
-					this.direction[0] = this.direction[0] * -1.1;
-				var impact = this.y - this.room.players[0].y - this.room.players[0].height / 2;
-				var ratio = 100 / ( this.room.players[0].height / 2);
-				this.direction[1] = Math.round(impact * ratio / 10);
-			}
-		}
-	}
-
-	handleCollisionRight() {
-		if (this.x + this.direction[0] >= this.room.players[1].x && this.x + this.size + this.direction[0] <= this.room.players[1].x + this.room.players[1].width ) {
-			if (this.y + this.size + this.direction[1] >= this.room.players[1].y && this.y - this.size - this.direction[1] <= this.room.players[1].y + this.room.players[1].height ) {
-				if (this.direction[0] > 14)
-					this.direction[0] *= -1;
-				else
-					this.direction[0] = this.direction[0]* -1.1;
-				var impact = this.y - this.room.players[1].y - this.room.players[1].height / 2;
-				var ratio = 100 / ( this.room.players[1].height / 2);
-				this.direction[1] = Math.round(impact * ratio / 10);
-			}
-		}
-	}
-
-	move(index: number) {
-		if (this.direction[0] < 0) this.handleCollisionLeft();
-		else if (this.direction[0] >= 0) this.handleCollisionRight();
-		if (this.direction[1] < 0) this.handleCollisionTop();
-		else if (this.direction[1] > 0) this.handleCollisionBottom();
-		this.x += this.direction[0] * this.speed;
-		this.y += this.direction[1] * this.speed;
-		if (this.x < 0 - this.room.players[0].width * 2 || this.x > this.room.width + this.room.players[1].width * 2) this.resetLocation();
-		this.room.broadcast(new PacketPlayOutBallsMove(index, this.size, this.x, this.y));
+		this.room.broadcast(new PacketPlayOutGameBallMove(this.id, this.size, this.x, this.y, this.direction[0]));
 	}
 }
