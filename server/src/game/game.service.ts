@@ -61,21 +61,19 @@ export class GameService {
 	}
 
 	handleInitGame(user: User) {
-		let emptyBaseRoom = new Room(null);
 		let newPacket: GameData = {
-			id: emptyBaseRoom.id,
-			height: emptyBaseRoom.height,
-			width: emptyBaseRoom.width,
-			full: emptyBaseRoom.isFull(),
-			started: emptyBaseRoom.isRunning(),
-			over: emptyBaseRoom.isOver,
-			minPlayers: emptyBaseRoom.minPlayers,
-			maxPlayers: emptyBaseRoom.maxPlayers,
-			players: emptyBaseRoom.players,
-			balls: emptyBaseRoom.balls,
+			id: 0,
+			height: 1080,
+			width: 1920,
+			full: false,
+			started: false,
+			over: false,
+			minPlayers: 2,
+			maxPlayers: 2,
+			players: new Array,
+			balls: new Array,
 		};
-		console.log(newPacket);
-		
+		console.log(new PacketPlayOutGameUpdate(newPacket));
 		user.send("game", new PacketPlayOutGameUpdate(newPacket));
 	}
 

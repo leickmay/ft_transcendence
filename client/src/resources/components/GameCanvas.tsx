@@ -7,6 +7,7 @@ import { PacketPlayInPlayerMove } from '../../app/packets/PacketPlayInPlayerMove
 import { PacketPlayInPlayerReady } from '../../app/packets/PacketPlayInPlayerReady';
 import { Packet, PacketTypesGame, PacketTypesPlayer } from '../../app/packets/packetTypes';
 import { RootState } from '../../app/store';
+import { GameDataContext } from '../../app/context/game';
 
 let canvas: HTMLCanvasElement | null = null;
 let ctx: CanvasRenderingContext2D | null = null;
@@ -39,27 +40,21 @@ interface Props {
 	game: GameData;
 }
 
-export const GameCanvas = (props: Props) => {
-	
+export const GameCanvas = () => {
+	const gameData = useContext(GameDataContext);
 	const forceUpdate = useReducer(() => ({}), {})[1] as () => void;
 
 	let canvasRef = useRef<HTMLCanvasElement>(null)
 	const socket = useContext(SocketContext);
-	const user = useSelector((state: RootState) => state.users.current);
-	
-	const [waitForPlay, setWaitForPlay] = useState<boolean>(false);
-	const [showGameResult, setShowGameResult] = useState<boolean>(true);
-	
+	const user = useSelector((state: RootState) => state.users);
+
 	useEffect(() => {
 		counter > -1 && setTimeout(() => --counter, 1000);
-		if (counter === 3 && props.game?.over) {
-			setShowGameResult(false);
-		}
 	}, [counter]);
 
 	function animationBall() {
-		if (props.game && props.game.balls[0]) {
-			if (props.game.balls[0].dir > 0) {
+		if (gameData && gameData.balls[0]) {
+			if (gameData.balls[0].dir > 0) {
 				sXMultiplier += 1;
 				if (sXMultiplier === 12) {
 					sXMultiplier = 0;
@@ -69,7 +64,7 @@ export const GameCanvas = (props: Props) => {
 					}
 				}
 			}	
-			else if (props.game.balls[0].dir < 0) {
+			else if (gameData.balls[0].dir < 0) {
 				sXMultiplier -= 1;
 				if (sXMultiplier === -1) {
 					sXMultiplier = 11;
@@ -85,12 +80,12 @@ export const GameCanvas = (props: Props) => {
 		setTimeout(animationBall, 50);
 	}
 
-	async function start(canvas: HTMLCanvasElement) {
+	async function start(canvas: HTMLCanvasElement | null) {
 		canvas = canvas;
 		if (!canvas)
 			return ;
 		counter = 5;
-		props.game.started = true;
+		gameData!.started = true;
 		canvas!.style.animationName = 'appearCvs';
 		ctx = canvas!.getContext('2d');
 		requestAnimationFrame(draw);
@@ -98,14 +93,14 @@ export const GameCanvas = (props: Props) => {
 
 	const draw = () => {
 		if (ctx) {
-			ctx.drawImage(backgroundImg, 0, 0, props.game.width, props.game.height);
-			props.game.players.forEach(p => {
+			ctx.drawImage(backgroundImg, 0, 0, gameData!.width, gameData!.height);
+			gameData!.players.forEach(p => {
 				ctx!.drawImage(paddleImg, p.direction * spriteWidth, p.side * spriteHeight, spriteWidth, spriteHeight, p.x, p.y, p.width, p.height);
 			});
-			props.game.balls.forEach((ball: Ball) => {
+			gameData!.balls.forEach((ball: Ball) => {
 				ctx!.drawImage(ballImg, ballSx, ballSy, ballSize, ballSize, ball.x, ball.y, ball.size, ball.size);
 			})
-			if (counter !== -1 && props.game.started && !props.game.over) {
+			if (counter !== -1 && gameData!.started && !gameData!.over) {
 				let numsx: number = 0;
 				let numsy: number = 0;
 				switch (counter) {
@@ -143,39 +138,41 @@ export const GameCanvas = (props: Props) => {
 						break;
 					case 9:
 						numsx = numberWidth * 4;
-						numsy = props.game.balls[0].dir > 0 ? 0 : numberHeight;
+						numsy = gameData!.balls[0].dir > 0 ? 0 : numberHeight;
 						break;
 					default:
 						break;
 				}
-				ctx.drawImage(numberImg, numsx, numsy, numberWidth, numberHeight, props.game.width / 2 - numberWidth, props.game.height / 2 - numberHeight, numberWidth * 2, numberHeight * 2);
+				ctx.drawImage(numberImg, numsx, numsy, numberWidth, numberHeight, gameData!.width / 2 - numberWidth, gameData!.height / 2 - numberHeight, numberWidth * 2, numberHeight * 2);
 			}
 		}
 		requestAnimationFrame(draw);
 	}
 
 	const handleReady = (packet: PacketPlayInPlayerReady) => {
-		props.game.players.forEach(p => p.user.id === packet.player && (p.ready = true));
-		if (!props.game.players.find(p => !p.ready) && canvasRef.current) {
-			forceUpdate();
+		console.log(packet);
+		
+		gameData!.players.forEach(p => p.user.id === packet.player && (p.ready = true));
+		if (!gameData!.players.find(p => !p.ready) && canvasRef) {
 			start(canvasRef.current);
 			//setInterval(animationBall, 100);
 			setTimeout(animationBall, 50);
+			forceUpdate();
 		}
 	}
 
 	const handlePlayerMove = (packet: PacketPlayInPlayerMove) => {
-		props.game.players.forEach(p => p.user.id === packet.player && (p.direction = packet.direction));
+		gameData!.players.forEach(p => p.user.id === packet.player && (p.direction = packet.direction));
 	}
 
 	const handleBallsMove = (packet: PacketPlayInGameBallMove) => {
-		if(props.game.balls.length < packet.id + 1) {
-			props.game.balls.push({size: packet.size, x: packet.x, y: packet.y} as Ball)
+		if(gameData!.balls.length < packet.id + 1) {
+			gameData!.balls.push({size: packet.size, x: packet.x, y: packet.y} as Ball)
 		} else {
-			props.game.balls[packet.id].size = packet.size;
-			props.game.balls[packet.id].x = packet.x;
-			props.game.balls[packet.id].y = packet.y;
-			props.game.balls[packet.id].dir = packet.dir;
+			gameData!.balls[packet.id].size = packet.size;
+			gameData!.balls[packet.id].x = packet.x;
+			gameData!.balls[packet.id].y = packet.y;
+			gameData!.balls[packet.id].dir = packet.dir;
 		}
 	}
 
@@ -196,6 +193,6 @@ export const GameCanvas = (props: Props) => {
 	});
 
 	return (
-		<canvas className="canvas" ref={canvasRef} height={props.game.height} width={props.game.width}></canvas>
+		<canvas className="canvas" ref={canvasRef} height={gameData!.height} width={gameData!.width}></canvas>
 	);
 };

@@ -1,6 +1,7 @@
 import { Exclude, Expose, instanceToPlain } from "class-transformer";
 import { Server } from "socket.io";
 import { PacketPlayOutGameBallMove } from "src/socket/packets/PacketPlayOutGameBallMove";
+import { PacketPlayOutGameUpdate } from "src/socket/packets/PacketPlayOutGameUpdate";
 import { PacketPlayOutPlayerJoin } from "src/socket/packets/PacketPlayOutPlayerJoin";
 import { PacketPlayOutPlayerList } from "src/socket/packets/PacketPlayOutPlayerList";
 import { PacketPlayOutPlayerMove } from "src/socket/packets/PacketPlayOutPlayerMove";
@@ -56,6 +57,7 @@ export class Room {
 	id: number;
 	isPriv: boolean = false;
 	isOver: boolean = false;
+	isStarted: boolean = false;
 
 	players: Array<Player> = [];
 	readonly balls: Array<Ball> = [];
@@ -89,6 +91,20 @@ export class Room {
 
 			user.socket?.join(this.getSocketRoom());
 			this.broadcast(new PacketPlayOutPlayerJoin(instanceToPlain(user.player))); // TODO classtransformer
+			if (this.isFull) {
+				this.broadcast(new PacketPlayOutGameUpdate(instanceToPlain({
+					id: this.id,
+					height: this.height,
+					width: this.width,
+					full: this.isFull(),
+					started: this.isStarted,
+					over: this.isOver,
+					minPlayers: this.minPlayers,
+					maxPlayers: this.maxPlayers,
+					players: this.players,
+					balls: this.balls,
+				})))
+			}
 		}
 	}
 
@@ -98,6 +114,7 @@ export class Room {
 
 	async start() {
 		this.balls.push(new Ball(this.balls.length, this, 75, 8));
+		this.isStarted = true;
 
 		await new Promise(r => setTimeout(r, 5000));
 		this.interval = setInterval(this.loop, 1000 / 20);
