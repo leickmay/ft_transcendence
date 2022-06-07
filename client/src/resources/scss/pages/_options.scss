@@ -1,0 +1,24 @@
+#options {
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+#totp-qr {
+	display: flex;
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	justify-content: center;
+	align-items: center;
+
+	&>div {
+		background-color: white;
+		justify-content: center;
+		display: flex;
+		padding: 15px;
+	}
+}

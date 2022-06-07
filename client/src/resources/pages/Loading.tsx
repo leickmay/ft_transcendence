@@ -3,9 +3,9 @@ import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import { Loader } from "../components/Loader";
 
-export function Loading() {
+export const Loading = () => {
 	const navigate = useNavigate();
-	const [, setCookie,] = useCookies(['access_token']);
+	const [, setCookie] = useCookies(['access_token']);
 
 	useEffect(() => {
 		const loadData = async () => {

@@ -1,11 +1,9 @@
 import { AnyAction } from "@reduxjs/toolkit";
-import { Dispatch, KeyboardEvent, useContext, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { Dispatch, KeyboardEvent, useContext } from "react";
+import { useDispatch } from "react-redux";
 import { SocketContext } from "../../../app/context/socket";
-import store from "../../../app/store";
-import { scrollToBottomById } from "../../pages/Chat";
 
-const ChatRoom = () => {
+export const ChatRoom = () => {
 	const socket = useContext(SocketContext);
 	const dispatch: Dispatch<AnyAction> = useDispatch();
 
@@ -85,5 +83,3 @@ const ChatRoom = () => {
 		</div>
 	);
 };
-
-export default ChatRoom;

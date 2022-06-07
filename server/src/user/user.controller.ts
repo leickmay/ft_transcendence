@@ -47,7 +47,7 @@ export class UserController {
 				filename: file.originalname,
 			},
 		});
-		this.eventsService.getServer().emit('user', new PacketPlayOutUserUpdate({
+		this.eventsService.getServer()?.emit('user', new PacketPlayOutUserUpdate({
 			id: user.id,
 			avatar: user.getAvatarUrl() + '?r=' + Math.floor(Math.random() * 1000), // avoid same url for image reload
 		}));
@@ -56,10 +56,11 @@ export class UserController {
 	@Public()
 	@Get('/avatar/:login')
 	async getAvatar(@Param('login') login: string, @Res({ passthrough: true }) response: Response) {
-		const user: User = await this.userService.getByLogin(login, {
+		let user: User | null = await this.userService.getByLogin(login, {
 			relations: ['avatar']
 		});
-		const avatar = await user.avatar;
+
+		const avatar = await user?.avatar;
 
 		if (!avatar)
 			throw new NotFoundException();

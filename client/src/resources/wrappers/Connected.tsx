@@ -38,16 +38,18 @@ export function Connected(props: Props) {
 				}
 			}
 			if (!res.ok) {
-				logout(removeCookie, navigate);
+				logout(removeCookie, navigate, socket);
 				throw res.statusText;
 			}
 
 			let user: User = data;
 			dispatch(setCurrentUser(user));
 
-			let instance = io(':3001', {extraHeaders: headers as any});
-			instance.on('connect', () => {
-				dispatch({ type: 'socket/connected', payload: true });
+			let instance = io(':3001', {
+				extraHeaders: headers as any,
+			});
+			instance.on('ready', () => {
+				dispatch({ type: 'socket/ready', payload: true });
 			});
 			instance.on('error', (e: any) => {
 				if (e.status === 401) {
@@ -55,21 +57,15 @@ export function Connected(props: Props) {
 				}
 			});
 			instance.on('disconnect', () => {
-				dispatch({ type: 'socket/connected', payload: false });
+				dispatch({ type: 'socket/ready', payload: false });
 			});
 			setSocket(instance);
 		}
 
 		if (!socket) {
-			connect().catch(() => navigate('/login'))
+			connect().catch(() => navigate('/login'));
 		}
 	}, [socket, dispatch, navigate, setCookie, removeCookie, cookies.access_token]);
-
-	useEffect(() => {
-		return () => {
-			socket?.close();
-		};
-	}, [socket]);
 
 	return (
 		<SocketContext.Provider value={socket}>

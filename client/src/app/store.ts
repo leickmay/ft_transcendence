@@ -1,15 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit';
-import alertSlice from './slices/alertSlice';
 import chatSlice from './slices/chatSlice';
+import notificationsSlice from './slices/notificationsSlice';
 import socketSlice from './slices/socketSlice';
 import usersSlice from './slices/usersSlice';
 
 const store = configureStore({
 	reducer: {
-		users: usersSlice,
-		socket: socketSlice,
-		alertType: alertSlice,
 		chat: chatSlice,
+		notifications: notificationsSlice,
+		socket: socketSlice,
+		users: usersSlice,
 	},
 });
 

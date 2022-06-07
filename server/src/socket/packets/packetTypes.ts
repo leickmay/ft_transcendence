@@ -2,6 +2,7 @@ export enum PacketTypesMisc {
 	TOTP = 1,
 	FRIENDS,
 	PLAYER_MOVE,
+	SEARCH_USER,
 }
 
 export enum PacketTypesUser {
@@ -12,13 +13,12 @@ export enum PacketTypesUser {
 
 export enum PacketTypesChat {
 	COMMAND = 201,
-    MESSAGE,
-    LIST,
+	MESSAGE,
 	CREATE,
-    JOIN,
+	JOIN,
 	UP,
-    QUIT,
-    DELETE,
+	LEAVE,
+	DELETE,
 }
 
 export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat;

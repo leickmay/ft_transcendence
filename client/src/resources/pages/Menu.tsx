@@ -1,7 +1,7 @@
 interface Props {
 }
 
-export function Menu(props: Props) {
+export const Menu = (props: Props) => {
 	return (
 		<div className="menu">
 			C'est le menu

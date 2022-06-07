@@ -2,6 +2,7 @@ export enum PacketTypesMisc {
 	TOTP = 1,
 	FRIENDS,
 	PLAYER_MOVE,
+	SEARCH_USER,
 }
 
 export enum PacketTypesUser {

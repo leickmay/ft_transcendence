@@ -6,7 +6,7 @@ import { User } from 'src/user/user.entity';
 @Injectable()
 export class EventsService {
 
-	server: Server = null;
+	server: Server | null = null;
 
 	users: { [socket: string]: User } = {};
 
@@ -14,7 +14,7 @@ export class EventsService {
 		private chatService: ChatService,
 	) { }
 
-	getServer(): Server {
+	getServer(): Server | null {
 		return this.server;
 	}
 

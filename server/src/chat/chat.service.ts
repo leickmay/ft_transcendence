@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { instanceToPlain } from "class-transformer";
 import { PacketPlayInChatMessage } from "src/socket/packets/PacketPlayInChatMessage";
-import { PacketPlayOutChatRoomList } from "src/socket/packets/PacketPlayOutChatRoomList";
+// import { PacketPlayOutChatRoomList } from "src/socket/packets/PacketPlayOutChatRoomList";
 import { PacketTypesChat, Packet } from "src/socket/packets/packetTypes";
 import { User } from "src/user/user.entity";
 import { Room } from "./chat.interface";
@@ -27,9 +27,9 @@ export class ChatService {
 	}
 
 	onJoin(user: User) {
-		user.send('chat', new PacketPlayOutChatRoomList(instanceToPlain(this.getPublicRooms().map((room: Room) => {
-			return {id: room.id, name: room.name};
-		})) as any));
+		// user.send('chat', new PacketPlayOutChatRoomList(instanceToPlain(this.getPublicRooms().map((room: Room) => {
+		// 	return {id: room.id, name: room.name};
+		// })) as any));
 	}
 
 	async messageHandler(packet: PacketPlayInChatMessage, user: User): Promise<void> {
