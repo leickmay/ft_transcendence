@@ -1,3 +1,4 @@
+import { UserStats } from "./interfaces/Stats";
 import { UpdateUserDto, User } from "./interfaces/User";
 
 export enum PacketInTypes {
@@ -7,6 +8,7 @@ export enum PacketInTypes {
 	USER_UPDATE,
 	FRIENDS_UPDATE,
 	PLAYER_MOVE,
+	STATS_UPDATE,
 }
 
 export enum PacketOutTypes {
@@ -14,6 +16,7 @@ export enum PacketOutTypes {
 	USER_UPDATE,
 	PLAYER_MOVE,
 	FRIENDS,
+	STATS_UPDATE,
 }
 
 export enum Directions {
@@ -61,6 +64,10 @@ export interface PacketPlayInFriendsUpdate extends Packet {
 	friends: Array<User>;
 }
 
+export interface PacketPlayInStatsUpdate extends Packet {
+	stats: UserStats;
+}
+
 // =================================== \\
 // ========== PacketPlayOut ========== \\
 // =================================== \\
@@ -88,5 +95,15 @@ export class PacketPlayOutFriends {
 	constructor(
 		public action: 'add' | 'remove' | 'get',
 		public id?: number,
+	) {}
+}
+
+@DeclarePacket(PacketOutTypes.STATS_UPDATE)
+export class PacketPlayOutStatsUpdate {
+	constructor (
+		public winnerId: number,
+		public p1Id: number,
+		public p2Id: number,
+		public id: number,
 	) {}
 }

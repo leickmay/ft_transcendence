@@ -2,12 +2,15 @@ import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { SocketContext } from '../../app/context/socket';
+
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
+import { PacketPlayInStatsUpdate } from '../../app/packets/PacketPlayInStatsUpdate';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
-import { Packet, PacketTypesMisc, PacketTypesUser } from '../../app/packets/packetTypes';
+import { Packet, PacketTypesMisc, PacketTypesStats, PacketTypesUser } from '../../app/packets/packetTypes';
+import { setStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
 
@@ -37,6 +40,10 @@ export const SocketListener = (props: Props) => {
 			dispatch(setFriends(packet.friends));
 		}
 
+		const stats = (packet: PacketPlayInStatsUpdate) => {
+			dispatch(setStats(packet.stats));
+		}
+
 		socket?.off('user').on('user', (packet: Packet) => {
 			if (packet.packet_id === PacketTypesUser.USER_CONNECTION)
 				online(packet as PacketPlayInUserConnection);
@@ -47,6 +54,11 @@ export const SocketListener = (props: Props) => {
 			if (packet.packet_id === PacketTypesMisc.FRIENDS)
 				friends(packet as PacketPlayInFriendsUpdate);
 		});
+
+		socket?.off('stats').on('stats', (packet: Packet) => {
+			if (packet.packet_id === PacketTypesStats.STATS_UPDATE)
+				stats(packet as PacketPlayInStatsUpdate);
+			});
 
 		socket?.off('chat').on('chat', (packet: Packet) => {
 			console.log(packet);

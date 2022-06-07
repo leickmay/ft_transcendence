@@ -11,6 +11,10 @@ export enum PacketTypesUser {
 	UPDATE,
 }
 
+export enum PacketTypesStats {
+	STATS_UPDATE,
+}
+
 export enum PacketTypesChat {
 	COMMAND = 201,
 	MESSAGE,
@@ -21,7 +25,7 @@ export enum PacketTypesChat {
 	DELETE,
 }
 
-export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat;
+export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat | PacketTypesStats;
 
 export enum Directions {
 	UP,
