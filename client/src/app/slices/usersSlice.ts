@@ -4,7 +4,7 @@ import { containsUser, UpdateUserDto, User } from '../interfaces/User';
 interface State {
 	current?: User;
 	friends: Array<User>;
-	online: Array<User>;
+	online: Array<number>;
 }
 
 const initialState: State = {
@@ -67,19 +67,13 @@ const slice = createSlice({
 		removeFriend: (state: State, action: PayloadAction<User>): State => {
 			return {
 				...state,
-				online: [
+				friends: [
 					...state.friends.filter(e => e.id !== action.payload.id),
 				],
 			};
 		},
-		setOnlineUsers: (state: State, action: PayloadAction<Array<User>>): State => {
-			return {
-				...state,
-				online: action.payload,
-			};
-		},
-		addOnlineUser: (state: State, action: PayloadAction<User>): State => {
-			if (containsUser(state.online, action.payload) || state.current?.id === action.payload.id)
+		addOnlineUser: (state: State, action: PayloadAction<number>): State => {
+			if (state.online.includes(action.payload) || state.current?.id === action.payload)
 				return state;
 			return {
 				...state,
@@ -93,12 +87,12 @@ const slice = createSlice({
 			return {
 				...state,
 				online: [
-					...state.online.filter(e => e.id !== action.payload),
+					...state.online.filter(id => id !== action.payload),
 				],
 			};
-		},
+		}
 	},
 });
 
-export const { setCurrentUser, updateUser, setTotp, setFriends, addFriend, removeFriend, setOnlineUsers, addOnlineUser, removeOnlineUser } = slice.actions;
+export const { setCurrentUser, updateUser, setTotp, setFriends, addFriend, removeFriend, addOnlineUser, removeOnlineUser } = slice.actions;
 export default slice.reducer;

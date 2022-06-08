@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import store from "../../../app/store";
 
-const ChatNavigation = () => {
+export const ChatNavigation = () => {
 
 	const [rooms, setRooms] = useState(store.getState().chat.rooms);
 
@@ -62,5 +62,3 @@ const ChatNavigation = () => {
 		</div>
 	);
 };
-
-export default ChatNavigation;

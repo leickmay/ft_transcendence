@@ -11,7 +11,7 @@ interface Props {
 	user: User;
 }
 
-const FriendCard = (props: Props) => {
+export const FriendCard = (props: Props) => {
 	const socket = useContext(SocketContext);
 	const online = useSelector((state: RootState) => state.users.online);
 
@@ -22,7 +22,7 @@ const FriendCard = (props: Props) => {
 	}
 
 	let isOnline = (): boolean => {
-		return !!online.find(o => o.id === props.user.id);
+		return !!online.includes(props.user.id);
 	}
 
 	return (
@@ -41,5 +41,3 @@ const FriendCard = (props: Props) => {
 		</div>
 	);
 };
-
-export default FriendCard;

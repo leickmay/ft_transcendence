@@ -1,5 +1,5 @@
 import { Exclude, Expose, Transform } from "class-transformer";
-import { PacketPlayOutChatMessage } from "src/socket/packets/PacketPlayOutChatMessage";
+// import { PacketPlayOutChatMessage } from "src/socket/packets/PacketPlayOutChatMessage";
 import { User } from "src/user/user.entity";
 
 export enum ChatEvents {
@@ -72,7 +72,7 @@ export class Room { // instanceToPlain to send (BACK)
 			text: text,
 		};
 
-		sender.socket.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
+		// sender.socket.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
 	}
 }
 

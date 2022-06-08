@@ -1,48 +1,23 @@
-#navigation {
+nav {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
 	align-items: center;
-	font-size: 2rem;
+	width: 100%;
 
-	a {
-		margin: 10px;
-		padding: 10px;
-		position: relative;
+	& > ul {
+		color: white;
+		font-size: 1.5em;
 
-		&:hover {
-			text-shadow: 5px 3px 0px $color-3;
-		}
-	}
-
-	nav {
-		background: rgba(0, 0, 0, 0.541);
-		border-radius: 5%;
-		border: 2px inset $color-1;
 		display: flex;
+		justify-content: space-around;
 		flex-wrap: wrap;
-		justify-content: space-evenly;
-		align-items: center;
-		min-width: 72%;
+		gap: 15px;
 
-		.nav-link {
-			&.activated {
-				&::after {
-					content: '';
-					width: 110%;
-					height: 20px;
-					background: url("/assets/images/activeNav.png") no-repeat center/cover;
-					position: absolute;
-					bottom: -9px;
-					left: 50%;
-					transform: translateX(-50%);
-				}
-				text-shadow: 5px 3px 0px $color-3;
-				color: $color-1;
-				animation-name: shine;
-				animation-duration: 3.5s;
-				animation-iteration-count: infinite;
-				animation-timing-function: ease-in-out;
+		& > li {
+			& > a {
+				display: block;
+				padding: 10px 0px;
 			}
 		}
 	}

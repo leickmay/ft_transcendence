@@ -35,19 +35,26 @@ export class OptionsService {
 	}
 
 	async optionHandler(packet: PacketPlayInOptionUpdate, user: User): Promise<void> {
-		let validated = {};
-		if (packet.options['name'])
-			user.name = validated['name'] = packet.options['name'];
+		let validated: Partial<User> = {};
+		if (typeof packet.options['name'] === 'string') {
+			let name: string = packet.options['name'];
+			name = name.replace(/ +/, ' ').trim();
+			if (name.length <= 20 && /^[A-Za-zÀ-ÖØ-öø-ÿ]+(( |-)?[A-Za-zÀ-ÖØ-öø-ÿ]+)*$/.test(name)) {
+				validated.name = name;
+			}
+		}
 
-		user.save();
-		this.eventsService.getServer().emit('user', new PacketPlayOutUserUpdate({
-			id: user.id,
-			...validated,
-		}));
+		if (Object.keys(validated).length) {
+			await User.update(user.id, validated);
+			this.eventsService.getServer()?.emit('user', new PacketPlayOutUserUpdate({
+				id: user.id,
+				...validated,
+			}));
+		}
 	}
 
 	async totpHandler(packet: PacketPlayInTotp, user: User): Promise<void> {
-		let url: string | undefined;
+		let url: string | null;
 		url = await this.userService.toggleTotp(user);
 		user.send('user', new PacketPlayOutUserUpdate({
 			id: user.id,
@@ -57,11 +64,14 @@ export class OptionsService {
 
 	async friendHandler(packet: PacketPlayInFriend, user: User): Promise<void> {
 		let friends = await user.friends;
+
 		if (packet.action === 'add' || packet.action === 'remove') {
 			if (packet.action == 'add') {
-				let target = await User.findOneBy({ id: packet.id });
-				if (target && !friends.find(e => e.id !== packet.id)) {
-					friends.push(target);
+				if (packet.id !== user.id && !friends.find(e => e.id === packet.id)) {
+					let target = await User.findOneBy({ id: packet.id });
+					if (target) {
+						friends.push(target);
+					}
 				}
 			} else {
 				friends = friends.filter(e => e.id !== packet.id);

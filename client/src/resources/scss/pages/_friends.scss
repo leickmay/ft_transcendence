@@ -1,0 +1,59 @@
+@import "../variables";
+
+#friends {
+	background-color: rgba($overlay, $overlay-opacity);
+	display: flex;
+	flex-wrap: wrap;
+
+	&>section {
+		padding: 20px;
+		border: 1px solid $primary;
+		flex: 1;
+
+		&>h3 {
+			margin-top: 0;
+			text-align: center;
+		}
+
+		&.add-friend {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+
+			ul {
+				padding: 0;
+				width: 100%;
+				list-style: none;
+
+				&>li {
+					display: flex;
+					align-items: center;
+					padding-top: 10px;
+
+					&:not(:last-child) {
+						padding-bottom: 10px;
+						border-bottom: 2px solid $body-color
+					}
+
+					button {
+						margin-left: auto;
+						padding: 5px;
+						font-size: 1rem;
+					}
+				}
+			}
+		}
+
+		&.friends {
+			flex: 1;
+			flex-basis: 400px;
+
+			&>div {
+				display: grid;
+				grid-template-columns: repeat(5, minmax(120px, 1fr));
+				grid-column-gap: 0px;
+				grid-row-gap: 0px;
+			}
+		}
+	}
+}

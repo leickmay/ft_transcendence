@@ -1,11 +1,13 @@
-import React, { useCallback, useState } from "react";
+import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
+import React, { useCallback } from "react";
 import { useCookies } from "react-cookie";
-import { alertType } from "../../app/slices/alertSlice";
-import store from "../../app/store";
+import { useDispatch } from "react-redux";
+import { pushNotification } from "../../app/actions/notificationsActions";
+import { RootState } from "../../app/store";
 
-export function ImageUploader() {
-	const [selectedFile, setSelectedFile] = useState<File>();
+export const ImageUploader = () => {
 	const [cookies] = useCookies();
+	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 
 	const getHeaders = useCallback(async (): Promise<HeadersInit> => {
 		const token = cookies.access_token;
@@ -15,56 +17,39 @@ export function ImageUploader() {
 		};
 	}, [cookies]);
 
-	const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const filelist = e.target.files;
-		if (filelist) {
-			setSelectedFile(filelist[0]);
-		}
-	}
-
-	const handleSubmission = async () => {
+	const submit = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		let file = e.target.files?.[0];
 		let formData = new FormData();
 
-		if (!selectedFile) {
-			store.dispatch(alertType("File is missing !"));
-		} else if (selectedFile.size > 2000000) {
-			store.dispatch(alertType("File size is limited to 2MB"));
-		} else if (selectedFile.type !== 'image/png' && selectedFile.type !== 'image/jpeg') {
-			store.dispatch(alertType("Please upload a PNG or JPEG image only"));
+		if (!file) {
+			dispatch(pushNotification('A file is required'));
+		} else if (file.size > 2000000) {
+			dispatch(pushNotification('The file size is limited to 2MB'));
+		} else if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
+			dispatch(pushNotification('Only images of type JPEG or PNG are accepted'));
 		} else {
-			formData.set('avatar', selectedFile);
-			const headers = await getHeaders();
+			formData.set('avatar', file);
 
 			await fetch("/api/users/avatar", {
 				method: "POST",
-				headers: headers,
+				headers: await getHeaders(),
 				body: formData,
 			}).then((response) => {
-				if (response.ok) {
-					store.dispatch(alertType("Avatar succesfully uploaded"));
-				} else {
-					store.dispatch(alertType("Avatar upload failed"));
+				if (!response.ok) {
+					dispatch(pushNotification('Upload failed'));
 				}
-			})
-			.catch((error) => {
+			}).catch((error) => {
 				console.log("Error : ", error);
 			});
 		}
 	}
 
 	return (
-		<div>
-			<input type="file" accept="image/png,image/jpeg" name="image" onChange={changeHandler} />
-			<div>
-				{(selectedFile) ? (
-					<p>Image to upload : {selectedFile.name} </p>
-				) : (
-					<p>Select an image to upload (PNG or JPEG)</p>
-				)}
-			</div>
-			<div>
-				<button onClick={handleSubmission}>Submit</button>
-			</div>
-		</div>
+		<>
+			<input id="avatar-select" accept="image/png,image/jpeg" type="file" onChange={submit} />
+			<label htmlFor="avatar-select" className="pointer border-primary">
+				Select an image (jpeg or png)
+			</label>
+		</>
 	)
 }

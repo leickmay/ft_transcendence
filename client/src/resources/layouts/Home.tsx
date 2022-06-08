@@ -1,18 +1,9 @@
-import { AnyAction, Dispatch } from '@reduxjs/toolkit';
-import { useContext, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import { Navigate } from "react-router";
 import { Route, Routes } from 'react-router-dom';
-import { SocketContext } from '../../app/context/socket';
-import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
-import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
-import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
-import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
-import { PacketTypesMisc, Packet, PacketTypesUser } from '../../app/packets/packetTypes';
-import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
-import Alert from '../components/Alert';
 import { Loader } from '../components/Loader';
-import Navigation from '../components/Navigation';
+import { Navigation } from '../components/Navigation';
+import { Notifications } from '../components/notification/Notifications';
+import { SocketListener } from "../components/SocketListener";
 import { Chat } from '../pages/Chat';
 import { Friends } from '../pages/Friends';
 import { Game } from '../pages/Game';
@@ -25,51 +16,10 @@ interface Props {
 }
 
 export function Home(props: Props) {
-	const socket = useContext(SocketContext);
-
-	const dispatch: Dispatch<AnyAction> = useDispatch();
-
-	useEffect(() => {
-		const online = (packet: PacketPlayInUserConnection) => {
-			for (const user of packet.users)
-				dispatch(addOnlineUser(user));
-		}
-
-		const offline = (packet: PacketPlayInUserDisconnected) => {
-			dispatch(removeOnlineUser(packet.user));
-		}
-
-		const update = (packet: PacketPlayInUserUpdate) => {
-			dispatch(updateUser(packet.user));
-		}
-
-		const friends = (packet: PacketPlayInFriendsUpdate) => {
-			dispatch(setFriends(packet.friends));
-		}
-
-		socket?.off('user').on('user', (packet: Packet) => {
-			if (packet.packet_id === PacketTypesUser.CONNECTION)
-				online(packet as PacketPlayInUserConnection);
-			if (packet.packet_id === PacketTypesUser.DISCONNECTED)
-				offline(packet as PacketPlayInUserDisconnected);
-			if (packet.packet_id === PacketTypesUser.UPDATE)
-				update(packet as PacketPlayInUserUpdate);
-			if (packet.packet_id === PacketTypesMisc.FRIENDS)
-				friends(packet as PacketPlayInFriendsUpdate);
-		});
-
-		return () => {
-			socket?.off('already-online');
-			socket?.off('friends');
-			socket?.off('online');
-			socket?.off('offline');
-			socket?.off('update-user');
-		}
-	}, [socket, dispatch]);
-
 	return (
 		<>
-			<Alert />
+			<SocketListener />
+			<Notifications />
 			<Navigation />
 			<Loader />
 			<Routes>

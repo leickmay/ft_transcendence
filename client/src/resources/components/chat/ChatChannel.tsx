@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { hideDivById } from "../../pages/Chat";
 
-const ChatChannel = () => {
-
+export const ChatChannel = () => {
 	const [name, setName] = useState('');
 	const [isPrivate, setIsPrivate] = useState(false);
 	const [hasPassword, setHasPassword] = useState(false);
@@ -70,5 +69,3 @@ const ChatChannel = () => {
 		</div>
 	);
 };
-
-export default ChatChannel;

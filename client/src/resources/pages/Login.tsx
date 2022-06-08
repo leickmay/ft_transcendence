@@ -13,7 +13,7 @@ export const getAuthorizeHref = (): string => {
 	return `${authEndpoint}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes.join("%20")}&response_type=code`;
 }
 
-export function Login() {
+export const Login = () => {
 	const navigate = useNavigate();
 
 	const debugLogin = async (event: KeyboardEvent<HTMLInputElement>): Promise<void> => {
@@ -33,14 +33,12 @@ export function Login() {
 	}
 	
 	return (
-		<>
-			<div className='title'>Stonks Pong 3000</div>
-			<div className="login">
-				<div>Login</div>
-				<button type="submit" onClick={() => window.location.replace(getAuthorizeHref())}>Sign in with 42</button>
-				<input type="number" onKeyDown={debugLogin} placeholder='Debug Login'/>
-			</div>
-		</>
+		<div id="login" className="overlay border-primary">
+			<h1 className="text-neon-primary">Stonks Pong 3000</h1>
+			<a className="btn border-neon-primary overlay square" href={getAuthorizeHref()}>
+				<span className="content">Sign in with 42</span>
+			</a>
+			<input type="number" onKeyDown={debugLogin} placeholder='Debug Login'/>
+		</div>
 	);
-
 }

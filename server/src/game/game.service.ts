@@ -19,8 +19,9 @@ export class GameService {
 		private eventsService: EventsService,
 	) {
 		setInterval(() => {
-			while (this.waitList.length >= 2 && eventsService.getServer()) {
-				let room = new Room(eventsService.getServer());
+			let server = eventsService.getServer();
+			while (this.waitList.length >= 2 && server) {
+				let room = new Room(server);
 				room.join(this.waitList.shift()!);
 				room.join(this.waitList.shift()!);
 				this.rooms.push(room);
