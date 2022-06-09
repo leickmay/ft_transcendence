@@ -70,7 +70,9 @@ const ChatPrivateMessage = () => {
 						</div>
 					)
 				})
-			} */}
+			}
 		</div>
 	);
 };
+
+export default ChatPrivateMessage;

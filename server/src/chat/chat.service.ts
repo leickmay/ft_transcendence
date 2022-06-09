@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { instanceToPlain } from "class-transformer";
-import { EventsService } from "src/socket/events.service";
 import { PacketPlayInChatCreate, PacketPlayInChatJoin, PacketPlayInChatMessage } from "src/socket/packets/chat/PacketPlayInChat";
-import { PacketPlayOutChatCreate, PacketPlayOutChatInit, PacketPlayOutChatUp } from "src/socket/packets/chat/PacketPlayOutChat";
+import { PacketPlayOutChatCreate, PacketPlayOutChatInit } from "src/socket/packets/chat/PacketPlayOutChat";
 import { PacketTypesChat, Packet } from "src/socket/packets/packetTypes";
 import { User } from "src/user/user.entity";
 import { UserService } from "src/user/user.service";
@@ -13,7 +12,7 @@ import { Socket } from 'socket.io';
 export class ChatService {
 
 	rooms: Array<ChatRoom>;
-	sockets: {[user: number]: Socket} = {};
+	sockets: {[user: number]: Socket | undefined} = {};
 
 	constructor(private userService: UserService) {
 		this.rooms = [new ChatRoom(
@@ -64,7 +63,7 @@ export class ChatService {
 
 		let worldRandom: ChatRoom | undefined;
 		worldRandom =  this.rooms.find(r => r.name === "World Random");
-		if (!(worldRandom?.isPresent(user.id)))
+		if (worldRandom && !(worldRandom?.isPresent(user.id)))
 			worldRandom.users.push(user.id)
 
 		this.rooms

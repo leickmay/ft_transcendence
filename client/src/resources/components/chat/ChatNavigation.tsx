@@ -68,3 +68,5 @@ export const ChatNavigation = () => {
 		</div>
 	);
 };
+
+export default ChatNavigation;

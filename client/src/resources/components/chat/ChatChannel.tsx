@@ -144,3 +144,5 @@ const ChatChannel = () => {
 		</div>
 	);
 };
+
+export default ChatChannel;

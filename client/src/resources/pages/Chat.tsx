@@ -1,12 +1,11 @@
 import { AnyAction } from "@reduxjs/toolkit";
-import { Dispatch, useContext } from "react";
+import { Dispatch, useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
 import { ChatRoom, ChatTypes } from "../../app/interfaces/Chat";
-import { User } from "../../app/interfaces/User";
 import store from "../../app/store";
 import ChatChannel from "../components/chat/ChatChannel";
-import ChatNavigation from "../components/chat/ChatNavigation";
+import { ChatNavigation } from "../components/chat/ChatNavigation";
 import ChatPrivateMessage from "../components/chat/ChatPrivateMessage";
 import ChatCurrentRoom from "../components/chat/ChatRoom";
 
@@ -51,7 +50,7 @@ export const getNameRoom = (room: ChatRoom | undefined): string | undefined => {
 	}
 	if (room.type === ChatTypes.PRIVATE_MESSAGE) {
 		let users: number[] = room.users.filter(x => x !== store.getState().users.current?.id);
-		if (users.length != 1)
+		if (users.length !== 1)
 			return (undefined);
 		let name: string | undefined = store.getState().users.friends.find(x => x.id === users[0])?.login;
 		if (name)
