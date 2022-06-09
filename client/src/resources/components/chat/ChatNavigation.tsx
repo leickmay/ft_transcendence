@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { ChatTypes, ChatRoom } from "../../../app/interfaces/Chat";
 import { setCurrentRooms } from "../../../app/slices/chatSlice";
 import store from "../../../app/store";
-import { getRoomByName } from "../../pages/Chat";
+import { getNameRoom, getRoomByName } from "../../pages/Chat";
 import { switchConfigChannel } from "./ChatChannel";
 import { switchConfigPrivMsg } from "./ChatPrivateMessage";
 
@@ -41,7 +41,7 @@ const ChatNavigation = () => {
 						.map((value, index) => {
 							return (
 								<div onClick={() => {changeRoom(value.name)}} key={index}>
-									{value.name.split('channel_', 42)}
+									{value.name}
 								</div>
 							);
 					})
@@ -59,7 +59,7 @@ const ChatNavigation = () => {
 						.map((value, index) => {
 							return (
 								<div onClick={() => {changeRoom(value.name)}} key={index}>
-									{value.name.split('channel_', 42)}
+									{getNameRoom(value)}
 								</div>
 							);
 					})
