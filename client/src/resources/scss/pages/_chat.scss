@@ -12,6 +12,7 @@ $max-width: 742px;
 	}
 
 	.chatLeft {
+		text-align: center;
 		height: 100%;
 		width: 25%;
 		h2 {
@@ -30,7 +31,7 @@ $max-width: 742px;
 			margin: 0;
 		}
 		#chatRoomMesssages {
-			height: 70%;
+			height: 75%;
 			width: 100%;
 			overflow: auto;
 			display: flex;
@@ -62,7 +63,7 @@ $max-width: 742px;
 			}
 		}
 		textarea {
-			height: 20%;
+			height: 15%;
 		}
 	}
 
@@ -73,15 +74,16 @@ $max-width: 742px;
 		display: flex;
 		flex-direction:column;
 		align-items: center;
-
+		border-radius: 8px;
 		@media (max-width: $max-width) {
 			width: 100%;
+			height: auto;
 		}
 	}
 
 	.chatLeft {
 		@media (max-width: $max-width) {
-			min-height: 8rem;
+			min-height:min-content;
 			height: auto;
 		}
 	}
@@ -93,9 +95,11 @@ $max-width: 742px;
 	button {
 		width: 100%;
 		padding: 0rem 1.1rem 0rem 1.1rem;
+		border-radius: 8px;
 	}
 
 	textarea {
+		color: white;
 		width: 100%;
 		align-self: center;
 		resize: none;
@@ -103,6 +107,7 @@ $max-width: 742px;
 		border: 0.1rem solid #8900b3;
 		padding: none;
 		border-radius: 8px;
+		background-color: #8900b3;
 	}
 	textarea:focus {
 		outline: none !important;
@@ -110,8 +115,4 @@ $max-width: 742px;
 		border: 0.1rem solid #8900b3;
 		padding: none;
 	}
-}
-
-html, body, #root, .App {
-	height: 100%;
 }

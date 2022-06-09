@@ -14,7 +14,6 @@ export const switchConfigChannel = () => {
 
 const ChatChannel = () => {
 	const socket = useContext(SocketContext);
-	//const dispatch: Dispatch<AnyAction> = useDispatch();
 
 	const [name, setName] = useState('');
 	const [isPrivate, setIsPrivate] = useState(false);
@@ -42,7 +41,6 @@ const ChatChannel = () => {
 		let roomPacket : PacketPlayOutChatCreate;
 		
 		roomPacket = new PacketPlayOutChatCreate(ChatTypes.CHANNEL).toChannel(name, !isPrivate);
-
 		if (hasPassword && password !== "")
 			roomPacket.withPassword(password);
 
