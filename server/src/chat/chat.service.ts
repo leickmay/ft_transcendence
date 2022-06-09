@@ -1,17 +1,21 @@
 import { Injectable } from "@nestjs/common";
 import { instanceToPlain } from "class-transformer";
+import { EventsService } from "src/socket/events.service";
 import { PacketPlayInChatCreate, PacketPlayInChatJoin, PacketPlayInChatMessage } from "src/socket/packets/chat/PacketPlayInChat";
 import { PacketPlayOutChatCreate, PacketPlayOutChatInit, PacketPlayOutChatUp } from "src/socket/packets/chat/PacketPlayOutChat";
 import { PacketTypesChat, Packet } from "src/socket/packets/packetTypes";
 import { User } from "src/user/user.entity";
+import { UserService } from "src/user/user.service";
 import { ChatTypes, ChatRoom } from "./chat.interface";
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class ChatService {
 
 	rooms: Array<ChatRoom>;
+	sockets: {[user: number]: Socket} = {};
 
-	constructor() {
+	constructor(private userService: UserService) {
 		this.rooms = [new ChatRoom(
 			ChatTypes.CHANNEL,
 			"World Random",
@@ -54,6 +58,9 @@ export class ChatService {
 	}
 
 	connection(user: User): void {
+		
+
+		this.sockets[user.id] = user.socket;
 
 		let worldRandom: ChatRoom | undefined;
 		worldRandom =  this.rooms.find(r => r.name === "World Random");
@@ -97,6 +104,7 @@ export class ChatService {
 		));
 	}
 	disconnection(user: User) {
+		delete this.sockets[user.id]
 		//this.rooms.map((room) => {
 		//	room.leave(user);
 		//});
@@ -132,10 +140,11 @@ export class ChatService {
 			}
 			case ChatTypes.PRIVATE_MESSAGE: {
 				if (packet.users && packet.users.length === 1) {
+					let otherUserID = packet.users[0];
 					let tmp = this.rooms.find(r => (
 						r.type === ChatTypes.PRIVATE_MESSAGE
 						&& r.isPresent(user.id)
-						&& r.isPresent(packet.users[0])))
+						&& r.isPresent(otherUserID)))
 					if (tmp) {
 						tmp.join(user);
 						this.upRoom(user, tmp);
@@ -147,13 +156,26 @@ export class ChatService {
 						ChatTypes.PRIVATE_MESSAGE,
 						name,
 						false,
-						[user.id, packet.users[0]],
+						[user.id, otherUserID],
 						undefined,
 						undefined,
 					);
-					room.join(user);
+
 					this.rooms.push(room);
-					this.upRoom(user, room);
+					user.socket?.join(room.id);
+					this.sockets[otherUserID]?.join(room.id);
+
+					let roomOut = new PacketPlayOutChatCreate(
+						room.id,
+						room.type,
+						room.name,
+						room.visible,
+						room.users,
+						room.operator,
+					);
+
+					user.socket?.emit('chat', roomOut);
+					this.sockets[otherUserID]?.emit('chat', roomOut);
 				}
 				break;
 			}

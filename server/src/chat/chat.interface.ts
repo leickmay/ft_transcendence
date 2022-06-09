@@ -69,8 +69,8 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		if (!this.isPresent(user.id))
 			this.users.push(user.id);
 
-		user.socket.join(this.id);
-		console.log(user.login + " new join : " + this.name);
+		user.socket?.join(this.id);
+		//console.log(user.login + " new join : " + this.name);
 		return true;
 	}
 
