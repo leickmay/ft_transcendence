@@ -1,6 +1,7 @@
 import { KeyboardEvent, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/socket";
+import { ChatTypes } from "../../../app/interfaces/Chat";
 import { PacketPlayOutChatMessage } from "../../../app/packets/chat/PacketPlayOutChat";
 import store from "../../../app/store";
 import { getCurrentRoom, getTime, scrollToBottomById } from "../../pages/Chat";
@@ -27,7 +28,14 @@ const ChatCurrentRoom = () => {
 
 	useEffect(() => {
 		setMessages(getCurrentRoom()?.messages);
-		setName(getCurrentRoom()?.name);
+		if (getCurrentRoom()?.type === ChatTypes.CHANNEL)
+			setName(getCurrentRoom()?.name);
+		else if (getCurrentRoom()?.type === ChatTypes.PRIVATE_MESSAGE) {
+			//let id = getCurrentRoom()?.users.filter(x => x !== );
+			//if (id) {
+			//	setName(store.getState().users.online.find(x => x.id === id)?.login);
+		//	}
+		}
 	}, [alertCurrent, alertRooms]);
 
 	useEffect(() => {

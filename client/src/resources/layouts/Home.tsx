@@ -111,6 +111,7 @@ export function Home(props: Props) {
 
 		socket?.off('chat');
 		socket?.on('chat', (packet: Packet) => {
+			console.log(socket.id)
 			console.log(packet)
 			switch (packet.packet_id) {
 				case PacketTypesChat.COMMAND: {
