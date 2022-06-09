@@ -15,10 +15,10 @@ const ChatPrivateMessage = () => {
 
 	const socket = useContext(SocketContext);
 
-	const [usersOnline, setUsersOnline] = useState(store.getState().users.online);
-	const alertUsersOnline = useSelector(() => store.getState().users.online);
+	const [friends, setFriends] = useState(store.getState().users.friends);
+	const alertUsersOnline = useSelector(() => store.getState().users.friends);
 	useEffect(() => {
-		setUsersOnline(store.getState().users.online);
+		setFriends(store.getState().users.friends);
 	}, [alertUsersOnline]);
 
 	const [rooms, setRooms] = useState(store.getState().chat.rooms);
@@ -55,7 +55,7 @@ const ChatPrivateMessage = () => {
 			>..</button>
 			<h2>Players Online</h2>
 			{
-				usersOnline
+				friends
 					.filter(u => hasAlreadyPrivMsg(u.id))
 					.map((value, index) => {
 					return (

@@ -4,7 +4,7 @@ import { SocketContext } from "../../../app/context/socket";
 import { ChatTypes } from "../../../app/interfaces/Chat";
 import { PacketPlayOutChatMessage } from "../../../app/packets/chat/PacketPlayOutChat";
 import store from "../../../app/store";
-import { getCurrentRoom, getTime, scrollToBottomById } from "../../pages/Chat";
+import { getCurrentRoom, getNameRoom, getTime, scrollToBottomById } from "../../pages/Chat";
 
 const ChatCurrentRoom = () => {
 	const socket = useContext(SocketContext);
@@ -28,14 +28,7 @@ const ChatCurrentRoom = () => {
 
 	useEffect(() => {
 		setMessages(getCurrentRoom()?.messages);
-		if (getCurrentRoom()?.type === ChatTypes.CHANNEL)
-			setName(getCurrentRoom()?.name);
-		else if (getCurrentRoom()?.type === ChatTypes.PRIVATE_MESSAGE) {
-			//let id = getCurrentRoom()?.users.filter(x => x !== );
-			//if (id) {
-			//	setName(store.getState().users.online.find(x => x.id === id)?.login);
-		//	}
-		}
+		setName(getNameRoom(getCurrentRoom()))
 	}, [alertCurrent, alertRooms]);
 
 	useEffect(() => {
