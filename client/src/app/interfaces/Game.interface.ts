@@ -37,13 +37,17 @@ export interface Ball extends Entity {
 	dir: number;
 }
 
+export enum GameStatus {
+	WAITING,
+	STARTING,
+	RUNNING,
+	FINISHED,
+}
+
 export interface GameData {
-	id: number;
-	height: number;
 	width: number;
-	full: boolean;
-	started: boolean;
-	over: boolean;
+	height: number;
+	status: GameStatus;
 	minPlayers: number;
 	maxPlayers: number;
 	players: Array<Player>;

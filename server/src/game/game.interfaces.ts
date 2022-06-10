@@ -1,6 +1,7 @@
 import { Exclude, Expose, instanceToPlain } from "class-transformer";
 import { Server } from "socket.io";
 import { PacketPlayOutGameBallMove } from "src/socket/packets/PacketPlayOutGameBallMove";
+import { PacketPlayOutGameStatusStarting } from "src/socket/packets/PacketPlayOutGameStatusStarting";
 import { PacketPlayOutGameUpdate } from "src/socket/packets/PacketPlayOutGameUpdate";
 import { PacketPlayOutPlayerJoin } from "src/socket/packets/PacketPlayOutPlayerJoin";
 import { PacketPlayOutPlayerList } from "src/socket/packets/PacketPlayOutPlayerList";
@@ -77,12 +78,19 @@ export class Room {
 		return 'game_' + this.id.toString();
 	}
 
-	canStart(): boolean { return this.players[0]?.isReady() && this.players[1]?.isReady() }
+	canStart(): boolean { return this.players.every(p => p.ready); }
 	isFull(): boolean { return this.players.length >= this.maxPlayers; }
 
 	join(user: User): void {
 		if (!this.isFull()) {
-			user.send('game', new PacketPlayOutPlayerList(instanceToPlain(this.players))); // TODO classtransformer
+			user.send('game', new PacketPlayOutGameUpdate(instanceToPlain({
+				id: this.id,
+				height: this.height,
+				width: this.width,
+				minPlayers: this.minPlayers,
+				maxPlayers: this.maxPlayers,
+			})));
+			user.send('game', new PacketPlayOutPlayerList(instanceToPlain(this.players)));
 
 			let player = new Player(user, this, this.chooseSide(), this.width / 40, this.height / 4);
 
@@ -90,21 +98,7 @@ export class Room {
 			this.players.push(player);
 
 			user.socket?.join(this.getSocketRoom());
-			this.broadcast(new PacketPlayOutPlayerJoin(instanceToPlain(user.player))); // TODO classtransformer
-			if (this.isFull) {
-				this.broadcast(new PacketPlayOutGameUpdate(instanceToPlain({
-					id: this.id,
-					height: this.height,
-					width: this.width,
-					full: this.isFull(),
-					started: this.isStarted,
-					over: this.isOver,
-					minPlayers: this.minPlayers,
-					maxPlayers: this.maxPlayers,
-					players: this.players,
-					balls: this.balls,
-				})))
-			}
+			this.broadcast(new PacketPlayOutPlayerJoin(instanceToPlain(user.player)));
 		}
 	}
 
@@ -113,11 +107,12 @@ export class Room {
 	tryStart(): void { this.canStart() && this.start(); }
 
 	async start() {
-		this.balls.push(new Ball(this.balls.length, this, 75, 8));
-		this.isStarted = true;
+		this.broadcast(new PacketPlayOutGameStatusStarting(5));
+		// this.balls.push(new Ball(this.balls.length, this, 75, 8));
+		// this.isStarted = true;
 
-		await new Promise(r => setTimeout(r, 5000));
-		this.interval = setInterval(this.loop, 1000 / 20);
+		// await new Promise(r => setTimeout(r, 5000));
+		// this.interval = setInterval(this.loop, 1000 / 20);
 	}
 
 	stop(): void {

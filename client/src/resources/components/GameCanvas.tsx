@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { SocketContext } from '../../app/context/socket';
-import { Ball, GameData } from '../../app/interfaces/Game.interface';
+import { Ball, GameData, GameStatus } from '../../app/interfaces/Game.interface';
 import { PacketPlayInGameBallMove } from '../../app/packets/PacketPlayInGameBallMove';
 import { PacketPlayInPlayerMove } from '../../app/packets/PacketPlayInPlayerMove';
 import { PacketPlayInPlayerReady } from '../../app/packets/PacketPlayInPlayerReady';
@@ -85,7 +85,6 @@ export const GameCanvas = () => {
 		if (!canvas)
 			return ;
 		counter = 5;
-		gameData!.started = true;
 		canvas!.style.animationName = 'appearCvs';
 		ctx = canvas!.getContext('2d');
 		requestAnimationFrame(draw);
@@ -100,7 +99,7 @@ export const GameCanvas = () => {
 			gameData!.balls.forEach((ball: Ball) => {
 				ctx!.drawImage(ballImg, ballSx, ballSy, ballSize, ballSize, ball.x, ball.y, ball.size, ball.size);
 			})
-			if (counter !== -1 && gameData!.started && !gameData!.over) {
+			if (counter !== -1 && gameData?.status === GameStatus.FINISHED) {
 				let numsx: number = 0;
 				let numsy: number = 0;
 				switch (counter) {

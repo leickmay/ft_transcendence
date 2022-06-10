@@ -5,7 +5,7 @@ interface Props {
 
 export const Notification = (props: Props) => {
 	return (
-		<div className={'overlay ' + (props.visible ? 'show' : '')}>
+		<div className={'overlay rounded ' + (props.visible ? 'show' : '')}>
 			<span>{props.text}</span>
 		</div>
 	)

@@ -1,5 +1,8 @@
+.rounded {
+	border-radius: $border-radius;
+}
+
 .overlay {
 	background-color: rgba($overlay, $overlay-opacity);
-	border-radius: $overlay-radius;
 	padding: 30px 20px;
 }

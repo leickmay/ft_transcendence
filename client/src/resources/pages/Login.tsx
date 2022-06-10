@@ -33,9 +33,9 @@ export const Login = () => {
 	}
 	
 	return (
-		<div id="login" className="overlay border-primary">
+		<div id="login" className="overlay rounded border-primary">
 			<h1 className="text-neon-primary">Stonks Pong 3000</h1>
-			<a className="btn border-neon-primary overlay square" href={getAuthorizeHref()}>
+			<a className="btn border-neon-primary overlay rounded square" href={getAuthorizeHref()}>
 				<span className="content">Sign in with 42</span>
 			</a>
 			<input type="number" onKeyDown={debugLogin} placeholder='Debug Login'/>

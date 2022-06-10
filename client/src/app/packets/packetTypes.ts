@@ -35,6 +35,8 @@ export enum PacketTypesGame {
 	UPDATE,
 	DESTROY,
 	BALL_MOVE,
+	STARTING,
+	START,
 }
 
 export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat | PacketTypesPlayer | PacketTypesGame;

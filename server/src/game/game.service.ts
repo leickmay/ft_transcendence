@@ -3,11 +3,10 @@ import { EventsService } from 'src/socket/events.service';
 import { PacketPlayInPlayerJoin } from 'src/socket/packets/PacketPlayInPlayerJoin';
 import { PacketPlayInPlayerMove } from 'src/socket/packets/PacketPlayInPlayerMove';
 import { PacketPlayInPlayerReady } from 'src/socket/packets/PacketPlayInPlayerReady';
-import { PacketPlayOutGameUpdate } from 'src/socket/packets/PacketPlayOutGameUpdate';
 import { PacketPlayOutPlayerJoinWL } from 'src/socket/packets/PacketPlayOutPlayerJoinWL';
-import { Packet, PacketTypesGame, PacketTypesPlayer } from 'src/socket/packets/packetTypes';
+import { Packet, PacketTypesPlayer } from 'src/socket/packets/packetTypes';
 import { User } from '../user/user.entity';
-import { GameData, Player, Room } from "./game.interfaces";
+import { Player, Room } from "./game.interfaces";
 
 export class GameService {
 	rooms: Array<Room> = new Array;
@@ -31,9 +30,6 @@ export class GameService {
 
 	dispatch(packet: Packet, user: User) {
 		switch (packet.packet_id) {
-			case PacketTypesGame.INIT:
-				this.handleInitGame(user);
-				break;
 			case PacketTypesPlayer.JOIN:
 				this.handleJoin(packet as PacketPlayInPlayerJoin, user);
 				break;
@@ -61,25 +57,8 @@ export class GameService {
 		room?.clear();
 	}
 
-	handleInitGame(user: User) {
-		let newPacket: GameData = {
-			id: 0,
-			height: 1080,
-			width: 1920,
-			full: false,
-			started: false,
-			over: false,
-			minPlayers: 2,
-			maxPlayers: 2,
-			players: new Array,
-			balls: new Array,
-		};
-		console.log(new PacketPlayOutGameUpdate(newPacket));
-		user.send("game", new PacketPlayOutGameUpdate(newPacket));
-	}
-
 	handleJoin(packet: PacketPlayInPlayerJoin, user: User): void {
-		if (!user.player) {
+		if (!user.player && !this.waitList.includes(user)) {
 			this.waitList.push(user);
 			user.send("game",new PacketPlayOutPlayerJoinWL(true));
 		}
