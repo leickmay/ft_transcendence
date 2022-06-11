@@ -24,7 +24,6 @@ export enum PacketTypesChat {
 
 export enum PacketTypesPlayer {
 	JOIN = 401,
-	JOINWL,
 	READY,
 	MOVE,
 	LIST,
@@ -32,6 +31,7 @@ export enum PacketTypesPlayer {
 
 export enum PacketTypesGame {
 	INIT = 501,
+	MATCHMAKING,
 	UPDATE,
 	DESTROY,
 	BALL_MOVE,

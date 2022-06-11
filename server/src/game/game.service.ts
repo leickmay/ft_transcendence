@@ -3,10 +3,10 @@ import { EventsService } from 'src/socket/events.service';
 import { PacketPlayInPlayerJoin } from 'src/socket/packets/PacketPlayInPlayerJoin';
 import { PacketPlayInPlayerMove } from 'src/socket/packets/PacketPlayInPlayerMove';
 import { PacketPlayInPlayerReady } from 'src/socket/packets/PacketPlayInPlayerReady';
-import { PacketPlayOutPlayerJoinWL } from 'src/socket/packets/PacketPlayOutPlayerJoinWL';
+import { PacketPlayOutGameUpdate } from 'src/socket/packets/PacketPlayOutGameUpdate';
 import { Packet, PacketTypesPlayer } from 'src/socket/packets/packetTypes';
 import { User } from '../user/user.entity';
-import { Player, Room } from "./game.interfaces";
+import { GameStatus, Player, Room } from "./game.interfaces";
 
 export class GameService {
 	rooms: Array<Room> = new Array;
@@ -60,7 +60,9 @@ export class GameService {
 	handleJoin(packet: PacketPlayInPlayerJoin, user: User): void {
 		if (!user.player && !this.waitList.includes(user)) {
 			this.waitList.push(user);
-			user.send("game",new PacketPlayOutPlayerJoinWL(true));
+			user.send("game", new PacketPlayOutGameUpdate({
+				status: GameStatus.MATCHMAKING,
+			}));
 		}
 	}
 

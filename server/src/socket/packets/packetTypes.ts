@@ -13,17 +13,17 @@ export enum PacketTypesUser {
 
 export enum PacketTypesChat {
 	COMMAND = 201,
-	MESSAGE,
+    MESSAGE,
+    LIST,
 	CREATE,
-	JOIN,
+    JOIN,
 	UP,
-	LEAVE,
-	DELETE,
+    QUIT,
+    DELETE,
 }
 
 export enum PacketTypesPlayer {
 	JOIN = 401,
-	JOINWL,
 	READY,
 	MOVE,
 	LIST,
@@ -31,6 +31,7 @@ export enum PacketTypesPlayer {
 
 export enum PacketTypesGame {
 	INIT = 501,
+	MATCHMAKING,
 	UPDATE,
 	DESTROY,
 	BALL_MOVE,

@@ -1,7 +1,6 @@
 import { Exclude, Expose, instanceToPlain } from "class-transformer";
 import { Server } from "socket.io";
 import { PacketPlayOutGameBallMove } from "src/socket/packets/PacketPlayOutGameBallMove";
-import { PacketPlayOutGameStatusStarting } from "src/socket/packets/PacketPlayOutGameStatusStarting";
 import { PacketPlayOutGameUpdate } from "src/socket/packets/PacketPlayOutGameUpdate";
 import { PacketPlayOutPlayerJoin } from "src/socket/packets/PacketPlayOutPlayerJoin";
 import { PacketPlayOutPlayerList } from "src/socket/packets/PacketPlayOutPlayerList";
@@ -32,38 +31,42 @@ export interface Spectator {
 	user: User;
 }
 
-export interface GameData {
-	id: number;
-	height: number;
-	width: number;
-	full: boolean;
-	started: boolean;
-	over: boolean;
-	minPlayers: number;
-	maxPlayers: number;
-	players: Array<Player>;
-	balls: Array<Ball>;
+export enum GameStatus {
+	NONE,
+	MATCHMAKING,
+	WAITING,
+	STARTING,
+	RUNNING,
+	FINISHED,
 }
 
+@Exclude()
 export class Room {
 	private static current = 0;
 
 	private interval?: NodeJS.Timer;
 
+	@Expose()
 	readonly height: number = 1080;
+	@Expose()
 	readonly width: number = 1920;
+	@Expose()
 	readonly minPlayers = 2;
+	@Expose()
 	readonly maxPlayers = 2;
+	@Expose()
+	readonly startTime = 5;
 
+	@Expose()
 	id: number;
-	isPriv: boolean = false;
-	isOver: boolean = false;
-	isStarted: boolean = false;
+	@Expose()
+	status: GameStatus = GameStatus.WAITING;
 
 	players: Array<Player> = [];
 	readonly balls: Array<Ball> = [];
 	spectators: Array<Spectator> = [];
 
+	@Expose()
 	maxScore: number = 5;
 
 	constructor(private readonly server: Server) {
@@ -83,13 +86,7 @@ export class Room {
 
 	join(user: User): void {
 		if (!this.isFull()) {
-			user.send('game', new PacketPlayOutGameUpdate(instanceToPlain({
-				id: this.id,
-				height: this.height,
-				width: this.width,
-				minPlayers: this.minPlayers,
-				maxPlayers: this.maxPlayers,
-			})));
+			user.send('game', new PacketPlayOutGameUpdate(instanceToPlain(this)));
 			user.send('game', new PacketPlayOutPlayerList(instanceToPlain(this.players)));
 
 			let player = new Player(user, this, this.chooseSide(), this.width / 40, this.height / 4);
@@ -107,12 +104,17 @@ export class Room {
 	tryStart(): void { this.canStart() && this.start(); }
 
 	async start() {
-		this.broadcast(new PacketPlayOutGameStatusStarting(5));
-		// this.balls.push(new Ball(this.balls.length, this, 75, 8));
-		// this.isStarted = true;
-
-		// await new Promise(r => setTimeout(r, 5000));
-		// this.interval = setInterval(this.loop, 1000 / 20);
+		this.status = GameStatus.WAITING;
+		this.broadcast(new PacketPlayOutGameUpdate({
+			status: GameStatus.STARTING,
+		}));
+		setTimeout(() => {
+			this.status = GameStatus.RUNNING;
+			this.broadcast(new PacketPlayOutGameUpdate({
+				status: GameStatus.RUNNING,
+			}));
+			// this.balls.push(new Ball(this.balls.length, this, 75, 8));
+		}, 5000);
 	}
 
 	stop(): void {

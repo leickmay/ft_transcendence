@@ -1,4 +1,3 @@
-import { createContext } from "react";
 import { User } from "./User";
 
 export enum Directions {
@@ -38,19 +37,10 @@ export interface Ball extends Entity {
 }
 
 export enum GameStatus {
+	NONE,
+	MATCHMAKING,
 	WAITING,
 	STARTING,
 	RUNNING,
 	FINISHED,
-}
-
-export interface GameData {
-	width: number;
-	height: number;
-	status: GameStatus;
-	minPlayers: number;
-	maxPlayers: number;
-	players: Array<Player>;
-	balls: Array<Ball>;
-	// spectators: Array<Spectator>;
 }
