@@ -17,8 +17,8 @@ export interface Entity {
 }
 
 export enum Sides {
-	RIGHT,
 	LEFT,
+	RIGHT,
 }
 
 export enum Directions {
@@ -89,7 +89,7 @@ export class Room {
 			user.send('game', new PacketPlayOutGameUpdate(instanceToPlain(this)));
 			user.send('game', new PacketPlayOutPlayerList(instanceToPlain(this.players)));
 
-			let player = new Player(user, this, this.chooseSide(), this.width / 40, this.height / 4);
+			let player = new Player(user, this, this.chooseSide(), 110 / 2, 450 / 2);
 
 			user.player = player;
 			this.players.push(player);
@@ -165,7 +165,7 @@ export class Player implements Entity {
 	ready: boolean = false;
 
 	@Expose()
-	direction: Directions;
+	direction: Directions = Directions.STATIC;
 
 	@Expose()
 	side: Sides;

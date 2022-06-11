@@ -8,6 +8,7 @@
 		&>.players {
 			.avatar {
 				position: relative;
+
 				&>.overlay {
 					pointer-events: none;
 					display: flex;
@@ -27,6 +28,10 @@
 			width: 80px;
 			margin: 0 20px;
 		}
+	}
+
+	canvas {
+		width: 100%;
 	}
 }
 
@@ -87,7 +92,7 @@
 // 				border: 3px inset $color-4;
 // 			}
 // 		}
-		
+
 // 		input {
 // 			animation-name: appearBtn, appearText;
 // 			animation-duration: 1s;
@@ -155,7 +160,7 @@
 // 		padding: 10px 10px 10px 10px;
 // 		min-width: 20%;
 // 	}
-	
+
 // 	.playerAvatar {
 // 		//background: rgba(0, 0, 0, 0.541);
 // 		background: url("/assets/images/bg_friendCard.png")  no-repeat center/cover;

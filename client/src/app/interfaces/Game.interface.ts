@@ -7,8 +7,8 @@ export enum Directions {
 }
 
 export enum Sides {
-	RIGHT,
 	LEFT,
+	RIGHT,
 }
 
 interface Entity {

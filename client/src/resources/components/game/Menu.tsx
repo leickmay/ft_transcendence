@@ -29,7 +29,7 @@ export const GameMenu = (props: Props) => {
 		}
 	}, [game.status, game.startTime]);
 
-	const getMenu = useCallback((): JSX.Element => {
+	const getSearchButtonElement = useCallback((): JSX.Element => {
 		return (
 			<div className="buttonWindow">
 				<button onMouseDown={props.search}>Search Match</button>
@@ -39,15 +39,15 @@ export const GameMenu = (props: Props) => {
 		);
 	}, [props.search]);
 
-	const getGameInfos = useCallback((): JSX.Element => {
-		if (game.status === GameStatus.MATCHMAKING) {
-			return (
-				<div className="roomSearchMatch">
-					<div>Searching a game...</div>
-				</div>
-			);
-		}
+	const getMatchmakingElement = useCallback((): JSX.Element => {
+		return (
+			<div className="roomSearchMatch">
+				<div>Searching a game...</div>
+			</div>
+		);
+	}, [props.search]);
 
+	const getGameInfosElement = useCallback((): JSX.Element => {
 		const listPlayers = (players: Array<Player>): Array<JSX.Element> | JSX.Element => {
 			return players.length ?
 				players.map((player: Player) => (
@@ -81,12 +81,14 @@ export const GameMenu = (props: Props) => {
 				</div>
 			</section>
 		);
-	}, [game.status, game.players, counter]);
+	}, [game.players, counter]);
 
-	return (
-		<div id="game" onKeyDown={(e) => handleKeyDown(e)} onKeyUp={(e) => handleKeyUp(e)} onClick={() => handleClick()} tabIndex={-1}>
-			<p>{ GameStatus[game.status] }</p>
-			{game.status === GameStatus.NONE ? getMenu() : getGameInfos()}
-		</div>
-	);
+	switch (game.status) {
+		case GameStatus.NONE:
+			return getSearchButtonElement();
+		case GameStatus.MATCHMAKING:
+			return getMatchmakingElement();
+		default:
+			return getGameInfosElement();
+	}
 };

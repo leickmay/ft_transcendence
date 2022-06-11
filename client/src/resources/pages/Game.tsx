@@ -1,12 +1,13 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { SocketContext } from '../../app/context/socket';
-import { Directions, GameStatus, Player, Sides } from '../../app/interfaces/Game.interface';
+import { Directions, GameStatus } from '../../app/interfaces/Game.interface';
 import { PacketPlayOutPlayerJoin } from '../../app/packets/PacketPlayOutPlayerJoin';
 import { PacketPlayOutPlayerMove } from '../../app/packets/PacketPlayOutPlayerMove';
 import { PacketPlayOutPlayerReady } from '../../app/packets/PacketPlayOutPlayerReady';
 import { RootState } from '../../app/store';
 import { GameMenu } from '../components/game/Menu';
+import { GameCanvas } from '../components/GameCanvas';
 
 let moveUp: boolean = false;
 let moveDown: boolean = false;
@@ -36,7 +37,7 @@ export const Game = (props: Props) => {
 	}, [socket, game.status]);
 
 	const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-		if (game.status === GameStatus.WAITING) {
+		if (game.status === GameStatus.RUNNING) {
 			if ((e.key === 'w' || e.key === 'ArrowUp') && !moveUp) {
 				moveUp = true;
 				emitMovement();
@@ -49,7 +50,7 @@ export const Game = (props: Props) => {
 	}, [game.status, emitMovement]);
 
 	const handleKeyUp = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-		if (game.status === GameStatus.WAITING) {
+		if (game.status === GameStatus.RUNNING) {
 			if (e.key === 'w' || e.key === 'ArrowUp') {
 				moveUp = false;
 				emitMovement();
@@ -60,11 +61,12 @@ export const Game = (props: Props) => {
 			}
 		}
 	}, [game.status, emitMovement]);
-
+	
 	return (
-		<div id="game" onKeyDown={(e) => handleKeyDown(e)} onKeyUp={(e) => handleKeyUp(e)} onClick={() => handleClick()} tabIndex={-1}>
+		<div id="game" onKeyDown={(e) => handleKeyDown(e)} onKeyUp={(e) => handleKeyUp(e)} onClick={() => handleClick()}>
 			<p>{ GameStatus[game.status] }</p>
 			<GameMenu search={searchMatch} />
+			{ game.status >= GameStatus.STARTING && <GameCanvas /> }
 		</div>
 	);
 };
