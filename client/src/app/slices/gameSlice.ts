@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Ball, GameStatus, Player } from "../interfaces/Game.interface";
 
 interface State {
+	refreshTime: number;
 	width: number;
 	height: number;
 	status: GameStatus;
@@ -14,6 +15,7 @@ interface State {
 }
 
 const initialState: State = {
+	refreshTime: 10,
 	status: GameStatus.NONE,
 	width: 1920,
 	height: 1080,
@@ -28,47 +30,23 @@ const slice = createSlice({
 	name: 'game',
 	initialState,
 	reducers: {
-		setPlayers: (state: State, action: PayloadAction<Array<Player>>): State => {
-			return {
-				...state,
-				players: action.payload,
-			};
+		setPlayers: (state: State, action: PayloadAction<Array<Player>>): void => {
+			state.players = action.payload;
 		},
-		addPlayer: (state: State, action: PayloadAction<Player>): State => {
-			if (!!state.players.find(p => p.user.id === action.payload.user.id))
-				return state;
-			return {
-				...state,
-				players: [
-					...state.players,
-					action.payload,
-				],
-			};
+		addPlayer: (state: State, action: PayloadAction<Player>): void => {
+			state.players.push(action.payload);
 		},
-		removePlayer: (state: State, action: PayloadAction<number>): State => {
-			return {
-				...state,
-				players: [
-					...state.players.filter(p => p.user.id !== action.payload),
-				],
-			};
+		removePlayer: (state: State, action: PayloadAction<number>): void => {
+			let players = state.players.filter(p => p.user.id !== action.payload);
+			state.players = players;
 		},
-		setPlayerReady: (state: State, action: PayloadAction<number>): State => {
-			return {
-				...state,
-				players: [
-					...state.players.map(p => ({
-						...p,
-						ready: p.ready || p.user.id === action.payload,
-					})),
-				],
-			};
+		setPlayerReady: (state: State, action: PayloadAction<number>): void => {
+			let player = state.players.find(p => p.user.id === action.payload);
+			if (player)
+				player.ready = true;
 		},
-		updateGame: (state: State, action: PayloadAction<Partial<State>>): State => {
-			return {
-				...state,
-				...action.payload,
-			}
+		updateGame: (state: State, action: PayloadAction<Partial<State>>): void => {
+			Object.assign(state, action.payload);
 		},
 	}
 });

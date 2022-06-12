@@ -17,7 +17,7 @@ interface Props {
 
 export const Game = (props: Props) => {
 	const socket = useContext(SocketContext);
-	const game = useSelector((state: RootState) => state.game)
+	const game = useSelector((state: RootState) => state.game);
 
 	const searchMatch = useCallback(() => {
 		socket?.emit('game', new PacketPlayOutPlayerJoin());
@@ -61,12 +61,14 @@ export const Game = (props: Props) => {
 			}
 		}
 	}, [game.status, emitMovement]);
-	
+
+	console.log('Game refresh');
+
 	return (
 		<div id="game" onKeyDown={(e) => handleKeyDown(e)} onKeyUp={(e) => handleKeyUp(e)} onClick={() => handleClick()}>
-			<p>{ GameStatus[game.status] }</p>
+			<p>{GameStatus[game.status]}</p>
 			<GameMenu search={searchMatch} />
-			{ game.status >= GameStatus.STARTING && <GameCanvas /> }
+			{game.status >= GameStatus.STARTING && <GameCanvas />}
 		</div>
 	);
 };

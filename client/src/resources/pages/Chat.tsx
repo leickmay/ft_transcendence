@@ -25,7 +25,7 @@ export const scrollToBottomById = async (id: string) => {
 
 export const Chat = () => {
 	const socket = useContext(SocketContext);
-	const dispatch: Dispatch<AnyAction> = useDispatch();
+	const dispatch = useDispatch();
 
 	// useEffect(() => {
 	// 	if (socket) {

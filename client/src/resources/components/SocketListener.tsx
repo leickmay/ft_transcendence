@@ -22,7 +22,7 @@ export const SocketListener = (props: Props) => {
 	const socket = useContext(SocketContext);
 	const ready = useSelector((state: RootState) => state.socket.ready);
 
-	const dispatch: Dispatch<AnyAction> = useDispatch();
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		const online = (packet: PacketPlayInUserConnection) => {

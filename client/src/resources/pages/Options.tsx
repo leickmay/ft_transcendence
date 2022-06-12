@@ -13,7 +13,7 @@ export const Options = () => {
 	const socket = useContext(SocketContext);
 	const user = useSelector((state: RootState) => state.users.current);
 	const [name, setName] = useState(user?.name);
-	const dispatch: Dispatch<AnyAction> = useDispatch();
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		if (user?.name)

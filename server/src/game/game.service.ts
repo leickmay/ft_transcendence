@@ -69,7 +69,7 @@ export class GameService {
 	handleReady(packet: PacketPlayInPlayerReady, user: User): void {
 		let player: Player | null = user.player;
 
-		if (player && !player.room.isRunning()) {
+		if (player?.room.status === GameStatus.WAITING) {
 			player.setReady();
 			player.room.tryStart();
 		}
@@ -78,7 +78,7 @@ export class GameService {
 	handlePlayerMove(packet: PacketPlayInPlayerMove, user: User): void {
 		let player: Player | null = user.player;
 
-		if (player && player.room.isRunning()) {
+		if (player?.room.status === GameStatus.RUNNING) {
 			player.direction = packet.direction;
 		}
 	}

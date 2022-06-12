@@ -19,7 +19,7 @@ export function Connected(props: Props) {
 	const [cookies, setCookie, removeCookie] = useCookies(['access_token']);
 	const [socket, setSocket] = useState<Socket>();
 
-	const dispatch: Dispatch<AnyAction> = useDispatch();
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		const connect = async (): Promise<void> => {

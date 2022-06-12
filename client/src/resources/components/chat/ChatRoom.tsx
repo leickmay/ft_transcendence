@@ -5,7 +5,7 @@ import { SocketContext } from "../../../app/context/socket";
 
 export const ChatRoom = () => {
 	const socket = useContext(SocketContext);
-	const dispatch: Dispatch<AnyAction> = useDispatch();
+	const dispatch = useDispatch();
 
 	// const alertCurrentRoom = useSelector(() => store.getState().chat.currentRooms);
 

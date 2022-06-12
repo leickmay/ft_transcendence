@@ -44,8 +44,12 @@ export enum GameStatus {
 export class Room {
 	private static current = 0;
 
-	private interval?: NodeJS.Timer;
+	private readjustInterval?: NodeJS.Timer;
+	private refreshInterval?: NodeJS.Timer;
+	readonly readjustTime = 500;
 
+	@Expose()
+	readonly refreshTime = 10;
 	@Expose()
 	readonly height: number = 1080;
 	@Expose()
@@ -99,8 +103,6 @@ export class Room {
 		}
 	}
 
-	isRunning() { return !!this.interval; }
-
 	tryStart(): void { this.canStart() && this.start(); }
 
 	async start() {
@@ -113,14 +115,25 @@ export class Room {
 			this.broadcast(new PacketPlayOutGameUpdate({
 				status: GameStatus.RUNNING,
 			}));
+			this.readjustInterval = setInterval(this.readjust, this.readjustTime);
+			this.refreshInterval = setInterval(this.loop, this.refreshTime);
 			// this.balls.push(new Ball(this.balls.length, this, 75, 8));
 		}, 5000);
 	}
 
 	stop(): void {
-		if (this.interval)
-			clearInterval(this.interval);
-		this.interval = undefined;
+		clearInterval(this.refreshInterval);
+		clearInterval(this.readjustInterval);
+		this.refreshInterval = undefined;
+	}
+
+	private readjust = (): void => {
+		this.balls.forEach(ball => {
+			if (ball.willCollideVertical())
+				ball.y *= -1;
+			ball.move();
+		});
+		this.players.forEach(player => player.move());
 	}
 
 	private loop = (): void => {
