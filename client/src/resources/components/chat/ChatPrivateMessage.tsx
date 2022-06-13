@@ -53,7 +53,7 @@ const ChatPrivateMessage = () => {
 					switchConfigPrivMsg();
 				}}
 			>..</button>
-			<h2>Players Online</h2>
+			<h2>Friends</h2>
 			{
 				friends
 					.filter(u => hasAlreadyPrivMsg(u.id))
