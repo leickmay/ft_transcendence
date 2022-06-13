@@ -45,7 +45,7 @@ export const GameMenu = (props: Props) => {
 				<div>Searching a game...</div>
 			</div>
 		);
-	}, [props.search]);
+	}, []);
 
 	const getGameInfosElement = useCallback((): JSX.Element => {
 		const listPlayers = (players: Array<Player>): Array<JSX.Element> | JSX.Element => {
@@ -75,7 +75,9 @@ export const GameMenu = (props: Props) => {
 				<div className='players'>
 					{listPlayers(left)}
 				</div>
-				<span className='h1 text-neon2-tertiary text-stroke-2'>{counter ?? 'VS'}</span>
+				<span className='h1 text-neon2-tertiary text-stroke-2'>
+					{counter ?? 'VS'}
+				</span>
 				<div className='players'>
 					{listPlayers(right)}
 				</div>

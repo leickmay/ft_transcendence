@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Ball, GameStatus, Player } from "../interfaces/Game.interface";
+import { User } from "../interfaces/User";
 
 interface State {
 	refreshTime: number;
@@ -9,7 +10,7 @@ interface State {
 	minPlayers: number;
 	maxPlayers: number;
 	startTime: number;
-	players: Array<Player>;
+	users: Array<User>;
 	balls: Array<Ball>;
 	// spectators: Array<Spectator>;
 }
@@ -22,7 +23,7 @@ const initialState: State = {
 	minPlayers: 2,
 	maxPlayers: 2,
 	startTime: 5,
-	players: [],
+	users: [],
 	balls: [],
 }
 
@@ -31,19 +32,19 @@ const slice = createSlice({
 	initialState,
 	reducers: {
 		setPlayers: (state: State, action: PayloadAction<Array<Player>>): void => {
-			state.players = action.payload;
+			state.users = action.payload.map(p => p.user);
 		},
 		addPlayer: (state: State, action: PayloadAction<Player>): void => {
-			state.players.push(action.payload);
+			state.users.push(action.payload.user);
 		},
 		removePlayer: (state: State, action: PayloadAction<number>): void => {
-			let players = state.players.filter(p => p.user.id !== action.payload);
-			state.players = players;
+			let users = state.users.filter(u => u.id !== action.payload);
+			state.users = users;
 		},
 		setPlayerReady: (state: State, action: PayloadAction<number>): void => {
-			let player = state.players.find(p => p.user.id === action.payload);
-			if (player)
-				player.ready = true;
+			let user = state.users.find(u => u.id === action.payload);
+			if (user)
+				user.ready = true;
 		},
 		updateGame: (state: State, action: PayloadAction<Partial<State>>): void => {
 			Object.assign(state, action.payload);

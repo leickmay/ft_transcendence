@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import { useDispatch, useSelector } from 'react-redux';
 import { SocketContext } from '../../app/context/socket';
 import { useAnimationFrame } from '../../app/Helpers';
-import { Player } from '../../app/interfaces/Game.interface';
+import { Directions, Player } from '../../app/interfaces/Game.interface';
 import { RootState } from '../../app/store';
 
 let ctx: CanvasRenderingContext2D | null = null;
@@ -29,7 +29,6 @@ const spriteHeight: number = 450;
 let paddleImg: HTMLImageElement = new Image();
 paddleImg.src = spriteUrl;
 
-let intervalId = 0;
 let counter = -1;
 
 interface Props {
@@ -49,11 +48,13 @@ export const GameCanvas = (props: Props) => {
 	}, []);
 
 	useEffect(() => {
-		players.current = game.players.map(p => ({...p}));
+		players.current = game.players.map(p => ({ ...p }));
 	}, [game.players]);
 
 	useAnimationFrame((delta) => {
 		if (ctx) {
+			console.log(Math.round(delta));
+
 			ctx.drawImage(backgroundImg, 0, 0, game.width, game.height);
 			for (const player of players.current)
 				ctx.drawImage(paddleImg, player.direction * spriteWidth, player.side * spriteHeight, spriteWidth, spriteHeight, player.x, player.y, player.width, player.height);
@@ -63,12 +64,17 @@ export const GameCanvas = (props: Props) => {
 	}, [ctx]);
 
 	useEffect(() => {
+		let dir = 1;
 		const loop = () => {
-			players.current.forEach(p => p.y--);
-			// dispatch(gameLoopReducer());
+			players.current.forEach(p => {
+				if (p.direction === Directions.UP)
+					--p.y;
+				else if (p.direction === Directions.DOWN)
+					++p.y;
+			});
 		}
 
-		intervalId = window.setInterval(loop, game.refreshTime);
+		const intervalId = setInterval(loop, game.refreshTime);
 		return (() => {
 			clearInterval(intervalId);
 		});

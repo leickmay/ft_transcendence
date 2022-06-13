@@ -62,8 +62,6 @@ export const Game = (props: Props) => {
 		}
 	}, [game.status, emitMovement]);
 
-	console.log('Game refresh');
-
 	return (
 		<div id="game" onKeyDown={(e) => handleKeyDown(e)} onKeyUp={(e) => handleKeyUp(e)} onClick={() => handleClick()}>
 			<p>{GameStatus[game.status]}</p>
