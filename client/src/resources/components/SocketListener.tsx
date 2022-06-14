@@ -122,6 +122,8 @@ export const SocketListener = (props: Props) => {
 					gameUpdate(packet as PacketPlayInGameUpdate);
 					break;
 				case PacketTypesPlayer.MOVE:
+					// console.log(packet);
+					
 					playerMove(packet as PacketPlayInPlayerMove);
 					break;
 				default:

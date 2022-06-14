@@ -121,19 +121,9 @@ export class Room {
 		}, 5000);
 	}
 
-	stop(): void {
-		clearInterval(this.refreshInterval);
-		clearInterval(this.readjustInterval);
-		this.refreshInterval = undefined;
-	}
-
 	private readjust = (): void => {
-		this.balls.forEach(ball => {
-			if (ball.willCollideVertical())
-				ball.y *= -1;
-			ball.move();
-		});
-		this.players.forEach(player => player.move());
+		for (const player of this.players)
+			player.sendUpdate(true);
 	}
 
 	private loop = (): void => {
@@ -142,7 +132,16 @@ export class Room {
 				ball.y *= -1;
 			ball.move();
 		});
-		this.players.forEach(player => player.move());
+		for (const player of this.players) {
+			player.move();
+			player.sendUpdate(false);
+		}
+	}
+
+	stop(): void {
+		clearInterval(this.refreshInterval);
+		clearInterval(this.readjustInterval);
+		this.refreshInterval = undefined;
 	}
 
 	broadcast(data: any): void {
@@ -188,7 +187,7 @@ export class Player implements Entity {
 	@Expose()
 	side: Sides;
 
-	room: Room;;
+	room: Room;
 
 	constructor(user: User, room: Room, side: Sides, width: number, height: number) {
 		this.user = user;
@@ -222,7 +221,13 @@ export class Player implements Entity {
 			this.y -= this.speed;
 		else if (this.direction === Directions.DOWN && (this.y + this.speed < this.room.height - this.height))
 			this.y += this.speed;
-		this.room.broadcast(new PacketPlayOutPlayerMove(this.user.id, this.direction));
+	}
+
+	sendUpdate(teleport: boolean = false) {
+		// if (teleport)
+		// 	this.room.broadcast(new PacketPlayOutPlayerTeleport(this.user.id, this.direction, this.x, this.y));
+		// else
+			this.room.broadcast(new PacketPlayOutPlayerMove(this.user.id, this.direction));
 	}
 }
 

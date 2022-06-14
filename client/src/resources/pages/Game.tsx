@@ -38,7 +38,6 @@ export const Game = (props: Props) => {
 	}, [socket, game.status]);
 
 	const handleKeyDown = useCallback((e: KeyboardEvent) => {
-		console.log(moveUp, GameStatus[game.status]);
 		if (game.status === GameStatus.RUNNING) {
 			if ((e.key === 'w' || e.key === 'ArrowUp') && !moveUp) {
 				moveUp = true;
