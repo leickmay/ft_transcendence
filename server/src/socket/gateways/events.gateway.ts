@@ -5,9 +5,11 @@ import { AuthService } from 'src/auth/auth.service';
 import { ChatService } from 'src/chat/chat.service';
 import { OptionsService } from 'src/options/options.service';
 import { SearchService } from 'src/search/search.service';
+import { StatsService } from 'src/stats/stats.service';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { EventsService } from '../events.service';
+import { PacketPlayInStatsUpdate } from '../packets/PacketPlayInStatsUpdate';
 import { PacketPlayOutUserConnection } from '../packets/PacketPlayOutUserConnection';
 import { PacketPlayOutUserDisconnected } from '../packets/PacketPlayOutUserDisconnected';
 import { Packet } from '../packets/packetTypes';
@@ -30,6 +32,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		@Inject(forwardRef(() => SearchService))
 		private searchService: SearchService,
 		private chatService: ChatService,
+		@Inject(forwardRef(() => StatsService))
+		private statsService: StatsService
 	) { }
 
 	afterInit(server: Server) {
@@ -55,6 +59,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => u.id)));
 			this.eventsService.addUser(client, user);
 			client.join("channel_World Random");
+			await this.statsService.sendStats(user);
 		} catch (e) {
 			client.emit('error', new UnauthorizedException());
 			client.disconnect();
@@ -92,5 +97,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		if (!user)
 			return;
 		this.searchService.dispatch(packet, user);
+	}
+
+	@SubscribeMessage('stats')
+	async stats(@MessageBody() packet: PacketPlayInStatsUpdate, @ConnectedSocket() client: Socket): Promise<void> {
+		this.statsService.addStat(packet);
+		const user = await this.userService.get(packet.id)
+		if (user)
+			await this.statsService.sendStats(user);
 	}
 }

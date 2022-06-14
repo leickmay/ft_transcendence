@@ -1,0 +1,26 @@
+
+.statistics {
+
+	.figures {
+		display: flex;
+		justify-content: center;
+	}
+	
+	.figures > p {
+		margin: 1em;
+		padding: 1em;
+		background-color: black;
+		border-radius: 0.3em;
+	}
+	
+	.history {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+
+		th{
+			text-align: justify;
+		}
+	}
+
+}
