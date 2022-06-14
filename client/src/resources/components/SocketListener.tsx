@@ -130,7 +130,7 @@ export const SocketListener = (props: Props) => {
 					break;
 			}
 		});
-	}, [socket, dispatch, playerMove]);
+	}, [socket, dispatch, playerMove, setPlayers]);
 
 	useEffect(() => {
 	}, [socket, dispatch]);

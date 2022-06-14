@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
 import { User } from "../../app/interfaces/User";
 import { PacketPlayOutFriends } from "../../app/packets/PacketPlayOutFriends";

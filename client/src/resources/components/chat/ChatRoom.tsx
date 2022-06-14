@@ -1,11 +1,7 @@
-import { AnyAction } from "@reduxjs/toolkit";
-import { Dispatch, KeyboardEvent, useContext } from "react";
-import { useDispatch } from "react-redux";
-import { SocketContext } from "../../../app/context/socket";
 
 export const ChatRoom = () => {
-	const socket = useContext(SocketContext);
-	const dispatch = useDispatch();
+	// const socket = useContext(SocketContext);
+	// const dispatch = useDispatch();
 
 	// const alertCurrentRoom = useSelector(() => store.getState().chat.currentRooms);
 
@@ -13,7 +9,7 @@ export const ChatRoom = () => {
 	// const [messages, setMessages] = useState(store.getState().chat.currentRooms.messages);
 	// const [newMessage, setNewMessage] = useState('');
 
-	const inputNewMessage = async (element: KeyboardEvent<HTMLTextAreaElement>): Promise<void> => {
+	// const inputNewMessage = async (element: KeyboardEvent<HTMLTextAreaElement>): Promise<void> => {
 		// if (element.key === 'Enter' && newMessage !== '') {
 		// 	let user: User | undefined = store.getState().users.current;
 		// 	if (!user)
@@ -34,7 +30,7 @@ export const ChatRoom = () => {
 		// 		socket.emit('chat', packet);
 		// 	setNewMessage('');
 		// }
-	}
+	// }
 
 	// useEffect(() => {
 	// 	setMessages(store.getState().chat.currentRooms.messages);

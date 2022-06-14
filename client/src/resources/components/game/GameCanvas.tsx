@@ -1,28 +1,16 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { PlayersContext } from '../../../app/context/players';
-import { SocketContext } from '../../../app/context/socket';
 import { useAnimationFrame } from '../../../app/Helpers';
-import { Directions, Player } from '../../../app/interfaces/Game.interface';
+import { Directions } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
-
-let ctx: CanvasRenderingContext2D | null = null;
-
-const numberImg: HTMLImageElement = new Image();
-numberImg.src = './assets/images/NeonNumber.png';
-const numberWidth = 81;
-const numberHeight = 100;
 
 let backgroundImg: HTMLImageElement = new Image();
 backgroundImg.src = './assets/images/background.png';
 
-let ballImg: HTMLImageElement = new Image();
-const ballSize: number = 266;
-let ballSx: number = 0;
-let sXMultiplier: number = 0;
-let ballSy: number = 0;
-let sYMultiplier: number = 0;
-ballImg.src = './assets/images/ballSheet.png';
+// let ballImg: HTMLImageElement = new Image();
+// const ballSize: number = 266;
+// ballImg.src = './assets/images/ballSheet.png';
 
 const spriteUrl = '/assets/images/paddles.png';
 const spriteWidth: number = 110;
@@ -30,16 +18,11 @@ const spriteHeight: number = 450;
 let paddleImg: HTMLImageElement = new Image();
 paddleImg.src = spriteUrl;
 
-let counter = -1;
-
 interface Props {
 }
 
 export const GameCanvas = (props: Props) => {
 	const game = useSelector((state: RootState) => state.game);
-	const dispatch = useDispatch();
-	const socket = useContext(SocketContext);
-	const user = useSelector((state: RootState) => state.users);
 	const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
 	const [players] = useContext(PlayersContext);
 
@@ -54,7 +37,6 @@ export const GameCanvas = (props: Props) => {
 
 	useAnimationFrame((delta) => {
 		if (ctx) {
-
 			ctx.drawImage(backgroundImg, 0, 0, game.width, game.height);
 			for (const player of players)
 				ctx.drawImage(paddleImg, player.direction * spriteWidth, player.side * spriteHeight, spriteWidth, spriteHeight, player.x, player.y, player.width, player.height);
@@ -91,7 +73,7 @@ export const GameCanvas = (props: Props) => {
 		return (() => {
 			clearInterval(intervalId);
 		});
-	}, [players]);
+	}, [players, game.refreshTime]);
 
 	return (
 		<canvas className='border-neon-primary' ref={canvasRef} height={game.height} width={game.width}></canvas>

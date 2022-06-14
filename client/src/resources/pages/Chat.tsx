@@ -1,7 +1,3 @@
-import { AnyAction } from "@reduxjs/toolkit";
-import { Dispatch, useContext } from "react";
-import { useDispatch } from "react-redux";
-import { SocketContext } from "../../app/context/socket";
 import { ChatChannel } from "../components/chat/ChatChannel";
 import { ChatNavigation } from "../components/chat/ChatNavigation";
 import { ChatPrivateMessage } from "../components/chat/ChatPrivateMessage";
@@ -20,12 +16,12 @@ export const hideDivById = (id: string): void => {
 export const scrollToBottomById = async (id: string) => {
 	let element = document.getElementById(id);
 	let height = element?.scrollHeight;
-	element?.scrollTo({top: height});
+	element?.scrollTo({ top: height });
 }
 
 export const Chat = () => {
-	const socket = useContext(SocketContext);
-	const dispatch = useDispatch();
+	// const socket = useContext(SocketContext);
+	// const dispatch = useDispatch();
 
 	// useEffect(() => {
 	// 	if (socket) {
