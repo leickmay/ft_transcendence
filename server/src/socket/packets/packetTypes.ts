@@ -3,16 +3,13 @@ export enum PacketTypesMisc {
 	FRIENDS,
 	PLAYER_MOVE,
 	SEARCH_USER,
+	STATS_UPDATE,
 }
 
 export enum PacketTypesUser {
 	CONNECTION = 101,
 	DISCONNECTED,
 	UPDATE,
-}
-
-export enum PacketTypesStats {
-	STATS_UPDATE,
 }
 
 export enum PacketTypesChat {
@@ -25,7 +22,7 @@ export enum PacketTypesChat {
 	DELETE,
 }
 
-export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat | PacketTypesStats;
+export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat;
 
 export enum Directions {
 	UP,

@@ -1,8 +1,10 @@
+import { User } from "./User";
+
 export interface MatchResult {
-	winner: string,
-	p1: string,
-	p2: string,
-	date: Date,
+	winnerId: number,
+	p1: User,
+	p2: User,
+	createdDate: Date,
 }
 
 export interface UserStats {

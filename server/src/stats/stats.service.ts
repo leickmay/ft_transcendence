@@ -45,11 +45,12 @@ export class StatsService {
 			],
 			relations: ['p1', 'p2'],
 		});
-
 		user.send('stats', new PacketPlayOutStatsUpdate(
-			stats.length,
-			stats.filter(m => m.winnerId === user.id).length,
-			instanceToPlain(stats.slice(0, 10))
+			{
+				nbMatchs: stats.length,
+				matchWon: stats.filter(m => m.winnerId === user.id).length,
+				history: instanceToPlain(stats.slice(0, 10))
+			}
 		));
 	}
 }

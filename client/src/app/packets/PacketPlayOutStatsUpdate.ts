@@ -1,6 +1,6 @@
-import { DeclarePacket, PacketTypesStats } from "./packetTypes";
+import { DeclarePacket, PacketTypesMisc } from "./packetTypes";
 
-@DeclarePacket(PacketTypesStats.STATS_UPDATE)
+@DeclarePacket(PacketTypesMisc.STATS_UPDATE)
 export class PacketPlayOutStatsUpdate {
 	constructor (
 		public winnerId: number,

@@ -1,11 +1,12 @@
-import { Stats } from "src/stats/stats.entity";
-import { DeclarePacket, PacketTypesStats } from "./packetTypes";
+import { DeclarePacket, PacketTypesMisc } from "./packetTypes";
 
-@DeclarePacket(PacketTypesStats.STATS_UPDATE)
+@DeclarePacket(PacketTypesMisc.STATS_UPDATE)
 export class PacketPlayOutStatsUpdate {
 	constructor(
-		public nbMatchs: number,
-		public matchWon: number,
-		public history: Record<string, any>,
+		public stats: {
+			nbMatchs: number,
+			matchWon: number,
+			history: Record<string, any>,
+		}
 	) { }
 }

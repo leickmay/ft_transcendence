@@ -9,7 +9,7 @@ import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserCo
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
-import { Packet, PacketTypesMisc, PacketTypesStats, PacketTypesUser } from '../../app/packets/packetTypes';
+import { Packet, PacketTypesMisc, PacketTypesUser } from '../../app/packets/packetTypes';
 import { setStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
@@ -56,7 +56,7 @@ export const SocketListener = (props: Props) => {
 		});
 
 		socket?.off('stats').on('stats', (packet: Packet) => {
-			if (packet.packet_id === PacketTypesStats.STATS_UPDATE)
+			if (packet.packet_id === PacketTypesMisc.STATS_UPDATE)
 				stats(packet as PacketPlayInStatsUpdate);
 			});
 
