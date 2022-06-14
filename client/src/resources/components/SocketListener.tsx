@@ -57,7 +57,7 @@ export const SocketListener = (props: Props) => {
 		socket?.off('stats').on('stats', (packet: Packet) => {
 			if (packet.packet_id === PacketTypesMisc.STATS_UPDATE)
 				stats(packet as PacketPlayInStatsUpdate);
-			});
+		});
 
 		socket?.off('chat').on('chat', (packet: Packet) => {
 			console.log(packet);
