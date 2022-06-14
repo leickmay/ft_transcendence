@@ -4,7 +4,7 @@ import { SocketContext } from "../../../app/context/socket";
 import { ChatTypes } from "../../../app/interfaces/Chat";
 import { PacketPlayOutChatCreate, PacketPlayOutChatJoin } from "../../../app/packets/chat/PacketPlayOutChat";
 import { setCurrentRooms } from "../../../app/slices/chatSlice";
-import store from "../../../app/store";
+import store, { RootState } from "../../../app/store";
 import { hideDivById } from "../../pages/Chat";
 
 export const switchConfigChannel = () => {
@@ -19,22 +19,19 @@ const ChatChannel = () => {
 	const [isPrivate, setIsPrivate] = useState(false);
 	const [hasPassword, setHasPassword] = useState(false);
 	const [password, setPassword] = useState('');
-
-	const [rooms, setRooms] = useState(
-		store.getState().chat.rooms?.filter(
-			x => x.users.find(u => u !== store.getState().users.current?.id)
-		)
-	);
-
-	const alertRooms = useSelector(() => store.getState().chat.rooms);
+	
+	const user = useSelector((state: RootState) => state.users.current);
+	const rooms = useSelector((state: RootState) => state.chat.rooms);
+	
+	const [roomsOffline, setRoomsOffline] = useState(rooms?.filter(
+		x => x.users.find(u => u === user?.id) === undefined
+	));
 
 	useEffect(() => {
-		setRooms(
-			store.getState().chat.rooms?.filter(
-				x => x.users.find(u => u === store.getState().users.current?.id) === undefined
-			)
+		setRoomsOffline(rooms?.filter(
+			x => x.users.find(u => u === user?.id) === undefined)
 		);
-	}, [alertRooms]);
+	}, [rooms, user])
 
 
 	const createChannel = (): void => {
@@ -92,7 +89,7 @@ const ChatChannel = () => {
 				/>
 				<datalist id="channel-visible">
 					{
-						rooms?.map((x, index) => {
+						roomsOffline?.map((x, index) => {
 							return (
 								<option key={index}>{x.name}</option>
 							);

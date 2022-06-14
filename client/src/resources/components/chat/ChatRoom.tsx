@@ -2,51 +2,48 @@ import { KeyboardEvent, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/socket";
 import { PacketPlayOutChatMessage } from "../../../app/packets/chat/PacketPlayOutChat";
-import store from "../../../app/store";
-import { getCurrentRoom, getNameRoom, getTime, scrollToBottomById } from "../../pages/Chat";
+import { RootState } from "../../../app/store";
+import {getNameRoom, getTime, scrollToBottomById } from "../../pages/Chat";
 
 const ChatCurrentRoom = () => {
 	const socket = useContext(SocketContext);
-	//const dispatch: Dispatch<AnyAction> = useDispatch();
 
-	const alertCurrent = useSelector(() => store.getState().chat.current);
-	const alertRooms = useSelector(() => store.getState().chat.rooms);
+	const rooms = useSelector((state: RootState) => state.chat.rooms);
+	const currentID = useSelector((state: RootState) => state.chat.current);
+	const user = useSelector((state: RootState) => state.users.current);
 
-	const [name, setName] = useState(getCurrentRoom()?.name);
-	const [messages, setMessages] = useState(getCurrentRoom()?.messages);
+	const [current, setCurrent] = useState(rooms?.find(x => x.id === currentID));
 	const [newMessage, setNewMessage] = useState('');
 
 	const inputNewMessage = async (element: KeyboardEvent<HTMLTextAreaElement>): Promise<void> => {
 		if (element.key === 'Enter' && newMessage !== '') {
-			let current = store.getState().chat.current;
-			if (current)
-				socket?.emit('chat', new PacketPlayOutChatMessage(current, newMessage));
+			if (currentID)
+				socket?.emit('chat', new PacketPlayOutChatMessage(currentID, newMessage));
 			setNewMessage('');
 		}
 	}
 
 	useEffect(() => {
-		setMessages(getCurrentRoom()?.messages);
-		setName(getNameRoom(getCurrentRoom()))
-	}, [alertCurrent, alertRooms]);
+		setCurrent(rooms?.find(x => x.id === currentID));
+	}, [rooms, currentID]);
 
 	useEffect(() => {
 		scrollToBottomById('chatRoomMesssages');
-	}, [messages]);
+	}, [current?.messages]);
 
 	return (
 		<div id="chatRoom" className="chatRight">
-			<h2>{name}</h2>
+			<h2>{getNameRoom(current)}</h2>
 			{
-				(store.getState().users.current?.id === getCurrentRoom()?.operator) &&
+				(user?.id === current?.operator) &&
 				<button>Operator</button>
 			}
 			<div id="chatRoomMesssages">
 			{
-					messages
+					current?.messages
 						?.map((value, index) => {
 							let from: string = "otherMessage";
-							if (value.from === store.getState().users.current?.login) {
+							if (value.from === user?.login) {
 								from = "myMessage";
 							}
 							if (value.cmd === true) {

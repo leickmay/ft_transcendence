@@ -1,9 +1,9 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/socket";
 import { ChatRoom, ChatTypes } from "../../../app/interfaces/Chat";
 import { PacketPlayOutChatCreate } from "../../../app/packets/chat/PacketPlayOutChat";
-import store from "../../../app/store";
+import { RootState } from "../../../app/store";
 import { hideDivById } from "../../pages/Chat";
 
 export const switchConfigPrivMsg = () => {
@@ -12,20 +12,10 @@ export const switchConfigPrivMsg = () => {
 }
 
 const ChatPrivateMessage = () => {
-
 	const socket = useContext(SocketContext);
 
-	const [friends, setFriends] = useState(store.getState().users.friends);
-	const alertUsersOnline = useSelector(() => store.getState().users.friends);
-	useEffect(() => {
-		setFriends(store.getState().users.friends);
-	}, [alertUsersOnline]);
-
-	const [rooms, setRooms] = useState(store.getState().chat.rooms);
-	const alertRooms = useSelector(() => store.getState().chat.rooms);
-	useEffect(() => {
-		setRooms(store.getState().chat.rooms);
-	}, [alertRooms]);
+	const friends = useSelector((state: RootState) => state.users.friends);
+	const rooms = useSelector((state: RootState) => state.chat.rooms);
 
 	const hasAlreadyPrivMsg = (userId: number): boolean => {
 		let room: ChatRoom | undefined;
@@ -38,7 +28,6 @@ const ChatPrivateMessage = () => {
 	const createPrivateMessage = (id: number) => {
 		let roomPacket : PacketPlayOutChatCreate;
 		roomPacket = new PacketPlayOutChatCreate(ChatTypes.PRIVATE_MESSAGE).toPrivateMessage([id]);
-
 		socket?.emit('chat', roomPacket);
 	}
 

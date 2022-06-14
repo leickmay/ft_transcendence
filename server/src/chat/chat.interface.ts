@@ -70,17 +70,18 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 			this.users.push(user.id);
 
 		user.socket?.join(this.id);
-		//console.log(user.login + " new join : " + this.name);
 		return true;
 	}
 
 	leave(user: User): boolean {
+		if (this.name === "World Random")
+			return false;
 		if (!this.isPresent(user.id))
 			return false;
-		
+	
 		this.users = this.users.filter(x => x !== user.id);
 
-		//user.socket.leave(this.name);
+		user.socket?.leave(this.name);
 		console.log(user.login + " leave : " + this.name);
 		return true;
 	}

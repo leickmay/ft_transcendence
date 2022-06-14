@@ -2,20 +2,20 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { ChatTypes, ChatRoom } from "../../../app/interfaces/Chat";
 import { setCurrentRooms } from "../../../app/slices/chatSlice";
-import store from "../../../app/store";
+import store, { RootState } from "../../../app/store";
 import { getNameRoom, getRoomByName } from "../../pages/Chat";
 import { switchConfigChannel } from "./ChatChannel";
 import { switchConfigPrivMsg } from "./ChatPrivateMessage";
 
 export const ChatNavigation = () => {
+	const roomsAlert = useSelector((state: RootState) => state.chat.rooms);
+	const user = useSelector((state: RootState) => state.users.current);
+	const friends = useSelector((state: RootState) => state.users.friends);
 
 	const [rooms, setRooms] = useState(store.getState().chat.rooms);
-
-	const alertRooms = useSelector(() => store.getState().chat.rooms);
-
 	useEffect(() => {
 		setRooms(store.getState().chat.rooms);
-	}, [alertRooms]);
+	}, [roomsAlert, friends])
 
 	const changeRoom = (name: string): void => {
 		let room: ChatRoom | undefined = getRoomByName(name);
@@ -37,7 +37,7 @@ export const ChatNavigation = () => {
 				{
 					rooms
 						?.filter((x) => x.type === ChatTypes.CHANNEL)
-						.filter((x) => x.name === "World Random" || x.users.find(u => u === store.getState().users.current?.id))
+						.filter((x) => x.name === "World Random" || x.users.find(u => u === user?.id))
 						.map((value, index) => {
 							return (
 								<div onClick={() => {changeRoom(value.name)}} key={index}>

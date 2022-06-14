@@ -1,4 +1,4 @@
-import { ChatTypes, Message } from "../../interfaces/Chat";
+import { ChatRoom, ChatTypes, Message } from "../../interfaces/Chat";
 import { Packet } from "../packetTypes";
 
 export interface PacketPlayInChatCommand extends Packet {
@@ -27,7 +27,9 @@ export interface PacketPlayInChatJoin extends Packet {
 export interface PacketPlayInChatLeave extends Packet {
 }
 
-export interface PacketPlayInChatUp extends Packet {}
+export interface PacketPlayInChatUp extends Packet {
+
+}
 
 export interface PacketPlayInChatInit extends Packet {
 	rooms: Array<{
@@ -38,4 +40,15 @@ export interface PacketPlayInChatInit extends Packet {
 		users: Array<number>,
 		operator?: number,
 	}>;
+}
+
+export interface PacketPlayInChatDel extends Packet {
+	room: {
+		id: string,
+		name: string,
+		type: ChatTypes,
+		visible: boolean,
+		users: Array<number>,
+		operator?: number,
+	};
 }

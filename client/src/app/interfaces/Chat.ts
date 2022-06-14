@@ -24,5 +24,6 @@ export interface ChatRoom {
 
 export interface Command {
 	user: User;
+	room: string;
 	cmd: string[];
 }

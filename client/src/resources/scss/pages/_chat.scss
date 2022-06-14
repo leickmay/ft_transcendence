@@ -1,7 +1,7 @@
 $max-width: 742px;
 
 #chat {
-	height: 80%;
+	height: 60%;
 	padding: 0.5rem;
 	width: 100%;
 	display: flex;
@@ -27,6 +27,7 @@ $max-width: 742px;
 		height: 100%;
 		width: 75%;
 		padding: 0.5rem;
+		background-color: #000000cc;
 		h2 {
 			text-align: center;
 			height: 10%;

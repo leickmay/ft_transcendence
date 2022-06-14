@@ -54,11 +54,17 @@ const slice = createSlice({
 		addUser: (state: State, action: PayloadAction<Command>): State => {
 			if (action.payload.cmd.length < 2)
 				return (state);
-			console.log(action.payload.cmd)
 			state
 				.rooms
 				?.find(x => x.name === action.payload.cmd[1])
 				?.users.push(action.payload.user.id);
+			return (state);
+		},
+		leaveRoom: (state: State, action: PayloadAction<Command>): State => {
+			let room = state.rooms?.find(x => x.id === action.payload.room);
+			if (room)
+				room.users = room?.users.filter(x => x !== action.payload.user.id);
+			state.current = "ChatRoom_1";
 			return (state);
 		},
 		newMessages: (state: State, action: PayloadAction<PacketPlayInChatMessage>): State => {
@@ -70,5 +76,5 @@ const slice = createSlice({
 	},
 });
 
-export const {setCurrentRooms,setChatRooms, addRoom, delRoom, newMessages, addUser} = slice.actions;
+export const {setCurrentRooms, setChatRooms, addRoom, delRoom, newMessages, addUser, leaveRoom} = slice.actions;
 export default slice.reducer;

@@ -47,3 +47,17 @@ export class PacketPlayOutChatInit {
 		}>,
 	) {}
 }
+
+@DeclarePacket(PacketTypesChat.DEL)
+export class PacketPlayOutChatDel {
+	constructor(
+		public room: {
+			id: string,
+			name: string,
+			type: ChatTypes,
+			visible: boolean,
+			users: Array<number>,
+			operator?: number,
+		},
+	) {}
+}
