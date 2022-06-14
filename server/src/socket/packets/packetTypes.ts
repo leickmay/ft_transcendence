@@ -3,6 +3,7 @@ export enum PacketTypesMisc {
 	FRIENDS,
 	PLAYER_MOVE,
 	SEARCH_USER,
+	STATS_UPDATE,
 }
 
 export enum PacketTypesUser {

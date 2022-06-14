@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import chatSlice from './slices/chatSlice';
 import notificationsSlice from './slices/notificationsSlice';
 import socketSlice from './slices/socketSlice';
+import statsSlice from './slices/statsSlice';
 import usersSlice from './slices/usersSlice';
 import gameSlice from './slices/gameSlice';
 
@@ -12,6 +13,7 @@ const store = configureStore({
 		socket: socketSlice,
 		users: usersSlice,
 		game: gameSlice,
+		stats: statsSlice,
 	},
 });
 

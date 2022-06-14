@@ -1,4 +1,3 @@
-import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PlayersContext } from '../../app/context/players';
@@ -9,16 +8,18 @@ import { PacketPlayInPlayerJoin } from '../../app/packets/PacketPlayInPlayerJoin
 import { PacketPlayInPlayerList } from '../../app/packets/PacketPlayInPlayerList';
 import { PacketPlayInPlayerMove } from '../../app/packets/PacketPlayInPlayerMove';
 import { PacketPlayInPlayerReady } from '../../app/packets/PacketPlayInPlayerReady';
+import { PacketPlayInStatsUpdate } from '../../app/packets/PacketPlayInStatsUpdate';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { Packet, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
 import { updateGame } from '../../app/slices/gameSlice';
+import { setStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
 
-interface Props {}
+interface Props { }
 
 export const SocketListener = (props: Props) => {
 	const socket = useContext(SocketContext);
@@ -28,6 +29,10 @@ export const SocketListener = (props: Props) => {
 	const dispatch = useDispatch();
 
 	useEffect(() => {
+		const stats = (packet: PacketPlayInStatsUpdate) => {
+			dispatch(setStats(packet.stats));
+		}
+
 		const online = (packet: PacketPlayInUserConnection) => {
 			for (const user of packet.users)
 				dispatch(addOnlineUser(user));
@@ -63,6 +68,11 @@ export const SocketListener = (props: Props) => {
 					break;
 			}
 		});
+
+		socket?.off('stats').on('stats', (packet: Packet) => {
+			if (packet.packet_id === PacketTypesMisc.STATS_UPDATE)
+				stats(packet as PacketPlayInStatsUpdate);
+		});
 	}, [socket, dispatch]);
 
 	const playerMove = useCallback((packet: PacketPlayInPlayerMove) => {
@@ -93,7 +103,7 @@ export const SocketListener = (props: Props) => {
 			const playerReady = (packet: PacketPlayInPlayerReady) => {
 				setPlayers(players => players.map(p => {
 					if (!p.ready && p.user.id === packet.player)
-						return {...p, ready: true};
+						return { ...p, ready: true };
 					return p;
 				}));
 			}
@@ -119,6 +129,9 @@ export const SocketListener = (props: Props) => {
 			}
 		});
 	}, [socket, dispatch, playerMove]);
+
+	useEffect(() => {
+	}, [socket, dispatch]);
 
 	useEffect(() => {
 		socket?.off('chat').on('chat', (packet: Packet) => {
