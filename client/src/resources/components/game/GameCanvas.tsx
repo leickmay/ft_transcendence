@@ -1,9 +1,10 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { SocketContext } from '../../app/context/socket';
-import { useAnimationFrame } from '../../app/Helpers';
-import { Directions, Player } from '../../app/interfaces/Game.interface';
-import { RootState } from '../../app/store';
+import { PlayersContext } from '../../../app/context/players';
+import { SocketContext } from '../../../app/context/socket';
+import { useAnimationFrame } from '../../../app/Helpers';
+import { Directions, Player } from '../../../app/interfaces/Game.interface';
+import { RootState } from '../../../app/store';
 
 let ctx: CanvasRenderingContext2D | null = null;
 
@@ -40,37 +41,49 @@ export const GameCanvas = (props: Props) => {
 	const socket = useContext(SocketContext);
 	const user = useSelector((state: RootState) => state.users);
 	const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
-	const players = useRef<Array<Player>>([]);
+	const [players] = useContext(PlayersContext);
 
 	let canvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
 		if (canvas !== null)
 			setCtx(canvas.getContext('2d'));
 	}, []);
 
-	useEffect(() => {
-		players.current = game.players.map(p => ({ ...p }));
-	}, [game.players]);
+	// useEffect(() => {
+	// 	players.current = game.players.map(p => ({ ...p }));
+	// }, [game.players]);
 
 	useAnimationFrame((delta) => {
 		if (ctx) {
-			console.log(Math.round(delta));
 
 			ctx.drawImage(backgroundImg, 0, 0, game.width, game.height);
-			for (const player of players.current)
+			for (const player of players)
 				ctx.drawImage(paddleImg, player.direction * spriteWidth, player.side * spriteHeight, spriteWidth, spriteHeight, player.x, player.y, player.width, player.height);
-			for (const ball of game.balls)
-				ctx.drawImage(ballImg, ballSx, ballSy, ballSize, ballSize, ball.x, ball.y, ball.size, ball.size);
+			// for (const ball of game.balls)
+			// 	ctx.drawImage(ballImg, ballSx, ballSy, ballSize, ballSize, ball.x, ball.y, ball.size, ball.size);
+
+			ctx.textAlign = 'right';
+			ctx.font = "30px monospace";
+			ctx.textBaseline = 'top';
+			ctx.fillStyle = "white";
+			ctx.fillText(Math.round(1000 / delta) + 'fps', game.width, 0);
 		}
-	}, [ctx]);
+	}, [ctx, players]);
 
 	useEffect(() => {
-		let dir = 1;
 		const loop = () => {
-			players.current.forEach(p => {
+			players.forEach(p => {
 				if (p.direction === Directions.UP)
-					--p.y;
+					p.y -= p.speed;
 				else if (p.direction === Directions.DOWN)
-					++p.y;
+					p.y += p.speed;
+
+				// // TEST
+				// if (p.direction === Directions.STATIC)
+				// 	p.direction = Directions.UP;
+				// if (p.y <= 0)
+				// 	p.direction = Directions.DOWN;
+				// if (p.y + p.height >= 1080)
+				// 	p.direction = Directions.UP;
 			});
 		}
 
@@ -78,7 +91,7 @@ export const GameCanvas = (props: Props) => {
 		return (() => {
 			clearInterval(intervalId);
 		});
-	}, []);
+	}, [players]);
 
 	return (
 		<canvas className='border-neon-primary' ref={canvasRef} height={game.height} width={game.width}></canvas>

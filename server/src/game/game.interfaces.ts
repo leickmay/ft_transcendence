@@ -175,6 +175,11 @@ export class Player implements Entity {
 	height: number;
 
 	@Expose()
+	speed: number = 2;
+	@Expose()
+	score: number = 0
+
+	@Expose()
 	ready: boolean = false;
 
 	@Expose()
@@ -183,10 +188,7 @@ export class Player implements Entity {
 	@Expose()
 	side: Sides;
 
-	room: Room;
-
-	speed: number = 12;
-	score: number = 0;
+	room: Room;;
 
 	constructor(user: User, room: Room, side: Sides, width: number, height: number) {
 		this.user = user;
@@ -212,7 +214,7 @@ export class Player implements Entity {
 		if (this.side == Sides.LEFT)
 			this.x = 0;
 		else
-			this.x = this.room.width - this.width * 1.3;
+			this.x = this.room.width - this.width;
 	}
 
 	move() {

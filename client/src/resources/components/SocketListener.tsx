@@ -1,18 +1,20 @@
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
-import { useContext, useEffect } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { PlayersContext } from '../../app/context/players';
 import { SocketContext } from '../../app/context/socket';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
 import { PacketPlayInGameUpdate } from '../../app/packets/PacketPlayInGameUpdate';
 import { PacketPlayInPlayerJoin } from '../../app/packets/PacketPlayInPlayerJoin';
 import { PacketPlayInPlayerList } from '../../app/packets/PacketPlayInPlayerList';
+import { PacketPlayInPlayerMove } from '../../app/packets/PacketPlayInPlayerMove';
 import { PacketPlayInPlayerReady } from '../../app/packets/PacketPlayInPlayerReady';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { Packet, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
-import { addPlayer, setPlayerReady, setPlayers, updateGame } from '../../app/slices/gameSlice';
+import { updateGame } from '../../app/slices/gameSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
 
@@ -20,6 +22,7 @@ interface Props {}
 
 export const SocketListener = (props: Props) => {
 	const socket = useContext(SocketContext);
+	const [players, setPlayers] = useContext(PlayersContext);
 	const ready = useSelector((state: RootState) => state.socket.ready);
 
 	const dispatch = useDispatch();
@@ -62,6 +65,13 @@ export const SocketListener = (props: Props) => {
 		});
 	}, [socket, dispatch]);
 
+	const playerMove = useCallback((packet: PacketPlayInPlayerMove) => {
+		let player = players.find(p => p.user.id === packet.player);
+
+		if (player)
+			player.direction = packet.direction;
+	}, [players]);
+
 	useEffect(() => {
 		socket?.off('game').on('game', (packet: Packet): void => {
 			const gameUpdate = (packet: PacketPlayInGameUpdate) => {
@@ -69,11 +79,11 @@ export const SocketListener = (props: Props) => {
 			}
 
 			const playerList = (packet: PacketPlayInPlayerList) => {
-				dispatch(setPlayers(packet.players));
+				setPlayers(players => packet.players);
 			}
 
 			const playerJoin = (packet: PacketPlayInPlayerJoin) => {
-				dispatch(addPlayer(packet.player));
+				setPlayers(players => [...players, packet.player]);
 			}
 
 			// const remove = (packet: PacketPlayInPlayerLeave) => {
@@ -81,7 +91,11 @@ export const SocketListener = (props: Props) => {
 			// }
 
 			const playerReady = (packet: PacketPlayInPlayerReady) => {
-				dispatch(setPlayerReady(packet.player));
+				setPlayers(players => players.map(p => {
+					if (!p.ready && p.user.id === packet.player)
+						return {...p, ready: true};
+					return p;
+				}));
 			}
 
 			switch (packet.packet_id) {
@@ -97,11 +111,14 @@ export const SocketListener = (props: Props) => {
 				case PacketTypesGame.UPDATE:
 					gameUpdate(packet as PacketPlayInGameUpdate);
 					break;
+				case PacketTypesPlayer.MOVE:
+					playerMove(packet as PacketPlayInPlayerMove);
+					break;
 				default:
 					break;
 			}
 		});
-	}, [socket, dispatch]);
+	}, [socket, dispatch, playerMove]);
 
 	useEffect(() => {
 		socket?.off('chat').on('chat', (packet: Packet) => {

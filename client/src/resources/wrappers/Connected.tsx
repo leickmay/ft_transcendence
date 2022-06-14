@@ -1,11 +1,12 @@
-import { AnyAction, Dispatch } from '@reduxjs/toolkit';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
+import { PlayersContext } from '../../app/context/players';
 import { SocketContext } from '../../app/context/socket';
 import { logout } from '../../app/Helpers';
+import { Player } from '../../app/interfaces/Game.interface';
 import { User } from '../../app/interfaces/User';
 import { setCurrentUser } from '../../app/slices/usersSlice';
 import { Home } from '../layouts/Home';
@@ -18,6 +19,7 @@ export function Connected(props: Props) {
 
 	const [cookies, setCookie, removeCookie] = useCookies(['access_token']);
 	const [socket, setSocket] = useState<Socket>();
+	let [players, setPlayers] = useState<Array<Player>>([]);
 
 	const dispatch = useDispatch();
 
@@ -68,8 +70,10 @@ export function Connected(props: Props) {
 	}, [socket, dispatch, navigate, setCookie, removeCookie, cookies.access_token]);
 
 	return (
-		<SocketContext.Provider value={socket}>
-			<Home />
-		</SocketContext.Provider>
+		<PlayersContext.Provider value={[players, setPlayers]}>
+			<SocketContext.Provider value={socket}>
+				<Home />
+			</SocketContext.Provider>
+		</PlayersContext.Provider>
 	);
 }

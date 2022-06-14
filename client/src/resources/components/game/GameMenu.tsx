@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { PlayersContext } from '../../../app/context/players';
 import { GameStatus, Player, Sides } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
 
@@ -8,7 +9,8 @@ interface Props {
 }
 
 export const GameMenu = (props: Props) => {
-	const game = useSelector((state: RootState) => state.game)
+	const [players] = useContext(PlayersContext);
+	const game = useSelector((state: RootState) => state.game);
 	const [counter, setCounter] = useState<number>();
 
 	useEffect(() => {
@@ -67,8 +69,8 @@ export const GameMenu = (props: Props) => {
 				);
 		}
 
-		let left = game.players.filter(p => p.side === Sides.LEFT);
-		let right = game.players.filter(p => p.side === Sides.RIGHT);
+		let left = players.filter(p => p.side === Sides.LEFT);
+		let right = players.filter(p => p.side === Sides.RIGHT);
 
 		return (
 			<section className='board'>
@@ -83,7 +85,7 @@ export const GameMenu = (props: Props) => {
 				</div>
 			</section>
 		);
-	}, [game.players, counter]);
+	}, [players, counter]);
 
 	switch (game.status) {
 		case GameStatus.NONE:

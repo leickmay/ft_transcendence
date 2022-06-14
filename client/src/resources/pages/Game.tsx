@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { SocketContext } from '../../app/context/socket';
 import { Directions, GameStatus } from '../../app/interfaces/Game.interface';
@@ -6,8 +6,8 @@ import { PacketPlayOutPlayerJoin } from '../../app/packets/PacketPlayOutPlayerJo
 import { PacketPlayOutPlayerMove } from '../../app/packets/PacketPlayOutPlayerMove';
 import { PacketPlayOutPlayerReady } from '../../app/packets/PacketPlayOutPlayerReady';
 import { RootState } from '../../app/store';
-import { GameMenu } from '../components/game/Menu';
-import { GameCanvas } from '../components/GameCanvas';
+import { GameCanvas } from '../components/game/GameCanvas';
+import { GameMenu } from '../components/game/GameMenu';
 
 let moveUp: boolean = false;
 let moveDown: boolean = false;
@@ -25,6 +25,7 @@ export const Game = (props: Props) => {
 
 	const emitMovement = useCallback(() => {
 		if (moveUp && moveDown) {
+			socket?.emit('game', new PacketPlayOutPlayerMove(Directions.STATIC));
 			return;
 		}
 		socket?.emit('game', new PacketPlayOutPlayerMove(moveUp ? Directions.UP : moveDown ? Directions.DOWN : Directions.STATIC));
@@ -36,7 +37,8 @@ export const Game = (props: Props) => {
 		}
 	}, [socket, game.status]);
 
-	const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+	const handleKeyDown = useCallback((e: KeyboardEvent) => {
+		console.log(moveUp, GameStatus[game.status]);
 		if (game.status === GameStatus.RUNNING) {
 			if ((e.key === 'w' || e.key === 'ArrowUp') && !moveUp) {
 				moveUp = true;
@@ -49,7 +51,7 @@ export const Game = (props: Props) => {
 		}
 	}, [game.status, emitMovement]);
 
-	const handleKeyUp = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+	const handleKeyUp = useCallback((e: KeyboardEvent) => {
 		if (game.status === GameStatus.RUNNING) {
 			if (e.key === 'w' || e.key === 'ArrowUp') {
 				moveUp = false;
@@ -62,8 +64,17 @@ export const Game = (props: Props) => {
 		}
 	}, [game.status, emitMovement]);
 
+	useEffect(() => {
+		document.addEventListener('keydown', handleKeyDown);
+		document.addEventListener('keyup', handleKeyUp);
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+			document.removeEventListener('keyup', handleKeyUp);
+		};
+	}, [handleKeyUp, handleKeyDown]);
+
 	return (
-		<div id="game" onKeyDown={(e) => handleKeyDown(e)} onKeyUp={(e) => handleKeyUp(e)} onClick={() => handleClick()}>
+		<div id="game" onClick={() => handleClick()}>
 			<p>{GameStatus[game.status]}</p>
 			<GameMenu search={searchMatch} />
 			{game.status >= GameStatus.STARTING && <GameCanvas />}
