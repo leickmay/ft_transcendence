@@ -5,7 +5,7 @@ import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, PrimaryGenerat
 @Exclude()
 @Entity({
 	orderBy: {
-		id: "DESC",
+		createdDate: "DESC",
 	}
 })
 export class Stats extends BaseEntity {
@@ -16,21 +16,15 @@ export class Stats extends BaseEntity {
 	@CreateDateColumn()
 	createdDate: Date;
 
-	@Column()
-	p1Id: number;
-	
-	@Column()
-	p2Id: number;
-	
 	@Expose()
-	@ManyToOne(() => User, user => user)
-	p1: User;
-	
+	@ManyToOne(() => User)
+	player1: User;
+
 	@Expose()
-	@ManyToOne(() => User, user => user)
-	p2: User;
+	@ManyToOne(() => User)
+	player2: User;
 
 	@Expose()
 	@Column()
-	winnerId: number;
+	winner: number;
 }

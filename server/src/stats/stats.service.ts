@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { instanceToPlain } from "class-transformer";
 import { PacketPlayInStatsUpdate } from "src/socket/packets/PacketPlayInStatsUpdate";
 import { PacketPlayOutStatsUpdate } from "src/socket/packets/PacketPlayOutStatsUpdate";
-
 import { User } from "src/user/user.entity";
 import { Stats } from "./stats.entity";
 
@@ -14,28 +13,32 @@ export class StatsService {
 
 	async addStat(packet: PacketPlayInStatsUpdate): Promise<void> {
 		await Stats.create({
-			winnerId: packet.winnerId,
-			p1Id: packet.p1Id,
-			p2Id: packet.p2Id,
-		} as any).save();
+			winner: packet.winnerId,
+			player1: { id: packet.p1Id },
+			player2: { id: packet.p2Id },
+		}).save();
 	}
 
 	async sendStats(user: User): Promise<void> {
 		let stats: Stats[] = await Stats.find({
 			where: [
 				{
-					p1Id: user.id,
+					player1: {
+						id: user.id
+					},
 				},
 				{
-					p2Id: user.id,
+					player2: {
+						id: user.id
+					},
 				},
 			],
-			relations: ['p1', 'p2'],
+			relations: ['player1', 'player2'],
 		});
 		user.send('stats', new PacketPlayOutStatsUpdate(
 			{
 				nbMatchs: stats.length,
-				matchWon: stats.filter(m => m.winnerId === user.id).length,
+				matchWon: stats.filter(m => m.winner === user.id).length,
 				history: instanceToPlain(stats.slice(0, 10))
 			}
 		));

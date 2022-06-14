@@ -8,17 +8,19 @@ export const Statistics = () => {
 	const socket = useContext(SocketContext);
 	const stats = useSelector((state: RootState) => state.stats)
 	const users = useSelector((state: RootState) => state.users);
-	const [ReloadVar,setReloadVar] = useState(0);
+	const [reloadVar, setReloadVar] = useState(0);
 
 	useEffect(() => {
-		setReloadVar(ReloadVar + 1);
+		setReloadVar(value => value + 1);
 	}, [stats])
 
 	const debugWin = () => {
 		socket?.emit("stats", new PacketPlayOutStatsUpdate(1, 1, 2, users.current!.id));
+		socket?.emit("stats", new PacketPlayOutStatsUpdate(1, 2, 1, users.current!.id));
 	}
 
 	const debugLose = () => {
+		socket?.emit("stats", new PacketPlayOutStatsUpdate(2, 1, 2,users.current!.id));
 		socket?.emit("stats", new PacketPlayOutStatsUpdate(2, 2, 1,users.current!.id));
 	}
 
@@ -26,12 +28,12 @@ export const Statistics = () => {
 	const listHistory = stats.history.map((h) => {
 		const date = new Date(h.createdDate);
 		let opponent: string;
-		if (h.p1.name === users.current!.name)
-			opponent = h.p2.name;
+		if (h.player1.name === users.current!.name)
+			opponent = h.player2.name;
 		else
-			opponent = h.p1.name;
+			opponent = h.player1.name;
 		let result: string;
-		if (h.winnerId === users.current!.id)
+		if (h.winner === users.current!.id)
 			result = "won";
 		else 
 			result = "lost";
