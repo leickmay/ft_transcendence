@@ -13,17 +13,6 @@ export class StatsService {
 	) { }
 
 	async addStat(packet: PacketPlayInStatsUpdate): Promise<void> {
-		/*const p1: User = await User.find({
-			where: {
-				id: packet.p1Id,
-			}
-		})[0];
-
-		const p2: User = await User.find({
-			where: {
-				id: packet.p2Id,
-			}
-		})[0];*/
 		await Stats.create({
 			winnerId: packet.winnerId,
 			p1Id: packet.p1Id,
