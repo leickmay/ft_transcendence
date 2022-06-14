@@ -4,7 +4,6 @@ import { PacketPlayInStatsUpdate } from "src/socket/packets/PacketPlayInStatsUpd
 import { PacketPlayOutStatsUpdate } from "src/socket/packets/PacketPlayOutStatsUpdate";
 
 import { User } from "src/user/user.entity";
-import { AddStatsDto } from "./dto/add-stats.dto";
 import { Stats } from "./stats.entity";
 
 @Injectable()
@@ -14,7 +13,7 @@ export class StatsService {
 	) { }
 
 	async addStat(packet: PacketPlayInStatsUpdate): Promise<void> {
-		const p1: User = await User.find({
+		/*const p1: User = await User.find({
 			where: {
 				id: packet.p1Id,
 			}
@@ -24,13 +23,12 @@ export class StatsService {
 			where: {
 				id: packet.p2Id,
 			}
-		})[0];
-		const st: AddStatsDto = {
+		})[0];*/
+		await Stats.create({
 			winnerId: packet.winnerId,
 			p1Id: packet.p1Id,
 			p2Id: packet.p2Id,
-		}
-		await Stats.create(st as any).save();
+		} as any).save();
 	}
 
 	async sendStats(user: User): Promise<void> {

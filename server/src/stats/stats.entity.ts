@@ -3,7 +3,11 @@ import { User } from "src/user/user.entity";
 import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Exclude()
-@Entity()
+@Entity({
+	orderBy: {
+		id: "DESC",
+	}
+})
 export class Stats extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	id: number;
