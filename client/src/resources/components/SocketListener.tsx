@@ -6,17 +6,19 @@ import { ChatRoom, ChatTypes, Command } from '../../app/interfaces/Chat';
 import { User } from '../../app/interfaces/User';
 import { PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatRoomCreate, PacketPlayInChatUp } from '../../app/packets/chat/PacketPlayInChat';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
+import { PacketPlayInStatsUpdate } from '../../app/packets/PacketPlayInStatsUpdate';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { Packet, PacketTypesChat, PacketTypesMisc, PacketTypesUser } from '../../app/packets/packetTypes';
-import { addRoom, addUserToRoom, delRoom, leaveRoom, newMessages, setChatRooms} from '../../app/slices/chatSlice';
+import { addRoom, addUserToRoom, delRoom, leaveRoom, newMessages, setChatRooms } from '../../app/slices/chatSlice';
+import { setStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
 import { getUserByLogin } from '../pages/Chat';
 
-interface Props {}
+interface Props { }
 
 export const SocketListener = (props: Props) => {
 	const socket = useContext(SocketContext);
@@ -45,6 +47,10 @@ export const SocketListener = (props: Props) => {
 			dispatch(setFriends(packet.friends));
 		}
 
+		const stats = (packet: PacketPlayInStatsUpdate) => {
+			dispatch(setStats(packet.stats));
+		}
+
 		socket?.off('user').on('user', (packet: Packet) => {
 			if (packet.packet_id === PacketTypesUser.USER_CONNECTION)
 				online(packet as PacketPlayInUserConnection);
@@ -55,7 +61,7 @@ export const SocketListener = (props: Props) => {
 			if (packet.packet_id === PacketTypesMisc.FRIENDS)
 				friends(packet as PacketPlayInFriendsUpdate);
 		});
-	
+
 		const commandHandler = async (packet: PacketPlayInChatMessage) => {
 			let cmd = packet.message.text.split(" ", 1);
 			switch (cmd[0]) {
@@ -94,17 +100,22 @@ export const SocketListener = (props: Props) => {
 		const joinHandler = async (packet: PacketPlayInChatJoin) => {
 			dispatch(addUserToRoom(packet));
 		};
-		const leaveHandler = async () => {};
+		const leaveHandler = async () => { };
 		const upHandler = async (packet: PacketPlayInChatUp) => {
 		};
 		const initHandler = async (packet: PacketPlayInChatInit) => {
 			let rooms = packet.rooms as Array<ChatRoom>
-			rooms.forEach((r: ChatRoom) => {r.messages = [];});
+			rooms.forEach((r: ChatRoom) => { r.messages = []; });
 			dispatch(setChatRooms(rooms));
 		};
 		const delHandler = async (packet: PacketPlayInChatDel) => {
 			dispatch(delRoom(packet.room as ChatRoom));
 		};
+
+		socket?.off('stats').on('stats', (packet: Packet) => {
+			if (packet.packet_id === PacketTypesMisc.STATS_UPDATE)
+				stats(packet as PacketPlayInStatsUpdate);
+		});
 
 		socket?.off('chat').on('chat', (packet: Packet) => {
 			switch (packet.packet_id) {

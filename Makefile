@@ -77,7 +77,7 @@ logs:
 .PHONY: logs
 
 flogs:
-	@$(COMPOSE) logs --follow --tail 16 $(S)
+	@$(COMPOSE) logs --follow --tail 0 $(S)
 .PHONY: flogs
 
 ###########

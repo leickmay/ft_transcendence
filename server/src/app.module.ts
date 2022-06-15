@@ -7,6 +7,7 @@ import { Image } from './images/image.entity';
 import { ImageModule } from './images/image.module';
 import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
+import { Stats } from './stats/stats.entity';
 
 @Module({
 	imports: [
@@ -17,7 +18,7 @@ import { UserModule } from './user/user.module';
 			username: process.env.DB_USERNAME,
 			password: process.env.DB_PASSWORD,
 			database: process.env.DB_DATABASE,
-			entities: [User, Image],
+			entities: [User, Image, Stats],
 			synchronize: true,
 		}),
 		ConfigModule.forRoot(),

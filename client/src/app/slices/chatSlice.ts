@@ -52,14 +52,10 @@ const slice = createSlice({
 			return (state);
 		},
 		addUserToRoom: (state: State, action: PayloadAction<PacketPlayInChatJoin>): State => {
-			console.log(action.payload);
 			let roomTmp = action.payload.room;
 			let room: ChatRoom | undefined = state.rooms?.find(x => x.id === roomTmp.id);
-			console.log(room)
 			if (room) {
-				console.log("Room before: " + room.users)
 				room.users = roomTmp.users;
-				console.log("Room after: " + room.users)
 			}
 			else {
 				room = {
