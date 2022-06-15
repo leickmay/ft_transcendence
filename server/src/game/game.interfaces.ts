@@ -6,6 +6,7 @@ import { PacketPlayOutPlayerJoin } from "src/socket/packets/PacketPlayOutPlayerJ
 import { PacketPlayOutPlayerList } from "src/socket/packets/PacketPlayOutPlayerList";
 import { PacketPlayOutPlayerMove } from "src/socket/packets/PacketPlayOutPlayerMove";
 import { PacketPlayOutPlayerReady } from "src/socket/packets/PacketPlayOutPlayerReady";
+import { PacketPlayOutPlayerTeleport } from "src/socket/packets/PacketPlayOutPlayerTeleport";
 import { clearInterval } from "timers";
 import { User } from "../user/user.entity";
 
@@ -44,12 +45,11 @@ export enum GameStatus {
 export class Room {
 	private static current = 0;
 
-	private readjustInterval?: NodeJS.Timer;
-	private refreshInterval?: NodeJS.Timer;
-	readonly readjustTime = 500;
+	private gameInterval?: NodeJS.Timer;
+	private tick = 0;
 
 	@Expose()
-	readonly refreshTime = 10;
+	readonly tps = 40;
 	@Expose()
 	readonly height: number = 1080;
 	@Expose()
@@ -115,15 +115,9 @@ export class Room {
 			this.broadcast(new PacketPlayOutGameUpdate({
 				status: GameStatus.RUNNING,
 			}));
-			this.readjustInterval = setInterval(this.readjust, this.readjustTime);
-			this.refreshInterval = setInterval(this.loop, this.refreshTime);
+			this.gameInterval = setInterval(this.loop, 1000 / this.tps);
 			// this.balls.push(new Ball(this.balls.length, this, 75, 8));
 		}, 5000);
-	}
-
-	private readjust = (): void => {
-		for (const player of this.players)
-			player.sendUpdate(true);
 	}
 
 	private loop = (): void => {
@@ -134,14 +128,14 @@ export class Room {
 		});
 		for (const player of this.players) {
 			player.move();
-			player.sendUpdate(false);
+			player.sendUpdate((this.tick % this.tps) === 0);
 		}
+		++this.tick;
 	}
 
 	stop(): void {
-		clearInterval(this.refreshInterval);
-		clearInterval(this.readjustInterval);
-		this.refreshInterval = undefined;
+		clearInterval(this.gameInterval);
+		this.gameInterval = undefined;
 	}
 
 	broadcast(data: any): void {
@@ -174,7 +168,7 @@ export class Player implements Entity {
 	height: number;
 
 	@Expose()
-	speed: number = 2;
+	speed: number = 15;
 	@Expose()
 	score: number = 0
 
@@ -225,9 +219,9 @@ export class Player implements Entity {
 
 	sendUpdate(teleport: boolean = false) {
 		// if (teleport)
-		// 	this.room.broadcast(new PacketPlayOutPlayerTeleport(this.user.id, this.direction, this.x, this.y));
+			this.room.broadcast(new PacketPlayOutPlayerTeleport(this.user.id, this.direction, this.x, this.y));
 		// else
-			this.room.broadcast(new PacketPlayOutPlayerMove(this.user.id, this.direction));
+		// 	this.room.broadcast(new PacketPlayOutPlayerMove(this.user.id, this.direction));
 	}
 }
 

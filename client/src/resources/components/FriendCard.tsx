@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { useSelector } from "react-redux";
-import { SocketContext } from "../../app/context/socket";
+import { SocketContext } from "../../app/context/SocketContext";
 import { User } from "../../app/interfaces/User";
 import { PacketPlayOutFriends } from "../../app/packets/PacketPlayOutFriends";
 import { RootState } from "../../app/store";

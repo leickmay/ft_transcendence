@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { PlayersContext } from '../../../app/context/players';
+import { GameContext } from '../../../app/context/GameContext';
 import { GameStatus, Player, Sides } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
 
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export const GameMenu = (props: Props) => {
-	const [players] = useContext(PlayersContext);
+	const {players} = useContext(GameContext);
 	const game = useSelector((state: RootState) => state.game);
 	const [counter, setCounter] = useState<number>();
 

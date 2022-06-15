@@ -1,6 +1,6 @@
 import { ChangeEvent, useCallback, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { SocketContext } from "../../app/context/socket";
+import { SocketContext } from "../../app/context/SocketContext";
 import { UserPreview } from "../../app/interfaces/User";
 import { PacketPlayInSearchUserResults } from "../../app/packets/PacketPlayInSearchUserResults";
 import { PacketPlayOutFriends } from "../../app/packets/PacketPlayOutFriends";

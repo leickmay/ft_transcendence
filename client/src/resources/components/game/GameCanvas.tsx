@@ -1,6 +1,6 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { PlayersContext } from '../../../app/context/players';
+import { GameContext } from '../../../app/context/GameContext';
 import { useAnimationFrame } from '../../../app/Helpers';
 import { Directions } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
@@ -24,12 +24,15 @@ interface Props {
 export const GameCanvas = (props: Props) => {
 	const game = useSelector((state: RootState) => state.game);
 	const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
-	const [players] = useContext(PlayersContext);
+
+	const {players, balls} = useContext(GameContext);
 
 	let canvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
 		if (canvas !== null)
 			setCtx(canvas.getContext('2d'));
 	}, []);
+
+	const gameInterval = useMemo<number>(() => 1000 / game.tps, [game.tps]);
 
 	// useEffect(() => {
 	// 	players.current = game.players.map(p => ({ ...p }));
@@ -37,16 +40,26 @@ export const GameCanvas = (props: Props) => {
 
 	useAnimationFrame((delta) => {
 		if (ctx) {
+			const stepsPerTick = game.tps / delta;
+
 			ctx.drawImage(backgroundImg, 0, 0, game.width, game.height);
-			for (const player of players)
-				ctx.drawImage(paddleImg, player.direction * spriteWidth, player.side * spriteHeight, spriteWidth, spriteHeight, player.x, player.y, player.width, player.height);
-			// for (const ball of game.balls)
+			for (const player of players) {
+				if (player.screenY === undefined || Math.abs(player.screenY - player.y) >= (player.speed * stepsPerTick)) {
+					player.screenY = player.y;
+				} else {
+					player.screenY += Math.floor((player.y - player.screenY) / stepsPerTick);
+				}
+				player.screenY = Math.max(Math.min(player.screenY, game.height - player.height), 0);
+
+				ctx.drawImage(paddleImg, player.direction * spriteWidth, player.side * spriteHeight, spriteWidth, spriteHeight, player.x, player.screenY, player.width, player.height);
+			}
+			// for (const ball of balls)
 			// 	ctx.drawImage(ballImg, ballSx, ballSy, ballSize, ballSize, ball.x, ball.y, ball.size, ball.size);
 
 			ctx.textAlign = 'right';
 			ctx.font = "30px monospace";
 			ctx.textBaseline = 'top';
-			ctx.fillStyle = "white";
+			ctx.fillStyle = "#ffffff55";
 			ctx.fillText(Math.round(1000 / delta) + 'fps', game.width, 0);
 		}
 	}, [ctx, players]);
@@ -69,11 +82,11 @@ export const GameCanvas = (props: Props) => {
 			});
 		}
 
-		const intervalId = setInterval(loop, game.refreshTime);
+		const intervalId = setInterval(loop, gameInterval);
 		return (() => {
 			clearInterval(intervalId);
 		});
-	}, [players, game.refreshTime]);
+	}, [players, gameInterval]);
 
 	return (
 		<canvas className='border-neon-primary' ref={canvasRef} height={game.height} width={game.width}></canvas>

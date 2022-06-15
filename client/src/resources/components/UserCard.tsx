@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { useCookies } from "react-cookie";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { SocketContext } from "../../app/context/socket";
+import { SocketContext } from "../../app/context/SocketContext";
 import { logout } from "../../app/Helpers";
 import { User } from "../../app/interfaces/User";
 import { RootState } from "../../app/store";

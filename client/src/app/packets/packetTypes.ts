@@ -27,6 +27,7 @@ export enum PacketTypesPlayer {
 	JOIN = 401,
 	READY,
 	MOVE,
+	TELEPORT,
 	LIST,
 }
 

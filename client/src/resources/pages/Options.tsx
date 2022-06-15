@@ -1,7 +1,7 @@
 import { ChangeEvent, KeyboardEvent, useContext, useEffect, useState } from 'react';
 import QRCode from "react-qr-code";
 import { useDispatch, useSelector } from "react-redux";
-import { SocketContext } from "../../app/context/socket";
+import { SocketContext } from "../../app/context/SocketContext";
 import { PacketPlayOutTotp } from '../../app/packets/PacketPlayOutTotp';
 import { PacketPlayOutUserUpdate } from '../../app/packets/PacketPlayOutUserUpdate';
 import { updateUser } from '../../app/slices/usersSlice';

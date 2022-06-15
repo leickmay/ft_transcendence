@@ -25,6 +25,10 @@ export interface Player extends Entity {
 	width: number;
 	score: number;
 	side: Sides;
+
+	// Local only
+	// screenX?: number;
+	screenY?: number;
 }
 
 export interface Spectator {

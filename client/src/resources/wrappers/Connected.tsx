@@ -3,10 +3,10 @@ import { useCookies } from 'react-cookie';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
-import { PlayersContext } from '../../app/context/players';
-import { SocketContext } from '../../app/context/socket';
+import { GameContext } from '../../app/context/GameContext';
+import { SocketContext } from '../../app/context/SocketContext';
 import { logout } from '../../app/Helpers';
-import { Player } from '../../app/interfaces/Game.interface';
+import { Ball, Player } from '../../app/interfaces/Game.interface';
 import { User } from '../../app/interfaces/User';
 import { setCurrentUser } from '../../app/slices/usersSlice';
 import { Home } from '../layouts/Home';
@@ -19,7 +19,9 @@ export function Connected(props: Props) {
 
 	const [cookies, setCookie, removeCookie] = useCookies(['access_token']);
 	const [socket, setSocket] = useState<Socket>();
+
 	let [players, setPlayers] = useState<Array<Player>>([]);
+	let [balls, setBalls] = useState<Array<Ball>>([]);
 
 	const dispatch = useDispatch();
 
@@ -70,10 +72,10 @@ export function Connected(props: Props) {
 	}, [socket, dispatch, navigate, setCookie, removeCookie, cookies.access_token]);
 
 	return (
-		<PlayersContext.Provider value={[players, setPlayers]}>
+		<GameContext.Provider value={{players, setPlayers, balls, setBalls}}>
 			<SocketContext.Provider value={socket}>
 				<Home />
 			</SocketContext.Provider>
-		</PlayersContext.Provider>
+		</GameContext.Provider>
 	);
 }

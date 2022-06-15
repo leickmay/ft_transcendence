@@ -1,6 +1,6 @@
-import React, { useCallback, useContext, useEffect } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { SocketContext } from '../../app/context/socket';
+import { SocketContext } from '../../app/context/SocketContext';
 import { Directions, GameStatus } from '../../app/interfaces/Game.interface';
 import { PacketPlayOutPlayerJoin } from '../../app/packets/PacketPlayOutPlayerJoin';
 import { PacketPlayOutPlayerMove } from '../../app/packets/PacketPlayOutPlayerMove';

@@ -1,13 +1,14 @@
 import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { PlayersContext } from '../../app/context/players';
-import { SocketContext } from '../../app/context/socket';
+import { GameContext } from '../../app/context/GameContext';
+import { SocketContext } from '../../app/context/SocketContext';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
 import { PacketPlayInGameUpdate } from '../../app/packets/PacketPlayInGameUpdate';
 import { PacketPlayInPlayerJoin } from '../../app/packets/PacketPlayInPlayerJoin';
 import { PacketPlayInPlayerList } from '../../app/packets/PacketPlayInPlayerList';
 import { PacketPlayInPlayerMove } from '../../app/packets/PacketPlayInPlayerMove';
 import { PacketPlayInPlayerReady } from '../../app/packets/PacketPlayInPlayerReady';
+import { PacketPlayInPlayerTeleport } from '../../app/packets/PacketPlayInPlayerTeleport';
 import { PacketPlayInStatsUpdate } from '../../app/packets/PacketPlayInStatsUpdate';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
@@ -23,7 +24,7 @@ interface Props { }
 
 export const SocketListener = (props: Props) => {
 	const socket = useContext(SocketContext);
-	const [players, setPlayers] = useContext(PlayersContext);
+	const {players, setPlayers} = useContext(GameContext);
 	const ready = useSelector((state: RootState) => state.socket.ready);
 
 	const dispatch = useDispatch();
@@ -82,6 +83,16 @@ export const SocketListener = (props: Props) => {
 			player.direction = packet.direction;
 	}, [players]);
 
+	const playerTeleport = useCallback((packet: PacketPlayInPlayerTeleport) => {
+		let player = players.find(p => p.user.id === packet.player);
+
+		if (player) {
+			player.direction = packet.direction;
+			player.x = packet.x;
+			player.y = packet.y;
+		}
+	}, [players]);
+
 	useEffect(() => {
 		socket?.off('game').on('game', (packet: Packet): void => {
 			const gameUpdate = (packet: PacketPlayInGameUpdate) => {
@@ -122,15 +133,16 @@ export const SocketListener = (props: Props) => {
 					gameUpdate(packet as PacketPlayInGameUpdate);
 					break;
 				case PacketTypesPlayer.MOVE:
-					// console.log(packet);
-					
 					playerMove(packet as PacketPlayInPlayerMove);
+					break;
+				case PacketTypesPlayer.TELEPORT:
+					playerTeleport(packet as PacketPlayInPlayerTeleport);
 					break;
 				default:
 					break;
 			}
 		});
-	}, [socket, dispatch, playerMove, setPlayers]);
+	}, [socket, dispatch, playerMove, playerTeleport]);
 
 	useEffect(() => {
 	}, [socket, dispatch]);
