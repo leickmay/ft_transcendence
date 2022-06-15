@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { ChatTypes, ChatRoom } from "../../../app/interfaces/Chat";
+import { ChatTypes } from "../../../app/interfaces/Chat";
 import { setCurrentRooms } from "../../../app/slices/chatSlice";
 import store, { RootState } from "../../../app/store";
-import { getNameRoom, getRoomByName } from "../../pages/Chat";
+import { getNameRoom } from "../../pages/Chat";
 import { switchConfigChannel } from "./ChatChannel";
 import { switchConfigPrivMsg } from "./ChatPrivateMessage";
 
@@ -16,12 +16,6 @@ export const ChatNavigation = () => {
 	useEffect(() => {
 		setRooms(store.getState().chat.rooms);
 	}, [roomsAlert, friends])
-
-	const changeRoom = (name: string): void => {
-		let room: ChatRoom | undefined = getRoomByName(name);
-		if (room)
-			store.dispatch(setCurrentRooms(room.id));
-	}
 
 	return (
 		<div
@@ -40,7 +34,7 @@ export const ChatNavigation = () => {
 						.filter((x) => x.name === "World Random" || x.users.find(u => u === user?.id))
 						.map((value, index) => {
 							return (
-								<div onClick={() => {changeRoom(value.name)}} key={index}>
+								<div onClick={() => {store.dispatch(setCurrentRooms(value.id))}} key={index}>
 									{value.name}
 								</div>
 							);
@@ -58,7 +52,7 @@ export const ChatNavigation = () => {
 						?.filter((x) => x.type === ChatTypes.PRIVATE_MESSAGE)
 						.map((value, index) => {
 							return (
-								<div onClick={() => {changeRoom(value.name)}} key={index}>
+								<div onClick={() => {store.dispatch(setCurrentRooms(value.id))}} key={index}>
 									{getNameRoom(value)}
 								</div>
 							);

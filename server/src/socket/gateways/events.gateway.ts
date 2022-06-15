@@ -65,7 +65,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		this.chatService.disconnection(user);
+		this.chatService.disconnection();
 		client.broadcast.emit('user', new PacketPlayOutUserDisconnected(user.id));
 		this.eventsService.removeUser(client);
 	}

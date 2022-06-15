@@ -1,4 +1,4 @@
-import { ChatRoom, ChatTypes, Message } from "../../interfaces/Chat";
+import { ChatTypes, Message } from "../../interfaces/Chat";
 import { Packet } from "../packetTypes";
 
 export interface PacketPlayInChatCommand extends Packet {

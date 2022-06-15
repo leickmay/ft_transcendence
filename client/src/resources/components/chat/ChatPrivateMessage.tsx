@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/socket";
-import { ChatRoom, ChatTypes } from "../../../app/interfaces/Chat";
+import { ChatTypes } from "../../../app/interfaces/Chat";
 import { PacketPlayOutChatCreate } from "../../../app/packets/chat/PacketPlayOutChat";
 import { RootState } from "../../../app/store";
 import { hideDivById } from "../../pages/Chat";
@@ -13,16 +13,11 @@ export const switchConfigPrivMsg = () => {
 
 const ChatPrivateMessage = () => {
 	const socket = useContext(SocketContext);
-
 	const friends = useSelector((state: RootState) => state.users.friends);
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
 
 	const hasAlreadyPrivMsg = (userId: number): boolean => {
-		let room: ChatRoom | undefined;
-		room = rooms?.find(r => r.type === ChatTypes.PRIVATE_MESSAGE && r.users.find(u => u === userId));
-		if (room)
-			return (false);
-		return (true);
+		return !rooms?.find(r => r.type === ChatTypes.PRIVATE_MESSAGE && r.users.find(u => u === userId));
 	}
 
 	const createPrivateMessage = (id: number) => {

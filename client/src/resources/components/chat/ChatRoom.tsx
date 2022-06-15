@@ -10,7 +10,7 @@ const ChatCurrentRoom = () => {
 
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
 	const currentID = useSelector((state: RootState) => state.chat.current);
-	const user = useSelector((state: RootState) => state.users.current);
+	const users = useSelector((state: RootState) => state.users);
 
 	const [current, setCurrent] = useState(rooms?.find(x => x.id === currentID));
 	const [newMessage, setNewMessage] = useState('');
@@ -35,7 +35,7 @@ const ChatCurrentRoom = () => {
 		<div id="chatRoom" className="chatRight">
 			<h2>{getNameRoom(current)}</h2>
 			{
-				(user?.id === current?.operator) &&
+				(users.current?.id === current?.operator) &&
 				<button>Operator</button>
 			}
 			<div id="chatRoomMesssages">
@@ -43,7 +43,7 @@ const ChatCurrentRoom = () => {
 					current?.messages
 						?.map((value, index) => {
 							let from: string = "otherMessage";
-							if (value.from === user?.login) {
+							if (value.from === users.current?.login) {
 								from = "myMessage";
 							}
 							if (value.cmd === true) {

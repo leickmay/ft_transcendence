@@ -5,7 +5,7 @@ import { ChatService } from './chat.service';
 
 @Module({
 	imports: [
-		forwardRef(() => UserModule),
+		forwardRef(() => EventsModule),
 	],
 	providers: [ChatService],
 	exports: [ChatService],

@@ -11,10 +11,10 @@ import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUser
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { Packet, PacketTypesChat, PacketTypesMisc, PacketTypesUser } from '../../app/packets/packetTypes';
-import { addRoom, addUser, addUserToRoom, delRoom, leaveRoom, newMessages, setChatRooms} from '../../app/slices/chatSlice';
+import { addRoom, addUserToRoom, delRoom, leaveRoom, newMessages, setChatRooms} from '../../app/slices/chatSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
-import store, { RootState } from '../../app/store';
-import { getRoomById, getUserByLogin } from '../pages/Chat';
+import { RootState } from '../../app/store';
+import { getUserByLogin } from '../pages/Chat';
 
 interface Props {}
 
@@ -56,84 +56,58 @@ export const SocketListener = (props: Props) => {
 				friends(packet as PacketPlayInFriendsUpdate);
 		});
 	
-		const commandHandler = async () => {};
-		const messageHandler = async (packet: PacketPlayInChatMessage) => {
-			if (packet.message.cmd) {
-				let cmd: string[] = packet.message.text.split(" ", 1);
-				switch (cmd[0]) {
-					case "/JOIN": {
-						cmd[1] = packet.message.text.substring(cmd[0].length + 1);
-						let user: User | undefined = getUserByLogin(packet.message.from);
-						let room: ChatRoom | undefined = getRoomById(packet.room);
-						if (user && room) {
-							let command: Command = {
-								user: user,
-								room: packet.room,
-								cmd: cmd,
-							};
-							store.dispatch(addUser(command));
+		const commandHandler = async (packet: PacketPlayInChatMessage) => {
+			let cmd = packet.message.text.split(" ", 1);
+			switch (cmd[0]) {
+				case "/EXIT": {
+					let user: User | undefined = getUserByLogin(packet.message.from);
+					if (user?.id !== currentUser?.id)
+						break;
+					let room = rooms?.find(x => x.id === packet.room);
+					if (user && room) {
+						let command: Command = {
+							user: user,
+							room: room.id,
+							cmd: cmd,
+						};
+						dispatch(leaveRoom(command));
+						if (room.users.length === 1
+							|| room.type === ChatTypes.PRIVATE_MESSAGE
+							|| !room.visible) {
+							dispatch(delRoom(room));
 						}
-						break;
 					}
-					case "/EXIT": {
-						let user: User | undefined = getUserByLogin(packet.message.from);
-						if (user?.id !== currentUser?.id)
-							break;
-						let room: ChatRoom | undefined = rooms?.find(x => x.id === packet.room);
-						if (user && room) {
-							let command: Command = {
-								user: user,
-								room: room.id,
-								cmd: cmd,
-							};
-							store.dispatch(leaveRoom(command));
-							if (room.users.length === 1 || room.type === ChatTypes.PRIVATE_MESSAGE) {
-								store.dispatch(delRoom(room));
-							}
-							if (room.users.length >= 2 && room.type === ChatTypes.CHANNEL) {
-								//store.dispatch() SET NEW OPERATOR
-							}
-							if (!room.visible) {
-								store.dispatch(delRoom(room));
-							}
-						}
-						break;
-					}
-					default:
-						break;
+					break;
 				}
+				default:
+					break;
 			}
+		};
+		const messageHandler = async (packet: PacketPlayInChatMessage) => {
+			if (packet.message.cmd)
+				commandHandler(packet);
 			dispatch(newMessages(packet));
 		};
 		const createHandler = async (packet: PacketPlayInChatRoomCreate) => {
-			store.dispatch(addRoom(packet))
+			dispatch(addRoom(packet))
 		}
 		const joinHandler = async (packet: PacketPlayInChatJoin) => {
-			console.log("------------------");
-			console.log(packet);
-			console.log("------------------");
-			store.dispatch(addUserToRoom(packet));
+			dispatch(addUserToRoom(packet));
 		};
 		const leaveHandler = async () => {};
 		const upHandler = async (packet: PacketPlayInChatUp) => {
 		};
 		const initHandler = async (packet: PacketPlayInChatInit) => {
-			let rooms: Array<ChatRoom> = packet.rooms as Array<ChatRoom>
+			let rooms = packet.rooms as Array<ChatRoom>
 			rooms.forEach((r: ChatRoom) => {r.messages = [];});
-			store.dispatch(setChatRooms(rooms));
+			dispatch(setChatRooms(rooms));
 		};
 		const delHandler = async (packet: PacketPlayInChatDel) => {
-			store.dispatch(delRoom(packet.room as ChatRoom));
+			dispatch(delRoom(packet.room as ChatRoom));
 		};
 
 		socket?.off('chat').on('chat', (packet: Packet) => {
-			console.log(socket.id)
-			console.log(packet)
 			switch (packet.packet_id) {
-				case PacketTypesChat.COMMAND: {
-					commandHandler();
-					break;
-				}
 				case PacketTypesChat.MESSAGE: {
 					messageHandler(packet as PacketPlayInChatMessage);
 					break;

@@ -1,10 +1,11 @@
-import { useContext, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { AnyAction } from "@reduxjs/toolkit";
+import { Dispatch, useContext, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/socket";
 import { ChatTypes } from "../../../app/interfaces/Chat";
 import { PacketPlayOutChatCreate, PacketPlayOutChatJoin } from "../../../app/packets/chat/PacketPlayOutChat";
 import { setCurrentRooms } from "../../../app/slices/chatSlice";
-import store, { RootState } from "../../../app/store";
+import { RootState } from "../../../app/store";
 import { hideDivById } from "../../pages/Chat";
 
 export const switchConfigChannel = () => {
@@ -14,6 +15,7 @@ export const switchConfigChannel = () => {
 
 const ChatChannel = () => {
 	const socket = useContext(SocketContext);
+	const dispatch: Dispatch<AnyAction> = useDispatch();
 
 	const [name, setName] = useState('');
 	const [isPrivate, setIsPrivate] = useState(false);
@@ -35,15 +37,15 @@ const ChatChannel = () => {
 
 
 	const createChannel = (): void => {
-		let roomPacket : PacketPlayOutChatCreate;
-		
-		roomPacket = new PacketPlayOutChatCreate(ChatTypes.CHANNEL).toChannel(name, !isPrivate);
+		if (name === '')
+			return;
+
+		let roomPacket = new PacketPlayOutChatCreate(ChatTypes.CHANNEL).toChannel(name, !isPrivate);
 		if (hasPassword && password !== "")
 			roomPacket.withPassword(password);
 
 		socket?.emit('chat', roomPacket);
-
-		store.dispatch(setCurrentRooms(name));
+		dispatch(setCurrentRooms(name));
 		
 		setName('');
 		setIsPrivate(false);
@@ -53,9 +55,9 @@ const ChatChannel = () => {
 	}
 
 	const joinChannel = (): void => {
-		let roomPacket : PacketPlayOutChatJoin;
-		
-		roomPacket = new PacketPlayOutChatJoin(name);
+		if (name === '')
+			return;
+		let roomPacket = new PacketPlayOutChatJoin(name);
 		if (hasPassword && password !== "")
 			roomPacket.withPassword(password);
 

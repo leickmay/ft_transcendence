@@ -44,18 +44,6 @@ export const getUserByLogin = (login: string): User | undefined => {
 **	Rooms
 */
 
-export const getCurrentRoom = (): ChatRoom | undefined => {
-	return store.getState().chat.rooms?.find(x => x.id === store.getState().chat.current);
-}
-
-export const getRoomById = (id: string): ChatRoom | undefined => {
-	return store.getState().chat.rooms?.find(x => x.id === id);
-}
-
-export const getRoomByName = (name: string): ChatRoom | undefined => {
-	return store.getState().chat.rooms?.find(x => x.name=== name);
-}
-
 export const getNameRoom = (room: ChatRoom | undefined): string | undefined => {
 	if (!room)
 		return (undefined);
