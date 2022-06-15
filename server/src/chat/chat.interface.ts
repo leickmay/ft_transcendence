@@ -82,7 +82,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	
 		this.users = this.users.filter(x => x !== user.id);
 
-		user.socket?.leave(this.name);
+		user.socket?.leave(this.id);
 		console.log(user.login + " leave : " + this.name);
 		return true;
 	}

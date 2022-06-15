@@ -1,6 +1,7 @@
-import { AnyAction, Dispatch } from '@reduxjs/toolkit';
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { receiveMessage } from '../../app/actions/messageActions';
 import { SocketContext } from '../../app/context/socket';
 import { ChatRoom, ChatTypes, Command } from '../../app/interfaces/Chat';
 import { User } from '../../app/interfaces/User';
@@ -12,7 +13,7 @@ import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUser
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { Packet, PacketTypesChat, PacketTypesMisc, PacketTypesUser } from '../../app/packets/packetTypes';
-import { addRoom, addUserToRoom, delRoom, leaveRoom, newMessages, setChatRooms } from '../../app/slices/chatSlice';
+import { addRoom, addUserToRoom, delRoom, leaveRoom, setChatRooms } from '../../app/slices/chatSlice';
 import { setStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
@@ -27,7 +28,7 @@ export const SocketListener = (props: Props) => {
 	const currentUser = useSelector((state: RootState) => state.users.current);
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
 
-	const dispatch: Dispatch<AnyAction> = useDispatch();
+	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 
 	useEffect(() => {
 		const online = (packet: PacketPlayInUserConnection) => {
@@ -92,7 +93,7 @@ export const SocketListener = (props: Props) => {
 		const messageHandler = async (packet: PacketPlayInChatMessage) => {
 			if (packet.message.cmd)
 				commandHandler(packet);
-			dispatch(newMessages(packet));
+			dispatch(receiveMessage(packet));
 		};
 		const createHandler = async (packet: PacketPlayInChatRoomCreate) => {
 			dispatch(addRoom(packet))

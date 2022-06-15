@@ -1,0 +1,15 @@
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import { getNameRoom } from '../../resources/pages/Chat';
+import { PacketPlayInChatMessage } from '../packets/chat/PacketPlayInChat';
+import { newMessages } from '../slices/chatSlice';
+import { RootState } from '../store';
+import { pushNotification } from './notificationsActions';
+
+export const receiveMessage = (packet: PacketPlayInChatMessage) => (dispatch: ThunkDispatch<RootState, unknown, AnyAction>, getState: () => RootState) => {
+	dispatch(newMessages(packet));
+	if (getState().users.current?.login === packet.message.from)
+		return;
+	let room = getState().chat.rooms?.find(x => x.id === packet.room);
+	let notification = getNameRoom(room) + "(" + packet.message.from + ")" + " : " + packet.message.text;
+	dispatch(pushNotification(notification));
+};
