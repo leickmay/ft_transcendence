@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/socket";
 import { PacketPlayOutStatsUpdate } from "../../app/packets/PacketPlayOutStatsUpdate";
@@ -8,11 +8,11 @@ export const Statistics = () => {
 	const socket = useContext(SocketContext);
 	const stats = useSelector((state: RootState) => state.stats)
 	const users = useSelector((state: RootState) => state.users);
-	const [reloadVar, setReloadVar] = useState(0);
+	//const [reloadVar, setReloadVar] = useState(0);
 
-	useEffect(() => {
-		setReloadVar(value => value + 1);
-	}, [stats])
+	//useEffect(() => {
+	//	setReloadVar(value => value + 1);
+	//}, [stats])
 
 	const debugWin = () => {
 		socket?.emit("stats", new PacketPlayOutStatsUpdate(1, 1, 2, users.current!.id));

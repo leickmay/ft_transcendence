@@ -1,11 +1,14 @@
-import { AnyAction } from "@reduxjs/toolkit";
-import { Dispatch, useContext } from "react";
-import { useDispatch } from "react-redux";
-import { SocketContext } from "../../app/context/socket";
-import { ChatChannel } from "../components/chat/ChatChannel";
+import { ChatRoom, ChatTypes } from "../../app/interfaces/Chat";
+import { User } from "../../app/interfaces/User";
+import store from "../../app/store";
+import ChatChannel from "../components/chat/ChatChannel";
 import { ChatNavigation } from "../components/chat/ChatNavigation";
-import { ChatPrivateMessage } from "../components/chat/ChatPrivateMessage";
-import { ChatRoom } from "../components/chat/ChatRoom";
+import ChatPrivateMessage from "../components/chat/ChatPrivateMessage";
+import ChatCurrentRoom from "../components/chat/ChatRoom";
+
+/*
+**	Utils
+*/
 
 export const hideDivById = (id: string): void => {
 	let tmp = document.getElementById(id);
@@ -23,28 +26,57 @@ export const scrollToBottomById = async (id: string) => {
 	element?.scrollTo({top: height});
 }
 
+/*
+**	Users
+*/
+
+export const getUserByLogin = (login: string): User | undefined => {
+	let user: User | undefined;
+	user = store.getState().users.friends.find((x) => x.login === login);
+	if (!user)
+		user = store.getState().users.current;
+	if (user?.login === login)
+		return (user);
+	return (undefined);
+}
+
+/*
+**	Rooms
+*/
+
+export const getNameRoom = (room: ChatRoom | undefined): string | undefined => {
+	if (!room)
+		return (undefined);
+	if (room.type === ChatTypes.CHANNEL) {
+		return (room.name);
+	}
+	if (room.type === ChatTypes.PRIVATE_MESSAGE) {
+		let users: number[] = room.users.filter(x => x !== store.getState().users.current?.id);
+		if (users.length !== 1)
+			return (undefined);
+		let name: string | undefined = store.getState().users.friends.find(x => x.id === users[0])?.login;
+		if (name)
+			return (name);
+	}
+	return (undefined);
+}
+
+/*
+**	Time
+*/
+
+export const getTime = (time: number): string => {
+	let tmp = new Date(time);
+	return (tmp.getHours().toString() + ":" + tmp.getMinutes().toString());
+}
+
 export const Chat = () => {
-	const socket = useContext(SocketContext);
-	const dispatch: Dispatch<AnyAction> = useDispatch();
-
-	// useEffect(() => {
-	// 	if (socket) {
-	// 		socket.off('MESSAGE');
-	// 		socket.on('MESSAGE', (packet: PacketPlayInChatMessage) => {
-	// 			console.log("HEY");
-	// 			if (!packet.msg)
-	// 				return;
-	// 			dispatch(newMessages(packet.msg));
-	// 		});
-	// 	}
-	// }, [socket, dispatch]);
-
 	return (
 		<div id="chat">
 			<ChatNavigation />
 			<ChatChannel />
 			<ChatPrivateMessage />
-			<ChatRoom />
+			<ChatCurrentRoom />
 		</div>
 	);
 };

@@ -1,40 +1,41 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import store from "../../../app/store";
+import { ChatTypes } from "../../../app/interfaces/Chat";
+import { setCurrentRooms } from "../../../app/slices/chatSlice";
+import store, { RootState } from "../../../app/store";
+import { getNameRoom } from "../../pages/Chat";
+import { switchConfigChannel } from "./ChatChannel";
+import { switchConfigPrivMsg } from "./ChatPrivateMessage";
 
 export const ChatNavigation = () => {
+	const roomsAlert = useSelector((state: RootState) => state.chat.rooms);
+	const user = useSelector((state: RootState) => state.users.current);
+	const friends = useSelector((state: RootState) => state.users.friends);
 
 	const [rooms, setRooms] = useState(store.getState().chat.rooms);
-
-	const alertRooms = useSelector(() => store.getState().chat.rooms);
-
 	useEffect(() => {
 		setRooms(store.getState().chat.rooms);
-	}, [alertRooms]);
-
-	const changeRoom = (name: string): void => {
-
-	}
+	}, [roomsAlert, friends])
 
 	return (
 		<div
 			id="chatNavigation"
 			className="chatLeft"
 		>
-			{/* <button
+			<button
 				onClick={() => {
-					hideDivById("chatNavigation");
-					hideDivById("chatChannel");
+					switchConfigChannel();
 				}}
 			>Channels</button>
 			<div className="chatRoomList">
 				{
 					rooms
-						.filter((x) => x.isChannel)
+						?.filter((x) => x.type === ChatTypes.CHANNEL)
+						.filter((x) => x.name === "World Random" || x.users.find(u => u === user?.id))
 						.map((value, index) => {
 							return (
-								<div onClick={() => {changeRoom(value.name)}} key={index}>
-									{value.name.split('channel_', 42)}
+								<div onClick={() => {store.dispatch(setCurrentRooms(value.id))}} key={index}>
+									{value.name}
 								</div>
 							);
 					})
@@ -42,23 +43,24 @@ export const ChatNavigation = () => {
 			</div>
 			<button
 				onClick={() => {
-					hideDivById("chatNavigation");
-					hideDivById("chatPrivateMessage");
+					switchConfigPrivMsg();
 				}}
 			>Privates Messages</button>
 			<div className="chatRoomList">
 				{
 					rooms
-						.filter((x) => x.isPrivateMsg)
+						?.filter((x) => x.type === ChatTypes.PRIVATE_MESSAGE)
 						.map((value, index) => {
 							return (
-								<div onClick={() => {changeRoom(value.name)}} key={index}>
-									{value.name.split('channel_', 42)}
+								<div onClick={() => {store.dispatch(setCurrentRooms(value.id))}} key={index}>
+									{getNameRoom(value)}
 								</div>
 							);
 					})
 				}
-			</div> */}
+			</div>
 		</div>
 	);
 };
+
+export default ChatNavigation;

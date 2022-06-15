@@ -1,75 +1,68 @@
-import { AnyAction } from "@reduxjs/toolkit";
-import { Dispatch, KeyboardEvent, useContext } from "react";
-import { useDispatch } from "react-redux";
+import { KeyboardEvent, useContext, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/socket";
+import { PacketPlayOutChatMessage } from "../../../app/packets/chat/PacketPlayOutChat";
+import { RootState } from "../../../app/store";
+import {getNameRoom, getTime, scrollToBottomById } from "../../pages/Chat";
 
-export const ChatRoom = () => {
+const ChatCurrentRoom = () => {
 	const socket = useContext(SocketContext);
-	const dispatch: Dispatch<AnyAction> = useDispatch();
 
-	// const alertCurrentRoom = useSelector(() => store.getState().chat.currentRooms);
+	const rooms = useSelector((state: RootState) => state.chat.rooms);
+	const currentID = useSelector((state: RootState) => state.chat.current);
+	const users = useSelector((state: RootState) => state.users);
 
-	// const [name, setName] = useState('Unknown');
-	// const [messages, setMessages] = useState(store.getState().chat.currentRooms.messages);
-	// const [newMessage, setNewMessage] = useState('');
+	const [current, setCurrent] = useState(rooms?.find(x => x.id === currentID));
+	const [newMessage, setNewMessage] = useState('');
 
 	const inputNewMessage = async (element: KeyboardEvent<HTMLTextAreaElement>): Promise<void> => {
-		// if (element.key === 'Enter' && newMessage !== '') {
-		// 	let user: User | undefined = store.getState().users.current;
-		// 	if (!user)
-		// 		return;
-		// 	let date: Date = new Date();
-		// 	let msg: Message = {
-		// 		from: user.login,
-		// 		to: store.getState().chat.currentRooms.name,
-		// 		date: date.getHours().toString() + ":" + date.getMinutes().toString(),
-		// 		message: newMessage,
-		// 	};
-		// 	let packet: PacketPlayOutChatMessage = new PacketPlayOutChatMessage(
-		// 		PacketTypesChat.MESSAGE,
-		// 		msg,
-		// 	);
-		// 	dispatch(newMessages(msg));
-		// 	if (socket)
-		// 		socket.emit('chat', packet);
-		// 	setNewMessage('');
-		// }
+		if (element.key === 'Enter' && newMessage !== '') {
+			if (currentID)
+				socket?.emit('chat', new PacketPlayOutChatMessage(currentID, newMessage));
+			setNewMessage('');
+		}
 	}
 
-	// useEffect(() => {
-	// 	setMessages(store.getState().chat.currentRooms.messages);
-	// 	setName(store.getState().chat.currentRooms.name.substring(8, 42));
-	// }, [alertCurrentRoom]);
+	useEffect(() => {
+		setCurrent(rooms?.find(x => x.id === currentID));
+	}, [rooms, currentID]);
 
-	// useEffect(() => {
-	// 	scrollToBottomById('chatRoomMesssages');
-	// }, [messages]);
+	useEffect(() => {
+		scrollToBottomById('chatRoomMesssages');
+	}, [current?.messages]);
 
 	return (
 		<div id="chatRoom" className="chatRight">
-			{/* <h2>{name}</h2> */}
+			<h2>{getNameRoom(current)}</h2>
+			{
+				(users.current?.id === current?.operator) &&
+				<button>Operator</button>
+			}
 			<div id="chatRoomMesssages">
-				{/* {
-					messages
-						.map((value, index) => {
+			{
+					current?.messages
+						?.map((value, index) => {
 							let from: string = "otherMessage";
-							if (value.from === store.getState().users.current?.login) {
+							if (value.from === users.current?.login) {
 								from = "myMessage";
+							}
+							if (value.cmd === true) {
+								from = "cmd"
 							}
 							return (
 								<div className={from} key={index}>
 									<div>
-										{value.from} - {value.date}
+										{value.from} - {getTime(value.date)}
 									</div>
 									<div>
-										{value.message}
+										{value.text}
 									</div>
 								</div>
 							);
 					})
-				} */}
+				}
 			</div>
-			{/* <textarea
+			<textarea
 				id="sendMessage"
 				value={newMessage}
 				placeholder='Type your message...'
@@ -79,7 +72,9 @@ export const ChatRoom = () => {
 				}}
 				onKeyDown={event => inputNewMessage(event)}
 				rows={3}
-			/> */}
+			/>
 		</div>
 	);
 };
+
+export default ChatCurrentRoom;

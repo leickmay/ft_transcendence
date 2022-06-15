@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
 import { User } from 'src/user/user.entity';
@@ -11,6 +11,7 @@ export class EventsService {
 	users: { [socket: string]: User } = {};
 
 	constructor(
+		@Inject(forwardRef(() => ChatService))
 		private chatService: ChatService,
 	) { }
 
@@ -21,11 +22,18 @@ export class EventsService {
 	addUser(socket: Socket, user: User): void {
 		this.users[socket.id] = user;
 		user.socket = socket;
-		this.chatService.onJoin(user);
+
+		this.chatService.connection(user);
 	}
 
 	removeUser(socket: Socket): void {
 		this.users[socket.id].socket = undefined;
 		delete this.users[socket.id];
+
+		this.chatService.disconnection();
+	}
+
+	getUserSocket(id: number): Socket | undefined {
+		return Object.values(this.users).find(u => u.id === id)?.socket;
 	}
 }

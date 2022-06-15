@@ -4,25 +4,26 @@ export interface Message {
 	date: number;
 	from: string;
 	text: string;
+	cmd: boolean;
 }
 
-// export enum RoomType {
-// 	PUBLIC,
-// 	PASSWORD,
-// 	PRIVATE,
-// 	PRIVATE_PASSWORD,
-// 	PRIVATE_MESSAGE,
-// }
+export enum ChatTypes {
+	CHANNEL,
+	PRIVATE_MESSAGE,
+}
 
-export interface Room {
-	id: number,
+export interface ChatRoom {
+	id: string,
+	type: ChatTypes;
 	name: string;
-	messages: Message[];
-	operator?: string;
-	flags: number;
+	visible: boolean;
+	users: Array<number>;
+	operator?: number;
+	messages: Array<Message>;
 }
 
 export interface Command {
 	user: User;
+	room: string;
 	cmd: string[];
 }
