@@ -40,14 +40,19 @@ export const GameCanvas = (props: Props) => {
 
 	useAnimationFrame((delta) => {
 		if (ctx) {
-			const stepsPerTick = game.tps / delta;
+			const stepsPerTick = (1000 / game.tps) / delta;
 
 			ctx.drawImage(backgroundImg, 0, 0, game.width, game.height);
 			for (const player of players) {
-				if (player.screenY === undefined || Math.abs(player.screenY - player.y) >= (player.speed * stepsPerTick)) {
+				let diff = Math.abs(player.screenY - player.y);
+
+				if (player.direction === Directions.STATIC) {
 					player.screenY = player.y;
 				} else {
-					player.screenY += Math.floor((player.y - player.screenY) / stepsPerTick);
+					if (player.direction === Directions.UP)
+						player.screenY -= Math.min(Math.max(player.speed, diff) / stepsPerTick, diff);
+					else
+						player.screenY += Math.min(Math.max(player.speed, diff) / stepsPerTick, diff);
 				}
 				player.screenY = Math.max(Math.min(player.screenY, game.height - player.height), 0);
 

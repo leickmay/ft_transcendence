@@ -100,10 +100,12 @@ export const SocketListener = (props: Props) => {
 			}
 
 			const playerList = (packet: PacketPlayInPlayerList) => {
+				packet.players.forEach(p => p.screenY = p.y);
 				setPlayers(players => packet.players);
 			}
 
 			const playerJoin = (packet: PacketPlayInPlayerJoin) => {
+				packet.player.screenY = packet.player.y;
 				setPlayers(players => [...players, packet.player]);
 			}
 

@@ -4,7 +4,6 @@ import { PacketPlayOutGameBallMove } from "src/socket/packets/PacketPlayOutGameB
 import { PacketPlayOutGameUpdate } from "src/socket/packets/PacketPlayOutGameUpdate";
 import { PacketPlayOutPlayerJoin } from "src/socket/packets/PacketPlayOutPlayerJoin";
 import { PacketPlayOutPlayerList } from "src/socket/packets/PacketPlayOutPlayerList";
-import { PacketPlayOutPlayerMove } from "src/socket/packets/PacketPlayOutPlayerMove";
 import { PacketPlayOutPlayerReady } from "src/socket/packets/PacketPlayOutPlayerReady";
 import { PacketPlayOutPlayerTeleport } from "src/socket/packets/PacketPlayOutPlayerTeleport";
 import { clearInterval } from "timers";
@@ -49,7 +48,7 @@ export class Room {
 	private tick = 0;
 
 	@Expose()
-	readonly tps = 40;
+	readonly tps = 20;
 	@Expose()
 	readonly height: number = 1080;
 	@Expose()
@@ -168,7 +167,7 @@ export class Player implements Entity {
 	height: number;
 
 	@Expose()
-	speed: number = 15;
+	speed: number = 30;
 	@Expose()
 	score: number = 0
 
@@ -211,10 +210,11 @@ export class Player implements Entity {
 	}
 
 	move() {
-		if (this.direction === Directions.UP && (this.y - this.speed > 0 - this.height * 0.05))
+		if (this.direction === Directions.UP)
 			this.y -= this.speed;
-		else if (this.direction === Directions.DOWN && (this.y + this.speed < this.room.height - this.height))
+		else if (this.direction === Directions.DOWN)
 			this.y += this.speed;
+		this.y = Math.max(Math.min(this.y, this.room.height - this.height), 0);
 	}
 
 	sendUpdate(teleport: boolean = false) {

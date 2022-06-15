@@ -28,7 +28,7 @@ export interface Player extends Entity {
 
 	// Local only
 	// screenX?: number;
-	screenY?: number;
+	screenY: number;
 }
 
 export interface Spectator {
