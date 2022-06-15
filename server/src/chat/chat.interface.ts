@@ -69,6 +69,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		if (!this.isPresent(user.id))
 			this.users.push(user.id);
 
+		console.log("JOIN "+ this.id);
 		user.socket?.join(this.id);
 		return true;
 	}

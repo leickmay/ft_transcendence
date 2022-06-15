@@ -22,6 +22,14 @@ export interface PacketPlayInChatRoomCreate extends Packet {
 }
 
 export interface PacketPlayInChatJoin extends Packet {
+	room: {
+		id: string,
+		name: string,
+		type: ChatTypes,
+		visible: boolean,
+		users: Array<number>,
+		operator?: number,
+	};
 }
 
 export interface PacketPlayInChatLeave extends Packet {

@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ChatRoom, Command } from "../interfaces/Chat";
-import { PacketPlayInChatMessage, PacketPlayInChatRoomCreate } from "../packets/chat/PacketPlayInChat";
+import { PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatRoomCreate } from "../packets/chat/PacketPlayInChat";
 
 interface State {
 	current?: string;
@@ -51,6 +51,30 @@ const slice = createSlice({
 			state.rooms = state.rooms?.filter(x => x.name !== action.payload.name);
 			return (state);
 		},
+		addUserToRoom: (state: State, action: PayloadAction<PacketPlayInChatJoin>): State => {
+			console.log(action.payload);
+			let roomTmp = action.payload.room;
+			let room: ChatRoom | undefined = state.rooms?.find(x => x.id === roomTmp.id);
+			console.log(room)
+			if (room) {
+				console.log("Room before: " + room.users)
+				room.users = roomTmp.users;
+				console.log("Room after: " + room.users)
+			}
+			else {
+				room = {
+					id: roomTmp.id,
+					type: roomTmp.type,
+					name: roomTmp.name,
+					visible: roomTmp.visible,
+					users: roomTmp.users,
+					operator: roomTmp.operator,
+					messages: [],
+				}
+				state.rooms?.push(room);
+			}
+			return state;
+		},
 		addUser: (state: State, action: PayloadAction<Command>): State => {
 			if (action.payload.cmd.length < 2)
 				return (state);
@@ -76,5 +100,5 @@ const slice = createSlice({
 	},
 });
 
-export const {setCurrentRooms, setChatRooms, addRoom, delRoom, newMessages, addUser, leaveRoom} = slice.actions;
+export const {setCurrentRooms, setChatRooms, addRoom, addUserToRoom, delRoom, newMessages, addUser, leaveRoom} = slice.actions;
 export default slice.reducer;

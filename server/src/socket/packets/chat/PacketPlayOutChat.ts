@@ -25,7 +25,18 @@ export class PacketPlayOutChatCreate {
 }
 
 @DeclarePacket(PacketTypesChat.JOIN)
-export class PacketPlayOutChatJoin {}
+export class PacketPlayOutChatJoin {
+	constructor(
+		public room: {
+			id: string,
+			name: string,
+			type: ChatTypes,
+			visible: boolean,
+			users: Array<number>,
+			operator?: number,
+		},
+	) {}
+}
 
 @DeclarePacket(PacketTypesChat.LEAVE)
 export class PacketPlayOutChatLeave {}
@@ -42,7 +53,6 @@ export class PacketPlayOutChatInit {
 			name: string,
 			type: ChatTypes,
 			visible: boolean,
-			users: Array<number>,
 			operator?: number,
 		}>,
 	) {}

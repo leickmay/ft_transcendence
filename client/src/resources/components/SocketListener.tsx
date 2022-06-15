@@ -4,14 +4,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { SocketContext } from '../../app/context/socket';
 import { ChatRoom, ChatTypes, Command } from '../../app/interfaces/Chat';
 import { User } from '../../app/interfaces/User';
-import { PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatMessage, PacketPlayInChatRoomCreate, PacketPlayInChatUp } from '../../app/packets/chat/PacketPlayInChat';
+import { PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatRoomCreate, PacketPlayInChatUp } from '../../app/packets/chat/PacketPlayInChat';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { Packet, PacketTypesChat, PacketTypesMisc, PacketTypesUser } from '../../app/packets/packetTypes';
-import { addRoom, addUser, delRoom, leaveRoom, newMessages, setChatRooms} from '../../app/slices/chatSlice';
+import { addRoom, addUser, addUserToRoom, delRoom, leaveRoom, newMessages, setChatRooms} from '../../app/slices/chatSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import store, { RootState } from '../../app/store';
 import { getRoomById, getUserByLogin } from '../pages/Chat';
@@ -56,10 +56,6 @@ export const SocketListener = (props: Props) => {
 				friends(packet as PacketPlayInFriendsUpdate);
 		});
 	
-		const chatInCreate = (packet: PacketPlayInChatRoomCreate) => {
-			store.dispatch(addRoom(packet))
-		}
-
 		const commandHandler = async () => {};
 		const messageHandler = async (packet: PacketPlayInChatMessage) => {
 			if (packet.message.cmd) {
@@ -81,6 +77,8 @@ export const SocketListener = (props: Props) => {
 					}
 					case "/EXIT": {
 						let user: User | undefined = getUserByLogin(packet.message.from);
+						if (user?.id !== currentUser?.id)
+							break;
 						let room: ChatRoom | undefined = rooms?.find(x => x.id === packet.room);
 						if (user && room) {
 							let command: Command = {
@@ -95,6 +93,9 @@ export const SocketListener = (props: Props) => {
 							if (room.users.length >= 2 && room.type === ChatTypes.CHANNEL) {
 								//store.dispatch() SET NEW OPERATOR
 							}
+							if (!room.visible) {
+								store.dispatch(delRoom(room));
+							}
 						}
 						break;
 					}
@@ -104,8 +105,15 @@ export const SocketListener = (props: Props) => {
 			}
 			dispatch(newMessages(packet));
 		};
-		const createHandler = async () => {};
-		const joinHandler = async () => {};
+		const createHandler = async (packet: PacketPlayInChatRoomCreate) => {
+			store.dispatch(addRoom(packet))
+		}
+		const joinHandler = async (packet: PacketPlayInChatJoin) => {
+			console.log("------------------");
+			console.log(packet);
+			console.log("------------------");
+			store.dispatch(addUserToRoom(packet));
+		};
 		const leaveHandler = async () => {};
 		const upHandler = async (packet: PacketPlayInChatUp) => {
 		};
@@ -131,12 +139,11 @@ export const SocketListener = (props: Props) => {
 					break;
 				}
 				case PacketTypesChat.CREATE: {
-					createHandler();
-					chatInCreate(packet as PacketPlayInChatRoomCreate);
+					createHandler(packet as PacketPlayInChatRoomCreate);
 					break;
 				}
 				case PacketTypesChat.JOIN: {
-					joinHandler();
+					joinHandler(packet as PacketPlayInChatJoin);
 					break;
 				}
 				case PacketTypesChat.LEAVE: {
