@@ -27,10 +27,11 @@ export class EventsService {
 	}
 
 	removeUser(socket: Socket): void {
-		this.users[socket.id].socket = undefined;
-		delete this.users[socket.id];
-
 		this.chatService.disconnection();
+
+		if (this.users[socket.id])
+			this.users[socket.id].socket = undefined;
+		delete this.users[socket.id];
 	}
 
 	getUserSocket(id: number): Socket | undefined {
