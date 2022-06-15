@@ -127,7 +127,7 @@ export class Room {
 		});
 		for (const player of this.players) {
 			player.move();
-			player.sendUpdate((this.tick % this.tps) === 0);
+			player.sendUpdate();
 		}
 		++this.tick;
 	}
@@ -217,11 +217,8 @@ export class Player implements Entity {
 		this.y = Math.max(Math.min(this.y, this.room.height - this.height), 0);
 	}
 
-	sendUpdate(teleport: boolean = false) {
-		// if (teleport)
-			this.room.broadcast(new PacketPlayOutPlayerTeleport(this.user.id, this.direction, this.x, this.y));
-		// else
-		// 	this.room.broadcast(new PacketPlayOutPlayerMove(this.user.id, this.direction));
+	sendUpdate() {
+		this.room.broadcast(new PacketPlayOutPlayerTeleport(this.user.id, this.direction, this.x, this.y));
 	}
 }
 
