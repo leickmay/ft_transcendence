@@ -10,6 +10,8 @@ export const receiveMessage = (packet: PacketPlayInChatMessage) => (dispatch: Th
 	if (getState().users.current?.login === packet.message.from)
 		return;
 	let room = getState().chat.rooms?.find(x => x.id === packet.room);
+	if (!room)
+		return;
 	let notification = getNameRoom(room)?.toString() + "(" + packet.message.from + ") : " + packet.message.text.substring(0, 16);
 	dispatch(pushNotification(notification));
 };
