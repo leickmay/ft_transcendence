@@ -56,8 +56,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				throw Error('Already connected');
 			}
 			client.emit('ready');
-			client.broadcast.emit('user', new PacketPlayOutUserConnection([user.id]));
-			client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => u.id)));
+			client.broadcast.emit('user', new PacketPlayOutUserConnection([{id: user.id, login: user.login}]));
+			client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => ({id: u.id, login: u.login}))));
 			this.eventsService.addUser(client, user);
 
 			// To move
@@ -73,7 +73,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		client.broadcast.emit('user', new PacketPlayOutUserDisconnected(user.id));
+		client.broadcast.emit('user', new PacketPlayOutUserDisconnected({id: user.id, login: user.login}));
 		this.eventsService.removeUser(client);
 	}
 

@@ -26,12 +26,12 @@ const ChatChannel = () => {
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
 	
 	const [roomsOffline, setRoomsOffline] = useState(rooms?.filter(
-		x => x.users.find(u => u === user?.id) === undefined
+		x => x.users.find(u => u.id === user?.id) === undefined
 	));
 
 	useEffect(() => {
 		setRoomsOffline(rooms?.filter(
-			x => x.users.find(u => u === user?.id) === undefined)
+			x => x.users.find(u => u.id === user?.id) === undefined)
 		);
 	}, [rooms, user])
 

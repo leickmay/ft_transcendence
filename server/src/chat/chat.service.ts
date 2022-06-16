@@ -53,7 +53,7 @@ export class ChatService {
 	connection(user: User): void {
 		let worldRandom = this.rooms.find(r => r.name === "World Random");
 		if (worldRandom && !(worldRandom?.isPresent(user.id)))
-			worldRandom.users.push(user.id)
+			worldRandom.users.push({id: user.id, login: user.login})
 
 		this.rooms
 			.filter(r => r.isPresent(user.id))
@@ -96,22 +96,38 @@ export class ChatService {
 			}
 			// OPERATOR login
 			case "/OPERATOR": {
+				if (command.length < 2)
+					return false;
+				if (user.id !== room.operator)
+					return false;
 				break;
 			}
 			// PASSWORD *****
 			case "/PASSWORD": {
+				if (command.length < 2)
+					return false;
+				if (user.id !== room.operator)
+					return false;
 				break;
 			}
 			// BAN login
 			case "/BAN": {
+				if (command.length < 2)
+					return false;
+				if (user.id !== room.operator)
+					return false;
 				break;
 			}
 			// MUTE login
 			case "/MUTE": {
+				if (command.length < 2)
+					return false;
 				break;
 			}
 			//BLOCK login
 			case "/BLOCK": {
+				if (command.length < 2)
+					return false;
 				break;
 			}
 			default: {
@@ -149,7 +165,7 @@ export class ChatService {
 						ChatTypes.CHANNEL,
 						packet.name,
 						packet.visible,
-						[user.id],
+						[{id: user.id, login: user.login}],
 						user.id,
 						packet.password,
 					);
@@ -171,36 +187,46 @@ export class ChatService {
 				break;
 			}
 			case ChatTypes.PRIVATE_MESSAGE: {
+				//let otherUser = this.eventService.getUser(packet.users[0]);
 				if (packet.users && packet.users.length === 1) {
-					let otherUserID = packet.users[0];
-					if (this.rooms.find(room => (room.type === ChatTypes.PRIVATE_MESSAGE && room.isPresent(user.id) && room.isPresent(otherUserID)))) {
-						return;
+					let otherUser = this.eventService.getUser(packet.users[0]);
+					if (otherUser)
+					{
+						if (this.rooms.find(room => (
+							room.type === ChatTypes.PRIVATE_MESSAGE 
+							&& room.isPresent(user.id) 
+							&& otherUser && room.isPresent(otherUser.id)))) {
+								return;
+						}
+						let name = user.id.toString().padStart(8, "0") + packet.users[0].toString().padStart(8, "0");
+						let room = new ChatRoom(
+							ChatTypes.PRIVATE_MESSAGE,
+							name,
+							false,
+							[
+								{id: user.id, login: user.login},
+								{id: otherUser.id, login: otherUser.login},
+							],
+							undefined,
+							undefined,
+						);
+						
+						this.rooms.push(room);
+						user.socket?.join(room.id);
+						otherUser.socket?.join(room.id);
+						
+						let roomOut = new PacketPlayOutChatCreate(
+							room.id,
+							room.type,
+							room.name,
+							room.visible,
+							room.users,
+							room.operator,
+						);
+						
+						user.socket?.emit('chat', roomOut);
+						otherUser.socket?.emit('chat', roomOut);
 					}
-					let name = user.id.toString().padStart(8, "0") + packet.users[0].toString().padStart(8, "0");
-					let room = new ChatRoom(
-						ChatTypes.PRIVATE_MESSAGE,
-						name,
-						false,
-						[user.id, otherUserID],
-						undefined,
-						undefined,
-					);
-
-					this.rooms.push(room);
-					user.socket?.join(room.id);
-					this.eventService.getUserSocket(otherUserID)?.join(room.id);
-
-					let roomOut = new PacketPlayOutChatCreate(
-						room.id,
-						room.type,
-						room.name,
-						room.visible,
-						room.users,
-						room.operator,
-					);
-
-					user.socket?.emit('chat', roomOut);
-					this.eventService.getUserSocket(otherUserID)?.emit('chat', roomOut);
 				}
 				break;
 			}

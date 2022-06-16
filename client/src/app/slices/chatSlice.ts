@@ -74,12 +74,12 @@ const slice = createSlice({
 			if (action.payload.cmd.length >= 2)
 				state.rooms
 					?.find(x => x.name === action.payload.cmd[1])
-					?.users.push(action.payload.user.id);
+					?.users.push({id: action.payload.user.id, login: action.payload.user.login});
 		},
 		leaveRoom: (state: State, action: PayloadAction<Command>): void => {
 			let room = state.rooms?.find(x => x.id === action.payload.room);
 			if (room)
-				room.users = room?.users.filter(x => x !== action.payload.user.id);
+				room.users = room?.users.filter(x => x.id !== action.payload.user.id);
 			state.current = "ChatRoom_1";
 		},
 		newMessages: (state: State, action: PayloadAction<PacketPlayInChatMessage>): void => {

@@ -22,7 +22,7 @@ export const FriendCard = (props: Props) => {
 	}
 
 	let isOnline = (): boolean => {
-		return !!online.includes(props.user.id);
+		return !!online.find(u => u.id === props.user.id);
 	}
 
 	return (

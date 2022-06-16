@@ -1,4 +1,5 @@
-import { ChatTypes, Message } from "src/chat/chat.interface";
+import { ChatTypes, Message} from "src/chat/chat.interface";
+import { UserPreview } from "src/user/user.entity";
 import { DeclarePacket, PacketTypesChat } from "../packetTypes";
 
 @DeclarePacket(PacketTypesChat.COMMAND)
@@ -19,7 +20,7 @@ export class PacketPlayOutChatCreate {
 		public type: ChatTypes,
 		public name: string,
 		public visible: boolean,
-		public users: number[],
+		public users: Array<UserPreview>,
 		public operator?: number,
 	) {}
 }
@@ -32,7 +33,7 @@ export class PacketPlayOutChatJoin {
 			name: string,
 			type: ChatTypes,
 			visible: boolean,
-			users: Array<number>,
+			users: Array<UserPreview>,
 			operator?: number,
 		},
 	) {}
@@ -66,7 +67,7 @@ export class PacketPlayOutChatDel {
 			name: string,
 			type: ChatTypes,
 			visible: boolean,
-			users: Array<number>,
+			users: Array<UserPreview>,
 			operator?: number,
 		},
 	) {}

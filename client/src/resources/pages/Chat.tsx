@@ -1,5 +1,5 @@
 import { ChatRoom, ChatTypes } from "../../app/interfaces/Chat";
-import { User } from "../../app/interfaces/User";
+import { UserPreview, User } from "../../app/interfaces/User";
 import store from "../../app/store";
 import ChatChannel from "../components/chat/ChatChannel";
 import { ChatNavigation } from "../components/chat/ChatNavigation";
@@ -51,12 +51,9 @@ export const getNameRoom = (room: ChatRoom | undefined): string | undefined => {
 		return (room.name);
 	}
 	if (room.type === ChatTypes.PRIVATE_MESSAGE) {
-		let users: number[] = room.users.filter(x => x !== store.getState().users.current?.id);
-		if (users.length !== 1)
-			return (undefined);
-		let name: string | undefined = store.getState().users.friends.find(x => x.id === users[0])?.login;
-		if (name)
-			return (name);
+		let users: Array<UserPreview> = room.users.filter(x => x.id !== store.getState().users.current?.id);
+		if (users.length === 1)
+			return(users[0].login)
 	}
 	return (undefined);
 }

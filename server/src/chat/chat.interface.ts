@@ -1,6 +1,6 @@
 import { Exclude, Expose, Transform } from "class-transformer";
 import { PacketPlayOutChatMessage, PacketPlayOutChatOperator } from "src/socket/packets/chat/PacketPlayOutChat";
-import { User } from "src/user/user.entity";
+import { User, UserPreview } from "src/user/user.entity";
 
 export interface Message {
 	date: number;
@@ -31,7 +31,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	visible: boolean;
 
 	@Expose()
-	users: Array<number>;
+	users: Array<{id: number, login: string}>;
 
 	@Expose()
 	operator?: number;
@@ -44,7 +44,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		type: ChatTypes,
 		name: string,
 		visible: boolean,
-		users: Array<number>,
+		users: Array<UserPreview>,
 		operator?: number,
 		password?: string,
 	) {
@@ -59,7 +59,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	}
 
 	isPresent(userID: number): boolean {
-		return !!this.users.find(x => x === userID);
+		return !!this.users.find(x => x.id === userID);
 	}
 
 	join(user: User, password?: string): boolean {
@@ -67,7 +67,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 			return false;
 
 		if (!this.isPresent(user.id))
-			this.users.push(user.id);
+			this.users.push({id: user.id, login: user.login});
 
 		console.log("(" + user.login + ")"+ " JOIN " + this.id);
 		user.socket?.join(this.id);
@@ -80,10 +80,10 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		if (!this.isPresent(user.id))
 			return false;
 	
-		this.users = this.users.filter(x => x !== user.id);
+		this.users = this.users.filter(x => x.id !== user.id);
 
 		if (this.operator === user.id && this.users.length > 0) {
-			this.operator = this.users[0];
+			this.operator = this.users[0].id;
 			let room = new PacketPlayOutChatOperator({
 				id: this.id,
 			 	operator: this.operator,

@@ -1,4 +1,4 @@
-import { User } from "./User";
+import { UserPreview, User } from "./User";
 
 export interface Message {
 	date: number;
@@ -17,7 +17,7 @@ export interface ChatRoom {
 	type: ChatTypes;
 	name: string;
 	visible: boolean;
-	users: Array<number>;
+	users: Array<UserPreview>;
 	operator?: number;
 	messages: Array<Message>;
 }

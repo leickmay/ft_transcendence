@@ -1,4 +1,5 @@
 import { ChatTypes, Message } from "../../interfaces/Chat";
+import { UserPreview } from "../../interfaces/User";
 import { Packet } from "../packetTypes";
 
 export interface PacketPlayInChatCommand extends Packet {
@@ -18,7 +19,7 @@ export interface PacketPlayInChatRoomCreate extends Packet {
 	name: string;
 	visible: boolean;
 	operator?: number;
-	users: number[];
+	users: Array<UserPreview>;
 }
 
 export interface PacketPlayInChatJoin extends Packet {
@@ -27,7 +28,7 @@ export interface PacketPlayInChatJoin extends Packet {
 		name: string,
 		type: ChatTypes,
 		visible: boolean,
-		users: Array<number>,
+		users: Array<UserPreview>,
 		operator?: number,
 	};
 }
@@ -45,7 +46,7 @@ export interface PacketPlayInChatInit extends Packet {
 		name: string,
 		type: ChatTypes,
 		visible: boolean,
-		users: Array<number>,
+		users: Array<UserPreview>,
 		operator?: number,
 	}>;
 }
@@ -56,7 +57,7 @@ export interface PacketPlayInChatDel extends Packet {
 		name: string,
 		type: ChatTypes,
 		visible: boolean,
-		users: Array<number>,
+		users: Array<UserPreview>,
 		operator?: number,
 	};
 }

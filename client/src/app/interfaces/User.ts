@@ -9,7 +9,7 @@ export interface User {
 export interface UserPreview {
 	id: number;
 	login: string;
-	name: string;
+	name?: string;
 }
 
 export type UpdateUserDto = Partial<User> & { id: number };
