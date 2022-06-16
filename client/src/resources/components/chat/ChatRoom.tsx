@@ -67,7 +67,7 @@ const ChatCurrentRoom = () => {
 				value={newMessage}
 				placeholder='Type your message...'
 				onChange={event => {
-					if (event.target.value.length < 256)
+					if (event.target.value !== '\n' && event.target.value.length < 256)
 						setNewMessage(event.target.value)
 					else {
 						event.target.value = newMessage;

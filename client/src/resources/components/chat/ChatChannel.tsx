@@ -89,7 +89,7 @@ const ChatChannel = () => {
 					value={name}
 					onChange={event => 
 					{
-						if (event.target.value.length < 32)
+						if (event.target.value !== '\n' && event.target.value.length < 32)
 							setName(event.target.value)
 						else
 							event.target.value = name;
@@ -130,7 +130,7 @@ const ChatChannel = () => {
 					placeholder="Password"
 					value={password}
 					onChange={event => {
-						if (event.target.value.length < 256)
+						if (event.target.value !== '\n' && event.target.value.length < 256)
 							setPassword(event.target.value)
 						else
 							event.target.value = name;
