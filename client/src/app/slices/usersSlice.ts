@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { containsUser, UpdateUserDto, User } from '../interfaces/User';
+import { containsUser, UserPreview, UpdateUserDto, User } from '../interfaces/User';
 
 interface State {
 	current?: User;
 	friends: Array<User>;
-	online: Array<number>;
+	online:  Array<UserPreview>;
 }
 
 const initialState: State = {
@@ -72,8 +72,8 @@ const slice = createSlice({
 				],
 			};
 		},
-		addOnlineUser: (state: State, action: PayloadAction<number>): State => {
-			if (state.online.includes(action.payload) || state.current?.id === action.payload)
+		addOnlineUser: (state: State, action: PayloadAction<UserPreview>): State => {
+			if (state.online.find( x => x.id === action.payload.id) || state.current?.id === action.payload.id)
 				return state;
 			return {
 				...state,
@@ -83,11 +83,11 @@ const slice = createSlice({
 				],
 			};
 		},
-		removeOnlineUser: (state: State, action: PayloadAction<number>): State => {
+		removeOnlineUser: (state: State, action: PayloadAction<UserPreview>): State => {
 			return {
 				...state,
 				online: [
-					...state.online.filter(id => id !== action.payload),
+					...state.online.filter(u => u.id !== action.payload.id),
 				],
 			};
 		}

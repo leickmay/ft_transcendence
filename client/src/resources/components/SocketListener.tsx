@@ -1,10 +1,11 @@
-import { AnyAction, Dispatch } from '@reduxjs/toolkit';
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { receiveMessage } from '../../app/actions/messageActions';
 import { SocketContext } from '../../app/context/socket';
 import { ChatRoom, ChatTypes, Command } from '../../app/interfaces/Chat';
 import { User } from '../../app/interfaces/User';
-import { PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatRoomCreate, PacketPlayInChatUp } from '../../app/packets/chat/PacketPlayInChat';
+import { PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOperator, PacketPlayInChatRoomCreate, PacketPlayInChatUp } from '../../app/packets/chat/PacketPlayInChat';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
 import { PacketPlayInStatsUpdate } from '../../app/packets/PacketPlayInStatsUpdate';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
@@ -12,7 +13,7 @@ import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUser
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { Packet, PacketTypesChat, PacketTypesMisc, PacketTypesUser } from '../../app/packets/packetTypes';
-import { addRoom, addUserToRoom, delRoom, leaveRoom, newMessages, setChatRooms } from '../../app/slices/chatSlice';
+import { addRoom, addUserToRoom, delRoom, leaveRoom, setChatRooms, setOperator } from '../../app/slices/chatSlice';
 import { setStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
@@ -27,7 +28,7 @@ export const SocketListener = (props: Props) => {
 	const currentUser = useSelector((state: RootState) => state.users.current);
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
 
-	const dispatch: Dispatch<AnyAction> = useDispatch();
+	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 
 	useEffect(() => {
 		const online = (packet: PacketPlayInUserConnection) => {
@@ -65,6 +66,7 @@ export const SocketListener = (props: Props) => {
 		const commandHandler = async (packet: PacketPlayInChatMessage) => {
 			let cmd = packet.message.text.split(" ", 1);
 			switch (cmd[0]) {
+				// EXIT
 				case "/EXIT": {
 					let user: User | undefined = getUserByLogin(packet.message.from);
 					if (user?.id !== currentUser?.id)
@@ -85,6 +87,26 @@ export const SocketListener = (props: Props) => {
 					}
 					break;
 				}
+				// OPERATOR login
+				case "/OPERATOR": {
+					break;
+				}
+				// PASSWORD *****
+				case "/PASSWORD": {
+					break;
+				}
+				// BAN login
+				case "/BAN": {
+					break;
+				}
+				// MUTE login
+				case "/MUTE": {
+					break;
+				}
+				//BLOCK login
+				case "/BLOCK": {
+					break;
+				}
 				default:
 					break;
 			}
@@ -92,7 +114,7 @@ export const SocketListener = (props: Props) => {
 		const messageHandler = async (packet: PacketPlayInChatMessage) => {
 			if (packet.message.cmd)
 				commandHandler(packet);
-			dispatch(newMessages(packet));
+			dispatch(receiveMessage(packet));
 		};
 		const createHandler = async (packet: PacketPlayInChatRoomCreate) => {
 			dispatch(addRoom(packet))
@@ -110,6 +132,9 @@ export const SocketListener = (props: Props) => {
 		};
 		const delHandler = async (packet: PacketPlayInChatDel) => {
 			dispatch(delRoom(packet.room as ChatRoom));
+		};
+		const operatorHandler = async (packet: PacketPlayInChatOperator) => {
+			dispatch(setOperator(packet));
 		};
 
 		socket?.off('stats').on('stats', (packet: Packet) => {
@@ -145,6 +170,10 @@ export const SocketListener = (props: Props) => {
 				}
 				case PacketTypesChat.DEL: {
 					delHandler(packet as PacketPlayInChatDel);
+					break;
+				}
+				case PacketTypesChat.OPERATOR: {
+					operatorHandler(packet as PacketPlayInChatOperator);
 					break;
 				}
 				default: {

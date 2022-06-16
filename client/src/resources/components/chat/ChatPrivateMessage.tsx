@@ -13,11 +13,11 @@ export const switchConfigPrivMsg = () => {
 
 const ChatPrivateMessage = () => {
 	const socket = useContext(SocketContext);
-	const friends = useSelector((state: RootState) => state.users.friends);
+	const onlineUsers = useSelector((state: RootState) => state.users.online);
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
 
 	const hasAlreadyPrivMsg = (userId: number): boolean => {
-		return !rooms?.find(r => r.type === ChatTypes.PRIVATE_MESSAGE && r.users.find(u => u === userId));
+		return !rooms?.find(r => r.type === ChatTypes.PRIVATE_MESSAGE && r.users.find(u => u.id === userId));
 	}
 
 	const createPrivateMessage = (id: number) => {
@@ -37,9 +37,9 @@ const ChatPrivateMessage = () => {
 					switchConfigPrivMsg();
 				}}
 			>..</button>
-			<h2>Friends</h2>
+			<h2>Online Players</h2>
 			{
-				friends
+				onlineUsers
 					.filter(u => hasAlreadyPrivMsg(u.id))
 					.map((value, index) => {
 					return (

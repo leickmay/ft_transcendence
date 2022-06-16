@@ -3,6 +3,11 @@ import { Socket } from 'socket.io';
 import { Image } from 'src/images/image.entity';
 import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn, RelationId } from 'typeorm';
 
+export interface UserPreview {
+	id: number;
+	login: string;
+}
+
 @Exclude()
 @Entity()
 export class User extends BaseEntity {

@@ -31,7 +31,7 @@ export const ChatNavigation = () => {
 				{
 					rooms
 						?.filter((x) => x.type === ChatTypes.CHANNEL)
-						.filter((x) => x.name === "World Random" || x.users.find(u => u === user?.id))
+						.filter((x) => x.name === "World Random" || x.users.find(u => u.id === user?.id))
 						.map((value, index) => {
 							return (
 								<div onClick={() => {store.dispatch(setCurrentRooms(value.id))}} key={index}>
