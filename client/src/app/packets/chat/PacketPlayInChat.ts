@@ -60,3 +60,11 @@ export interface PacketPlayInChatDel extends Packet {
 		operator?: number,
 	};
 }
+
+export interface PacketPlayInChatOperator extends Packet {
+	room: {
+		id: string,
+		operator: number,
+	};
+}
+

@@ -5,7 +5,7 @@ import { receiveMessage } from '../../app/actions/messageActions';
 import { SocketContext } from '../../app/context/socket';
 import { ChatRoom, ChatTypes, Command } from '../../app/interfaces/Chat';
 import { User } from '../../app/interfaces/User';
-import { PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatRoomCreate, PacketPlayInChatUp } from '../../app/packets/chat/PacketPlayInChat';
+import { PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOperator, PacketPlayInChatRoomCreate, PacketPlayInChatUp } from '../../app/packets/chat/PacketPlayInChat';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
 import { PacketPlayInStatsUpdate } from '../../app/packets/PacketPlayInStatsUpdate';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
@@ -13,7 +13,7 @@ import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUser
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { Packet, PacketTypesChat, PacketTypesMisc, PacketTypesUser } from '../../app/packets/packetTypes';
-import { addRoom, addUserToRoom, delRoom, leaveRoom, setChatRooms } from '../../app/slices/chatSlice';
+import { addRoom, addUserToRoom, delRoom, leaveRoom, setChatRooms, setOperator } from '../../app/slices/chatSlice';
 import { setStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
@@ -112,6 +112,9 @@ export const SocketListener = (props: Props) => {
 		const delHandler = async (packet: PacketPlayInChatDel) => {
 			dispatch(delRoom(packet.room as ChatRoom));
 		};
+		const operatorHandler = async (packet: PacketPlayInChatOperator) => {
+			dispatch(setOperator(packet));
+		};
 
 		socket?.off('stats').on('stats', (packet: Packet) => {
 			if (packet.packet_id === PacketTypesMisc.STATS_UPDATE)
@@ -146,6 +149,10 @@ export const SocketListener = (props: Props) => {
 				}
 				case PacketTypesChat.DEL: {
 					delHandler(packet as PacketPlayInChatDel);
+					break;
+				}
+				case PacketTypesChat.OPERATOR: {
+					operatorHandler(packet as PacketPlayInChatOperator);
 					break;
 				}
 				default: {

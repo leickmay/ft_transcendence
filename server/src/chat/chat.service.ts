@@ -5,7 +5,6 @@ import { PacketPlayOutChatCreate, PacketPlayOutChatDel, PacketPlayOutChatInit, P
 import { PacketTypesChat, Packet } from "src/socket/packets/packetTypes";
 import { User } from "src/user/user.entity";
 import { ChatTypes, ChatRoom } from "./chat.interface";
-import { Socket } from 'socket.io';
 import { EventsService } from "src/socket/events.service";
 
 @Injectable()

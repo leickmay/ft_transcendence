@@ -21,6 +21,7 @@ export enum PacketTypesChat {
 	UP,
 	INIT,
 	DEL,
+	OPERATOR,
 }
 
 export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat;

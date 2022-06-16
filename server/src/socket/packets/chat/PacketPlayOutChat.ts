@@ -71,3 +71,13 @@ export class PacketPlayOutChatDel {
 		},
 	) {}
 }
+
+@DeclarePacket(PacketTypesChat.OPERATOR)
+export class PacketPlayOutChatOperator {
+	constructor(
+		public room: {
+			id: string,
+			operator: number,
+		},
+	) {}
+}

@@ -1,5 +1,5 @@
 import { Exclude, Expose, Transform } from "class-transformer";
-import { PacketPlayOutChatMessage } from "src/socket/packets/chat/PacketPlayOutChat";
+import { PacketPlayOutChatMessage, PacketPlayOutChatOperator } from "src/socket/packets/chat/PacketPlayOutChat";
 import { User } from "src/user/user.entity";
 
 export interface Message {
@@ -69,7 +69,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		if (!this.isPresent(user.id))
 			this.users.push(user.id);
 
-		console.log("JOIN "+ this.id);
+		console.log("(" + user.login + ")"+ " JOIN " + this.id);
 		user.socket?.join(this.id);
 		return true;
 	}
@@ -82,11 +82,18 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	
 		this.users = this.users.filter(x => x !== user.id);
 
-		if (this.operator === user.id)
+		if (this.operator === user.id && this.users.length > 0) {
 			this.operator = this.users[0];
+			let room = new PacketPlayOutChatOperator({
+				id: this.id,
+			 	operator: this.operator,
+			})
+			user.socket?.emit('chat', room);
+			user.socket?.to(this.id).emit('chat', room);
+		}
 
 		user.socket?.leave(this.id);
-		console.log(user.login + " leave : " + this.name);
+		console.log("(" + user.login + ")"+ " LEAVE " + this.id);
 		return true;
 	}
 
@@ -97,6 +104,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 			text: text,
 			cmd: false,
 		};
+		console.log("(" + sender.login + ")"+ " MESSAGE " + this.id);
 		sender.socket?.emit('chat', new PacketPlayOutChatMessage(this.id, message));
 		sender.socket?.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
 	}
@@ -108,6 +116,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 			text: text,
 			cmd: true,
 		};
+		console.log("(" + sender.login + ")"+ " COMMAND " + this.id);
 		sender.socket?.emit('chat', new PacketPlayOutChatMessage(this.id, message));
 		sender.socket?.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
 	}
