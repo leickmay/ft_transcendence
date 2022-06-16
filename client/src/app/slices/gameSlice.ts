@@ -31,8 +31,9 @@ const slice = createSlice({
 		updateGame: (state: State, action: PayloadAction<Partial<State>>): void => {
 			Object.assign(state, action.payload);
 		},
+		resetGame: () => initialState,
 	}
 });
 
-export const { updateGame } = slice.actions;
+export const { updateGame, resetGame } = slice.actions;
 export default slice.reducer;

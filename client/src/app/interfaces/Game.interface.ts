@@ -36,8 +36,10 @@ export interface Spectator {
 }
 
 export interface Ball extends Entity {
+	id: number,
 	size: number;
-	dir: number;
+	speed: number;
+	direction: { x: number, y: number };
 }
 
 export enum GameStatus {

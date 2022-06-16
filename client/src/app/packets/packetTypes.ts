@@ -23,25 +23,28 @@ export enum PacketTypesChat {
     DELETE,
 }
 
+export enum PacketTypesGame {
+	INIT = 401,
+	MATCHMAKING,
+	UPDATE,
+	DESTROY,
+	STARTING,
+	START,
+}
+
 export enum PacketTypesPlayer {
-	JOIN = 401,
+	JOIN = 411,
 	READY,
 	MOVE,
 	TELEPORT,
 	LIST,
 }
 
-export enum PacketTypesGame {
-	INIT = 501,
-	MATCHMAKING,
-	UPDATE,
-	DESTROY,
-	BALL_MOVE,
-	STARTING,
-	START,
+export enum PacketTypesBall {
+	UPDATE = 421,
 }
 
-export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat | PacketTypesPlayer | PacketTypesGame;
+export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat | PacketTypesGame | PacketTypesPlayer | PacketTypesBall;
 
 export interface Packet {
 	packet_id: PacketTypes;

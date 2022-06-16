@@ -1,6 +1,6 @@
 import { Exclude, Expose, instanceToPlain } from "class-transformer";
 import { Server } from "socket.io";
-import { PacketPlayOutGameBallMove } from "src/socket/packets/PacketPlayOutGameBallMove";
+import { PacketPlayOutBallUpdate } from "src/socket/packets/PacketPlayOutBallUpdate";
 import { PacketPlayOutGameUpdate } from "src/socket/packets/PacketPlayOutGameUpdate";
 import { PacketPlayOutPlayerJoin } from "src/socket/packets/PacketPlayOutPlayerJoin";
 import { PacketPlayOutPlayerList } from "src/socket/packets/PacketPlayOutPlayerList";
@@ -48,7 +48,7 @@ export class Room {
 	private tick = 0;
 
 	@Expose()
-	readonly tps = 20;
+	readonly tps = 30;
 	@Expose()
 	readonly height: number = 1080;
 	@Expose()
@@ -65,12 +65,17 @@ export class Room {
 	@Expose()
 	status: GameStatus = GameStatus.WAITING;
 
+	private currentBallId = 0;
 	players: Array<Player> = [];
-	readonly balls: Array<Ball> = [];
+	balls: Array<Ball> = [];
 	spectators: Array<Spectator> = [];
 
 	@Expose()
 	maxScore: number = 5;
+
+	get nextBallId() {
+		return ++this.currentBallId;
+	}
 
 	constructor(private readonly server: Server) {
 		this.id = ++Room.current;
@@ -114,20 +119,21 @@ export class Room {
 			this.broadcast(new PacketPlayOutGameUpdate({
 				status: GameStatus.RUNNING,
 			}));
+			this.balls.push(new Ball(this, 12, 50));
 			this.gameInterval = setInterval(this.loop, 1000 / this.tps);
 			// this.balls.push(new Ball(this.balls.length, this, 75, 8));
 		}, 5000);
 	}
 
 	private loop = (): void => {
-		this.balls.forEach(ball => {
-			if (ball.willCollideVertical())
-				ball.y *= -1;
-			ball.move();
-		});
 		for (const player of this.players) {
 			player.move();
 			player.sendUpdate();
+		}
+		for (const ball of this.balls) {
+			if (ball.willCollideVertical())
+				ball.y *= -1;
+			ball.move();
 		}
 		++this.tick;
 	}
@@ -223,17 +229,25 @@ export class Player implements Entity {
 }
 
 export class Ball implements Entity {
+	id: number;
+	room: Room;
+	size: number;
+	speed: number;
 	x: number;
 	y: number;
-	direction: [number, number];
+	direction: { x: number, y: number };
 
-	constructor(
-		public id: number,
-		public room: Room,
-		public size: number,
-		public speed: number,
-	) {
+	constructor(room: Room, size: number, speed: number) {
+		this.id = room.nextBallId,
+		this.room = room,
+		this.size = size,
+		this.speed = speed,
 		this.resetLocation();
+		this.update();
+	}
+
+	update() {
+		this.room.broadcast(new PacketPlayOutBallUpdate(this.id, this.direction, this.size, this.speed, this.x, this.y));
 	}
 
 	resetLocation(): void {
@@ -244,10 +258,10 @@ export class Ball implements Entity {
 
 	setDirection(x: number, y: number): void {
 		if (x == 0 && y == 0) {
-			this.direction = [Math.floor(Math.random() * 2) === 0 ? -1 : 1, 0];
+			this.direction = { x: Math.floor(Math.random() * 2) === 0 ? -1 : 1, y: 0 };
 		} else {
 			let mag = Math.sqrt(x ** 2 + y ** 2);
-			this.direction = [x / mag, y / mag];
+			this.direction = { x: x / mag, y: y / mag };
 		}
 	}
 
@@ -263,6 +277,5 @@ export class Ball implements Entity {
 			this.x += this.direction[0] * this.speed;
 			this.y += this.direction[1] * this.speed;
 		}
-		this.room.broadcast(new PacketPlayOutGameBallMove(this.id, this.size, this.x, this.y, this.direction[0]));
 	}
 }

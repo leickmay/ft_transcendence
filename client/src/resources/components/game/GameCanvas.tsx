@@ -1,22 +1,19 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { GameContext } from '../../../app/context/GameContext';
 import { useAnimationFrame } from '../../../app/Helpers';
 import { Directions } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
+import backgroundUrl from '../../../assets/images/game-background.png';
+import ballUrl from '../../../assets/images/ball.png';
+import paddleUrl from '../../../assets/images/paddles.png';
 
-let backgroundImg: HTMLImageElement = new Image();
-backgroundImg.src = './assets/images/background.png';
-
-// let ballImg: HTMLImageElement = new Image();
-// const ballSize: number = 266;
-// ballImg.src = './assets/images/ballSheet.png';
-
-const spriteUrl = '/assets/images/paddles.png';
 const spriteWidth: number = 110;
 const spriteHeight: number = 450;
-let paddleImg: HTMLImageElement = new Image();
-paddleImg.src = spriteUrl;
+
+const backgroundImg = new Image(); backgroundImg.src = backgroundUrl;
+const ballImg = new Image(); ballImg.src = ballUrl;
+const paddleImg = new Image(); paddleImg.src = paddleUrl;
 
 interface Props {
 }
@@ -24,8 +21,9 @@ interface Props {
 export const GameCanvas = (props: Props) => {
 	const game = useSelector((state: RootState) => state.game);
 	const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
-
 	const {players, balls} = useContext(GameContext);
+	const tick = useRef<number>(0);
+	const drawTick = useRef<number>(0);
 
 	let canvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
 		if (canvas !== null)
@@ -38,8 +36,19 @@ export const GameCanvas = (props: Props) => {
 	// 	players.current = game.players.map(p => ({ ...p }));
 	// }, [game.players]);
 
+	const drawImage = useCallback((image: HTMLImageElement, x: number, y: number, dw: number, dh: number, rotation: number) => {
+		ctx!.save();
+		ctx!.setTransform(1, 0, 0, 1, x, y);
+		ctx!.rotate(rotation);
+		// ctx!.strokeText("hey", x, y);
+		ctx!.drawImage(image, -dw / 2, -dh / 2, dw, dh);
+		ctx!.restore();
+	}, [ctx]);
+
 	useAnimationFrame((delta) => {
 		if (ctx) {
+			++drawTick.current;
+
 			const stepsPerTick = (1000 / game.tps) / delta;
 
 			ctx.drawImage(backgroundImg, 0, 0, game.width, game.height);
@@ -56,10 +65,14 @@ export const GameCanvas = (props: Props) => {
 				}
 				player.screenY = Math.max(Math.min(player.screenY, game.height - player.height), 0);
 
+				ctx.strokeStyle = players[0] === player ? 'red' : 'blue';
+				ctx.lineWidth = 4;
+				ctx.strokeRect(player.x, player.y, player.width, player.height);
+
 				ctx.drawImage(paddleImg, player.direction * spriteWidth, player.side * spriteHeight, spriteWidth, spriteHeight, player.x, player.screenY, player.width, player.height);
 			}
-			// for (const ball of balls)
-			// 	ctx.drawImage(ballImg, ballSx, ballSy, ballSize, ballSize, ball.x, ball.y, ball.size, ball.size);
+			for (const ball of balls)
+				drawImage(ballImg, ball.x, ball.y, ball.size, ball.size, ((drawTick.current * 8) % 360) * Math.PI / 180);
 
 			ctx.textAlign = 'right';
 			ctx.font = "30px monospace";
@@ -67,31 +80,31 @@ export const GameCanvas = (props: Props) => {
 			ctx.fillStyle = "#ffffff55";
 			ctx.fillText(Math.round(1000 / delta) + 'fps', game.width, 0);
 		}
-	}, [ctx, players]);
+	}, [ctx, players, drawImage]);
 
-	useEffect(() => {
-		const loop = () => {
-			players.forEach(p => {
-				if (p.direction === Directions.UP)
-					p.y -= p.speed;
-				else if (p.direction === Directions.DOWN)
-					p.y += p.speed;
+	// useEffect(() => {
+	// 	const loop = () => {
+	// 		players.forEach(p => {
+	// 			if (p.direction === Directions.UP)
+	// 				p.y -= p.speed;
+	// 			else if (p.direction === Directions.DOWN)
+	// 				p.y += p.speed;
 
-				// // TEST
-				// if (p.direction === Directions.STATIC)
-				// 	p.direction = Directions.UP;
-				// if (p.y <= 0)
-				// 	p.direction = Directions.DOWN;
-				// if (p.y + p.height >= 1080)
-				// 	p.direction = Directions.UP;
-			});
-		}
+	// 			// // TEST
+	// 			// if (p.direction === Directions.STATIC)
+	// 			// 	p.direction = Directions.UP;
+	// 			// if (p.y <= 0)
+	// 			// 	p.direction = Directions.DOWN;
+	// 			// if (p.y + p.height >= 1080)
+	// 			// 	p.direction = Directions.UP;
+	// 		});
+	// 	}
 
-		const intervalId = setInterval(loop, gameInterval);
-		return (() => {
-			clearInterval(intervalId);
-		});
-	}, [players, gameInterval]);
+	// 	const intervalId = setInterval(loop, gameInterval);
+	// 	return (() => {
+	// 		clearInterval(intervalId);
+	// 	});
+	// }, [players, gameInterval]);
 
 	return (
 		<canvas className='border-neon-primary' ref={canvasRef} height={game.height} width={game.width}></canvas>

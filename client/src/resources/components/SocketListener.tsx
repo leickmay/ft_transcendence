@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GameContext } from '../../app/context/GameContext';
 import { SocketContext } from '../../app/context/SocketContext';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
+import { PacketPlayInGameBallMove as PacketPlayInGameBallUpdate } from '../../app/packets/PacketPlayInGameBallUpdate';
 import { PacketPlayInGameUpdate } from '../../app/packets/PacketPlayInGameUpdate';
 import { PacketPlayInPlayerJoin } from '../../app/packets/PacketPlayInPlayerJoin';
 import { PacketPlayInPlayerList } from '../../app/packets/PacketPlayInPlayerList';
@@ -14,7 +15,7 @@ import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserCo
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
-import { Packet, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
+import { Packet, PacketTypesBall, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
 import { updateGame } from '../../app/slices/gameSlice';
 import { setStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
@@ -24,7 +25,7 @@ interface Props { }
 
 export const SocketListener = (props: Props) => {
 	const socket = useContext(SocketContext);
-	const {players, setPlayers} = useContext(GameContext);
+	const {players, setPlayers, balls} = useContext(GameContext);
 	const ready = useSelector((state: RootState) => state.socket.ready);
 
 	const dispatch = useDispatch();
@@ -93,6 +94,14 @@ export const SocketListener = (props: Props) => {
 		}
 	}, [players]);
 
+	const ballUpdate = useCallback((packet: PacketPlayInGameBallUpdate) => {
+		let ball = balls.find(b => b.id === packet.ball);
+
+		if (ball) {
+			// TODO
+		}
+	}, [balls]);
+
 	useEffect(() => {
 		socket?.off('game').on('game', (packet: Packet): void => {
 			const gameUpdate = (packet: PacketPlayInGameUpdate) => {
@@ -139,6 +148,9 @@ export const SocketListener = (props: Props) => {
 					break;
 				case PacketTypesPlayer.TELEPORT:
 					playerTeleport(packet as PacketPlayInPlayerTeleport);
+					break;
+				case PacketTypesBall.UPDATE:
+					ballUpdate(packet as PacketPlayInPlayerTeleport);
 					break;
 				default:
 					break;
