@@ -66,6 +66,7 @@ export const SocketListener = (props: Props) => {
 		const commandHandler = async (packet: PacketPlayInChatMessage) => {
 			let cmd = packet.message.text.split(" ", 1);
 			switch (cmd[0]) {
+				// EXIT
 				case "/EXIT": {
 					let user: User | undefined = getUserByLogin(packet.message.from);
 					if (user?.id !== currentUser?.id)
@@ -84,6 +85,26 @@ export const SocketListener = (props: Props) => {
 							dispatch(delRoom(room));
 						}
 					}
+					break;
+				}
+				// OPERATOR login
+				case "/OPERATOR": {
+					break;
+				}
+				// PASSWORD *****
+				case "/PASSWORD": {
+					break;
+				}
+				// BAN login
+				case "/BAN": {
+					break;
+				}
+				// MUTE login
+				case "/MUTE": {
+					break;
+				}
+				//BLOCK login
+				case "/BLOCK": {
 					break;
 				}
 				default:

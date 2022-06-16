@@ -87,7 +87,13 @@ const ChatChannel = () => {
 					type="text"
 					placeholder="Name"
 					value={name}
-					onChange={event => setName(event.target.value)}
+					onChange={event => 
+					{
+						if (event.target.value.length < 32)
+							setName(event.target.value)
+						else
+							event.target.value = name;
+					}}
 				/>
 				<datalist id="channel-visible">
 					{
@@ -123,7 +129,12 @@ const ChatChannel = () => {
 					type="password"
 					placeholder="Password"
 					value={password}
-					onChange={event => setPassword(event.target.value)}
+					onChange={event => {
+						if (event.target.value.length < 256)
+							setPassword(event.target.value)
+						else
+							event.target.value = name;
+					}}
 					style={{display: "none"}}
 			/>
 			<button

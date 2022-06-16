@@ -82,6 +82,7 @@ export class ChatService {
 
 	async event_command(user: User, room: ChatRoom, command: Array<string>): Promise<boolean> {
 		switch (command[0]) {
+			// EXIT
 			case "/EXIT": {
 				if (room.name === "World Random")
 					return (false);
@@ -93,10 +94,31 @@ export class ChatService {
 				}
 				return true;
 			}
+			// OPERATOR login
+			case "/OPERATOR": {
+				break;
+			}
+			// PASSWORD *****
+			case "/PASSWORD": {
+				break;
+			}
+			// BAN login
+			case "/BAN": {
+				break;
+			}
+			// MUTE login
+			case "/MUTE": {
+				break;
+			}
+			//BLOCK login
+			case "/BLOCK": {
+				break;
+			}
 			default: {
 				return false;
 			}
 		}
+		return true;
 	}
 	async event_message(packet: PacketPlayInChatMessage, user: User): Promise<void> {
 		let room: ChatRoom | undefined = this.rooms.find(x => x.id === packet.room);
