@@ -7,6 +7,7 @@ import { ChatRoom, ChatTypes, Command } from '../../app/interfaces/Chat';
 import { User } from '../../app/interfaces/User';
 import { PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOperator, PacketPlayInChatRoomCreate, PacketPlayInChatUp } from '../../app/packets/chat/PacketPlayInChat';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
+import { PacketPlayInLeaderboard } from '../../app/packets/PacketPlayInLeaderboard';
 import { PacketPlayInStatsUpdate } from '../../app/packets/PacketPlayInStatsUpdate';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
@@ -14,7 +15,8 @@ import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { Packet, PacketTypesChat, PacketTypesMisc, PacketTypesUser } from '../../app/packets/packetTypes';
 import { addRoom, addUserToRoom, delRoom, leaveRoom, setChatRooms, setOperator } from '../../app/slices/chatSlice';
-import { setStats } from '../../app/slices/statsSlice';
+import { setBoard } from '../../app/slices/leaderboardSlice';
+import { setUserStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
 import { getUserByLogin } from '../pages/Chat';
@@ -49,7 +51,11 @@ export const SocketListener = (props: Props) => {
 		}
 
 		const stats = (packet: PacketPlayInStatsUpdate) => {
-			dispatch(setStats(packet.stats));
+			dispatch(setUserStats(packet));
+		}
+
+		const board = (packet: PacketPlayInLeaderboard) => {
+			dispatch(setBoard(packet.users));
 		}
 
 		socket?.off('user').on('user', (packet: Packet) => {
@@ -140,6 +146,8 @@ export const SocketListener = (props: Props) => {
 		socket?.off('stats').on('stats', (packet: Packet) => {
 			if (packet.packet_id === PacketTypesMisc.STATS_UPDATE)
 				stats(packet as PacketPlayInStatsUpdate);
+			if (packet.packet_id === PacketTypesMisc.LEADERBOARD)
+				board(packet as PacketPlayInLeaderboard);
 		});
 
 		socket?.off('chat').on('chat', (packet: Packet) => {

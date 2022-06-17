@@ -13,11 +13,6 @@ export const Statistics = () => {
 	const socket = useContext(SocketContext);
 	const stats = useSelector((state: RootState) => state.stats)
 	const users = useSelector((state: RootState) => state.users);
-	//const [reloadVar, setReloadVar] = useState(0);
-
-	//useEffect(() => {
-	//	setReloadVar(value => value + 1);
-	//}, [stats])
 
 	const DoughnutData = {
 		labels: ['Won', 'Lost'],
@@ -39,13 +34,13 @@ export const Statistics = () => {
 	  };
 
 	const debugWin = () => {
-		socket?.emit("stats", new PacketPlayOutStatsUpdate(1, 1, 2, users.current!.id));
-		socket?.emit("stats", new PacketPlayOutStatsUpdate(1, 2, 1, users.current!.id));
+		socket?.emit("stats", new PacketPlayOutStatsUpdate(1, 1, 2));
+		socket?.emit("stats", new PacketPlayOutStatsUpdate(1, 2, 1));
 	}
 
 	const debugLose = () => {
-		socket?.emit("stats", new PacketPlayOutStatsUpdate(2, 1, 2,users.current!.id));
-		socket?.emit("stats", new PacketPlayOutStatsUpdate(2, 2, 1,users.current!.id));
+		socket?.emit("stats", new PacketPlayOutStatsUpdate(2, 1, 2));
+		socket?.emit("stats", new PacketPlayOutStatsUpdate(2, 2, 1));
 	}
 
 
