@@ -37,7 +37,7 @@ export const Leaderboard = () => {
 						<button onClick={() => request('won')}>Match Won</button>
 					</th>
 					<th>
-					<button onClick={() => request('level')}>Level</button>
+						<button onClick={() => request('level')}>Level</button>
 					</th>
 				</tr>
 				{list}
