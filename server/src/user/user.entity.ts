@@ -72,4 +72,17 @@ export class User extends BaseEntity {
 	send(event: string, packet: any) {
 		this.socket?.emit(event, packet);
 	}
+
+	@Expose()
+	@Column({ nullable: true })
+	matchWon: number;
+
+	@Expose()
+	@Column({ nullable: true })
+	nbMatch: number;
+
+	@Expose()
+	@Column({ default: 0 })
+	xp: number;
+
 }

@@ -1,6 +1,8 @@
-import { MatchResult, UserStats } from "../interfaces/Stats";
+import { MatchResult } from "../interfaces/Stats";
 import { Packet } from "./packetTypes";
 
 export interface PacketPlayInStatsUpdate extends Packet {
-	stats: UserStats;
+	nbMatchs: number,
+	matchWon: number,
+	history: Array<MatchResult>,
 }

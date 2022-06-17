@@ -1,7 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { UserStats } from "../interfaces/Stats";
+import { MatchResult } from "../interfaces/Stats";
 
-interface State extends UserStats {
+interface State {
+	nbMatchs: number,
+	matchWon: number,
+	history: Array<MatchResult>,
 }
 
 const initialState: State = {
@@ -13,8 +16,8 @@ const initialState: State = {
 const slice = createSlice({
 	name: 'stats',
 	initialState,
-	reducers : {
-		setStats: (state: State, action: PayloadAction<UserStats>) : State => {
+	reducers: {
+		setUserStats: (state: State, action: PayloadAction<State>): State => {
 			return {
 				...state,
 				...action.payload,
@@ -23,5 +26,6 @@ const slice = createSlice({
 	}
 });
 
-export const {setStats} = slice.actions;
+export const { setUserStats } = slice.actions;
 export default slice.reducer;
+
