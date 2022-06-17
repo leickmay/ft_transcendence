@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import chatSlice from './slices/chatSlice';
+import leaderboardSlice from './slices/leaderboardSlice';
 import notificationsSlice from './slices/notificationsSlice';
 import socketSlice from './slices/socketSlice';
 import statsSlice from './slices/statsSlice';
@@ -12,6 +13,7 @@ const store = configureStore({
 		socket: socketSlice,
 		users: usersSlice,
 		stats: statsSlice,
+		board: leaderboardSlice,
 	},
 });
 

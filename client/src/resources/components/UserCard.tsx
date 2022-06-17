@@ -22,7 +22,7 @@ export const UserCard = (props: Props) => {
 			<img src={user?.avatar || 'https://cdn.intra.42.fr/users/scros.jpg'} width="75px" height="75px" alt=""></img>
 			<div>
 				<h4>{ user?.name || '...' }</h4>
-				<h5>lvl { /*user.level */ 0 }</h5>
+				<h5>lvl {user ? Math.floor(user.xp / 100) : 0}</h5>
 				{/* To change */}
 				<div className="btn" onClick={() => {logout(removeCookie, navigate, socket)}}></div>
 			</div>
