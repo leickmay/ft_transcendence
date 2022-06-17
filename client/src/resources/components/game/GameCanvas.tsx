@@ -21,7 +21,7 @@ interface Props {
 export const GameCanvas = (props: Props) => {
 	const game = useSelector((state: RootState) => state.game);
 	const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
-	const {players, balls} = useContext(GameContext);
+	const { players, balls } = useContext(GameContext);
 	const tick = useRef<number>(0);
 	const drawTick = useRef<number>(0);
 
@@ -40,7 +40,6 @@ export const GameCanvas = (props: Props) => {
 		ctx!.save();
 		ctx!.setTransform(1, 0, 0, 1, x, y);
 		ctx!.rotate(rotation);
-		// ctx!.strokeText("hey", x, y);
 		ctx!.drawImage(image, -dw / 2, -dh / 2, dw, dh);
 		ctx!.restore();
 	}, [ctx]);
@@ -67,12 +66,27 @@ export const GameCanvas = (props: Props) => {
 
 				ctx.strokeStyle = players[0] === player ? 'red' : 'blue';
 				ctx.lineWidth = 4;
-				ctx.strokeRect(player.x, player.y, player.width, player.height);
+				// ctx.strokeRect(player.x, player.y, player.width, player.height);
 
 				ctx.drawImage(paddleImg, player.direction * spriteWidth, player.side * spriteHeight, spriteWidth, spriteHeight, player.x, player.screenY, player.width, player.height);
 			}
-			for (const ball of balls)
-				drawImage(ballImg, ball.x, ball.y, ball.size, ball.size, ((drawTick.current * 8) % 360) * Math.PI / 180);
+			for (const ball of balls) {
+				let diff = Math.abs(Math.sqrt((ball.screenX - ball.x) ** 2 + (ball.screenY - ball.y) ** 2));
+				if (diff > ball.speed * 2) {
+					ball.screenX = ball.x;
+					ball.screenY = ball.y;
+				} else {
+					let len = (ball.speed * (stepsPerTick - 1) + diff) / (stepsPerTick ** 2);
+					ball.screenX += len * ball.direction.x;
+					ball.screenY += len * ball.direction.y;
+				}
+				ball.screenY = Math.max(Math.min(ball.screenY, game.height - ball.size / 2), 0);
+				drawImage(ballImg, ball.screenX, ball.screenY, ball.size, ball.size, ((drawTick.current * (ball.speed / 10)) % 360) * Math.PI / 180);
+
+				ctx.strokeStyle = 'green';
+				ctx.lineWidth = 4;
+				// ctx.strokeRect(ball.x - ball.size / 2, ball.y - ball.size / 2, ball.size, ball.size);
+			}
 
 			ctx.textAlign = 'right';
 			ctx.font = "30px monospace";

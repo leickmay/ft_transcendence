@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { instanceToPlain } from 'class-transformer';
 import { EventsService } from 'src/socket/events.service';
 import { PacketPlayInFriend } from 'src/socket/packets/PacketPlayInFriend';
-import { PacketPlayInOptionUpdate } from 'src/socket/packets/PacketPlayInOptionUpdate';
+import { PacketPlayInOptionUpdate as PacketPlayInUserUpdate } from 'src/socket/packets/PacketPlayInOptionUpdate';
 import { PacketPlayInTotp } from 'src/socket/packets/PacketPlayInTotp';
 import { PacketPlayOutFriendsUpdate } from 'src/socket/packets/PacketPlayOutFriendsUpdate';
 import { PacketPlayOutUserUpdate } from 'src/socket/packets/PacketPlayOutUserUpdate';
@@ -23,7 +23,7 @@ export class OptionsService {
 	dispatch(packet: Packet, user: User): void {
 		switch (packet.packet_id) {
 			case PacketTypesUser.UPDATE:
-				this.optionHandler(packet as PacketPlayInOptionUpdate, user);
+				this.optionHandler(packet as PacketPlayInUserUpdate, user);
 				break;
 			case PacketTypesMisc.TOTP:				
 				this.totpHandler(packet as PacketPlayInTotp, user);
@@ -34,7 +34,7 @@ export class OptionsService {
 		}
 	}
 
-	async optionHandler(packet: PacketPlayInOptionUpdate, user: User): Promise<void> {
+	async optionHandler(packet: PacketPlayInUserUpdate, user: User): Promise<void> {
 		let validated: Partial<User> = {};
 		if (typeof packet.options['name'] === 'string') {
 			let name: string = packet.options['name'];

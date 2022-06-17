@@ -40,6 +40,10 @@ export interface Ball extends Entity {
 	size: number;
 	speed: number;
 	direction: { x: number, y: number };
+
+	// Local only
+	screenX: number;
+	screenY: number;
 }
 
 export enum GameStatus {

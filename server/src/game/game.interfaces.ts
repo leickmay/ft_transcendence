@@ -119,7 +119,11 @@ export class Room {
 			this.broadcast(new PacketPlayOutGameUpdate({
 				status: GameStatus.RUNNING,
 			}));
-			this.balls.push(new Ball(this, 12, 50));
+
+			let b = new Ball(this, 70, 30);
+			b.setDirection(1, 1);
+			this.balls.push(b);
+
 			this.gameInterval = setInterval(this.loop, 1000 / this.tps);
 			// this.balls.push(new Ball(this.balls.length, this, 75, 8));
 		}, 5000);
@@ -132,8 +136,9 @@ export class Room {
 		}
 		for (const ball of this.balls) {
 			if (ball.willCollideVertical())
-				ball.y *= -1;
+				ball.setDirection(ball.direction.x, -ball.direction.y);
 			ball.move();
+			ball.sendUpdate();
 		}
 		++this.tick;
 	}
@@ -238,15 +243,15 @@ export class Ball implements Entity {
 	direction: { x: number, y: number };
 
 	constructor(room: Room, size: number, speed: number) {
-		this.id = room.nextBallId,
-		this.room = room,
-		this.size = size,
-		this.speed = speed,
+		this.id = room.nextBallId;
+		this.room = room;
+		this.size = size;
+		this.speed = speed;
 		this.resetLocation();
-		this.update();
+		this.sendUpdate();
 	}
 
-	update() {
+	sendUpdate() {
 		this.room.broadcast(new PacketPlayOutBallUpdate(this.id, this.direction, this.size, this.speed, this.x, this.y));
 	}
 
@@ -258,7 +263,7 @@ export class Ball implements Entity {
 
 	setDirection(x: number, y: number): void {
 		if (x == 0 && y == 0) {
-			this.direction = { x: Math.floor(Math.random() * 2) === 0 ? -1 : 1, y: 0 };
+			this.direction = { x: Math.floor(Math.random() * 2) === 0 ? -1 : 1, y: 1 };
 		} else {
 			let mag = Math.sqrt(x ** 2 + y ** 2);
 			this.direction = { x: x / mag, y: y / mag };
@@ -266,16 +271,16 @@ export class Ball implements Entity {
 	}
 
 	willCollideVertical(): boolean {
-		let nextY = this.y + (this.direction[0] * this.speed);
+		let nextY = this.y + (this.direction.y * this.speed);
 		return nextY < 0 || nextY > this.room.height;
 	}
 
 	move() {
-		if (this.x < 0 - this.size || this.x > this.room.width + this.size) {
+		if (this.x < -this.size || this.x > this.room.width + this.size) {
 			this.resetLocation();
 		} else {
-			this.x += this.direction[0] * this.speed;
-			this.y += this.direction[1] * this.speed;
+			this.x += this.direction.x * this.speed;
+			this.y += this.direction.y * this.speed;
 		}
 	}
 }
