@@ -48,7 +48,7 @@ export class Room {
 	private tick = 0;
 
 	@Expose()
-	readonly tps = 30;
+	readonly tps = 20;
 	@Expose()
 	readonly height: number = 1080;
 	@Expose()

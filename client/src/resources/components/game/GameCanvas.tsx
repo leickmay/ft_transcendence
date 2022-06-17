@@ -57,18 +57,29 @@ export const GameCanvas = (props: Props) => {
 				if (player.direction === Directions.STATIC) {
 					player.screenY = player.y;
 				} else {
-					if (player.direction === Directions.UP)
-						player.screenY -= Math.min(Math.max(player.speed, diff) / stepsPerTick, diff);
-					else
-						player.screenY += Math.min(Math.max(player.speed, diff) / stepsPerTick, diff);
+					if (diff > player.speed * 2) {
+						player.screenY = player.y;
+					} else {
+						let interpolate = (a: { x: number, y: number }, b: { x: number, y: number }, frac: number): { x: number, y: number } => {
+							var nx = a.x + (b.x - a.x) * frac;
+							var ny = a.y + (b.y - a.y) * frac;
+							return { x: nx, y: ny };
+						}
+						if (player.direction === Directions.UP)
+							player.screenY -= (player.speed / stepsPerTick);
+						else
+							player.screenY += (player.speed / stepsPerTick);
+						let meuh = interpolate({ x: player.x, y: player.screenY }, { x: player.x, y: player.y }, 0.1);
+						player.screenY = meuh.y;
+					}
 				}
 				player.screenY = Math.max(Math.min(player.screenY, game.height - player.height), 0);
 
+				ctx.drawImage(paddleImg, player.direction * spriteWidth, player.side * spriteHeight, spriteWidth, spriteHeight, player.x, player.screenY, player.width, player.height);
+
 				ctx.strokeStyle = players[0] === player ? 'red' : 'blue';
 				ctx.lineWidth = 4;
-				// ctx.strokeRect(player.x, player.y, player.width, player.height);
-
-				ctx.drawImage(paddleImg, player.direction * spriteWidth, player.side * spriteHeight, spriteWidth, spriteHeight, player.x, player.screenY, player.width, player.height);
+				ctx.strokeRect(player.x, player.y, player.width, player.height);
 			}
 			for (const ball of balls) {
 				let diff = Math.abs(Math.sqrt((ball.screenX - ball.x) ** 2 + (ball.screenY - ball.y) ** 2));
@@ -76,16 +87,23 @@ export const GameCanvas = (props: Props) => {
 					ball.screenX = ball.x;
 					ball.screenY = ball.y;
 				} else {
-					let len = (ball.speed * (stepsPerTick - 1) + diff) / (stepsPerTick ** 2);
-					ball.screenX += len * ball.direction.x;
-					ball.screenY += len * ball.direction.y;
+					let interpolate = (a: { x: number, y: number }, b: { x: number, y: number }, frac: number): { x: number, y: number } => {
+						var nx = a.x + (b.x - a.x) * frac;
+						var ny = a.y + (b.y - a.y) * frac;
+						return { x: nx, y: ny };
+					}
+					ball.screenX += (ball.speed / stepsPerTick) * ball.direction.x;
+					ball.screenY += (ball.speed / stepsPerTick) * ball.direction.y;
+					let meuh = interpolate({ x: ball.screenX, y: ball.screenY }, { x: ball.x, y: ball.y }, 0.1);
+					ball.screenX = meuh.x;
+					ball.screenY = meuh.y;
 				}
 				ball.screenY = Math.max(Math.min(ball.screenY, game.height - ball.size / 2), 0);
 				drawImage(ballImg, ball.screenX, ball.screenY, ball.size, ball.size, ((drawTick.current * (ball.speed / 10)) % 360) * Math.PI / 180);
 
 				ctx.strokeStyle = 'green';
 				ctx.lineWidth = 4;
-				// ctx.strokeRect(ball.x - ball.size / 2, ball.y - ball.size / 2, ball.size, ball.size);
+				ctx.strokeRect(ball.x - ball.size / 2, ball.y - ball.size / 2, ball.size, ball.size);
 			}
 
 			ctx.textAlign = 'right';
