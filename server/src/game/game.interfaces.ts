@@ -135,12 +135,43 @@ export class Room {
 			player.sendUpdate();
 		}
 		for (const ball of this.balls) {
-			if (ball.willCollideVertical())
-				ball.setDirection(ball.direction.x, -ball.direction.y);
+			this.checkPlayerCollisions(ball);
 			ball.move();
 			ball.sendUpdate();
 		}
 		++this.tick;
+	}
+
+	getCollision(ball: Ball, player: Player) {
+		var distX = Math.abs(ball.x - player.x - player.width / 2);
+		var distY = Math.abs(ball.y - player.y - player.height / 2);
+
+		if (distX > (player.width / 2 + ball.size)) { return false; }
+		if (distY > (player.height / 2 + ball.size)) { return false; }
+
+		if (distX <= (player.width / 2)) { return true; }
+		if (distY <= (player.height / 2)) { return true; }
+
+		var dx = distX - player.width / 2;
+		var dy = distY - player.height / 2;
+		return (dx * dx + dy * dy <= (ball.size * ball.size));
+
+	}
+
+	checkPlayerCollisions(ball: Ball) {
+		if (ball.willCollideVertical())
+			ball.setDirection(ball.direction.x, -ball.direction.y);
+
+		for (const player of this.players) {
+			if (this.getCollision(ball, player)) {
+				if (player.side === Sides.LEFT)
+					ball.setDirection(Math.abs(ball.direction.x), ball.direction.y);
+				else
+					ball.setDirection(-Math.abs(ball.direction.x), ball.direction.y);
+				ball.speed++;
+				ball.sendUpdate();
+			}
+		}
 	}
 
 	stop(): void {

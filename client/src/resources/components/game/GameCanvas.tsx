@@ -92,14 +92,15 @@ export const GameCanvas = (props: Props) => {
 						var ny = a.y + (b.y - a.y) * frac;
 						return { x: nx, y: ny };
 					}
+					let oldsx = ball.screenX;
 					ball.screenX += (ball.speed / stepsPerTick) * ball.direction.x;
 					ball.screenY += (ball.speed / stepsPerTick) * ball.direction.y;
-					let meuh = interpolate({ x: ball.screenX, y: ball.screenY }, { x: ball.x, y: ball.y }, 0.1);
+					let meuh = interpolate({ x: ball.screenX, y: ball.screenY }, { x: ball.x, y: ball.y }, 0.05);
 					ball.screenX = meuh.x;
 					ball.screenY = meuh.y;
 				}
 				ball.screenY = Math.max(Math.min(ball.screenY, game.height - ball.size / 2), 0);
-				drawImage(ballImg, ball.screenX, ball.screenY, ball.size, ball.size, ((drawTick.current * (ball.speed / 10)) % 360) * Math.PI / 180);
+				drawImage(ballImg, ball.screenX, ball.screenY, ball.size, ball.size, ((drawTick.current * ((ball.speed * 5) / 10)) % 360) * Math.PI / 180);
 
 				ctx.strokeStyle = 'green';
 				ctx.lineWidth = 4;
@@ -116,20 +117,6 @@ export const GameCanvas = (props: Props) => {
 
 	// useEffect(() => {
 	// 	const loop = () => {
-	// 		players.forEach(p => {
-	// 			if (p.direction === Directions.UP)
-	// 				p.y -= p.speed;
-	// 			else if (p.direction === Directions.DOWN)
-	// 				p.y += p.speed;
-
-	// 			// // TEST
-	// 			// if (p.direction === Directions.STATIC)
-	// 			// 	p.direction = Directions.UP;
-	// 			// if (p.y <= 0)
-	// 			// 	p.direction = Directions.DOWN;
-	// 			// if (p.y + p.height >= 1080)
-	// 			// 	p.direction = Directions.UP;
-	// 		});
 	// 	}
 
 	// 	const intervalId = setInterval(loop, gameInterval);
