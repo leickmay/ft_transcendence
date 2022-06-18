@@ -39,11 +39,15 @@ export const Game = (props: Props) => {
 
 	const handleKeyDown = useCallback((e: KeyboardEvent) => {
 		if (game.status === GameStatus.RUNNING) {
-			if ((e.key === 'w' || e.key === 'ArrowUp') && !moveUp) {
+			if (['w', 'ArrowUp', 's', 'ArrowDown'].indexOf(e.key) > -1) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+			if (['w', 'ArrowUp'].indexOf(e.key) > -1 && !moveUp) {
 				moveUp = true;
 				emitMovement();
 			}
-			if ((e.key === 's' || e.key === 'ArrowDown') && !moveDown) {
+			if (['s', 'ArrowDown'].indexOf(e.key) > -1 && !moveDown) {
 				moveDown = true;
 				emitMovement();
 			}
