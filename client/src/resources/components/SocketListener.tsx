@@ -102,7 +102,7 @@ export const SocketListener = (props: Props) => {
 			ball = {
 				id: packet.ball,
 				direction: packet.direction!,
-				size: packet.size!,
+				radius: packet.size!,
 				speed: packet.speed!,
 				x: packet.x!,
 				y: packet.y!,
@@ -112,7 +112,7 @@ export const SocketListener = (props: Props) => {
 			balls.push(ball);
 		} else {
 			if (packet.direction) ball.direction = packet.direction;
-			if (packet.size) ball.size = packet.size;
+			if (packet.size) ball.radius = packet.size;
 			if (packet.speed) ball.speed = packet.speed;
 			if (packet.x) ball.x = packet.x;
 			if (packet.y) ball.y = packet.y;

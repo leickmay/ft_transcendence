@@ -38,11 +38,11 @@ export const Game = (props: Props) => {
 	}, [socket, game.status]);
 
 	const handleKeyDown = useCallback((e: KeyboardEvent) => {
+		if (['w', 'ArrowUp', 's', 'ArrowDown'].indexOf(e.key) > -1) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
 		if (game.status === GameStatus.RUNNING) {
-			if (['w', 'ArrowUp', 's', 'ArrowDown'].indexOf(e.key) > -1) {
-				e.preventDefault();
-				e.stopPropagation();
-			}
 			if (['w', 'ArrowUp'].indexOf(e.key) > -1 && !moveUp) {
 				moveUp = true;
 				emitMovement();

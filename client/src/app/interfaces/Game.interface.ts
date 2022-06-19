@@ -37,7 +37,7 @@ export interface Spectator {
 
 export interface Ball extends Entity {
 	id: number,
-	size: number;
+	radius: number;
 	speed: number;
 	direction: { x: number, y: number };
 

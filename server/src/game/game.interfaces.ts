@@ -97,7 +97,7 @@ export class Room {
 			user.send('game', new PacketPlayOutGameUpdate(instanceToPlain(this)));
 			user.send('game', new PacketPlayOutPlayerList(instanceToPlain(this.players)));
 
-			let player = new Player(user, this, this.chooseSide(), 110 / 2, 450 / 2);
+			let player = new Player(user, this, this.chooseSide(), 110 * 0.75, 450 * 0.75);
 
 			user.player = player;
 			this.players.push(player);
@@ -120,7 +120,7 @@ export class Room {
 				status: GameStatus.RUNNING,
 			}));
 
-			let b = new Ball(this, 70, 30);
+			let b = new Ball(this, 30, 30, 60);
 			b.setDirection(1, 1);
 			this.balls.push(b);
 
@@ -146,16 +146,15 @@ export class Room {
 		var distX = Math.abs(ball.x - player.x - player.width / 2);
 		var distY = Math.abs(ball.y - player.y - player.height / 2);
 
-		if (distX > (player.width / 2 + ball.size)) { return false; }
-		if (distY > (player.height / 2 + ball.size)) { return false; }
+		if (distX > (player.width / 2 + ball.radius)) { return false; }
+		if (distY > (player.height / 2 + ball.radius)) { return false; }
 
 		if (distX <= (player.width / 2)) { return true; }
 		if (distY <= (player.height / 2)) { return true; }
 
 		var dx = distX - player.width / 2;
 		var dy = distY - player.height / 2;
-		return (dx * dx + dy * dy <= (ball.size * ball.size));
-
+		return (dx * dx + dy * dy <= (ball.radius * ball.radius));
 	}
 
 	checkPlayerCollisions(ball: Ball) {
@@ -168,7 +167,7 @@ export class Room {
 					ball.setDirection(Math.abs(ball.direction.x), ball.direction.y);
 				else
 					ball.setDirection(-Math.abs(ball.direction.x), ball.direction.y);
-				ball.speed++;
+				ball.speed = Math.min(ball.speed + 0.5, ball.maxSpeed);
 				ball.sendUpdate();
 			}
 		}
@@ -209,7 +208,7 @@ export class Player implements Entity {
 	height: number;
 
 	@Expose()
-	speed: number = 30;
+	speed: number = 40;
 	@Expose()
 	score: number = 0
 
@@ -267,28 +266,31 @@ export class Player implements Entity {
 export class Ball implements Entity {
 	id: number;
 	room: Room;
-	size: number;
+	radius: number;
 	speed: number;
 	x: number;
 	y: number;
 	direction: { x: number, y: number };
 
-	constructor(room: Room, size: number, speed: number) {
+	maxSpeed: number;
+
+	constructor(room: Room, radius: number, speed: number, maxSpeed: number) {
 		this.id = room.nextBallId;
 		this.room = room;
-		this.size = size;
+		this.radius = radius;
 		this.speed = speed;
+		this.maxSpeed = maxSpeed;
 		this.resetLocation();
 		this.sendUpdate();
 	}
 
 	sendUpdate() {
-		this.room.broadcast(new PacketPlayOutBallUpdate(this.id, this.direction, this.size, this.speed, this.x, this.y));
+		this.room.broadcast(new PacketPlayOutBallUpdate(this.id, this.direction, this.radius, this.speed, this.x, this.y));
 	}
 
 	resetLocation(): void {
-		this.x = this.room.width / 2 - this.size / 2;
-		this.y = this.room.height / 2 - this.size / 2;
+		this.x = this.room.width / 2 - this.radius / 2;
+		this.y = this.room.height / 2 - this.radius / 2;
 		this.setDirection(0, 0);
 	}
 
@@ -307,7 +309,7 @@ export class Ball implements Entity {
 	}
 
 	move() {
-		if (this.x < -this.size || this.x > this.room.width + this.size) {
+		if (this.x < -this.radius || this.x > this.room.width + this.radius) {
 			this.resetLocation();
 		} else {
 			this.x += this.direction.x * this.speed;
