@@ -1,10 +1,17 @@
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { receiveMessage } from '../../app/actions/messageActions';
 import { GameContext } from '../../app/context/GameContext';
 import { SocketContext } from '../../app/context/SocketContext';
+import { ChatRoom, ChatTypes, Command } from '../../app/interfaces/Chat';
+import { Ball } from '../../app/interfaces/Game.interface';
+import { User } from '../../app/interfaces/User';
+import { PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOperator, PacketPlayInChatRoomCreate, PacketPlayInChatUp } from '../../app/packets/chat/PacketPlayInChat';
+import { PacketPlayInBallUpdate } from '../../app/packets/PacketPlayInBallUpdate';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
-import { PacketPlayInGameBallMove as PacketPlayInBallUpdate } from '../../app/packets/PacketPlayInBallUpdate';
 import { PacketPlayInGameUpdate } from '../../app/packets/PacketPlayInGameUpdate';
+import { PacketPlayInLeaderboard } from '../../app/packets/PacketPlayInLeaderboard';
 import { PacketPlayInPlayerJoin } from '../../app/packets/PacketPlayInPlayerJoin';
 import { PacketPlayInPlayerList } from '../../app/packets/PacketPlayInPlayerList';
 import { PacketPlayInPlayerMove } from '../../app/packets/PacketPlayInPlayerMove';
@@ -15,12 +22,14 @@ import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserCo
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
-import { Packet, PacketTypesBall, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
+import { Packet, PacketTypesBall, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
+import { addRoom, addUserToRoom, delRoom, leaveRoom, setChatRooms, setOperator } from '../../app/slices/chatSlice';
 import { updateGame } from '../../app/slices/gameSlice';
-import { setStats } from '../../app/slices/statsSlice';
+import { setBoard } from '../../app/slices/leaderboardSlice';
+import { setUserStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
-import { Ball } from '../../app/interfaces/Game.interface';
+import { getUserByLogin } from '../pages/Chat';
 
 interface Props { }
 
@@ -29,11 +38,18 @@ export const SocketListener = (props: Props) => {
 	const {players, setPlayers, balls} = useContext(GameContext);
 	const ready = useSelector((state: RootState) => state.socket.ready);
 
-	const dispatch = useDispatch();
+	const currentUser = useSelector((state: RootState) => state.users.current);
+	const rooms = useSelector((state: RootState) => state.chat.rooms);
+
+	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 
 	useEffect(() => {
 		const stats = (packet: PacketPlayInStatsUpdate) => {
-			dispatch(setStats(packet.stats));
+			dispatch(setUserStats(packet));
+		}
+
+		const board = (packet: PacketPlayInLeaderboard) => {
+			dispatch(setBoard(packet.users));
 		}
 
 		const online = (packet: PacketPlayInUserConnection) => {
@@ -71,10 +87,12 @@ export const SocketListener = (props: Props) => {
 					break;
 			}
 		});
-
+		
 		socket?.off('stats').on('stats', (packet: Packet) => {
 			if (packet.packet_id === PacketTypesMisc.STATS_UPDATE)
 				stats(packet as PacketPlayInStatsUpdate);
+			if (packet.packet_id === PacketTypesMisc.LEADERBOARD)
+				board(packet as PacketPlayInLeaderboard);
 		});
 	}, [socket, dispatch]);
 
@@ -120,33 +138,33 @@ export const SocketListener = (props: Props) => {
 	}, [balls]);
 
 	useEffect(() => {
+		const gameUpdate = (packet: PacketPlayInGameUpdate) => {
+			dispatch(updateGame(packet.data));
+		}
+
+		const playerList = (packet: PacketPlayInPlayerList) => {
+			packet.players.forEach(p => p.screenY = p.y);
+			setPlayers(players => packet.players);
+		}
+
+		const playerJoin = (packet: PacketPlayInPlayerJoin) => {
+			packet.player.screenY = packet.player.y;
+			setPlayers(players => [...players, packet.player]);
+		}
+
+		// const remove = (packet: PacketPlayInPlayerLeave) => {
+		// 	dispatch(removePlayer(packet.player));
+		// }
+
+		const playerReady = (packet: PacketPlayInPlayerReady) => {
+			setPlayers(players => players.map(p => {
+				if (!p.ready && p.user.id === packet.player)
+					return { ...p, ready: true };
+				return p;
+			}));
+		}
+
 		socket?.off('game').on('game', (packet: Packet): void => {
-			const gameUpdate = (packet: PacketPlayInGameUpdate) => {
-				dispatch(updateGame(packet.data));
-			}
-
-			const playerList = (packet: PacketPlayInPlayerList) => {
-				packet.players.forEach(p => p.screenY = p.y);
-				setPlayers(players => packet.players);
-			}
-
-			const playerJoin = (packet: PacketPlayInPlayerJoin) => {
-				packet.player.screenY = packet.player.y;
-				setPlayers(players => [...players, packet.player]);
-			}
-
-			// const remove = (packet: PacketPlayInPlayerLeave) => {
-			// 	dispatch(removePlayer(packet.player));
-			// }
-
-			const playerReady = (packet: PacketPlayInPlayerReady) => {
-				setPlayers(players => players.map(p => {
-					if (!p.ready && p.user.id === packet.player)
-						return { ...p, ready: true };
-					return p;
-				}));
-			}
-
 			switch (packet.packet_id) {
 				case PacketTypesPlayer.LIST:
 					playerList(packet as PacketPlayInPlayerList);
@@ -179,10 +197,130 @@ export const SocketListener = (props: Props) => {
 	}, [socket, dispatch]);
 
 	useEffect(() => {
+		
+
+		const commandHandler = async (packet: PacketPlayInChatMessage) => {
+			let cmd = packet.message.text.split(" ", 1);
+			switch (cmd[0]) {
+				// EXIT
+				case "/EXIT": {
+					let user: User | undefined = getUserByLogin(packet.message.from);
+					if (user?.id !== currentUser?.id)
+						break;
+					let room = rooms?.find(x => x.id === packet.room);
+					if (user && room) {
+						let command: Command = {
+							user: user,
+							room: room.id,
+							cmd: cmd,
+						};
+						dispatch(leaveRoom(command));
+						if (room.users.length === 1
+							|| room.type === ChatTypes.PRIVATE_MESSAGE
+							|| !room.visible) {
+							dispatch(delRoom(room));
+						}
+					}
+					break;
+				}
+				// OPERATOR login
+				case "/OPERATOR": {
+					break;
+				}
+				// PASSWORD *****
+				case "/PASSWORD": {
+					break;
+				}
+				// BAN login
+				case "/BAN": {
+					break;
+				}
+				// MUTE login
+				case "/MUTE": {
+					break;
+				}
+				//BLOCK login
+				case "/BLOCK": {
+					break;
+				}
+				default:
+					break;
+			}
+		};
+
+		const messageHandler = async (packet: PacketPlayInChatMessage) => {
+			if (packet.message.cmd)
+				commandHandler(packet);
+			dispatch(receiveMessage(packet));
+		};
+
+		const createHandler = async (packet: PacketPlayInChatRoomCreate) => {
+			dispatch(addRoom(packet))
+		};
+
+		const joinHandler = async (packet: PacketPlayInChatJoin) => {
+			dispatch(addUserToRoom(packet));
+		};
+
+		const leaveHandler = async () => { };
+
+		const upHandler = async (packet: PacketPlayInChatUp) => {
+		};
+
+		const initHandler = async (packet: PacketPlayInChatInit) => {
+			let rooms = packet.rooms as Array<ChatRoom>
+			rooms.forEach((r: ChatRoom) => { r.messages = []; });
+			dispatch(setChatRooms(rooms));
+		};
+
+		const delHandler = async (packet: PacketPlayInChatDel) => {
+			dispatch(delRoom(packet.room as ChatRoom));
+		};
+
+		const operatorHandler = async (packet: PacketPlayInChatOperator) => {
+			dispatch(setOperator(packet));
+		};
+
 		socket?.off('chat').on('chat', (packet: Packet) => {
-			console.log(packet);
+			switch (packet.packet_id) {
+				case PacketTypesChat.MESSAGE: {
+					messageHandler(packet as PacketPlayInChatMessage);
+					break;
+				}
+				case PacketTypesChat.CREATE: {
+					createHandler(packet as PacketPlayInChatRoomCreate);
+					break;
+				}
+				case PacketTypesChat.JOIN: {
+					joinHandler(packet as PacketPlayInChatJoin);
+					break;
+				}
+				case PacketTypesChat.LEAVE: {
+					leaveHandler();
+					break;
+				}
+				case PacketTypesChat.UP: {
+					upHandler(packet as PacketPlayInChatUp);
+					break;
+				}
+				case PacketTypesChat.INIT: {
+					initHandler(packet as PacketPlayInChatInit);
+					break;
+				}
+				case PacketTypesChat.DEL: {
+					delHandler(packet as PacketPlayInChatDel);
+					break;
+				}
+				case PacketTypesChat.OPERATOR: {
+					operatorHandler(packet as PacketPlayInChatOperator);
+					break;
+				}
+				default: {
+					break;
+				}
+			}
 		});
-	}, [socket, dispatch]);
+	}, [socket, dispatch, currentUser, rooms]);
 
 	useEffect(() => {
 		if (ready)

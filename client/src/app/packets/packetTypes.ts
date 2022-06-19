@@ -4,6 +4,7 @@ export enum PacketTypesMisc {
 	PLAYER_MOVE,
 	SEARCH_USER,
 	STATS_UPDATE,
+	LEADERBOARD,
 }
 
 export enum PacketTypesUser {
@@ -17,10 +18,12 @@ export enum PacketTypesChat {
     MESSAGE,
     LIST,
 	CREATE,
-    JOIN,
+	JOIN,
+	LEAVE,
 	UP,
-    QUIT,
-    DELETE,
+	INIT,
+	DEL,
+	OPERATOR,
 }
 
 export enum PacketTypesGame {

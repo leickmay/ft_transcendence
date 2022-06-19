@@ -4,6 +4,11 @@ import { Player } from 'src/game/game.interfaces';
 import { Image } from 'src/images/image.entity';
 import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn, RelationId } from 'typeorm';
 
+export interface UserPreview {
+	id: number;
+	login: string;
+}
+
 @Exclude()
 @Entity()
 export class User extends BaseEntity {
@@ -70,4 +75,17 @@ export class User extends BaseEntity {
 	send(event: string, packet: any) {
 		this.socket?.emit(event, packet);
 	}
+
+	@Expose()
+	@Column({ nullable: true })
+	matchWon: number;
+
+	@Expose()
+	@Column({ nullable: true })
+	nbMatch: number;
+
+	@Expose()
+	@Column({ default: 0 })
+	xp: number;
+
 }

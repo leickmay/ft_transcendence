@@ -11,7 +11,7 @@ export const Navigation = (props: Props) => {
 		'/friends': 'Friends',
 		'/chat': 'Chat',
 		'/statistics': 'Statistics',
-		'/history': 'History',
+		'/leaderboard': 'Leaderboard',
 		'/options': 'Options',
 	};
 

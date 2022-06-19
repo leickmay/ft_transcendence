@@ -1,16 +1,30 @@
-import { useEffect, useState } from "react";
+import { useContext } from "react";
 import { useSelector } from "react-redux";
-import store from "../../../app/store";
+import { SocketContext } from "../../../app/context/SocketContext";
+import { ChatTypes } from "../../../app/interfaces/Chat";
+import { PacketPlayOutChatCreate } from "../../../app/packets/chat/PacketPlayOutChat";
+import { RootState } from "../../../app/store";
 import { hideDivById } from "../../pages/Chat";
 
-export const ChatPrivateMessage = () => {
-	const [usersOnline, setUsersOnline] = useState(store.getState().users.online);
+export const switchConfigPrivMsg = () => {
+	hideDivById("chatNavigation");
+	hideDivById("chatPrivateMessage");
+}
 
-	const alertUsersOnline = useSelector(() => store.getState().users.online);
+const ChatPrivateMessage = () => {
+	const socket = useContext(SocketContext);
+	const onlineUsers = useSelector((state: RootState) => state.users.online);
+	const rooms = useSelector((state: RootState) => state.chat.rooms);
 
-	useEffect(() => {
-		setUsersOnline(store.getState().users.online);
-	}, [alertUsersOnline]);
+	const hasAlreadyPrivMsg = (userId: number): boolean => {
+		return !rooms?.find(r => r.type === ChatTypes.PRIVATE_MESSAGE && r.users.find(u => u.id === userId));
+	}
+
+	const createPrivateMessage = (id: number) => {
+		let roomPacket : PacketPlayOutChatCreate;
+		roomPacket = new PacketPlayOutChatCreate(ChatTypes.PRIVATE_MESSAGE).toPrivateMessage([id]);
+		socket?.emit('chat', roomPacket);
+	}
 
 	return (
 		<div
@@ -20,20 +34,29 @@ export const ChatPrivateMessage = () => {
 		>
 			<button
 				onClick={() => {
-					hideDivById("chatNavigation");
-					hideDivById("chatPrivateMessage");
+					switchConfigPrivMsg();
 				}}
 			>..</button>
-			<h2>Players Online</h2>
-			{/* {
-				usersOnline.map((value, index) => {
+			<h2>Online Players</h2>
+			{
+				onlineUsers
+					.filter(u => hasAlreadyPrivMsg(u.id))
+					.map((value, index) => {
 					return (
-						<div key={index}>
+						<div
+							key={index} 
+							onClick={() => {
+								createPrivateMessage(value.id);
+								switchConfigPrivMsg();
+							}}
+						>
 							+ {value.login}
 						</div>
 					)
 				})
-			} */}
+			}
 		</div>
 	);
 };
+
+export default ChatPrivateMessage;

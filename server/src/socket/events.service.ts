@@ -25,14 +25,19 @@ export class EventsService {
 	addUser(socket: Socket, user: User): void {
 		this.users[socket.id] = user;
 		user.socket = socket;
-
-		this.chatService.onJoin(user);
+		this.chatService.connection(user);
 	}
 
 	removeUser(socket: Socket, user: User): void {
 		this.gameService.onLeave(user);
+		this.chatService.disconnection();
 
-		this.users[socket.id].socket = undefined;
+		if (this.users[socket.id])
+			this.users[socket.id].socket = undefined;
 		delete this.users[socket.id];
+	}
+
+	getUser(id: number): User | undefined {
+		return Object.values(this.users).find(u => u.id === id);
 	}
 }

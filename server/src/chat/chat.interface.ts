@@ -1,82 +1,123 @@
 import { Exclude, Expose, Transform } from "class-transformer";
-// import { PacketPlayOutChatMessage } from "src/socket/packets/PacketPlayOutChatMessage";
-import { User } from "src/user/user.entity";
-
-export enum ChatEvents {
-	COMMAND,
-	MESSAGE,
-	CREATE,
-	JOIN,
-	UP,
-	QUIT,
-	DELETE,
-}
+import { PacketPlayOutChatMessage, PacketPlayOutChatOperator } from "src/socket/packets/chat/PacketPlayOutChat";
+import { User, UserPreview } from "src/user/user.entity";
 
 export interface Message {
 	date: number;
 	from: string;
 	text: string;
+	cmd: boolean;
+}
+
+export enum ChatTypes {
+	CHANNEL,
+	PRIVATE_MESSAGE,
 }
 
 @Exclude()
-export class Room { // instanceToPlain to send (BACK)
+export class ChatRoom { // instanceToPlain to send (BACK)
 	private static current = 0;
 
 	@Expose()
 	id: string;
 
 	@Expose()
+	type: ChatTypes;
+
+	@Expose()
 	name: string;
 
 	@Expose()
-	flags: number;
+	visible: boolean;
 
 	@Expose()
-	operator?: string;
+	users: Array<{id: number, login: string}>;
 
+	@Expose()
+	operator?: number;
+	
 	@Expose()
 	@Transform(({value}) => !!value)
 	password?: string;
 
-	@Expose()
-	@Transform(({value}) => value.map((user: User) => user.id))
-	users: Array<User>;
-
-	constructor(name: string, flags?: number) {
-		++Room.current;
-		this.id = 'channel_' + Room.current;
+	constructor(
+		type: ChatTypes,
+		name: string,
+		visible: boolean,
+		users: Array<UserPreview>,
+		operator?: number,
+		password?: string,
+	) {
+		++ChatRoom.current;
+		this.id = "ChatRoom_" + ChatRoom.current;
+		this.type = type;
+		this.name = name;
+		this.visible = visible;
+		this.users = users;
+		this.operator = operator;
+		this.password = password;
 	}
 
-	addUser(user: User, password?: string): boolean {
-		if (this.containsUser(user))
-			return true;
-		if (this.password !== password)
+	isPresent(userID: number): boolean {
+		return !!this.users.find(x => x.id === userID);
+	}
+
+	join(user: User, password?: string): boolean {
+		if (!this.isPresent(user.id) && this.password !== password)
 			return false;
-		this.users.push(user);
+
+		if (!this.isPresent(user.id))
+			this.users.push({id: user.id, login: user.login});
+
+		console.log("(" + user.login + ")"+ " JOIN " + this.id);
+		user.socket?.join(this.id);
 		return true;
 	}
 
-	removeUser(user: User): boolean {
-		// remove if not world random
-		return true;
-	}
+	leave(user: User): boolean {
+		if (this.name === "World Random")
+			return false;
+		if (!this.isPresent(user.id))
+			return false;
+	
+		this.users = this.users.filter(x => x.id !== user.id);
 
-	containsUser(user: User): boolean {
-		return !!this.users.find(u => u.id === user.id);
+		if (this.operator === user.id && this.users.length > 0) {
+			this.operator = this.users[0].id;
+			let room = new PacketPlayOutChatOperator({
+				id: this.id,
+			 	operator: this.operator,
+			})
+			user.socket?.emit('chat', room);
+			user.socket?.to(this.id).emit('chat', room);
+		}
+
+		user.socket?.leave(this.id);
+		console.log("(" + user.login + ")"+ " LEAVE " + this.id);
+		return true;
 	}
 
 	send(sender: User, text: string): void {
 		let message: Message = {
 			date: Date.now(),
-			from: sender.name,
+			from: sender.login,
 			text: text,
+			cmd: false,
 		};
-
-		// sender.socket.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
+		console.log("(" + sender.login + ")"+ " MESSAGE " + this.id);
+		sender.socket?.emit('chat', new PacketPlayOutChatMessage(this.id, message));
+		sender.socket?.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
 	}
-}
 
-export interface Command {
-	user: User;
-	cmd: string[];
+	command(sender: User, text: string): void {
+		let message: Message = {
+			date: Date.now(),
+			from: sender.login,
+			text: text,
+			cmd: true,
+		};
+		console.log("(" + sender.login + ")"+ " COMMAND " + this.id);
+		sender.socket?.emit('chat', new PacketPlayOutChatMessage(this.id, message));
+		sender.socket?.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
+	}
 }

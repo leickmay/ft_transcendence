@@ -6,9 +6,3 @@ export interface MatchResult {
 	player2: User,
 	createdDate: Date,
 }
-
-export interface UserStats {
-	nbMatchs: number,
-	matchWon: number,
-	history: MatchResult[],
-}

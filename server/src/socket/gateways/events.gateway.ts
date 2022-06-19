@@ -10,7 +10,6 @@ import { StatsService } from 'src/stats/stats.service';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { EventsService } from '../events.service';
-import { PacketPlayInStatsUpdate } from '../packets/PacketPlayInStatsUpdate';
 import { PacketPlayOutUserConnection } from '../packets/PacketPlayOutUserConnection';
 import { PacketPlayOutUserDisconnected } from '../packets/PacketPlayOutUserDisconnected';
 import { Packet } from '../packets/packetTypes';
@@ -34,6 +33,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		private gameService: GameService,
 		@Inject(forwardRef(() => SearchService))
 		private searchService: SearchService,
+		@Inject(forwardRef(() => ChatService))
 		private chatService: ChatService,
 		@Inject(forwardRef(() => StatsService))
 		private statsService: StatsService
@@ -58,10 +58,11 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				throw Error('Already connected');
 			}
 			client.emit('ready');
-			client.broadcast.emit('user', new PacketPlayOutUserConnection([user.id]));
-			client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => u.id)));
+			client.broadcast.emit('user', new PacketPlayOutUserConnection([{id: user.id, login: user.login}]));
+			client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => ({id: u.id, login: u.login}))));
 			this.eventsService.addUser(client, user);
-			client.join("channel_World Random");
+
+			// To move
 			await this.statsService.sendStats(user);
 		} catch (e) {
 			client.emit('error', new UnauthorizedException());
@@ -73,8 +74,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		client.leave("channel_World Random");
-		client.broadcast.emit('user', new PacketPlayOutUserDisconnected(user.id));
+		client.broadcast.emit('user', new PacketPlayOutUserDisconnected({id: user.id, login: user.login}));
 		this.eventsService.removeUser(client, user);
 	}
 
@@ -111,10 +111,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	}
 
 	@SubscribeMessage('stats')
-	async stats(@MessageBody() packet: PacketPlayInStatsUpdate, @ConnectedSocket() client: Socket): Promise<void> {
-		this.statsService.addStat(packet);
-		const user = await this.userService.get(packet.id)
-		if (user)
-			await this.statsService.sendStats(user);
+	handleStats(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket) {
+		let user: User = this.eventsService.users[client.id];
+		if (!user)
+			return;
+		this.statsService.dispatch(packet, user);
 	}
 }
