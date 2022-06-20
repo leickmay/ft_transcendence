@@ -6,6 +6,7 @@ import { PacketPlayOutPlayerJoin } from "src/socket/packets/PacketPlayOutPlayerJ
 import { PacketPlayOutPlayerList } from "src/socket/packets/PacketPlayOutPlayerList";
 import { PacketPlayOutPlayerReady } from "src/socket/packets/PacketPlayOutPlayerReady";
 import { PacketPlayOutPlayerTeleport } from "src/socket/packets/PacketPlayOutPlayerTeleport";
+import { PacketPlayOutPlayerUpdate } from "src/socket/packets/PacketPlayOutPlayerUpdate";
 import { clearInterval } from "timers";
 import { User } from "../user/user.entity";
 
@@ -107,6 +108,10 @@ export class Room {
 		}
 	}
 
+	leave(user: User): void {
+		// TODO
+	}
+
 	tryStart(): void { this.canStart() && this.start(); }
 
 	async start() {
@@ -136,8 +141,31 @@ export class Room {
 		}
 		for (const ball of this.balls) {
 			this.checkPlayerCollisions(ball);
-			ball.move();
+			if (ball.x < -ball.radius || ball.x > this.width + ball.radius) {
+				let side = ball.x < -ball.radius ? Sides.LEFT : Sides.RIGHT;
+				for (const player of this.players) {
+					if (player.side !== side) {
+						++player.score;
+						this.broadcast(new PacketPlayOutPlayerUpdate({id: player.user.id, score: player.score}));
+					}
+				}
+				this.players.forEach(p => {
+					p.resetLocation();
+					p.sendUpdate();
+				});
+				ball.resetLocation();
+			} else {
+				ball.move();
+			}
 			ball.sendUpdate();
+		}
+		let winner: Player | undefined = this.players.find(p => p.score >= 5);
+		if (winner) {
+			this.status = GameStatus.FINISHED;
+			this.broadcast(new PacketPlayOutGameUpdate({
+				status: GameStatus.FINISHED,
+			}));
+			clearInterval(this.gameInterval);
 		}
 		++this.tick;
 	}
@@ -309,11 +337,7 @@ export class Ball implements Entity {
 	}
 
 	move() {
-		if (this.x < -this.radius || this.x > this.room.width + this.radius) {
-			this.resetLocation();
-		} else {
-			this.x += this.direction.x * this.speed;
-			this.y += this.direction.y * this.speed;
-		}
+		this.x += this.direction.x * this.speed;
+		this.y += this.direction.y * this.speed;
 	}
 }

@@ -70,17 +70,18 @@ export const Game = (props: Props) => {
 	useEffect(() => {
 		document.addEventListener('keydown', handleKeyDown);
 		document.addEventListener('keyup', handleKeyUp);
+		document.addEventListener('click', handleClick);
 		return () => {
 			document.removeEventListener('keydown', handleKeyDown);
 			document.removeEventListener('keyup', handleKeyUp);
+			document.removeEventListener('click', handleClick);
 		};
 	}, [handleKeyUp, handleKeyDown]);
 
 	return (
-		<div id="game" onClick={() => handleClick()}>
-			<p>{GameStatus[game.status]}</p>
+		<div id="game">
 			<GameMenu search={searchMatch} />
-			{game.status >= GameStatus.STARTING && <GameCanvas />}
+			{game.status >= GameStatus.WAITING && <GameCanvas />}
 		</div>
 	);
 };

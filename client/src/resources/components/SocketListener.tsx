@@ -17,6 +17,7 @@ import { PacketPlayInPlayerList } from '../../app/packets/PacketPlayInPlayerList
 import { PacketPlayInPlayerMove } from '../../app/packets/PacketPlayInPlayerMove';
 import { PacketPlayInPlayerReady } from '../../app/packets/PacketPlayInPlayerReady';
 import { PacketPlayInPlayerTeleport } from '../../app/packets/PacketPlayInPlayerTeleport';
+import { PacketPlayInPlayerUpdate } from '../../app/packets/PacketPlayInPlayerUpdate';
 import { PacketPlayInStatsUpdate } from '../../app/packets/PacketPlayInStatsUpdate';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
@@ -164,6 +165,14 @@ export const SocketListener = (props: Props) => {
 			}));
 		}
 
+		const playerUpdate = (packet: PacketPlayInPlayerUpdate) => {
+			setPlayers(players => players.map(p => {
+				if (p.user.id === packet.data.id)
+					return { ...p, ...packet.data };
+				return p;
+			}));
+		}
+
 		socket?.off('game').on('game', (packet: Packet): void => {
 			switch (packet.packet_id) {
 				case PacketTypesPlayer.LIST:
@@ -183,6 +192,9 @@ export const SocketListener = (props: Props) => {
 					break;
 				case PacketTypesPlayer.TELEPORT:
 					playerTeleport(packet as PacketPlayInPlayerTeleport);
+					break;
+				case PacketTypesPlayer.UPDATE:
+					playerUpdate(packet as PacketPlayInPlayerUpdate);
 					break;
 				case PacketTypesBall.UPDATE:
 					ballUpdate(packet as PacketPlayInBallUpdate);

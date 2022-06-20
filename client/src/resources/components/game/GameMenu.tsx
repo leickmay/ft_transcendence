@@ -3,13 +3,14 @@ import { useSelector } from 'react-redux';
 import { GameContext } from '../../../app/context/GameContext';
 import { GameStatus, Player, Sides } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
+import { Game } from '../../pages/Game';
 
 interface Props {
 	search: () => void;
 }
 
 export const GameMenu = (props: Props) => {
-	const {players} = useContext(GameContext);
+	const { players } = useContext(GameContext);
 	const game = useSelector((state: RootState) => state.game);
 	const [counter, setCounter] = useState<number>();
 
@@ -56,13 +57,14 @@ export const GameMenu = (props: Props) => {
 					<div key={player.user.id}>
 						<div className='avatar'>
 							<img className="playerAvatar" src={player.user.avatar} width="120px" height="120px" alt=""></img>
-							{player.ready && (
+							{player.ready && game.status < GameStatus.RUNNING && (
 								<div className='overlay'>
 									<h3 className='text-neon2-secondary text-stroke-1'>Ready</h3>
 								</div>
 							)}
 						</div>
-						<p>{player.user.name} <small>{player.user.login}</small></p>
+						<p>{player.user.name}</p>
+						<small>{player.user.login}</small>
 					</div>
 				)) : (
 					<div>Searching...</div>
@@ -78,7 +80,13 @@ export const GameMenu = (props: Props) => {
 					{listPlayers(left)}
 				</div>
 				<span className='h1 text-neon2-tertiary text-stroke-2'>
-					{counter ?? 'VS'}
+					{game.status === GameStatus.RUNNING ?
+						<>
+							<span>{left.reduce((p, l) => p + l.score, 0)}</span><span>-</span><span>{right.reduce((p, l) => p + l.score, 0)}</span>
+						</>
+						:
+						counter ?? 'VS'
+					}
 				</span>
 				<div className='players'>
 					{listPlayers(right)}

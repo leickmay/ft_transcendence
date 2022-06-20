@@ -2,11 +2,12 @@ import { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { GameContext } from '../../../app/context/GameContext';
 import { useAnimationFrame } from '../../../app/Helpers';
-import { Directions } from '../../../app/interfaces/Game.interface';
+import { Directions, GameStatus } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
 import backgroundUrl from '../../../assets/images/game-background.png';
 import ballUrl from '../../../assets/images/ball.png';
 import paddleUrl from '../../../assets/images/paddles.png';
+import { userInfo } from 'os';
 
 const spriteWidth: number = 110;
 const spriteHeight: number = 450;
@@ -29,6 +30,7 @@ export const GameCanvas = (props: Props) => {
 	const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
 	const { players, balls } = useContext(GameContext);
 	const tick = useRef<number>(0);
+	const currentUser = useSelector((state: RootState) => state.users.current);
 	const drawTick = useRef<number>(0);
 
 	let canvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
@@ -108,7 +110,7 @@ export const GameCanvas = (props: Props) => {
 
 				ctx.strokeStyle = 'green';
 				ctx.lineWidth = 4;
-				// ctx.strokeRect(ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2);
+				ctx.strokeRect(ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2);
 			}
 
 			ctx.textAlign = 'right';
@@ -130,6 +132,20 @@ export const GameCanvas = (props: Props) => {
 	// }, [players, gameInterval]);
 
 	return (
-		<canvas className='border-neon-primary' ref={canvasRef} height={game.height} width={game.width}></canvas>
+		<div className="canvas">
+			<canvas className='border-neon-primary' ref={canvasRef} height={game.height} width={game.width}>
+			</canvas>
+			{game.status === GameStatus.WAITING &&
+				<div className="overlay">
+					<span className='h2'>
+						{players.some(p => p.user.id === currentUser?.id && p.ready) ?
+							<>Waiting for others players</>
+							:
+							<>Click anywhere to start</>
+						}
+					</span>
+				</div>
+			}
+		</div>
 	);
 };
