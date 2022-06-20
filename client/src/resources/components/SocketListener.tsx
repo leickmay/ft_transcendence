@@ -3,7 +3,7 @@ import { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { receiveMessage } from '../../app/actions/messageActions';
 import { SocketContext } from '../../app/context/socket';
-import { ChatRoom, ChatTypes, Command } from '../../app/interfaces/Chat';
+import { ChatRoom, ChatTypes } from '../../app/interfaces/Chat';
 import { User } from '../../app/interfaces/User';
 import { PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOperator, PacketPlayInChatRoomCreate, PacketPlayInChatUp } from '../../app/packets/chat/PacketPlayInChat';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
@@ -70,7 +70,7 @@ export const SocketListener = (props: Props) => {
 		});
 
 		const commandHandler = async (packet: PacketPlayInChatMessage) => {
-			let cmd = packet.message.text.split(" ", 1);
+			let cmd = packet.message.text.split(" ");
 			switch (cmd[0]) {
 				// EXIT
 				case "/EXIT": {
@@ -79,12 +79,11 @@ export const SocketListener = (props: Props) => {
 						break;
 					let room = rooms?.find(x => x.id === packet.room);
 					if (user && room) {
-						let command: Command = {
+						dispatch(leaveRoom({
 							user: user,
 							room: room.id,
 							cmd: cmd,
-						};
-						dispatch(leaveRoom(command));
+						}));
 						if (room.users.length === 1
 							|| room.type === ChatTypes.PRIVATE_MESSAGE
 							|| !room.visible) {
@@ -101,11 +100,25 @@ export const SocketListener = (props: Props) => {
 				case "/PASSWORD": {
 					break;
 				}
-				// BAN login
+				// BAN login min
 				case "/BAN": {
+					let user: User | undefined = getUserByLogin(cmd[1]);
+					if (user === undefined)
+						break;
+					let room = rooms?.find(x => x.id === packet.room);
+					if (user.id === currentUser?.id && room) {
+						dispatch(leaveRoom({
+							user: user,
+							room: room.id,
+							cmd: cmd,
+						}));
+						if (!room.visible) {
+							dispatch(delRoom(room));
+						}
+					}
 					break;
 				}
-				// MUTE login
+				// MUTE login min
 				case "/MUTE": {
 					break;
 				}

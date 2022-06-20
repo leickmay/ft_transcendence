@@ -80,7 +80,8 @@ export class ChatService {
 	}
 	disconnection() {}
 
-	async event_command(user: User, room: ChatRoom, command: Array<string>): Promise<boolean> {
+	async event_command(user: User, room: ChatRoom, text: string): Promise<boolean> {
+		let command = text.split(" ");
 		switch (command[0]) {
 			// EXIT
 			case "/EXIT": {
@@ -92,6 +93,7 @@ export class ChatService {
 					user.socket?.emit('chat', new PacketPlayOutChatDel(room));
 					user.socket?.broadcast.emit('chat', new PacketPlayOutChatDel(room));
 				}
+				room?.command(user, text);
 				return true;
 			}
 			// OPERATOR login
@@ -100,6 +102,7 @@ export class ChatService {
 					return false;
 				if (user.id !== room.operator)
 					return false;
+				room?.command(user, text);
 				break;
 			}
 			// PASSWORD *****
@@ -108,26 +111,46 @@ export class ChatService {
 					return false;
 				if (user.id !== room.operator)
 					return false;
+				room?.command(user, text);
 				break;
 			}
-			// BAN login
+			// BAN login time
 			case "/BAN": {
-				if (command.length < 2)
+				if (command.length < 3)
 					return false;
 				if (user.id !== room.operator)
 					return false;
+				let userBan = this.eventService.getUserByLogin(command[1]);
+				if (userBan === undefined )
+					return false;
+				if (user.id === userBan.id)
+					return false;
+				let time = Date.now() + Number(command[2]) * 60 * 1000;
+				room?.command(user, text);
+				room.banUser(userBan, time)
 				break;
 			}
-			// MUTE login
+			// MUTE login times
 			case "/MUTE": {
-				if (command.length < 2)
+				if (command.length < 3)
 					return false;
+				if (user.id !== room.operator)
+					return false;
+				let userMute = this.eventService.getUserByLogin(command[1]);
+				if (userMute === undefined )
+					return false;
+				if (user.id === userMute.id)
+					return false;
+				let time = Date.now() + Number(command[2]) * 60 * 1000;
+				room?.command(user, text);
+				room.muteUser(userMute, time)
 				break;
 			}
 			//BLOCK login
 			case "/BLOCK": {
 				if (command.length < 2)
 					return false;
+				room?.command(user, text);
 				break;
 			}
 			default: {
@@ -144,8 +167,7 @@ export class ChatService {
 			packet.text = packet.text.substring(0, 255);
 		}
 		if (packet.text.startsWith('/')){
-			if (await this.event_command(user, room, packet.text.split(" "))) {
-				room?.command(user, packet.text);
+			if (await this.event_command(user, room, packet.text)) {
 				return;
 			}
 		}
@@ -189,7 +211,7 @@ export class ChatService {
 			case ChatTypes.PRIVATE_MESSAGE: {
 				//let otherUser = this.eventService.getUser(packet.users[0]);
 				if (packet.users && packet.users.length === 1) {
-					let otherUser = this.eventService.getUser(packet.users[0]);
+					let otherUser = this.eventService.getUserById(packet.users[0]);
 					if (otherUser)
 					{
 						if (this.rooms.find(room => (
