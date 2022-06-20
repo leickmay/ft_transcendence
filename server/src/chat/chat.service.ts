@@ -85,6 +85,8 @@ export class ChatService {
 		switch (command[0]) {
 			// EXIT
 			case "/EXIT": {
+				if (command.length !== 1)
+					return false;
 				if (room.name === "World Random")
 					return (false);
 				room.leave(user);
@@ -98,25 +100,40 @@ export class ChatService {
 			}
 			// OPERATOR login
 			case "/OPERATOR": {
-				if (command.length < 2)
+				if (command.length !== 2)
 					return false;
 				if (user.id !== room.operator)
 					return false;
+				let operator = this.eventService.getUserByLogin(command[1]);
+				if (!operator)
+					return false;
+				room.setOperator(user, operator.id);
 				room?.command(user, text);
 				break;
 			}
 			// PASSWORD *****
 			case "/PASSWORD": {
-				if (command.length < 2)
+				if (command.length !== 2)
 					return false;
 				if (user.id !== room.operator)
 					return false;
+				room.setPassword(command[1]);
+				room?.command(user, text);
+				break;
+			}
+			// DELPASSWORD
+			case "/DELPASSWORD": {
+				if (command.length !== 1)
+					return false;
+				if (user.id !== room.operator)
+					return false;
+				room.setPassword(undefined);
 				room?.command(user, text);
 				break;
 			}
 			// BAN login time
 			case "/BAN": {
-				if (command.length < 3)
+				if (command.length !== 3)
 					return false;
 				if (user.id !== room.operator)
 					return false;
@@ -132,7 +149,7 @@ export class ChatService {
 			}
 			// MUTE login times
 			case "/MUTE": {
-				if (command.length < 3)
+				if (command.length !== 3)
 					return false;
 				if (user.id !== room.operator)
 					return false;
@@ -148,7 +165,7 @@ export class ChatService {
 			}
 			//BLOCK login
 			case "/BLOCK": {
-				if (command.length < 2)
+				if (command.length !== 2)
 					return false;
 				room?.command(user, text);
 				break;

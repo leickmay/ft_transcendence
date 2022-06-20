@@ -119,6 +119,27 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		return true;
 	}
 
+	setPassword(password: string | undefined) {
+		if (password)
+			this.password = password.substring(0, 255);
+		else
+			this.password = undefined;
+	}
+
+	dellPassword() {
+		this.password = undefined;
+	}
+
+	setOperator(user: User, id: number) {
+		this.operator = id;
+		let room = new PacketPlayOutChatOperator({
+			id: this.id,
+			 operator: this.operator,
+		})
+		user.socket?.emit('chat', room);
+		user.socket?.to(this.id).emit('chat', room);
+	}
+
 	isPresent(userID: number): boolean {
 		return !!this.users.find(x => x.id === userID);
 	}
