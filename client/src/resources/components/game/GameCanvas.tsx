@@ -141,7 +141,7 @@ export const GameCanvas = (props: Props) => {
 						{players.some(p => p.user.id === currentUser?.id && p.ready) ?
 							<>Waiting for others players</>
 							:
-							<>Click anywhere to start</>
+							<>Click to start</>
 						}
 					</span>
 				</div>

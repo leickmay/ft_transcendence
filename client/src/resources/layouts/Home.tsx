@@ -8,7 +8,6 @@ import { Chat } from '../pages/Chat';
 import { Friends } from '../pages/Friends';
 import { Game } from '../pages/Game';
 import { Leaderboard } from "../pages/Leaderboard";
-import { Menu } from '../pages/Menu';
 import { Options } from '../pages/Options';
 import { Statistics } from '../pages/Statistics';
 
@@ -23,8 +22,7 @@ export function Home(props: Props) {
 			<Navigation />
 			<Loader />
 			<Routes>
-				<Route path="/" element={<Menu />} />
-				<Route path="/game" element={<Game />} />
+				<Route path="/" element={<Game />} />
 				<Route path="/friends" element={<Friends />} />
 				<Route path="/chat" element={<Chat />} />
 				<Route path="/statistics" element={<Statistics />} />

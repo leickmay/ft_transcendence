@@ -1,6 +1,4 @@
 #game {
-	width: 90%;
-	max-width: 1920px;
 	.board {
 		display: flex;
 		justify-content: space-between;
@@ -13,30 +11,7 @@
 
 		&>.players {
 			padding: 15px;
-			max-width: 150px;
-
-			p {
-				margin: 5px 0;
-			}
-
-			.avatar {
-				position: relative;
-
-				&>img {
-					display: block;
-				}
-
-				&>.overlay {
-					pointer-events: none;
-					display: flex;
-					justify-content: center;
-					align-items: center;
-
-					h3 {
-						margin: 0;
-					}
-				}
-			}
+			width: 250px;
 		}
 
 		&>:not(.players) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import { GameContext } from '../../app/context/GameContext';
@@ -8,7 +8,9 @@ import { SocketContext } from '../../app/context/SocketContext';
 import { logout } from '../../app/Helpers';
 import { Ball, Player } from '../../app/interfaces/Game.interface';
 import { User } from '../../app/interfaces/User';
+import { resetGame } from '../../app/slices/gameSlice';
 import { setCurrentUser } from '../../app/slices/usersSlice';
+import { RootState } from '../../app/store';
 import { Home } from '../layouts/Home';
 
 interface Props {
@@ -16,14 +18,21 @@ interface Props {
 
 export function Connected(props: Props) {
 	const navigate = useNavigate();
-
+	const dispatch = useDispatch();
+	const ready = useSelector((state: RootState) => state.socket.ready);
 	const [cookies, setCookie, removeCookie] = useCookies(['access_token']);
 	const [socket, setSocket] = useState<Socket>();
 
 	let [players, setPlayers] = useState<Array<Player>>([]);
 	let [balls, setBalls] = useState<Array<Ball>>([]);
 
-	const dispatch = useDispatch();
+	useEffect(() => {
+		if (!ready) {
+			setPlayers([]);
+			setBalls([]);
+			dispatch(resetGame());
+		}
+	}, [ready]);
 
 	useEffect(() => {
 		const connect = async (): Promise<void> => {

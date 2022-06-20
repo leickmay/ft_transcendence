@@ -39,7 +39,7 @@ export const Friends = () => {
 	}, [socket]);
 
 	return (
-		<div id="friends">
+		<div id="friends" className='container'>
 			<section className="add-friend">
 				<h3>Add friend</h3>
 				<input type="text" autoComplete="off" name="search" className="border-primary" placeholder="Search for a login" value={searchInputValue} onChange={updateResults} />

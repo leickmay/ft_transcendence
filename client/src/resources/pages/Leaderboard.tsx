@@ -24,7 +24,7 @@ export const Leaderboard = () => {
 	}, [socket]);
 
 	return (
-		<table id="leaderboard">
+		<table id="leaderboard" className="container">
 			<tbody>
 				<tr className="titles">
 					<th>

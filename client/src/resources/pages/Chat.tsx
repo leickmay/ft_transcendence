@@ -69,7 +69,7 @@ export const getTime = (time: number): string => {
 
 export const Chat = () => {
 	return (
-		<div id="chat">
+		<div id="chat" className="container">
 			<ChatNavigation />
 			<ChatChannel />
 			<ChatPrivateMessage />

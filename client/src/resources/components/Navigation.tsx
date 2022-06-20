@@ -6,8 +6,7 @@ interface Props {
 
 export const Navigation = (props: Props) => {
 	const routes = {
-		'/': 'Home',
-		'/game': 'Game',
+		'/': 'Game',
 		'/friends': 'Friends',
 		'/chat': 'Chat',
 		'/statistics': 'Statistics',

@@ -26,18 +26,17 @@ export const FriendCard = (props: Props) => {
 	}
 
 	return (
-		<div className="friendCard">
-			<div className="friendCardUp">
-				<img src={isOnline() ? icon_online : icon_offline} width="40" height="40" alt=""></img>
-				{/* <img src={ingameSrc} width="40" height="40" alt=""></img> */}
+		<li className="user-card">
+			<div className="avatar">
+				<img className="playerAvatar" src={props.user.avatar} width="50px" height="50px" alt=""></img>
 			</div>
-			<div className="friendCardDown">
-				<img src={props.user.avatar} width="100" height="100" align-item="bottom" alt=""></img>
-				<div>{props.user.name}</div>
-				{ button() }
-				{/* <div> lvl {props.user.level}</div> */}
-				{/* <button type="submit" onClick={() => {props.delFriend(props.user.name)}}></button> */}
+			<div className="text">
+				<p><strong>{props.user.name}</strong></p>
+				<p><small>{props.user.login}</small></p>
 			</div>
-		</div>
+			<div className="status" data-online={isOnline()}>
+				<span></span>
+			</div>
+		</li>
 	);
 };

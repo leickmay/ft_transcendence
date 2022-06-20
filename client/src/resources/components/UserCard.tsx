@@ -19,7 +19,7 @@ export const UserCard = (props: Props) => {
 	const user = useSelector((state: RootState) => state.users.current);
 
 	return (
-		<div className="user-card bg-overlay rounded">
+		<div className="nav-card bg-overlay rounded">
 			<img src={user?.avatar || unknownAvatar} width="75px" height="75px" alt=""></img>
 			<div>
 				<h4>{ user?.name || '...' }</h4>

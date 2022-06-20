@@ -4,6 +4,7 @@ import { GameContext } from '../../../app/context/GameContext';
 import { GameStatus, Player, Sides } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
 import { Game } from '../../pages/Game';
+import { PlayerCard } from '../PlayerCard';
 
 interface Props {
 	search: () => void;
@@ -54,18 +55,7 @@ export const GameMenu = (props: Props) => {
 		const listPlayers = (players: Array<Player>): Array<JSX.Element> | JSX.Element => {
 			return players.length ?
 				players.map((player: Player) => (
-					<div key={player.user.id}>
-						<div className='avatar'>
-							<img className="playerAvatar" src={player.user.avatar} width="120px" height="120px" alt=""></img>
-							{player.ready && game.status < GameStatus.RUNNING && (
-								<div className='overlay'>
-									<h3 className='text-neon2-secondary text-stroke-1'>Ready</h3>
-								</div>
-							)}
-						</div>
-						<p>{player.user.name}</p>
-						<small>{player.user.login}</small>
-					</div>
+					<PlayerCard key={player.user.id} player={player}></PlayerCard>
 				)) : (
 					<div>Searching...</div>
 				);
