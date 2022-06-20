@@ -6,6 +6,7 @@ import { RootState } from "../../app/store";
 import { Doughnut } from 'react-chartjs-2';
 //import { DoughnutData } from "../components/DoughnutData";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { HistoryCard } from "../components/HistoryCard";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -33,15 +34,15 @@ export const Statistics = () => {
 		],
 	  };
 
-	const debugWin = () => {
-		socket?.emit("stats", new PacketPlayOutStatsUpdate(1, 1, 2));
-		socket?.emit("stats", new PacketPlayOutStatsUpdate(1, 2, 1));
-	}
-
-	const debugLose = () => {
-		socket?.emit("stats", new PacketPlayOutStatsUpdate(2, 1, 2));
-		socket?.emit("stats", new PacketPlayOutStatsUpdate(2, 2, 1));
-	}
+	//const debugWin = () => {
+	//	socket?.emit("stats", new PacketPlayOutStatsUpdate(1, 1, 2));
+	//	socket?.emit("stats", new PacketPlayOutStatsUpdate(1, 2, 1));
+	//}
+//
+	//const debugLose = () => {
+	//	socket?.emit("stats", new PacketPlayOutStatsUpdate(2, 1, 2));
+	//	socket?.emit("stats", new PacketPlayOutStatsUpdate(2, 2, 1));
+	//}
 
 
 	const listHistory = stats.history.map((h) => {
@@ -56,31 +57,40 @@ export const Statistics = () => {
 			result = "won";
 		else 
 			result = "lost";
-		return (
+		/*return (
 		<tr >
 				<td>{date.toLocaleString()}</td>
 				<td>{opponent}</td>
 				<td>{result}</td>
 		</tr>
-		);
+		);*/
+		return (
+			<HistoryCard date={date} opponent={opponent} result={result}/>
+		)
 		
 	});
 
 	return (
 		<div className='statistics'>
-			<button type="submit" onClick={debugWin}>Win against user2</button>
-			<button type="submit" onClick={debugLose}>Lose against user2</button>
+			{/*<button type="submit" onClick={debugWin}>Win against user2</button>
+			<button type="submit" onClick={debugLose}>Lose against user2</button>*/}
 			<div className="figures">
 				<p>Game played :<br/>{stats.nbMatchs}</p>
 				<Doughnut data={DoughnutData}/>
-			</div>
+		</div>
 			<div className="history">
-				<h3>Last Matches</h3>
+				<h4>Last Matches</h4>
 				<table>
-					<tr>
-						<th>Date</th>
-						<th>Opponent</th>
-						<th>Result</th>
+					<tr className="titles">
+						<th>
+							<h4>Date</h4>
+						</th>
+						<th>
+							<h4>Opponent</h4>
+						</th>
+						<th>
+							<h4>Result</h4>
+						</th>
 					</tr>
 					{listHistory}
 				</table>
