@@ -5,6 +5,7 @@ import { PacketPlayInPlayerMove } from 'src/socket/packets/PacketPlayInPlayerMov
 import { PacketPlayInPlayerReady } from 'src/socket/packets/PacketPlayInPlayerReady';
 import { PacketPlayOutGameUpdate } from 'src/socket/packets/PacketPlayOutGameUpdate';
 import { Packet, PacketTypesPlayer } from 'src/socket/packets/packetTypes';
+import { StatsService } from 'src/stats/stats.service';
 import { User } from '../user/user.entity';
 import { GameStatus, Player, Room } from "./game.interfaces";
 
@@ -16,11 +17,13 @@ export class GameService {
 	constructor(
 		@Inject(forwardRef(() => EventsService))
 		private eventsService: EventsService,
+		@Inject(forwardRef(() => StatsService))
+		private statsService: StatsService,
 	) {
 		setInterval(() => {
-			let server = eventsService.getServer();
+			let server = this.eventsService.getServer();
 			while (this.waitList.length >= 2 && server) {
-				let room = new Room(server);
+				let room = new Room(server, this.statsService);
 				room.join(this.waitList.shift()!);
 				room.join(this.waitList.shift()!);
 				this.rooms.push(room);

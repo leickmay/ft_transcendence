@@ -4,6 +4,7 @@ export enum PacketTypesMisc {
 	PLAYER_MOVE,
 	SEARCH_USER,
 	STATS_UPDATE,
+	STATS_REQUEST,
 	LEADERBOARD,
 }
 

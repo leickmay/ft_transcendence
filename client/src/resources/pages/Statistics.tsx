@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/SocketContext";
-import { PacketPlayOutStatsUpdate } from "../../app/packets/PacketPlayOutStatsUpdate";
+import { PacketPlayOutStatsRequest } from "../../app/packets/PacketPlayOutStatsRequest";
 import { RootState } from "../../app/store";
 
 export const Statistics = () => {
@@ -9,16 +9,9 @@ export const Statistics = () => {
 	const stats = useSelector((state: RootState) => state.stats)
 	const users = useSelector((state: RootState) => state.users);
 
-	const debugWin = () => {
-		socket?.emit("stats", new PacketPlayOutStatsUpdate(1, 1, 2));
-		socket?.emit("stats", new PacketPlayOutStatsUpdate(1, 2, 1));
+	const refresh = () => {
+		socket?.emit("stats", new PacketPlayOutStatsRequest());
 	}
-
-	const debugLose = () => {
-		socket?.emit("stats", new PacketPlayOutStatsUpdate(2, 1, 2));
-		socket?.emit("stats", new PacketPlayOutStatsUpdate(2, 2, 1));
-	}
-
 
 	const listHistory = stats.history.map((h) => {
 		const date = new Date(h.createdDate);
@@ -44,8 +37,7 @@ export const Statistics = () => {
 
 	return (
 		<div className='statistics'>
-			<button type="submit" onClick={debugWin}>Win against user2</button>
-			<button type="submit" onClick={debugLose}>Lose against user2</button>
+			<button type="submit" onClick={refresh}>Refresh</button>
 	
 			{<div className="figures">
 				<p>Game played :<br/>{stats.nbMatchs}</p>

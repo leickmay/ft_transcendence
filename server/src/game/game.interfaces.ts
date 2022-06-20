@@ -7,6 +7,7 @@ import { PacketPlayOutPlayerList } from "src/socket/packets/PacketPlayOutPlayerL
 import { PacketPlayOutPlayerReady } from "src/socket/packets/PacketPlayOutPlayerReady";
 import { PacketPlayOutPlayerTeleport } from "src/socket/packets/PacketPlayOutPlayerTeleport";
 import { PacketPlayOutPlayerUpdate } from "src/socket/packets/PacketPlayOutPlayerUpdate";
+import { StatsService } from "src/stats/stats.service";
 import { clearInterval } from "timers";
 import { User } from "../user/user.entity";
 
@@ -78,8 +79,15 @@ export class Room {
 		return ++this.currentBallId;
 	}
 
-	constructor(private readonly server: Server) {
+	constructor(
+		private readonly server: Server,
+		private readonly statsService: StatsService,
+	) {
 		this.id = ++Room.current;
+	}
+
+	private countLeftTeam(): number {
+		return this.players.filter(p => p.side === Sides.LEFT).length;
 	}
 
 	private chooseSide(): Sides {
@@ -109,7 +117,26 @@ export class Room {
 	}
 
 	leave(user: User): void {
-		// TODO
+		let index = this.players.findIndex(p => p.user.id === user.id);
+		if (index > -1) {
+			let [player] = this.players.splice(index, 1);
+			let left = this.countLeftTeam();
+			// TODO send disconnect
+			if (left === 0 || left === this.players.length)
+				this.end(undefined);
+		}
+	}
+
+	end(winner: Player | undefined) {
+		this.status = GameStatus.FINISHED;
+		this.broadcast(new PacketPlayOutGameUpdate({
+			status: GameStatus.FINISHED,
+		}));
+		clearInterval(this.gameInterval);
+		this.gameInterval = undefined;
+		if (winner && this.players.length === 2) {
+			this.statsService.addStat(this.players[0].user, this.players[1].user, winner.user.id);
+		}
 	}
 
 	tryStart(): void { this.canStart() && this.start(); }
@@ -161,11 +188,7 @@ export class Room {
 		}
 		let winner: Player | undefined = this.players.find(p => p.score >= 5);
 		if (winner) {
-			this.status = GameStatus.FINISHED;
-			this.broadcast(new PacketPlayOutGameUpdate({
-				status: GameStatus.FINISHED,
-			}));
-			clearInterval(this.gameInterval);
+			this.end(winner);
 		}
 		++this.tick;
 	}
