@@ -177,14 +177,31 @@ export class ChatService {
 				if (command.length !== 2)
 					return false;
 				let userBlocked = this.eventService.getUserByLogin(command[1]);
-				if (!userBlocked)
+				if (!userBlocked || userBlocked.login === user.login)
 					return (false);
 				if (userBlocked && !this.isBlock(user, userBlocked.login))
 				{
-					this.usersBlocked[user.login] = [
-						...this.usersBlocked,
-						userBlocked.login,
-					];
+					// A DEBUG
+					//let tmp = this.usersBlocked.get(user.login);
+					//
+					//if (tmp)
+					//{
+					//	this.usersBlocked.set(
+					//		user.login,
+					//		[
+					//			...tmp,
+					//			userBlocked.login,
+					//		]
+					//	)
+					//}
+					//else {
+					//	this.usersBlocked.set(
+					//		user.login,
+					//		[
+					//			userBlocked.login,
+					//		]
+					//	)
+					//}
 				}
 				
 				user.socket?.emit('chat', new PacketPlayOutChatBlock(this.usersBlocked[user.login]));
