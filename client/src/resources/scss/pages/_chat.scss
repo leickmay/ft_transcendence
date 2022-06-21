@@ -140,7 +140,7 @@ $max-width: 742px;
 		border: 1px solid $primary;
 		padding: none;
 		border-radius: 8px;
-		background-color: $primary;
+		background-color: darken($primary, 30%);
 	}
 	textarea:focus {
 		outline: none !important;

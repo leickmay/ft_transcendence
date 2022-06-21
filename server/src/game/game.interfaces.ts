@@ -134,8 +134,15 @@ export class Room {
 		}));
 		clearInterval(this.gameInterval);
 		this.gameInterval = undefined;
-		if (winner && this.players.length === 2) {
-			this.statsService.addStat(this.players[0].user, this.players[1].user, winner.user.id);
+		if (winner) {
+			if (this.players.length === 2) {
+				this.statsService.addStat(this.players[0].user, this.players[1].user, winner.user.id);
+			}
+			for (const player of this.players) {
+				player.user.xp += player.side === winner.side ? 20 : 5;
+				player.user.xp += player.score;
+				player.user.save();
+			}
 		}
 	}
 

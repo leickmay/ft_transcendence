@@ -60,6 +60,8 @@ export class StatsService {
 	}
 
 	async sendLeaderboard(packet: PacketPlayInLeaderboard, user: User): Promise<void> {
+		if (packet.action === undefined)
+			return;
 		let field = 'matchWon';
 		if (packet.action === 'played')
 			field = 'nbMatch';

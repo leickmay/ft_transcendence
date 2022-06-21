@@ -4,12 +4,15 @@ import { containsUser, UserPreview, UpdateUserDto, User } from '../interfaces/Us
 interface State {
 	current?: User;
 	friends: Array<User>;
-	online:  Array<UserPreview>;
+	online: Array<UserPreview>;
+	results: Array<UserPreview>;
 }
 
 const initialState: State = {
+	current: undefined,
 	friends: [],
 	online: [],
+	results: [],
 };
 
 const slice = createSlice({
@@ -90,9 +93,12 @@ const slice = createSlice({
 					...state.online.filter(u => u.id !== action.payload.id),
 				],
 			};
+		},
+		setResults: (state: State, action: PayloadAction<Array<UserPreview>>): void => {
+			state.results = action.payload;
 		}
 	},
 });
 
-export const { setCurrentUser, updateUser, setTotp, setFriends, addFriend, removeFriend, addOnlineUser, removeOnlineUser } = slice.actions;
+export const { setCurrentUser, updateUser, setTotp, setFriends, addFriend, removeFriend, addOnlineUser, removeOnlineUser, setResults } = slice.actions;
 export default slice.reducer;

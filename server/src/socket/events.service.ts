@@ -3,6 +3,9 @@ import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
 import { GameService } from 'src/game/game.service';
 import { User } from 'src/user/user.entity';
+import { Packet } from './packets/packetTypes';
+
+type PacketHandlerFunction<T extends Packet> = (packet: T, user: User) => any;
 
 @Injectable()
 export class EventsService {

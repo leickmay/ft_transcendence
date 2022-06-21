@@ -79,6 +79,8 @@ export class GameService {
 	}
 
 	handlePlayerMove(packet: PacketPlayInPlayerMove, user: User): void {
+		if (packet.direction === undefined)
+			return;
 		let player: Player | null = user.player;
 
 		if (player?.room.status === GameStatus.RUNNING) {

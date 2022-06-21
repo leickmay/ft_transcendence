@@ -3,7 +3,6 @@ import { AuthModule } from 'src/auth/auth.module';
 import { ChatModule } from 'src/chat/chat.module';
 import { GameModule } from 'src/game/game.module';
 import { OptionsModule } from 'src/options/options.module';
-import { SearchModule } from 'src/search/search.module';
 import { StatsModule } from 'src/stats/stats.module';
 import { UserModule } from 'src/user/user.module';
 import { EventsService } from './events.service';
@@ -16,7 +15,6 @@ import { EventsGateway } from './gateways/events.gateway';
 		forwardRef(() => OptionsModule),
 		forwardRef(() => ChatModule),
 		forwardRef(() => GameModule),
-		forwardRef(() => SearchModule),
 		forwardRef(() => StatsModule),
 	],
 	providers: [EventsGateway, EventsService],

@@ -137,6 +137,8 @@ export class ChatService {
 		return true;
 	}
 	async event_message(packet: PacketPlayInChatMessage, user: User): Promise<void> {
+		if (packet.room === undefined || packet.text === undefined)
+			return;
 		let room: ChatRoom | undefined = this.rooms.find(x => x.id === packet.room);
 		if (!room?.isPresent(user.id))
 			return;
@@ -152,6 +154,8 @@ export class ChatService {
 		room?.send(user, packet.text);
 	}
 	async event_create(packet: PacketPlayInChatCreate, user: User): Promise<void> {
+		if (packet.type === undefined)
+			return;
 		switch (packet.type) {
 			case ChatTypes.CHANNEL: {
 				if (packet.name !== undefined && packet.visible !== undefined) {
@@ -235,6 +239,8 @@ export class ChatService {
 		}
 	}
 	async event_join(packet: PacketPlayInChatJoin, user: User): Promise<void> {
+		if (packet.name === undefined)
+			return;
 		let room: ChatRoom | undefined;
 
 		room = this.rooms.find(x => x.name === packet.name);

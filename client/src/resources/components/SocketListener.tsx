@@ -18,6 +18,7 @@ import { PacketPlayInPlayerMove } from '../../app/packets/PacketPlayInPlayerMove
 import { PacketPlayInPlayerReady } from '../../app/packets/PacketPlayInPlayerReady';
 import { PacketPlayInPlayerTeleport } from '../../app/packets/PacketPlayInPlayerTeleport';
 import { PacketPlayInPlayerUpdate } from '../../app/packets/PacketPlayInPlayerUpdate';
+import { PacketPlayInSearchUserResults } from '../../app/packets/PacketPlayInSearchUserResults';
 import { PacketPlayInStatsUpdate } from '../../app/packets/PacketPlayInStatsUpdate';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
@@ -28,7 +29,7 @@ import { addRoom, addUserToRoom, delRoom, leaveRoom, setChatRooms, setOperator }
 import { updateGame } from '../../app/slices/gameSlice';
 import { setBoard } from '../../app/slices/leaderboardSlice';
 import { setUserStats } from '../../app/slices/statsSlice';
-import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
+import { addOnlineUser, removeOnlineUser, setFriends, setResults, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
 import { getUserByLogin } from '../pages/Chat';
 
@@ -70,6 +71,10 @@ export const SocketListener = (props: Props) => {
 			dispatch(setFriends(packet.friends));
 		}
 
+		const search = (packet: PacketPlayInSearchUserResults) => {
+			dispatch(setResults(packet.results));
+		}
+
 		socket?.off('user').on('user', (packet: Packet) => {
 			switch (packet.packet_id) {
 				case PacketTypesUser.CONNECTION:
@@ -83,6 +88,9 @@ export const SocketListener = (props: Props) => {
 					break;
 				case PacketTypesMisc.FRIENDS:
 					friends(packet as PacketPlayInFriendsUpdate);
+					break;
+				case PacketTypesMisc.SEARCH_USER:
+					search(packet as PacketPlayInSearchUserResults);
 					break;
 				default:
 					break;

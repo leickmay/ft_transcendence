@@ -5,7 +5,6 @@ import { AuthService } from 'src/auth/auth.service';
 import { ChatService } from 'src/chat/chat.service';
 import { GameService } from 'src/game/game.service';
 import { OptionsService } from 'src/options/options.service';
-import { SearchService } from 'src/search/search.service';
 import { StatsService } from 'src/stats/stats.service';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -31,8 +30,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		private optionsService: OptionsService,
 		@Inject(forwardRef(() => GameService))
 		private gameService: GameService,
-		@Inject(forwardRef(() => SearchService))
-		private searchService: SearchService,
 		@Inject(forwardRef(() => ChatService))
 		private chatService: ChatService,
 		@Inject(forwardRef(() => StatsService))
@@ -58,8 +55,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				throw Error('Already connected');
 			}
 			client.emit('ready');
-			client.broadcast.emit('user', new PacketPlayOutUserConnection([{id: user.id, login: user.login}]));
-			client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => ({id: u.id, login: u.login}))));
+			client.broadcast.emit('user', new PacketPlayOutUserConnection([{ id: user.id, login: user.login }]));
+			client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => ({ id: u.id, login: u.login }))));
 			this.eventsService.addUser(client, user);
 
 			// To move
@@ -74,7 +71,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		client.broadcast.emit('user', new PacketPlayOutUserDisconnected({id: user.id, login: user.login}));
+		client.broadcast.emit('user', new PacketPlayOutUserDisconnected({ id: user.id, login: user.login }));
 		this.eventsService.removeUser(client, user);
 	}
 
@@ -83,38 +80,38 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		this.optionsService.dispatch(packet, user);
+		try {
+			this.optionsService.dispatch(packet, user);
+		} catch (e) { }
 	}
 
 	@SubscribeMessage('chat')
-	handleChat(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket) {
+	handleChat(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket): void {
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		this.chatService.dispatch(packet, user);
+		try {
+			this.chatService.dispatch(packet, user);
+		} catch (e) { }
 	}
 
 	@SubscribeMessage('game')
-	handleGame(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket) {
+	handleGame(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket): void {
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		this.gameService.dispatch(packet, user);
-	}
-
-	@SubscribeMessage('search')
-	handleSearch(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket) {
-		let user: User = this.eventsService.users[client.id];
-		if (!user)
-			return;
-		this.searchService.dispatch(packet, user);
+		try {
+			this.gameService.dispatch(packet, user);
+		} catch (e) { }
 	}
 
 	@SubscribeMessage('stats')
-	handleStats(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket) {
+	handleStats(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket): void {
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		this.statsService.dispatch(packet, user);
+		try {
+			this.statsService.dispatch(packet, user);
+		} catch (e) { }
 	}
 }
