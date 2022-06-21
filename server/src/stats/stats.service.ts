@@ -1,8 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { instanceToPlain } from "class-transformer";
 import { PacketPlayInLeaderboard } from "src/socket/packets/PacketPlayInLeaderboard";
+import { PacketPlayInProfile } from "src/socket/packets/PacketPlayInProfile";
 import { PacketPlayInStatsUpdate } from "src/socket/packets/PacketPlayInStatsUpdate";
 import { PacketPlayOutLeaderboard } from "src/socket/packets/PacketPlayOutLeaderboard";
+import { PacketPlayOutProfile } from "src/socket/packets/PacketPlayOutProfile";
 import { PacketPlayOutStatsUpdate } from "src/socket/packets/PacketPlayOutStatsUpdate";
 import { Packet, PacketTypesMisc } from "src/socket/packets/packetTypes";
 import { User } from "src/user/user.entity";
@@ -21,6 +23,9 @@ export class StatsService {
 				break;
 			case PacketTypesMisc.STATS_UPDATE:
 				this.sendStats(user);
+				break;
+			case PacketTypesMisc.PROFILE:
+				this.sendProfile(packet as PacketPlayInProfile, user);
 				break;
 		}
 	}
@@ -69,5 +74,35 @@ export class StatsService {
 			take: 10,
 		});
 		user.send('stats', new PacketPlayOutLeaderboard(instanceToPlain(users)));
+	}
+
+	async sendProfile(packet: PacketPlayInProfile, user: User): Promise<void> {
+		let player = await User.find({
+			where: {login: packet.login},
+		})
+		//console.log('player : ', player[0], 'login: ', packet.login);
+		let stats: Stats[] = await Stats.find({
+			where: [
+				{
+					player1: {
+						id: player[0].id
+					},
+				},
+				{
+					player2: {
+						id: player[0].id
+					},
+				},
+			],
+			relations: ['player1', 'player2'],
+		});
+		//console.log("stats: ", stats.length, stats.filter(m => m.winner === player[0].id).length,
+		//instanceToPlain(stats.slice(0, 10)));
+		user.send('stats', new PacketPlayOutProfile(
+			stats.length,
+			stats.filter(m => m.winner === player[0].id).length,
+			instanceToPlain(stats.slice(0, 10)),
+			instanceToPlain(player),
+		));
 	}
 }

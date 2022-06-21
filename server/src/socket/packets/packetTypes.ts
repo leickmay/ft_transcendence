@@ -5,6 +5,7 @@ export enum PacketTypesMisc {
 	SEARCH_USER,
 	STATS_UPDATE,
 	LEADERBOARD,
+	PROFILE,
 }
 
 export enum PacketTypesUser {

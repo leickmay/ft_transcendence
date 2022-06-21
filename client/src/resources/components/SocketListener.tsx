@@ -13,9 +13,11 @@ import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserCo
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
+import { PacketPlayInProfile } from '../../app/packets/PacketPlayInProfile';
 import { Packet, PacketTypesChat, PacketTypesMisc, PacketTypesUser } from '../../app/packets/packetTypes';
 import { addRoom, addUserToRoom, delRoom, leaveRoom, setChatRooms, setOperator } from '../../app/slices/chatSlice';
 import { setBoard } from '../../app/slices/leaderboardSlice';
+import { setProfile } from '../../app/slices/profileSlice';
 import { setUserStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
@@ -56,6 +58,11 @@ export const SocketListener = (props: Props) => {
 
 		const board = (packet: PacketPlayInLeaderboard) => {
 			dispatch(setBoard(packet.users));
+		}
+
+		const profile = (packet : PacketPlayInProfile) => {
+			console.log("good function");
+			dispatch(setProfile(packet));
 		}
 
 		socket?.off('user').on('user', (packet: Packet) => {
@@ -148,6 +155,8 @@ export const SocketListener = (props: Props) => {
 				stats(packet as PacketPlayInStatsUpdate);
 			if (packet.packet_id === PacketTypesMisc.LEADERBOARD)
 				board(packet as PacketPlayInLeaderboard);
+			if ((packet.packet_id === PacketTypesMisc.PROFILE))
+				profile(packet as PacketPlayInProfile);
 		});
 
 		socket?.off('chat').on('chat', (packet: Packet) => {
