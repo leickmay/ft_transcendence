@@ -48,7 +48,6 @@ li.user-card:not(:last-child) {
 		justify-self: end;
 
 		&>button {
-			filter: grayscale(100%);
 			width: 30px;
 			height: 30px;
 			display: flex;
@@ -57,6 +56,11 @@ li.user-card:not(:last-child) {
 			margin-right: 10px;
 			padding: 0;
 			border: none;
+
+			&:not([data-playing='true' i]) {
+				filter: grayscale(100%);
+				opacity: 50%;
+			}
 		}
 
 		&>span {

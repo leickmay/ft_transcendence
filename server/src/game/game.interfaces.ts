@@ -7,6 +7,7 @@ import { PacketPlayOutPlayerList } from "src/socket/packets/PacketPlayOutPlayerL
 import { PacketPlayOutPlayerReady } from "src/socket/packets/PacketPlayOutPlayerReady";
 import { PacketPlayOutPlayerTeleport } from "src/socket/packets/PacketPlayOutPlayerTeleport";
 import { PacketPlayOutPlayerUpdate } from "src/socket/packets/PacketPlayOutPlayerUpdate";
+import { PacketPlayOutUserConnection } from "src/socket/packets/PacketPlayOutUserConnection";
 import { StatsService } from "src/stats/stats.service";
 import { clearInterval } from "timers";
 import { User } from "../user/user.entity";
@@ -113,6 +114,7 @@ export class Room {
 
 			user.socket?.join(this.getSocketRoom());
 			this.broadcast(new PacketPlayOutPlayerJoin(instanceToPlain(user.player)));
+			this.server.emit('user', new PacketPlayOutUserConnection([{ id: user.id, login: user.login, playing: true }]));
 		}
 	}
 
@@ -124,6 +126,8 @@ export class Room {
 			// TODO send disconnect
 			if (left === 0 || left === this.players.length)
 				this.end(undefined);
+			this.server.emit('user', new PacketPlayOutUserConnection([{ id: user.id, login: user.login, playing: false }]));
+			player.user.player = null;
 		}
 	}
 

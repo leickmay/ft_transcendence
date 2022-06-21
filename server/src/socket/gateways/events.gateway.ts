@@ -56,7 +56,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			}
 			client.emit('ready');
 			client.broadcast.emit('user', new PacketPlayOutUserConnection([{ id: user.id, login: user.login }]));
-			client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => ({ id: u.id, login: u.login }))));
+			client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => ({ id: u.id, login: u.login, playing: !!u.player }))));
 			this.eventsService.addUser(client, user);
 
 			// To move

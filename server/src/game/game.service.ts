@@ -4,6 +4,7 @@ import { PacketPlayInPlayerJoin } from 'src/socket/packets/PacketPlayInPlayerJoi
 import { PacketPlayInPlayerMove } from 'src/socket/packets/PacketPlayInPlayerMove';
 import { PacketPlayInPlayerReady } from 'src/socket/packets/PacketPlayInPlayerReady';
 import { PacketPlayOutGameUpdate } from 'src/socket/packets/PacketPlayOutGameUpdate';
+import { PacketPlayOutUserConnection } from 'src/socket/packets/PacketPlayOutUserConnection';
 import { Packet, PacketTypesPlayer } from 'src/socket/packets/packetTypes';
 import { StatsService } from 'src/stats/stats.service';
 import { User } from '../user/user.entity';

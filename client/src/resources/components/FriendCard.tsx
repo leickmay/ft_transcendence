@@ -13,7 +13,6 @@ interface Props {
 export const FriendCard = (props: Props) => {
 	const socket = useContext(SocketContext);
 	const online = useSelector((state: RootState) => state.users.online);
-	const playing = useSelector((state: RootState) => state.users.online);
 
 	let button = (): JSX.Element => {
 		return (<div onClick={() => socket?.emit('user', new PacketPlayOutFriends('remove', props.user.id))}>
@@ -25,8 +24,8 @@ export const FriendCard = (props: Props) => {
 		return !!online.find(u => u.id === props.user.id);
 	}, [props.user, online]);
 
-	let isPlaying = useMemo((): boolean => { // TODO
-		return !!online.find(u => u.id === props.user.id);
+	let isPlaying = useMemo((): boolean => {
+		return !!online.find(u => u.id === props.user.id)?.playing;
 	}, [props.user, online]);
 
 	let spectate = useCallback((): void => {
@@ -43,8 +42,8 @@ export const FriendCard = (props: Props) => {
 				<p><small>{props.user.login}</small></p>
 			</div>
 			<div className='status' data-online={isOnline}>
-				{isPlaying &&
-					<button aria-label='spectate' title='Spectate' onClick={spectate}>
+				{isOnline &&
+					<button data-playing={isPlaying} aria-label='spectate' title='Spectate' onClick={spectate}>
 						🎮
 					</button>
 				}

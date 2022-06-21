@@ -7,6 +7,8 @@ import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, O
 export interface UserPreview {
 	id: number;
 	login: string;
+	name?: string;
+	playing?: boolean;
 }
 
 @Exclude()
