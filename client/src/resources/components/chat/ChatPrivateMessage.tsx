@@ -15,6 +15,7 @@ const ChatPrivateMessage = () => {
 	const socket = useContext(SocketContext);
 	const onlineUsers = useSelector((state: RootState) => state.users.online);
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
+	const usersBlocked = useSelector((state: RootState) => state.chat.usersBlocked);
 
 	const hasAlreadyPrivMsg = (userId: number): boolean => {
 		return !rooms?.find(r => r.type === ChatTypes.PRIVATE_MESSAGE && r.users.find(u => u.id === userId));
@@ -24,6 +25,14 @@ const ChatPrivateMessage = () => {
 		let roomPacket : PacketPlayOutChatCreate;
 		roomPacket = new PacketPlayOutChatCreate(ChatTypes.PRIVATE_MESSAGE).toPrivateMessage([id]);
 		socket?.emit('chat', roomPacket);
+	}
+
+	const isBlocked = (login: string): boolean => {
+		if (!usersBlocked)
+			return false;
+		if (usersBlocked && usersBlocked.find(x => x === login))
+			return true;
+		return false;
 	}
 
 	return (
@@ -41,6 +50,7 @@ const ChatPrivateMessage = () => {
 			{
 				onlineUsers
 					.filter(u => hasAlreadyPrivMsg(u.id))
+					.filter(u => !isBlocked(u.login))
 					.map((value, index) => {
 					return (
 						<div

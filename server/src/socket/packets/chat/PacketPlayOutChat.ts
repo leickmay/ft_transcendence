@@ -56,6 +56,7 @@ export class PacketPlayOutChatInit {
 			visible: boolean,
 			operator?: number,
 		}>,
+		public usersBlocked: Array<string>,
 	) {}
 }
 
@@ -80,5 +81,12 @@ export class PacketPlayOutChatOperator {
 			id: string,
 			operator: number,
 		},
+	) {}
+}
+
+@DeclarePacket(PacketTypesChat.BLOCK)
+export class PacketPlayOutChatBlock {
+	constructor(
+		public usersBlocked: Array<string>,
 	) {}
 }

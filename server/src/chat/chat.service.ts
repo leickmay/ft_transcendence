@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { instanceToPlain } from "class-transformer";
 import { PacketPlayInChatCreate, PacketPlayInChatJoin, PacketPlayInChatMessage } from "src/socket/packets/chat/PacketPlayInChat";
-import { PacketPlayOutChatCreate, PacketPlayOutChatDel, PacketPlayOutChatInit, PacketPlayOutChatJoin } from "src/socket/packets/chat/PacketPlayOutChat";
+import { PacketPlayOutChatBlock, PacketPlayOutChatCreate, PacketPlayOutChatDel, PacketPlayOutChatInit, PacketPlayOutChatJoin } from "src/socket/packets/chat/PacketPlayOutChat";
 import { PacketTypesChat, Packet } from "src/socket/packets/packetTypes";
 import { User } from "src/user/user.entity";
 import { ChatTypes, ChatRoom } from "./chat.interface";
@@ -12,6 +12,8 @@ export class ChatService {
 
 	rooms: Array<ChatRoom>;
 
+	usersBlocked: Map<string, Array<string>>;
+
 	constructor(private eventService: EventsService) {
 		this.rooms = [new ChatRoom(
 			ChatTypes.CHANNEL,
@@ -21,6 +23,7 @@ export class ChatService {
 			undefined,
 			undefined,
 		)];
+		this.usersBlocked = new Map<string, Array<string>>();
 	}
 
 	dispatch(packet: Packet, user: User): void {
@@ -75,10 +78,16 @@ export class ChatService {
 							operator: room.operator,
 						});
 					})
-			) as any
+			) as any,
+			this.usersBlocked[user.login],
 		));
 	}
 	disconnection() {}
+
+	isBlock(user: User, login: string) {
+		console.log(this.usersBlocked);
+		return (this.usersBlocked[user.login]?.find(x => x === login));
+	}
 
 	async event_command(user: User, room: ChatRoom, text: string): Promise<boolean> {
 		let command = text.split(" ");
@@ -167,6 +176,18 @@ export class ChatService {
 			case "/BLOCK": {
 				if (command.length !== 2)
 					return false;
+				let userBlocked = this.eventService.getUserByLogin(command[1]);
+				if (!userBlocked)
+					return (false);
+				if (userBlocked && !this.isBlock(user, userBlocked.login))
+				{
+					this.usersBlocked[user.login] = [
+						...this.usersBlocked,
+						userBlocked.login,
+					];
+				}
+				
+				user.socket?.emit('chat', new PacketPlayOutChatBlock(this.usersBlocked[user.login]));
 				room?.command(user, text);
 				break;
 			}
@@ -231,6 +252,8 @@ export class ChatService {
 					let otherUser = this.eventService.getUserById(packet.users[0]);
 					if (otherUser)
 					{
+						if (this.usersBlocked[otherUser.login]?.find(x => x === user.login))
+							return;
 						if (this.rooms.find(room => (
 							room.type === ChatTypes.PRIVATE_MESSAGE 
 							&& room.isPresent(user.id) 

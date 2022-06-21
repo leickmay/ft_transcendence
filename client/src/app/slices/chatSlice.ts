@@ -5,10 +5,12 @@ import { PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOperator
 interface State {
 	current?: string;
 	rooms?: Array<ChatRoom>;
+	usersBlocked: Array<string>;
 }
 
 const initialState: State = {
 	current: "ChatRoom_1",
+	usersBlocked: [],
 };
 
 const slice = createSlice({
@@ -87,8 +89,12 @@ const slice = createSlice({
 				?.find(x => x.id === action.payload.room)
 				?.messages.push(action.payload.message);
 		},
+		upUsersBlocked: (state: State, action: PayloadAction<Array<string>>): void => {
+			state.usersBlocked = action.payload;
+			console.log(state.usersBlocked);
+		},
 	},
 });
 
-export const {setCurrentRooms, setChatRooms, addRoom, addUserToRoom, delRoom, setOperator, newMessages, addUser, leaveRoom} = slice.actions;
+export const {setCurrentRooms, setChatRooms, addRoom, addUserToRoom, delRoom, setOperator, newMessages, addUser, leaveRoom, upUsersBlocked} = slice.actions;
 export default slice.reducer;

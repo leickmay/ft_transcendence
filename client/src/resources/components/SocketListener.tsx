@@ -5,7 +5,7 @@ import { receiveMessage } from '../../app/actions/messageActions';
 import { SocketContext } from '../../app/context/socket';
 import { ChatRoom, ChatTypes } from '../../app/interfaces/Chat';
 import { User } from '../../app/interfaces/User';
-import { PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOperator, PacketPlayInChatRoomCreate, PacketPlayInChatUp } from '../../app/packets/chat/PacketPlayInChat';
+import { PacketPlayInChatBlock, PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOperator, PacketPlayInChatRoomCreate, PacketPlayInChatUp } from '../../app/packets/chat/PacketPlayInChat';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
 import { PacketPlayInLeaderboard } from '../../app/packets/PacketPlayInLeaderboard';
 import { PacketPlayInStatsUpdate } from '../../app/packets/PacketPlayInStatsUpdate';
@@ -14,7 +14,7 @@ import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUser
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { Packet, PacketTypesChat, PacketTypesMisc, PacketTypesUser } from '../../app/packets/packetTypes';
-import { addRoom, addUserToRoom, delRoom, leaveRoom, setChatRooms, setOperator } from '../../app/slices/chatSlice';
+import { addRoom, addUserToRoom, delRoom, leaveRoom, setChatRooms, setOperator, upUsersBlocked } from '../../app/slices/chatSlice';
 import { setBoard } from '../../app/slices/leaderboardSlice';
 import { setUserStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
@@ -148,12 +148,16 @@ export const SocketListener = (props: Props) => {
 			let rooms = packet.rooms as Array<ChatRoom>
 			rooms.forEach((r: ChatRoom) => { r.messages = []; });
 			dispatch(setChatRooms(rooms));
+			dispatch(upUsersBlocked(packet.usersBlocked));
 		};
 		const delHandler = async (packet: PacketPlayInChatDel) => {
 			dispatch(delRoom(packet.room as ChatRoom));
 		};
 		const operatorHandler = async (packet: PacketPlayInChatOperator) => {
 			dispatch(setOperator(packet));
+		};
+		const blockHandler = async (packet: PacketPlayInChatBlock) => {
+			dispatch(upUsersBlocked(packet.usersBlocked));
 		};
 
 		socket?.off('stats').on('stats', (packet: Packet) => {
@@ -195,6 +199,10 @@ export const SocketListener = (props: Props) => {
 				}
 				case PacketTypesChat.OPERATOR: {
 					operatorHandler(packet as PacketPlayInChatOperator);
+					break;
+				}
+				case PacketTypesChat.BLOCK: {
+					blockHandler(packet as PacketPlayInChatBlock);
 					break;
 				}
 				default: {

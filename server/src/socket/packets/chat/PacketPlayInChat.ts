@@ -26,3 +26,5 @@ export interface PacketPlayInChatLeave extends Packet {}
 export interface PacketPlayInChatUp extends Packet {}
 
 export interface PacketPlayInChatInit extends Packet {}
+
+export interface PacketPlayInChatBlock extends Packet {}

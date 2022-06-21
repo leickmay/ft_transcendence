@@ -69,3 +69,6 @@ export class PacketPlayOutChatRoomUp {}
 
 @DeclarePacket(PacketTypesChat.INIT)
 export class PacketPlayOutChatRoomInit {}
+
+@DeclarePacket(PacketTypesChat.BLOCK)
+export class PacketPlayOutChatRoomBlock {}
