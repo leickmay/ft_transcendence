@@ -34,7 +34,11 @@ export class EventsService {
 		delete this.users[socket.id];
 	}
 
-	getUser(id: number): User | undefined {
+	getUserById(id: number): User | undefined {
 		return Object.values(this.users).find(u => u.id === id);
+	}
+
+	getUserByLogin(login: string): User | undefined {
+		return Object.values(this.users).find(u => u.login === login);
 	}
 }

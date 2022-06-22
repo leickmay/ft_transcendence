@@ -9,6 +9,10 @@ export const receiveMessage = (packet: PacketPlayInChatMessage) => (dispatch: Th
 	dispatch(newMessages(packet));
 	if (getState().users.current?.login === packet.message.from)
 		return;
+	if (getState().chat.usersBlocked) {
+		if (getState().chat.usersBlocked.find(x => x === packet.message.from))
+			return;
+	}
 	let room = getState().chat.rooms?.find(x => x.id === packet.room);
 	if (!room)
 		return;

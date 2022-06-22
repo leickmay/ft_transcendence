@@ -11,6 +11,7 @@ const ChatCurrentRoom = () => {
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
 	const currentID = useSelector((state: RootState) => state.chat.current);
 	const users = useSelector((state: RootState) => state.users);
+	const usersBlocked = useSelector((state: RootState) => state.chat.usersBlocked);
 
 	const [current, setCurrent] = useState(rooms?.find(x => x.id === currentID));
 	const [newMessage, setNewMessage] = useState('');
@@ -40,7 +41,7 @@ const ChatCurrentRoom = () => {
 			}
 			<div id="chatRoomMesssages">
 			{
-					current?.messages
+					current?.messages?.filter(m => !usersBlocked || !usersBlocked.find(b => b === m.from))
 						?.map((value, index) => {
 							let from: string = "otherMessage";
 							if (value.from === users.current?.login) {
