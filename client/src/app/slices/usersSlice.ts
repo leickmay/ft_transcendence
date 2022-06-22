@@ -81,7 +81,7 @@ const slice = createSlice({
 			if (state.online.find(x => x.id === action.payload.id)) {
 				return {
 					...state,
-					online: state.friends.map(online => online.id === action.payload.id ? { ...online, ...action.payload } : online),
+					online: state.online.map(online => online.id === action.payload.id ? { ...online, ...action.payload } : online),
 				};
 			}
 			return {

@@ -10,6 +10,7 @@ import { User } from '../../app/interfaces/User';
 import { PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOperator, PacketPlayInChatRoomCreate, PacketPlayInChatUp } from '../../app/packets/chat/PacketPlayInChat';
 import { PacketPlayInBallUpdate } from '../../app/packets/PacketPlayInBallUpdate';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
+import { PacketPlayInGameDestroy } from '../../app/packets/PacketPlayInGameDestroy';
 import { PacketPlayInGameUpdate } from '../../app/packets/PacketPlayInGameUpdate';
 import { PacketPlayInLeaderboard } from '../../app/packets/PacketPlayInLeaderboard';
 import { PacketPlayInPlayerJoin } from '../../app/packets/PacketPlayInPlayerJoin';
@@ -26,7 +27,7 @@ import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { Packet, PacketTypesBall, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
 import { addRoom, addUserToRoom, delRoom, leaveRoom, setChatRooms, setOperator } from '../../app/slices/chatSlice';
-import { updateGame } from '../../app/slices/gameSlice';
+import { resetGame, updateGame } from '../../app/slices/gameSlice';
 import { setBoard } from '../../app/slices/leaderboardSlice';
 import { setUserStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, setResults, updateUser } from '../../app/slices/usersSlice';
@@ -37,7 +38,7 @@ interface Props { }
 
 export const SocketListener = (props: Props) => {
 	const socket = useContext(SocketContext);
-	const {players, setPlayers, balls} = useContext(GameContext);
+	const {players, setPlayers, balls, setBalls} = useContext(GameContext);
 	const ready = useSelector((state: RootState) => state.socket.ready);
 
 	const currentUser = useSelector((state: RootState) => state.users.current);
@@ -151,6 +152,12 @@ export const SocketListener = (props: Props) => {
 			dispatch(updateGame(packet.data));
 		}
 
+		const gameDestroy = (packet: PacketPlayInGameDestroy) => {
+			setPlayers([]);
+			setBalls([]);
+			dispatch(resetGame());
+		}
+
 		const playerList = (packet: PacketPlayInPlayerList) => {
 			packet.players.forEach(p => p.screenY = p.y);
 			setPlayers(players => packet.players);
@@ -194,6 +201,9 @@ export const SocketListener = (props: Props) => {
 					break;
 				case PacketTypesGame.UPDATE:
 					gameUpdate(packet as PacketPlayInGameUpdate);
+					break;
+				case PacketTypesGame.DESTROY:
+					gameDestroy(packet as PacketPlayInGameDestroy);
 					break;
 				case PacketTypesPlayer.MOVE:
 					playerMove(packet as PacketPlayInPlayerMove);

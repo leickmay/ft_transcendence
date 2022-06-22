@@ -49,16 +49,12 @@ export class GameService {
 	}
 
 	onLeave(user: User): void {
-		this.destroyRoom(user.player?.room);
+		user.player?.leave()
 
 		const index = this.waitList.indexOf(user);
 		if (index > -1) {
 			this.waitList.splice(index, 1);
 		}
-	}
-
-	destroyRoom(room: Room | undefined): void {
-		room?.clear();
 	}
 
 	handleJoin(packet: PacketPlayInPlayerJoin, user: User): void {

@@ -59,7 +59,7 @@ li.user-card:not(:last-child) {
 
 			&:not([data-playing='true' i]) {
 				filter: grayscale(100%);
-				opacity: 50%;
+				opacity: 30%;
 			}
 		}
 

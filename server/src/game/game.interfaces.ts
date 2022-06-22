@@ -1,6 +1,7 @@
 import { Exclude, Expose, instanceToPlain } from "class-transformer";
 import { Server } from "socket.io";
 import { PacketPlayOutBallUpdate } from "src/socket/packets/PacketPlayOutBallUpdate";
+import { PacketPlayOutGameDestroy } from "src/socket/packets/PacketPlayOutGameDestroy";
 import { PacketPlayOutGameUpdate } from "src/socket/packets/PacketPlayOutGameUpdate";
 import { PacketPlayOutPlayerJoin } from "src/socket/packets/PacketPlayOutPlayerJoin";
 import { PacketPlayOutPlayerList } from "src/socket/packets/PacketPlayOutPlayerList";
@@ -99,7 +100,7 @@ export class Room {
 		return 'game_' + this.id.toString();
 	}
 
-	canStart(): boolean { return this.players.every(p => p.ready); }
+	canStart(): boolean { return this.status === GameStatus.WAITING && this.players.every(p => p.ready); }
 	isFull(): boolean { return this.players.length >= this.maxPlayers; }
 
 	join(user: User): void {
@@ -118,16 +119,35 @@ export class Room {
 		}
 	}
 
-	leave(user: User): void {
-		let index = this.players.findIndex(p => p.user.id === user.id);
+	spectate(user: User): void {
+		user.send('game', new PacketPlayOutGameUpdate(instanceToPlain(this)));
+		user.send('game', new PacketPlayOutPlayerList(instanceToPlain(this.players)));
+
+		this.spectators.push({user: user});
+
+		user.socket?.join(this.getSocketRoom());
+	}
+
+	private remove(player: Player): User | undefined {
+		let index = this.players.indexOf(player);
 		if (index > -1) {
-			let [player] = this.players.splice(index, 1);
-			let left = this.countLeftTeam();
-			// TODO send disconnect
-			if (left === 0 || left === this.players.length)
-				this.end(undefined);
-			this.server.emit('user', new PacketPlayOutUserConnection([{ id: user.id, login: user.login, playing: false }]));
+			this.players.splice(index, 1);
+			this.server.emit('user', new PacketPlayOutUserConnection([{ id: player.user.id, login: player.user.login, playing: false }]));
+			player.user.socket?.leave(this.getSocketRoom());
 			player.user.player = null;
+			return player.user;
+		}
+		return undefined;
+	}
+
+	leave(player: Player): void {
+		let user = this.remove(player);
+
+		if (user) {
+			let left = this.countLeftTeam();
+			if (left === 0 || left === this.players.length) {
+				this.clear();
+			}
 		}
 	}
 
@@ -153,7 +173,7 @@ export class Room {
 	tryStart(): void { this.canStart() && this.start(); }
 
 	async start() {
-		this.status = GameStatus.WAITING;
+		this.status = GameStatus.STARTING;
 		this.broadcast(new PacketPlayOutGameUpdate({
 			status: GameStatus.STARTING,
 		}));
@@ -173,6 +193,8 @@ export class Room {
 	}
 
 	private loop = (): void => {
+		console.log(new Date());
+		
 		for (const player of this.players) {
 			player.move();
 			player.sendUpdate();
@@ -246,10 +268,10 @@ export class Room {
 
 	clear(): void {
 		this.stop();
-		this.players.forEach((player: Player) => {
-			player.user.socket?.leave(this.getSocketRoom());
-			player.user.player = null;
-		})
+		this.broadcast(new PacketPlayOutGameDestroy());
+		for (const player of this.players) {
+			this.remove(player);
+		}
 		this.players = [];
 	}
 }
@@ -322,6 +344,10 @@ export class Player implements Entity {
 
 	sendUpdate() {
 		this.room.broadcast(new PacketPlayOutPlayerTeleport(this.user.id, this.direction, this.x, this.y));
+	}
+
+	leave() {
+		this.room.leave(this);
 	}
 }
 

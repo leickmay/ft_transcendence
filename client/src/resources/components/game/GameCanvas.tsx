@@ -110,7 +110,7 @@ export const GameCanvas = (props: Props) => {
 
 				ctx.strokeStyle = 'green';
 				ctx.lineWidth = 4;
-				ctx.strokeRect(ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2);
+				// ctx.strokeRect(ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2);
 			}
 
 			ctx.textAlign = 'right';

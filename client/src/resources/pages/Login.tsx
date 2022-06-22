@@ -1,5 +1,8 @@
-import { KeyboardEvent } from 'react';
+import { KeyboardEvent, useContext, useEffect } from 'react';
+import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router';
+import { SocketContext } from '../../app/context/SocketContext';
+import { logout } from '../../app/Helpers';
 
 const authEndpoint = 'https://api.intra.42.fr/oauth/authorize';
 
@@ -15,6 +18,13 @@ export const getAuthorizeHref = (): string => {
 
 export const Login = () => {
 	const navigate = useNavigate();
+	const socket = useContext(SocketContext);
+	const [,, removeCookie] = useCookies(['access_token']);	
+
+	useEffect(() => {
+		if (socket?.connected)
+			navigate('/');
+	}, []);
 
 	const debugLogin = async (event: KeyboardEvent<HTMLInputElement>): Promise<void> => {
 		if (event.code === 'Enter' || event.keyCode === 13) {
@@ -31,7 +41,7 @@ export const Login = () => {
 			});
 		}
 	}
-	
+
 	return (
 		<div id="login" className="bg-overlay rounded border-primary">
 			<h1 className="text-neon-primary">Stonks Pong 3000</h1>
