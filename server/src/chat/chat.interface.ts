@@ -1,6 +1,4 @@
 import { Exclude, Expose, Transform } from "class-transformer";
-import { use } from "passport";
-import { stringify } from "querystring";
 import { PacketPlayOutChatMessage, PacketPlayOutChatOperator } from "src/socket/packets/chat/PacketPlayOutChat";
 import { User, UserPreview } from "src/user/user.entity";
 
