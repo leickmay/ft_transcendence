@@ -198,9 +198,8 @@ export class ChatService {
 					return false;
 				if (user.id === userMute.id)
 					return false;
-				let time = 0;
 				room?.command(user, text);
-				room.muteUser(userMute, time)
+				room.muteUser(userMute, Date.now());
 				break;
 			}
 			//BLOCK login
