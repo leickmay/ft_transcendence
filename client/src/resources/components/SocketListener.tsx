@@ -61,7 +61,6 @@ export const SocketListener = (props: Props) => {
 		}
 
 		const profile = (packet : PacketPlayInProfile) => {
-			console.log("good function");
 			dispatch(setProfile(packet));
 		}
 

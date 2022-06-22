@@ -102,7 +102,7 @@ export class StatsService {
 			stats.length,
 			stats.filter(m => m.winner === player[0].id).length,
 			instanceToPlain(stats.slice(0, 10)),
-			instanceToPlain(player),
+			instanceToPlain(player[0]),
 		));
 	}
 }

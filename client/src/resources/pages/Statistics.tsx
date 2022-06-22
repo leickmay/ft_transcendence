@@ -1,17 +1,13 @@
-import { useContext } from "react";
 import { useSelector } from "react-redux";
-import { SocketContext } from "../../app/context/socket";
-import { PacketPlayOutStatsUpdate } from "../../app/packets/PacketPlayOutStatsUpdate";
 import { RootState } from "../../app/store";
 import { Doughnut } from 'react-chartjs-2';
-//import { DoughnutData } from "../components/DoughnutData";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { HistoryCard } from "../components/HistoryCard";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const Statistics = () => {
-	const socket = useContext(SocketContext);
+	//const socket = useContext(SocketContext);
 	const stats = useSelector((state: RootState) => state.stats)
 	const users = useSelector((state: RootState) => state.users);
 
