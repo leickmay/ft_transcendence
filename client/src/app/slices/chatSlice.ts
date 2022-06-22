@@ -95,12 +95,9 @@ const slice = createSlice({
 			state.usersBlocked = action.payload;
 		},
 		setAdmins: (state: State, action: PayloadAction<PacketPlayInChatAdmin>): void => {
-			console.log("HEY\n");
 			let room = state.rooms?.find(x => x.id === action.payload.room.id);
 			if (room)
 				room.admins = action.payload.room.admins;
-			if (room)
-				console.log(room.admins);
 		},
 	},
 });

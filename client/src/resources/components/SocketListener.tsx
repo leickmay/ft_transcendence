@@ -83,7 +83,7 @@ export const SocketListener = (props: Props) => {
 							room: room.id,
 							cmd: cmd,
 						}));
-						if (room.users.length === 1
+						if (room.users.length === 0
 							|| room.type === ChatTypes.PRIVATE_MESSAGE
 							|| !room.visible) {
 							dispatch(delRoom(room));
@@ -153,7 +153,6 @@ export const SocketListener = (props: Props) => {
 		});
 
 		socket?.off('chat').on('chat', (packet: Packet) => {
-			console.log(packet.packet_id)
 			switch (packet.packet_id) {
 				case PacketTypesChat.MESSAGE: {
 					messageHandler(packet as PacketPlayInChatMessage);

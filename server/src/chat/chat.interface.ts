@@ -149,7 +149,6 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 			id: this.id,
 			admins: this.admins,
 		})
-		console.log(room.room.admins)
 		user.socket?.emit('chat', room);
 		user.socket?.to(this.id).emit('chat', room);
 	}
@@ -166,6 +165,13 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		})
 		user.socket?.emit('chat', room);
 		user.socket?.to(this.id).emit('chat', room);
+	}
+
+	isAdmins(userID: number): boolean {
+		let user = this.admins.find(x => x == userID);
+		if (user === undefined)
+			return false;
+		return true;
 	}
 
 	isPresent(userID: number): boolean {
@@ -195,6 +201,9 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 
 		if (this.owner === user.id && this.users.length > 0) {
 			this.owner = this.users[0].id;
+			let ownerMute = this.mute.find(x => x.id === this.owner)
+			if (ownerMute)
+				ownerMute.time = Date.now();
 			let room = new PacketPlayOutChatOwner({
 				id: this.id,
 			 	owner: this.owner,
@@ -208,6 +217,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	}
 
 	send(sender: User, text: string): void {
+		console.log(this.isMute(sender.id));
 		if (this.isMute(sender.id))
 			return;
 		let message: Message = {
@@ -221,6 +231,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	}
 
 	command(sender: User, text: string): void {
+		console.log(this.isMute(sender.id));
 		if (this.isMute(sender.id))
 			return;
 		let message: Message = {

@@ -35,7 +35,6 @@ const ChatCurrentRoom = () => {
 	const getGrade = (): string => {
 		if (users.current?.id === current?.owner)
 			return " (Owner)";
-		console.log(current?.name + ":"+ current?.admins);
 		if (current?.admins?.find(x => x === users.current?.id))
 			return " (Admin)";
 		return "";

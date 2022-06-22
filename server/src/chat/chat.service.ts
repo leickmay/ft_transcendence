@@ -113,20 +113,20 @@ export class ChatService {
 					return false;
 				if (user.id !== room.owner)
 					return false;
-				let admin = this.eventService.getUserByLogin(command[1]);
+				let admin = room.users.find(x => x.login === command[1]);
 				if (!admin)
 					return false;
 				room.addAdmin(user, admin.id);
 				room?.command(user, text);
 				break;
 			}
-			// UNPROMOTE login
-			case "/UNPROMOTE": {
+			// DEMOTE login
+			case "/DEMOTE": {
 				if (command.length !== 2)
 					return false;
 				if (user.id !== room.owner)
 					return false;
-				let admin = this.eventService.getUserByLogin(command[1]);
+				let admin = room.users.find(x => x.login === command[1]);
 				if (!admin)
 					return false;
 				room.delAdmin(user, admin.id);
@@ -157,12 +157,12 @@ export class ChatService {
 			case "/BAN": {
 				if (command.length !== 3)
 					return false;
-				if (user.id !== room.owner)
+				if (user.id !== room.owner && !room.isAdmins(user.id))
 					return false;
 				let userBan = this.eventService.getUserByLogin(command[1]);
-				if (userBan === undefined )
+				if (userBan === undefined || user.id === userBan.id || !room.isPresent(userBan.id))
 					return false;
-				if (user.id === userBan.id)
+				if (userBan.id === room.owner)
 					return false;
 				let time = Date.now() + Number(command[2]) * 60 * 1000;
 				room?.command(user, text);
@@ -173,12 +173,12 @@ export class ChatService {
 			case "/UNBAN": {
 				if (command.length !== 2)
 					return false;
-				if (user.id !== room.owner)
+				if (user.id !== room.owner && !room.isAdmins(user.id))
 					return false;
 				let userBan = this.eventService.getUserByLogin(command[1]);
-				if (userBan === undefined )
+				if (userBan === undefined || user.id === userBan.id || !room.isPresent(userBan.id))
 					return false;
-				if (user.id === userBan.id)
+				if (userBan.id === room.owner)
 					return false;
 				room?.command(user, text);
 				room.banUser(userBan, Date.now());
@@ -188,12 +188,12 @@ export class ChatService {
 			case "/MUTE": {
 				if (command.length !== 3)
 					return false;
-				if (user.id !== room.owner)
+				if (user.id !== room.owner && !room.isAdmins(user.id))
 					return false;
 				let userMute = this.eventService.getUserByLogin(command[1]);
-				if (userMute === undefined )
+				if (userMute === undefined || user.id === userMute.id || !room.isPresent(userMute.id))
 					return false;
-				if (user.id === userMute.id)
+				if (userMute.id === room.owner)
 					return false;
 				let time = Date.now() + Number(command[2]) * 60 * 1000;
 				room?.command(user, text);
@@ -204,12 +204,12 @@ export class ChatService {
 			case "/UNMUTE": {
 				if (command.length !== 2)
 					return false;
-				if (user.id !== room.owner)
+				if (user.id !== room.owner && !room.isAdmins(user.id))
 					return false;
 				let userMute = this.eventService.getUserByLogin(command[1]);
-				if (userMute === undefined )
+				if (userMute === undefined || user.id === userMute.id || !room.isPresent(userMute.id))
 					return false;
-				if (user.id === userMute.id)
+				if (userMute.id === room.owner)
 					return false;
 				room?.command(user, text);
 				room.muteUser(userMute, Date.now());
