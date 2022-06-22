@@ -81,10 +81,6 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		this.leave(user);
 	}
 
-	unbanUser(user: User, time: number) {
-
-	}
-
 	isBan(userID: number): boolean {
 		let user = this.ban.find(x => x.id == userID);
 		if (user === undefined)
