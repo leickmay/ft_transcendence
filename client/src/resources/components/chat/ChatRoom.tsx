@@ -32,13 +32,18 @@ const ChatCurrentRoom = () => {
 		scrollToBottomById('chatRoomMesssages');
 	}, [current?.messages]);
 
+	const getGrade = (): string => {
+		if (users.current?.id === current?.owner)
+			return " (Owner)";
+		console.log(current?.name + ":"+ current?.admins);
+		if (current?.admins?.find(x => x === users.current?.id))
+			return " (Admin)";
+		return "";
+	}
+
 	return (
 		<div id="chatRoom" className="chatRight">
-			<h2>{getNameRoom(current)}</h2>
-			{
-				(users.current?.id === current?.operator) &&
-				<button>Operator</button>
-			}
+			<h2>{getNameRoom(current)}{getGrade()}</h2>
 			<div id="chatRoomMesssages">
 			{
 					current?.messages?.filter(m => !usersBlocked || !usersBlocked.find(b => b === m.from))

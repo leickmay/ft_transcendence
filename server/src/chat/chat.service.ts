@@ -75,7 +75,8 @@ export class ChatService {
 							type: room.type,
 							visible: room.visible,
 							users: room.users,
-							operator: room.operator,
+							owner: room.owner,
+							admin: room.admins,
 						});
 					})
 			) as any,
@@ -90,7 +91,7 @@ export class ChatService {
 
 	async event_command(user: User, room: ChatRoom, text: string): Promise<boolean> {
 		let command = text.split(" ");
-		switch (command[0]) {
+		switch (command[0].toUpperCase()) {
 			// EXIT
 			case "/EXIT": {
 				if (command.length !== 1)
@@ -106,16 +107,29 @@ export class ChatService {
 				room?.command(user, text);
 				return true;
 			}
-			// OPERATOR login
-			case "/OPERATOR": {
+			// PROMOTE login
+			case "/PROMOTE": {
 				if (command.length !== 2)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner)
 					return false;
-				let operator = this.eventService.getUserByLogin(command[1]);
-				if (!operator)
+				let admin = this.eventService.getUserByLogin(command[1]);
+				if (!admin)
 					return false;
-				room.setOperator(user, operator.id);
+				room.addAdmin(user, admin.id);
+				room?.command(user, text);
+				break;
+			}
+			// UNPROMOTE login
+			case "/UNPROMOTE": {
+				if (command.length !== 2)
+					return false;
+				if (user.id !== room.owner)
+					return false;
+				let admin = this.eventService.getUserByLogin(command[1]);
+				if (!admin)
+					return false;
+				room.delAdmin(user, admin.id);
 				room?.command(user, text);
 				break;
 			}
@@ -123,7 +137,7 @@ export class ChatService {
 			case "/PASSWORD": {
 				if (command.length !== 2)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner)
 					return false;
 				room.setPassword(command[1]);
 				room?.command(user, text);
@@ -133,7 +147,7 @@ export class ChatService {
 			case "/DELPASSWORD": {
 				if (command.length !== 1)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner)
 					return false;
 				room.setPassword(undefined);
 				room?.command(user, text);
@@ -143,7 +157,7 @@ export class ChatService {
 			case "/BAN": {
 				if (command.length !== 3)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner)
 					return false;
 				let userBan = this.eventService.getUserByLogin(command[1]);
 				if (userBan === undefined )
@@ -159,7 +173,7 @@ export class ChatService {
 			case "/UNBAN": {
 				if (command.length !== 2)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner)
 					return false;
 				let userBan = this.eventService.getUserByLogin(command[1]);
 				if (userBan === undefined )
@@ -174,7 +188,7 @@ export class ChatService {
 			case "/MUTE": {
 				if (command.length !== 3)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner)
 					return false;
 				let userMute = this.eventService.getUserByLogin(command[1]);
 				if (userMute === undefined )
@@ -190,7 +204,7 @@ export class ChatService {
 			case "/UNMUTE": {
 				if (command.length !== 2)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner)
 					return false;
 				let userMute = this.eventService.getUserByLogin(command[1]);
 				if (userMute === undefined )
@@ -274,7 +288,8 @@ export class ChatService {
 				return;
 			}
 		}
-		room?.send(user, packet.text)
+		else
+			room?.send(user, packet.text)
 	}
 	async event_create(packet: PacketPlayInChatCreate, user: User): Promise<void> {
 		if (packet.type === undefined)
@@ -305,7 +320,7 @@ export class ChatService {
 						room.name,
 						room.visible,
 						room.users,
-						room.operator,
+						room.owner,
 					);
 					user.socket?.emit('chat', roomOut);
 					if (room.visible)
@@ -350,7 +365,7 @@ export class ChatService {
 							room.name,
 							room.visible,
 							room.users,
-							room.operator,
+							room.owner,
 						);
 						
 						user.socket?.emit('chat', roomOut);
@@ -381,7 +396,8 @@ export class ChatService {
 			type: room.type,
 			visible: room.visible,
 			users: room.users,
-			operator: room.operator,
+			owner: room.owner,
+			admins: room.admins,
 		}));
 	}
 	async event_leave(): Promise<void> {}

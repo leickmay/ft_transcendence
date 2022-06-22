@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ChatRoom, Command } from "../interfaces/Chat";
-import { PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOperator, PacketPlayInChatRoomCreate } from "../packets/chat/PacketPlayInChat";
+import { PacketPlayInChatAdmin, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOwner, PacketPlayInChatRoomCreate } from "../packets/chat/PacketPlayInChat";
 
 interface State {
 	current?: string;
@@ -36,7 +36,8 @@ const slice = createSlice({
 				name: action.payload.name,
 				messages: [],
 				visible: action.payload.visible,
-				operator: action.payload.operator,
+				owner: action.payload.owner,
+				admins: [],
 				users: action.payload.users,
 			}
 			state.rooms?.push(room);
@@ -61,16 +62,17 @@ const slice = createSlice({
 					name: roomTmp.name,
 					visible: roomTmp.visible,
 					users: roomTmp.users,
-					operator: roomTmp.operator,
+					owner: roomTmp.owner,
+					admins: roomTmp.admins,
 					messages: [],
 				}
 				state.rooms?.push(room);
 			}
 		},
-		setOperator: (state: State, action: PayloadAction<PacketPlayInChatOperator>): void => {
+		setOwner: (state: State, action: PayloadAction<PacketPlayInChatOwner>): void => {
 			let room = state.rooms?.find(x => x.id === action.payload.room.id);
 			if (room)
-				room.operator = action.payload.room.operator;
+				room.owner = action.payload.room.owner;
 		},
 		addUser: (state: State, action: PayloadAction<Command>): void => {
 			if (action.payload.cmd.length >= 2)
@@ -92,8 +94,16 @@ const slice = createSlice({
 		upUsersBlocked: (state: State, action: PayloadAction<Array<string>>): void => {
 			state.usersBlocked = action.payload;
 		},
+		setAdmins: (state: State, action: PayloadAction<PacketPlayInChatAdmin>): void => {
+			console.log("HEY\n");
+			let room = state.rooms?.find(x => x.id === action.payload.room.id);
+			if (room)
+				room.admins = action.payload.room.admins;
+			if (room)
+				console.log(room.admins);
+		},
 	},
 });
 
-export const {setCurrentRooms, setChatRooms, addRoom, addUserToRoom, delRoom, setOperator, newMessages, addUser, leaveRoom, upUsersBlocked} = slice.actions;
+export const {setCurrentRooms, setChatRooms, addRoom, addUserToRoom, delRoom, setOwner, newMessages, addUser, leaveRoom, upUsersBlocked, setAdmins} = slice.actions;
 export default slice.reducer;

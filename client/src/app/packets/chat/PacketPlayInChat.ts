@@ -18,7 +18,7 @@ export interface PacketPlayInChatRoomCreate extends Packet {
 	type: ChatTypes;
 	name: string;
 	visible: boolean;
-	operator?: number;
+	owner?: number;
 	users: Array<UserPreview>;
 }
 
@@ -29,7 +29,8 @@ export interface PacketPlayInChatJoin extends Packet {
 		type: ChatTypes,
 		visible: boolean,
 		users: Array<UserPreview>,
-		operator?: number,
+		owner?: number,
+		admins: Array<number>,
 	};
 }
 
@@ -47,7 +48,8 @@ export interface PacketPlayInChatInit extends Packet {
 		type: ChatTypes,
 		visible: boolean,
 		users: Array<UserPreview>,
-		operator?: number,
+		owner?: number,
+		admins: Array<number>,
 	}>;
 	usersBlocked: Array<string>;
 }
@@ -59,17 +61,24 @@ export interface PacketPlayInChatDel extends Packet {
 		type: ChatTypes,
 		visible: boolean,
 		users: Array<UserPreview>,
-		operator?: number,
+		owner?: number,
 	};
 }
 
-export interface PacketPlayInChatOperator extends Packet {
+export interface PacketPlayInChatOwner extends Packet {
 	room: {
 		id: string,
-		operator: number,
+		owner: number,
 	};
 }
 
 export interface PacketPlayInChatBlock extends Packet {
 	usersBlocked: Array<string>;
+}
+
+export interface PacketPlayInChatAdmin extends Packet {
+	room: {
+		id: string,
+		admins: Array<number>;
+	}
 }

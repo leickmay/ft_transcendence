@@ -21,7 +21,7 @@ export class PacketPlayOutChatCreate {
 		public name: string,
 		public visible: boolean,
 		public users: Array<UserPreview>,
-		public operator?: number,
+		public owner?: number,
 	) {}
 }
 
@@ -34,7 +34,8 @@ export class PacketPlayOutChatJoin {
 			type: ChatTypes,
 			visible: boolean,
 			users: Array<UserPreview>,
-			operator?: number,
+			owner?: number,
+			admins: Array<number>,
 		},
 	) {}
 }
@@ -54,7 +55,8 @@ export class PacketPlayOutChatInit {
 			name: string,
 			type: ChatTypes,
 			visible: boolean,
-			operator?: number,
+			owner?: number,
+			admins: Array<number>;
 		}>,
 		public usersBlocked: Array<string>,
 	) {}
@@ -69,17 +71,27 @@ export class PacketPlayOutChatDel {
 			type: ChatTypes,
 			visible: boolean,
 			users: Array<UserPreview>,
-			operator?: number,
+			owner?: number,
 		},
 	) {}
 }
 
-@DeclarePacket(PacketTypesChat.OPERATOR)
-export class PacketPlayOutChatOperator {
+@DeclarePacket(PacketTypesChat.OWNER)
+export class PacketPlayOutChatOwner {
 	constructor(
 		public room: {
 			id: string,
-			operator: number,
+			owner: number,
+		},
+	) {}
+}
+
+@DeclarePacket(PacketTypesChat.ADMIN)
+export class PacketPlayOutChatAdmin {
+	constructor(
+		public room: {
+			id: string,
+			admins: Array<number>;
 		},
 	) {}
 }

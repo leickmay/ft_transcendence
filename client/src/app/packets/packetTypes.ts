@@ -22,7 +22,8 @@ export enum PacketTypesChat {
 	UP,
 	INIT,
 	DEL,
-	OPERATOR,
+	OWNER,
+	ADMIN,
 	BLOCK,
 }
 
