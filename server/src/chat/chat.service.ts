@@ -166,9 +166,8 @@ export class ChatService {
 					return false;
 				if (user.id === userBan.id)
 					return false;
-				let time = 0;
 				room?.command(user, text);
-				room.banUser(userBan, time)
+				room.banUser(userBan, Date.now());
 				break;
 			}
 			// MUTE login times
