@@ -23,6 +23,7 @@ export function Home(props: Props) {
 			<Notifications />
 			<Navigation />
 			<Loader />
+			<Profile />
 			<Routes>
 				<Route path="/" element={<Menu />} />
 				<Route path="/game" element={<Game />} />
@@ -31,7 +32,6 @@ export function Home(props: Props) {
 				<Route path="/statistics" element={<Statistics />} />
 				<Route path="/leaderboard" element={<Leaderboard />} />
 				<Route path="/options" element={<Options />} />
-				<Route path="/profile" element={<Profile />} />
 				<Route path="*" element={<Navigate to="/" replace />} />
 			</Routes>
 		</>

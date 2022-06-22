@@ -1,38 +1,73 @@
-.profile {
-	//display:flex;
-	//background-color: aquamarine;
+.popup-box{
+	position: fixed;
+	background: #00000050;
+	width: 100%;
+	height: 100vh;
+	top: 0;
+	left: 0;
 
-	.stats {
-		display: flex;
-		justify-content: space-around;
-		flex-wrap: wrap;
-		gap: 20px;
-	
-		.player {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			//margin: 5em;
-			//background-color: aquamarine;
-		}
+	.box {
+		position: relative;
+		width: 70%;
+		margin: 0 auto;
+		height: auto;
+		max-height: 70vh;
+		margin-top: calc(100vh - 85vh - 20px);
+		background: rgb(2, 2, 2);
+		border-radius: 4px;
+		padding: 20px;
+		border: 1px solid #999;
+		overflow: auto;
+		overscroll-behavior: none;
 
-		.graph {
-			//background-color: pink;
+		.close-icon {
+			content: 'x';
+			cursor: pointer;
+			position: fixed;
+			right: calc(15%);
+			top: calc(100vh - 85vh - 20px);
+			background: #681e6b;
+			width: 25px;
+			height: 25px;
+			border-radius: 50%;
+			line-height: 20px;
 			text-align: center;
+			border: 1px solid #999;
+			font-size: 20px;
 		}
-	}
 
-	.history {
+		.profile {
 		
-		text-align: center;
-		table {
-			width: 100%;
-		}
-		.titles {
-			background-color: rgba($color: #681e6b, $alpha: 0.5);
-			min-width: 100%;
-			h4 {
-				margin: 15px ;
+			.stats {
+				display: flex;
+				justify-content: space-around;
+				flex-wrap: wrap;
+				gap: 20px;
+			
+				.player {
+					display: flex;
+					align-items: center;
+					gap: 10px;
+				}
+		
+				.graph {
+					text-align: center;
+				}
+			}
+		
+			.history {
+				
+				text-align: center;
+				table {
+					width: 100%;
+				}
+				.titles {
+					background-color: rgba($color: #681e6b, $alpha: 0.5);
+					min-width: 100%;
+					h4 {
+						margin: 15px ;
+					}
+				}
 			}
 		}
 	}

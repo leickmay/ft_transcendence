@@ -1,29 +1,40 @@
-import { useContext, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { SocketContext } from "../../app/context/socket";
+import { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { HistoryCard } from "../components/HistoryCard";
-import { PacketPlayOutProfile } from "../../app/packets/PacketPlayOutProfile";
+import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
+import { setProfile } from "../../app/slices/profileSlice";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const Profile = () => {
 	
-	const socket = useContext(SocketContext);
-	const users = useSelector((state: RootState) => state.users);
 	const stats = useSelector((state: RootState) => state.profile);
-	const [player, setPlayer] = useState('');
+	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
+	const ref = useRef<HTMLInputElement>(null);
+
+	const handleClose = () => {
+		dispatch(setProfile({
+			nbMatchs: 0,
+			matchWon: 0,
+			history: [],
+			user: undefined,
+		}));
+	}
 
 	useEffect(() => {
-	
-		const str: string[] = window.location.href.split('=');
-		setPlayer(str[1]);
-		if (player)
-			socket?.emit('stats', new PacketPlayOutProfile(player));
-
-	}, [player, socket])
+		const handleClickOutside = (event: MouseEvent) => {
+			if (ref.current && !ref.current.contains(event.target as Node)) {
+				handleClose();
+			}
+		};
+		document.addEventListener('mousedown', handleClickOutside, true);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside, true);
+		};
+	}, [ref])
 
 	const DoughnutData = {
 		labels: ['Won', 'Lost'],
@@ -44,8 +55,7 @@ export const Profile = () => {
 		],
 	  };
 
-
-let i = 0;
+	let i = 0;
 	const listHistory = stats.history.map((h) => {
 		const date = new Date(h.createdDate);
 		let opponent: string;
@@ -61,48 +71,56 @@ let i = 0;
 		return (
 			<HistoryCard key={i++} date={date} opponent={opponent} result={result}/>
 		)
-		
 	});
 
-	return (
-		<div className='profile'>
-			<div className="stats">
-				<div className="player">
-					<div className="avatar">
-						<img src={stats.user?.avatar}width="75px" height="75px" alt=""></img>
-					</div>
-					<div className="infos">
-						<p>{stats.user?.name}</p>
-						<p>{stats.user?.login}</p>
-						<p>Level {stats.user ? Math.floor(stats.user.xp / 100) : 0}</p>
-						<p>Progress for next level : {stats.user ? stats.user.xp % 100 : 0} %</p>
+	if (stats.user) {
+		return (
+			<div  className="popup-box">
+				<div ref={ref} className="box">
+					<span className="close-icon" onClick={handleClose}>x</span>
+					<div className='profile'>
+						<div className="stats">
+							<div className="player">
+								<div className="avatar">
+									<img src={stats.user?.avatar}width="75px" height="75px" alt=""></img>
+								</div>
+								<div className="infos">
+									<p>{stats.user?.name}</p>
+									<p>{stats.user?.login}</p>
+									<p>Level {stats.user ? Math.floor(stats.user.xp / 100) : 0}</p>
+									<p>Progress for next level : {stats.user ? stats.user.xp % 100 : 0} %</p>
+								</div>
+							</div>
+							<div className="graph">
+								<p>Game played :<br/>{stats.nbMatchs}</p>
+								<Doughnut data={DoughnutData}/>
+							</div>
+						</div>
+						<div className="history">
+							<h4>Last Matches</h4>
+							<table>
+								<tbody>
+									<tr className="titles">
+										<td>
+											<h4>Date</h4>
+										</td>
+										<td>
+											<h4>Opponent</h4>
+										</td>
+										<td>
+											<h4>Result</h4>
+										</td>
+									</tr>
+									{listHistory}
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
-				<div className="graph">
-					<p>Game played :<br/>{stats.nbMatchs}</p>
-					<Doughnut data={DoughnutData}/>
-				</div>
 			</div>
-			<div className="history">
-				<h4>Last Matches</h4>
-				<table>
-					<tbody>
-						<tr className="titles">
-							<th>
-								<h4>Date</h4>
-							</th>
-							<th>
-								<h4>Opponent</h4>
-							</th>
-							<th>
-								<h4>Result</h4>
-							</th>
-						</tr>
-						{listHistory}
-					</tbody>
-				</table>
-			</div>
-		</div>
-	);
-};
+		);
+	}
+	else
+		return(<></>)
+}
 

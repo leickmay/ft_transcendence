@@ -7,7 +7,6 @@ import { HistoryCard } from "../components/HistoryCard";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const Statistics = () => {
-	//const socket = useContext(SocketContext);
 	const stats = useSelector((state: RootState) => state.stats)
 	const users = useSelector((state: RootState) => state.users);
 
@@ -71,18 +70,20 @@ let i = 0;
 			<div className="history">
 				<h4>Last Matches</h4>
 				<table>
-					<tr className="titles">
-						<th>
-							<h4>Date</h4>
-						</th>
-						<th>
-							<h4>Opponent</h4>
-						</th>
-						<th>
-							<h4>Result</h4>
-						</th>
-					</tr>
-					{listHistory}
+					<tbody>
+						<tr className="titles">
+							<th>
+								<h4>Date</h4>
+							</th>
+							<th>
+								<h4>Opponent</h4>
+							</th>
+							<th>
+								<h4>Result</h4>
+							</th>
+						</tr>
+						{listHistory}
+					</tbody>
 				</table>
 			</div>
 		</div>
