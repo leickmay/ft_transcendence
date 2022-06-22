@@ -80,7 +80,6 @@ export class StatsService {
 		let player = await User.find({
 			where: {login: packet.login},
 		})
-		//console.log('player : ', player[0], 'login: ', packet.login);
 		let stats: Stats[] = await Stats.find({
 			where: [
 				{
@@ -96,8 +95,6 @@ export class StatsService {
 			],
 			relations: ['player1', 'player2'],
 		});
-		//console.log("stats: ", stats.length, stats.filter(m => m.winner === player[0].id).length,
-		//instanceToPlain(stats.slice(0, 10)));
 		user.send('stats', new PacketPlayOutProfile(
 			stats.length,
 			stats.filter(m => m.winner === player[0].id).length,

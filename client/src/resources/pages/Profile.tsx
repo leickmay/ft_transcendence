@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { Doughnut } from 'react-chartjs-2';
@@ -15,14 +15,14 @@ export const Profile = () => {
 	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 	const ref = useRef<HTMLInputElement>(null);
 
-	const handleClose = () => {
+	const handleClose = useCallback(() => {
 		dispatch(setProfile({
 			nbMatchs: 0,
 			matchWon: 0,
 			history: [],
 			user: undefined,
 		}));
-	}
+	}, [dispatch]);
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -34,7 +34,7 @@ export const Profile = () => {
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside, true);
 		};
-	}, [ref])
+	}, [ref, handleClose])
 
 	const DoughnutData = {
 		labels: ['Won', 'Lost'],
