@@ -56,7 +56,7 @@ const ChatCurrentRoom = () => {
 										{value.from} - {getTime(value.date)}
 									</div>
 									<div>
-										{(value.text)}
+										{value.text}
 									</div>
 								</div>
 							);
