@@ -91,7 +91,6 @@ const slice = createSlice({
 		},
 		upUsersBlocked: (state: State, action: PayloadAction<Array<string>>): void => {
 			state.usersBlocked = action.payload;
-			console.log(state.usersBlocked);
 		},
 	},
 });

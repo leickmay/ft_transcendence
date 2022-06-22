@@ -153,7 +153,6 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		if (!this.isPresent(user.id))
 			this.users.push({id: user.id, login: user.login});
 
-		console.log("(" + user.login + ")"+ " JOIN " + this.id);
 		user.socket?.join(this.id);
 		return true;
 	}
@@ -177,7 +176,6 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		}
 
 		user.socket?.leave(this.id);
-		console.log("(" + user.login + ")"+ " LEAVE " + this.id);
 		return true;
 	}
 
@@ -190,7 +188,6 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 			text: text,
 			cmd: false,
 		};
-		console.log("(" + sender.login + ")"+ " MESSAGE " + this.id);
 		sender.socket?.emit('chat', new PacketPlayOutChatMessage(this.id, message));
 		sender.socket?.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
 	}
@@ -204,7 +201,6 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 			text: text,
 			cmd: true,
 		};
-		console.log("(" + sender.login + ")"+ " COMMAND " + this.id);
 		sender.socket?.emit('chat', new PacketPlayOutChatMessage(this.id, message));
 		sender.socket?.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
 	}

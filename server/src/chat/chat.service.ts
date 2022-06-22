@@ -85,7 +85,6 @@ export class ChatService {
 	disconnection() {}
 
 	isBlock(user: User, login: string) {
-		console.log(this.usersBlocked);
 		return (this.usersBlocked[user.login]?.find(x => x === login));
 	}
 
@@ -156,6 +155,22 @@ export class ChatService {
 				room.banUser(userBan, time)
 				break;
 			}
+			// UNBAN login
+			case "/UNBAN": {
+				if (command.length !== 2)
+					return false;
+				if (user.id !== room.operator)
+					return false;
+				let userBan = this.eventService.getUserByLogin(command[1]);
+				if (userBan === undefined )
+					return false;
+				if (user.id === userBan.id)
+					return false;
+				let time = 0;
+				room?.command(user, text);
+				room.banUser(userBan, time)
+				break;
+			}
 			// MUTE login times
 			case "/MUTE": {
 				if (command.length !== 3)
@@ -172,6 +187,22 @@ export class ChatService {
 				room.muteUser(userMute, time)
 				break;
 			}
+			// UNMUTE login
+			case "/UNMUTE": {
+				if (command.length !== 2)
+					return false;
+				if (user.id !== room.operator)
+					return false;
+				let userMute = this.eventService.getUserByLogin(command[1]);
+				if (userMute === undefined )
+					return false;
+				if (user.id === userMute.id)
+					return false;
+				let time = 0;
+				room?.command(user, text);
+				room.muteUser(userMute, time)
+				break;
+			}
 			//BLOCK login
 			case "/BLOCK": {
 				if (command.length !== 2)
@@ -179,33 +210,50 @@ export class ChatService {
 				let userBlocked = this.eventService.getUserByLogin(command[1]);
 				if (!userBlocked || userBlocked.login === user.login)
 					return (false);
-				if (userBlocked && !this.isBlock(user, userBlocked.login))
-				{
-					// A DEBUG
-					//let tmp = this.usersBlocked.get(user.login);
-					//
-					//if (tmp)
-					//{
-					//	this.usersBlocked.set(
-					//		user.login,
-					//		[
-					//			...tmp,
-					//			userBlocked.login,
-					//		]
-					//	)
-					//}
-					//else {
-					//	this.usersBlocked.set(
-					//		user.login,
-					//		[
-					//			userBlocked.login,
-					//		]
-					//	)
-					//}
+				if (userBlocked && !this.isBlock(user, userBlocked.login)) {
+					let tmp = this.usersBlocked.get(user.login);
+					if (tmp)
+						this.usersBlocked.set(user.login, [
+							...tmp,
+							userBlocked.login,
+						]);
+					else
+						this.usersBlocked.set(user.login, [
+							userBlocked.login,
+						]);
 				}
-				
-				user.socket?.emit('chat', new PacketPlayOutChatBlock(this.usersBlocked[user.login]));
-				room?.command(user, text);
+				let tmp = this.usersBlocked.get(user.login);
+				if (tmp)
+				{
+					user.socket?.emit('chat', new PacketPlayOutChatBlock(tmp));
+					room?.command(user, text);
+				}
+				else
+					return (false);
+				break;
+			}
+			//UNBLOCK login
+			case "/UNBLOCK": {
+				if (command.length !== 2)
+					return false;
+				let userBlocked = this.eventService.getUserByLogin(command[1]);
+				if (!userBlocked || userBlocked.login === user.login)
+					return (false);
+				if (userBlocked && !this.isBlock(user, userBlocked.login)) {
+					let tmp = this.usersBlocked.get(user.login)?.filter(x => x !== userBlocked?.login);
+					if (tmp)
+						this.usersBlocked.set(user.login, [
+							...tmp,
+						]);
+				}
+				let tmp = this.usersBlocked.get(user.login);
+				if (tmp)
+				{
+					user.socket?.emit('chat', new PacketPlayOutChatBlock(tmp));
+					room?.command(user, text);
+				}
+				else
+					return (false);
 				break;
 			}
 			default: {
@@ -269,7 +317,7 @@ export class ChatService {
 					let otherUser = this.eventService.getUserById(packet.users[0]);
 					if (otherUser)
 					{
-						if (this.usersBlocked[otherUser.login]?.find(x => x === user.login))
+						if (this.usersBlocked.get(otherUser.login)?.find(x => x === user.login))
 							return;
 						if (this.rooms.find(room => (
 							room.type === ChatTypes.PRIVATE_MESSAGE 
