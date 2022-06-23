@@ -6,6 +6,7 @@ export enum PacketTypesMisc {
 	STATS_UPDATE,
 	LEADERBOARD,
 	PROFILE,
+	ALREADY_TAKEN,
 }
 
 export enum PacketTypesUser {

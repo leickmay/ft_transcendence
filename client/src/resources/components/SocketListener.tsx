@@ -22,6 +22,8 @@ import { setUserStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
 import { getUserByLogin } from '../pages/Chat';
+import { PacketPlayInAlreadyTaken } from '../../app/packets/PacketPlayInAlreadyTaken';
+import { pushNotification } from '../../app/actions/notificationsActions';
 
 interface Props { }
 
@@ -64,6 +66,10 @@ export const SocketListener = (props: Props) => {
 			dispatch(setProfile(packet));
 		}
 
+		const aleradyTaken = (packet: PacketPlayInAlreadyTaken) => {
+			dispatch(pushNotification('Error : ' + packet.name + ' is already taken'));
+		}
+
 		socket?.off('user').on('user', (packet: Packet) => {
 			if (packet.packet_id === PacketTypesUser.USER_CONNECTION)
 				online(packet as PacketPlayInUserConnection);
@@ -73,6 +79,9 @@ export const SocketListener = (props: Props) => {
 				update(packet as PacketPlayInUserUpdate);
 			if (packet.packet_id === PacketTypesMisc.FRIENDS)
 				friends(packet as PacketPlayInFriendsUpdate);
+			if (packet.packet_id === PacketTypesMisc.ALREADY_TAKEN)
+				aleradyTaken(packet as PacketPlayInAlreadyTaken);
+
 		});
 
 		const commandHandler = async (packet: PacketPlayInChatMessage) => {

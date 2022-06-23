@@ -4,6 +4,7 @@ import { EventsService } from 'src/socket/events.service';
 import { PacketPlayInFriend } from 'src/socket/packets/PacketPlayInFriend';
 import { PacketPlayInOptionUpdate } from 'src/socket/packets/PacketPlayInOptionUpdate';
 import { PacketPlayInTotp } from 'src/socket/packets/PacketPlayInTotp';
+import { PacketPlayOutAlreadyTaken } from 'src/socket/packets/PacketPlayOutAlreadyTaken';
 import { PacketPlayOutFriendsUpdate } from 'src/socket/packets/PacketPlayOutFriendsUpdate';
 import { PacketPlayOutUserUpdate } from 'src/socket/packets/PacketPlayOutUserUpdate';
 import { PacketTypesMisc, Packet, PacketTypesUser } from 'src/socket/packets/packetTypes';
@@ -38,7 +39,11 @@ export class OptionsService {
 			let name: string = packet.options['name'];
 			name = name.replace(/ +/, ' ').trim();
 			if (name.length <= 20 && /^[A-Za-zÀ-ÖØ-öø-ÿ]+(( |-)?[A-Za-zÀ-ÖØ-öø-ÿ]+)*$/.test(name)) {
-				validated.name = name;
+				const target = await User.findOneBy({name: name});
+				if (target)
+					user.send('user', new PacketPlayOutAlreadyTaken(packet.options['name']));
+				else
+					validated.name = name;
 			}
 		}
 
