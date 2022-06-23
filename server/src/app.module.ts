@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { EventsModule } from './socket/events.module';
 import { Image } from './images/image.entity';
 import { ImageModule } from './images/image.module';
+import { EventsModule } from './socket/events.module';
 import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
 import { Stats } from './stats/stats.entity';
@@ -28,4 +28,4 @@ import { Stats } from './stats/stats.entity';
 		ImageModule
 	],
 })
-export class AppModule {}
+export class AppModule { }

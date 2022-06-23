@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { SocketContext } from "../../app/context/socket";
+import { SocketContext } from "../../app/context/SocketContext";
 import { User } from "../../app/interfaces/User"
 import { PacketPlayOutProfile } from "../../app/packets/PacketPlayOutProfile";
 

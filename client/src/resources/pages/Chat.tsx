@@ -23,7 +23,7 @@ export const hideDivById = (id: string): void => {
 export const scrollToBottomById = async (id: string) => {
 	let element = document.getElementById(id);
 	let height = element?.scrollHeight;
-	element?.scrollTo({top: height});
+	element?.scrollTo({ top: height });
 }
 
 /*
@@ -69,7 +69,7 @@ export const getTime = (time: number): string => {
 
 export const Chat = () => {
 	return (
-		<div id="chat">
+		<div id="chat" className="container">
 			<ChatNavigation />
 			<ChatChannel />
 			<ChatPrivateMessage />

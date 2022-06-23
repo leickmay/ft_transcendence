@@ -1,7 +1,7 @@
 import { AnyAction } from "@reduxjs/toolkit";
 import { Dispatch, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { SocketContext } from "../../../app/context/socket";
+import { SocketContext } from "../../../app/context/SocketContext";
 import { ChatTypes } from "../../../app/interfaces/Chat";
 import { PacketPlayOutChatCreate, PacketPlayOutChatJoin } from "../../../app/packets/chat/PacketPlayOutChat";
 import { setCurrentRooms } from "../../../app/slices/chatSlice";

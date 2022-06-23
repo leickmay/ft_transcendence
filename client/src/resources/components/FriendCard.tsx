@@ -1,11 +1,10 @@
-import { useContext } from "react";
-import { useSelector } from "react-redux";
-import { SocketContext } from "../../app/context/socket";
-import { User } from "../../app/interfaces/User";
-import { PacketPlayOutFriends } from "../../app/packets/PacketPlayOutFriends";
-import { RootState } from "../../app/store";
-import icon_offline from '../../assets/images/offline.png';
-import icon_online from '../../assets/images/online.png';
+import { useCallback, useContext, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { SocketContext } from '../../app/context/SocketContext';
+import { User } from '../../app/interfaces/User';
+import { PacketPlayOutGameSpectateRequest } from '../../app/packets/PacketPlayOutGameSpectateRequest';
+import { PacketPlayOutProfile } from '../../app/packets/PacketPlayOutProfile';
+import { RootState } from '../../app/store';
 
 interface Props {
 	user: User;
@@ -15,29 +14,39 @@ export const FriendCard = (props: Props) => {
 	const socket = useContext(SocketContext);
 	const online = useSelector((state: RootState) => state.users.online);
 
-	let button = (): JSX.Element => {
-		return (<div onClick={() => socket?.emit('user', new PacketPlayOutFriends('remove', props.user.id))}>
-			<p className="pointer" style={{fontSize: '1rem'}}>Retirer l'amis</p>
-		</div>);
-	}
-
-	let isOnline = (): boolean => {
+	let isOnline = useMemo((): boolean => {
 		return !!online.find(u => u.id === props.user.id);
-	}
+	}, [props.user, online]);
+
+	let isPlaying = useMemo((): boolean => {
+		return !!online.find(u => u.id === props.user.id)?.playing;
+	}, [props.user, online]);
+
+	let spectate = useCallback((): void => {
+		socket?.emit('game', new PacketPlayOutGameSpectateRequest(props.user.id));
+	}, [props.user, socket]);
+
+	let openProfile = useCallback(() => {
+		socket?.emit('stats', new PacketPlayOutProfile(props.user.login));
+	}, [props.user, socket]);
 
 	return (
-		<div className="friendCard">
-			<div className="friendCardUp">
-				<img src={isOnline() ? icon_online : icon_offline} width="40" height="40" alt=""></img>
-				{/* <img src={ingameSrc} width="40" height="40" alt=""></img> */}
+		<li className='user-card'>
+			<div className='avatar pointer' onClick={openProfile}>
+				<img className='playerAvatar' src={props.user.avatar} width='50px' height='50px' alt=''></img>
 			</div>
-			<div className="friendCardDown">
-				<img src={props.user.avatar} width="100" height="100" align-item="bottom" alt=""></img>
-				<div>{props.user.name}</div>
-				{ button() }
-				{/* <div> lvl {props.user.level}</div> */}
-				{/* <button type="submit" onClick={() => {props.delFriend(props.user.name)}}></button> */}
+			<div className='text pointer' onClick={openProfile}>
+				<p><strong>{props.user.name}</strong></p>
+				<p><small>{props.user.login}</small></p>
 			</div>
-		</div>
+			<div className='status' data-online={isOnline}>
+				{isOnline &&
+					<button data-playing={isPlaying} aria-label='spectate' title='Spectate' onClick={spectate}>
+						🎮
+					</button>
+				}
+				<span></span>
+			</div>
+		</li>
 	);
 };

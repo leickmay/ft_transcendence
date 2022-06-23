@@ -1,6 +1,7 @@
-import { DeclarePacket, Directions, PacketTypesMisc } from "./packetTypes";
+import { Player, Directions } from "src/game/game.interfaces";
+import { DeclarePacket, PacketTypesPlayer } from "./packetTypes";
 
-@DeclarePacket(PacketTypesMisc.PLAYER_MOVE)
+@DeclarePacket(PacketTypesPlayer.MOVE)
 export class PacketPlayOutPlayerMove {
 	constructor(
 		public player: number,

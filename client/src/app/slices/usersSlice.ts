@@ -4,12 +4,15 @@ import { containsUser, UserPreview, UpdateUserDto, User } from '../interfaces/Us
 interface State {
 	current?: User;
 	friends: Array<User>;
-	online:  Array<UserPreview>;
+	online: Array<UserPreview>;
+	results: Array<UserPreview>;
 }
 
 const initialState: State = {
+	current: undefined,
 	friends: [],
 	online: [],
+	results: [],
 };
 
 const slice = createSlice({
@@ -26,13 +29,13 @@ const slice = createSlice({
 			if (state.current?.id === action.payload.id) {
 				return {
 					...state,
-					current: {...state.current, ...action.payload},
+					current: { ...state.current, ...action.payload },
 				}
 			}
 
 			return {
 				...state,
-				friends: state.friends.map(friend => friend.id === action.payload.id ? {...friend, ...action.payload} : friend),
+				friends: state.friends.map(friend => friend.id === action.payload.id ? { ...friend, ...action.payload } : friend),
 			};
 		},
 		setTotp: (state: State, action: PayloadAction<boolean>): State => {
@@ -73,8 +76,14 @@ const slice = createSlice({
 			};
 		},
 		addOnlineUser: (state: State, action: PayloadAction<UserPreview>): State => {
-			if (state.online.find( x => x.id === action.payload.id) || state.current?.id === action.payload.id)
+			if (state.current?.id === action.payload.id)
 				return state;
+			if (state.online.find(x => x.id === action.payload.id)) {
+				return {
+					...state,
+					online: state.online.map(online => online.id === action.payload.id ? { ...online, ...action.payload } : online),
+				};
+			}
 			return {
 				...state,
 				online: [
@@ -90,9 +99,12 @@ const slice = createSlice({
 					...state.online.filter(u => u.id !== action.payload.id),
 				],
 			};
+		},
+		setResults: (state: State, action: PayloadAction<Array<UserPreview>>): void => {
+			state.results = action.payload;
 		}
 	},
 });
 
-export const { setCurrentUser, updateUser, setTotp, setFriends, addFriend, removeFriend, addOnlineUser, removeOnlineUser } = slice.actions;
+export const { setCurrentUser, updateUser, setTotp, setFriends, addFriend, removeFriend, addOnlineUser, removeOnlineUser, setResults } = slice.actions;
 export default slice.reducer;

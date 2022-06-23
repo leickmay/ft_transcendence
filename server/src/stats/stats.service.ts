@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { instanceToPlain } from "class-transformer";
 import { PacketPlayInLeaderboard } from "src/socket/packets/PacketPlayInLeaderboard";
 import { PacketPlayInProfile } from "src/socket/packets/PacketPlayInProfile";
-import { PacketPlayInStatsUpdate } from "src/socket/packets/PacketPlayInStatsUpdate";
 import { PacketPlayOutLeaderboard } from "src/socket/packets/PacketPlayOutLeaderboard";
 import { PacketPlayOutProfile } from "src/socket/packets/PacketPlayOutProfile";
 import { PacketPlayOutStatsUpdate } from "src/socket/packets/PacketPlayOutStatsUpdate";
@@ -21,7 +20,7 @@ export class StatsService {
 			case PacketTypesMisc.LEADERBOARD:
 				this.sendLeaderboard(packet as PacketPlayInLeaderboard, user);
 				break;
-			case PacketTypesMisc.STATS_UPDATE:
+			case PacketTypesMisc.STATS_REQUEST:
 				this.sendStats(user);
 				break;
 			case PacketTypesMisc.PROFILE:
@@ -30,12 +29,16 @@ export class StatsService {
 		}
 	}
 
-	async addStat(packet: PacketPlayInStatsUpdate): Promise<void> {
+	async addStat(player1: User, player2: User, winner: number): Promise<void> {
 		await Stats.create({
-			winner: packet.winnerId,
-			player1: { id: packet.p1Id },
-			player2: { id: packet.p2Id },
+			winner: winner,
+			player1: { id: player1.id },
+			player2: { id: player2.id },
 		}).save();
+		if (player1.socket)
+			this.sendStats(player1);
+		if (player2.socket)
+			this.sendStats(player2);
 	}
 
 	async sendStats(user: User): Promise<void> {
@@ -62,6 +65,8 @@ export class StatsService {
 	}
 
 	async sendLeaderboard(packet: PacketPlayInLeaderboard, user: User): Promise<void> {
+		if (packet.action === undefined)
+			return;
 		let field = 'matchWon';
 		if (packet.action === 'played')
 			field = 'nbMatch';

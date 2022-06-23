@@ -1,12 +1,13 @@
 #profile {
 	position: fixed;
+	z-index: 10;
 
 	.box {
 		position: relative;
 		width: 70%;
 		margin: 0 auto;
 		height: auto;
-		max-height: 70vh;
+		max-height: 75vh;
 		margin-top: calc(100vh - 85vh - 20px);
 		background: rgb(2, 2, 2);
 		border-radius: 4px;

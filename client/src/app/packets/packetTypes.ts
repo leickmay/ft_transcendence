@@ -4,20 +4,22 @@ export enum PacketTypesMisc {
 	PLAYER_MOVE,
 	SEARCH_USER,
 	STATS_UPDATE,
+	STATS_REQUEST,
 	LEADERBOARD,
 	PROFILE,
 	ALREADY_TAKEN,
 }
 
 export enum PacketTypesUser {
-	USER_CONNECTION = 101,
-	USER_DISCONNECTED,
-	USER_UPDATE,
+	CONNECTION = 101,
+	DISCONNECTED,
+	UPDATE,
 }
 
 export enum PacketTypesChat {
 	COMMAND = 201,
 	MESSAGE,
+	LIST,
 	CREATE,
 	JOIN,
 	LEAVE,
@@ -28,12 +30,29 @@ export enum PacketTypesChat {
 	BLOCK,
 }
 
-export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat;
-
-export enum Directions {
-	UP,
-	DOWN,
+export enum PacketTypesGame {
+	UPDATE = 401,
+	MATCHMAKING,
+	DESTROY,
+	STARTING,
+	START,
+	SPECTATE,
 }
+
+export enum PacketTypesPlayer {
+	JOIN = 411,
+	UPDATE,
+	READY,
+	MOVE,
+	TELEPORT,
+	LIST,
+}
+
+export enum PacketTypesBall {
+	UPDATE = 421,
+}
+
+export type PacketTypes = PacketTypesMisc | PacketTypesUser | PacketTypesChat | PacketTypesGame | PacketTypesPlayer | PacketTypesBall;
 
 export interface Packet {
 	packet_id: PacketTypes;

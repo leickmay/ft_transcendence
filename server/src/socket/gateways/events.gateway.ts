@@ -3,8 +3,8 @@ import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect,
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { ChatService } from 'src/chat/chat.service';
+import { GameService } from 'src/game/game.service';
 import { OptionsService } from 'src/options/options.service';
-import { SearchService } from 'src/search/search.service';
 import { StatsService } from 'src/stats/stats.service';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -28,8 +28,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		private userService: UserService,
 		@Inject(forwardRef(() => OptionsService))
 		private optionsService: OptionsService,
-		@Inject(forwardRef(() => SearchService))
-		private searchService: SearchService,
+		@Inject(forwardRef(() => GameService))
+		private gameService: GameService,
 		@Inject(forwardRef(() => ChatService))
 		private chatService: ChatService,
 		@Inject(forwardRef(() => StatsService))
@@ -55,15 +55,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				throw Error('Already connected');
 			}
 			client.emit('ready');
-			client.broadcast.emit('user', new PacketPlayOutUserConnection([{id: user.id, login: user.login}]));
-			client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => ({id: u.id, login: u.login}))));
+			client.broadcast.emit('user', new PacketPlayOutUserConnection([{ id: user.id, login: user.login }]));
+			client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => ({ id: u.id, login: u.login, playing: !!u.player }))));
 			this.eventsService.addUser(client, user);
 
 			// To move
 			await this.statsService.sendStats(user);
 		} catch (e) {
 			client.emit('error', new UnauthorizedException());
-			this.eventsService.removeUser(client);
 			client.disconnect();
 		}
 	}
@@ -72,8 +71,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		client.broadcast.emit('user', new PacketPlayOutUserDisconnected({id: user.id, login: user.login}));
-		this.eventsService.removeUser(client);
+		client.broadcast.emit('user', new PacketPlayOutUserDisconnected({ id: user.id, login: user.login }));
+		this.eventsService.removeUser(client, user);
 	}
 
 	@SubscribeMessage('user')
@@ -81,30 +80,38 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		this.optionsService.dispatch(packet, user);
+		try {
+			this.optionsService.dispatch(packet, user);
+		} catch (e) { }
 	}
 
 	@SubscribeMessage('chat')
-	handleChat(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket) {
+	handleChat(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket): void {
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		this.chatService.dispatch(packet, user);
+		try {
+			this.chatService.dispatch(packet, user);
+		} catch (e) { }
 	}
 
-	@SubscribeMessage('search')
-	handleSearch(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket) {
+	@SubscribeMessage('game')
+	handleGame(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket): void {
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		this.searchService.dispatch(packet, user);
+		try {
+			this.gameService.dispatch(packet, user);
+		} catch (e) { }
 	}
 
 	@SubscribeMessage('stats')
-	handleStats(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket) {
+	handleStats(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket): void {
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;
-		this.statsService.dispatch(packet, user);
+		try {
+			this.statsService.dispatch(packet, user);
+		} catch (e) { }
 	}
 }

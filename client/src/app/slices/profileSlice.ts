@@ -26,8 +26,9 @@ const slice = createSlice({
 				...action.payload,
 			};
 		},
+		resetProfile: () => initialState,
 	}
 });
 
-export const { setProfile } = slice.actions;
+export const { setProfile, resetProfile } = slice.actions;
 export default slice.reducer;

@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { SocketContext } from "../../app/context/socket";
+import { SocketContext } from "../../app/context/SocketContext";
 import { PacketPlayOutLeaderboard } from "../../app/packets/PacketPlayOutLeaderboard";
 import { RootState } from "../../app/store";
 import { BoardCard } from "../components/BoardCard";
@@ -8,10 +8,6 @@ import { BoardCard } from "../components/BoardCard";
 export const Leaderboard = () => {
 	const board = useSelector((state: RootState) => state.board);
 	const socket = useContext(SocketContext);
-
-	useEffect(() => {
-		socket?.emit('stats', new PacketPlayOutLeaderboard('won'));
-	}, [socket]);
 
 	const list = board.map((u) => {
 		return (
@@ -23,8 +19,12 @@ export const Leaderboard = () => {
 		socket?.emit('stats', new PacketPlayOutLeaderboard(field));
 	}, [socket]);
 
+	useEffect(() => {
+		request('won');
+	}, [socket, request]);
+
 	return (
-		<table id="leaderboard">
+		<table id="leaderboard" className="container">
 			<tbody>
 				<tr className="titles">
 					<th>

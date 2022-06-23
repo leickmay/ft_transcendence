@@ -1,6 +1,6 @@
 import { KeyboardEvent, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { SocketContext } from "../../../app/context/socket";
+import { SocketContext } from "../../../app/context/SocketContext";
 import { PacketPlayOutChatMessage } from "../../../app/packets/chat/PacketPlayOutChat";
 import { RootState } from "../../../app/store";
 import {getNameRoom, getTime, scrollToBottomById } from "../../pages/Chat";

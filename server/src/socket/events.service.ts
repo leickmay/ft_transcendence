@@ -1,7 +1,11 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
+import { GameService } from 'src/game/game.service';
 import { User } from 'src/user/user.entity';
+import { Packet } from './packets/packetTypes';
+
+type PacketHandlerFunction<T extends Packet> = (packet: T, user: User) => any;
 
 @Injectable()
 export class EventsService {
@@ -13,6 +17,8 @@ export class EventsService {
 	constructor(
 		@Inject(forwardRef(() => ChatService))
 		private chatService: ChatService,
+		@Inject(forwardRef(() => GameService))
+		private gameService: GameService,
 	) { }
 
 	getServer(): Server | null {
@@ -22,11 +28,11 @@ export class EventsService {
 	addUser(socket: Socket, user: User): void {
 		this.users[socket.id] = user;
 		user.socket = socket;
-
 		this.chatService.connection(user);
 	}
 
-	removeUser(socket: Socket): void {
+	removeUser(socket: Socket, user: User): void {
+		this.gameService.onLeave(user);
 		this.chatService.disconnection();
 
 		if (this.users[socket.id])

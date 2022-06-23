@@ -1,6 +1,6 @@
 import { ReactElement, useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { SocketContext } from '../../app/context/socket';
+import { SocketContext } from '../../app/context/SocketContext';
 import { RootState } from '../../app/store';
 
 interface Props {
