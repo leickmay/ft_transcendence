@@ -7,6 +7,7 @@ export enum PacketTypesMisc {
 	STATS_REQUEST,
 	LEADERBOARD,
 	PROFILE,
+	ALREADY_TAKEN,
 }
 
 export enum PacketTypesUser {

@@ -35,6 +35,8 @@ import { setUserStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, setResults, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
 import { getUserByLogin } from '../pages/Chat';
+import { PacketPlayInAlreadyTaken } from '../../app/packets/PacketPlayInAlreadyTaken';
+import { pushNotification } from '../../app/actions/notificationsActions';
 
 interface Props { }
 
@@ -82,6 +84,10 @@ export const SocketListener = (props: Props) => {
 			dispatch(setProfile(packet));
 		}
 
+		const aleradyTaken = (packet: PacketPlayInAlreadyTaken) => {
+			dispatch(pushNotification('Error : ' + packet.name + ' is already taken'));
+		}
+
 		socket?.off('user').on('user', (packet: Packet) => {
 			switch (packet.packet_id) {
 				case PacketTypesUser.CONNECTION:
@@ -98,6 +104,9 @@ export const SocketListener = (props: Props) => {
 					break;
 				case PacketTypesMisc.SEARCH_USER:
 					search(packet as PacketPlayInSearchUserResults);
+					break;
+				case PacketTypesMisc.ALREADY_TAKEN:
+					aleradyTaken(packet as PacketPlayInAlreadyTaken);
 					break;
 				default:
 					break;
