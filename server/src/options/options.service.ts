@@ -40,9 +40,10 @@ export class OptionsService {
 			name = name.replace(/ +/, ' ').trim();
 			if (name.length <= 20 && /^[A-Za-zÀ-ÖØ-öø-ÿ]+(( |-)?[A-Za-zÀ-ÖØ-öø-ÿ]+)*$/.test(name)) {
 				const target = await User.findOneBy({name: name});
-				if (!target)
+				if (target)
+					user.send('user', new PacketPlayOutAlreadyTaken(packet.options['name']));
+				else
 					validated.name = name;
-				
 			}
 		}
 
@@ -52,9 +53,6 @@ export class OptionsService {
 				id: user.id,
 				...validated,
 			}));
-		}
-		else {
-			user.send('user', new PacketPlayOutAlreadyTaken(packet.options['name']));
 		}
 	}
 
