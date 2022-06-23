@@ -1,5 +1,5 @@
 .historycard {
-	background-color: rgba($color:#681e6b, $alpha: 0.5);
+	background-color: rgba(darken($primary, 20%), 0.5);
 	border-radius: 25px;
 	margin: 10px;
 	padding: 10px;
@@ -10,13 +10,12 @@
 		align-items: center;
 		flex-direction: column;
 
-
 		p {
 			margin: 0 5px;
 		}
 
-	td {
-		text-align: center;
+		td {
+			text-align: center;
+		}
 	}
-}
 }

@@ -24,18 +24,6 @@ export const Profile = () => {
 		}));
 	}, [dispatch]);
 
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			if (ref.current && !ref.current.contains(event.target as Node)) {
-				handleClose();
-			}
-		};
-		document.addEventListener('mousedown', handleClickOutside, true);
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside, true);
-		};
-	}, [ref, handleClose])
-
 	const DoughnutData = {
 		labels: ['Won', 'Lost'],
 		datasets: [
@@ -75,9 +63,9 @@ export const Profile = () => {
 
 	if (stats.user) {
 		return (
-			<div  className="popup-box">
-				<div ref={ref} className="box">
-					<span className="close-icon" onClick={handleClose}>x</span>
+			<div id="profile" className="pointer overlay" onClick={handleClose}>
+				<div ref={ref} className="box cursor" onClick={e => e.stopPropagation()}>
+					<span className="close-icon pointer" onClick={handleClose}>╳</span>
 					<div className='profile'>
 						<div className="stats">
 							<div className="player">

@@ -77,19 +77,23 @@ export class StatsService {
 	}
 
 	async sendProfile(packet: PacketPlayInProfile, user: User): Promise<void> {
-		let player = await User.find({
-			where: {login: packet.login},
-		})
+		if (packet.login === undefined)
+			return;
+
+		let target = await User.findOneBy({ login: packet.login });
+		if (!target)
+			return;
+	
 		let stats: Stats[] = await Stats.find({
 			where: [
 				{
 					player1: {
-						id: player[0].id
+						id: target.id
 					},
 				},
 				{
 					player2: {
-						id: player[0].id
+						id: target.id
 					},
 				},
 			],
@@ -97,9 +101,9 @@ export class StatsService {
 		});
 		user.send('stats', new PacketPlayOutProfile(
 			stats.length,
-			stats.filter(m => m.winner === player[0].id).length,
+			stats.filter(m => m.winner === target!.id).length,
 			instanceToPlain(stats.slice(0, 10)),
-			instanceToPlain(player[0]),
+			instanceToPlain(target),
 		));
 	}
 }
