@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useContext, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useContext, useState } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/SocketContext";
 import { PacketPlayOutFriends } from "../../app/packets/PacketPlayOutFriends";

@@ -2,8 +2,8 @@ import { useCallback, useContext, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { SocketContext } from '../../app/context/SocketContext';
 import { User } from '../../app/interfaces/User';
-import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { PacketPlayOutGameSpectateRequest } from '../../app/packets/PacketPlayOutGameSpectateRequest';
+import { PacketPlayOutProfile } from '../../app/packets/PacketPlayOutProfile';
 import { RootState } from '../../app/store';
 
 interface Props {
@@ -14,12 +14,6 @@ export const FriendCard = (props: Props) => {
 	const socket = useContext(SocketContext);
 	const online = useSelector((state: RootState) => state.users.online);
 
-	let button = (): JSX.Element => {
-		return (<div onClick={() => socket?.emit('user', new PacketPlayOutFriends('remove', props.user.id))}>
-			<p className='pointer' style={{ fontSize: '1rem' }}>Retirer l'amis</p>
-		</div>);
-	}
-
 	let isOnline = useMemo((): boolean => {
 		return !!online.find(u => u.id === props.user.id);
 	}, [props.user, online]);
@@ -29,15 +23,19 @@ export const FriendCard = (props: Props) => {
 	}, [props.user, online]);
 
 	let spectate = useCallback((): void => {
-		socket?.send(new PacketPlayOutGameSpectateRequest(props.user.id));
-	}, [props.user]);
+		socket?.emit('game', new PacketPlayOutGameSpectateRequest(props.user.id));
+	}, [props.user, socket]);
+
+	let openProfile = useCallback(() => {
+		socket?.emit('stats', new PacketPlayOutProfile(props.user.login));
+	}, [props.user, socket]);
 
 	return (
 		<li className='user-card'>
-			<div className='avatar'>
+			<div className='avatar pointer' onClick={openProfile}>
 				<img className='playerAvatar' src={props.user.avatar} width='50px' height='50px' alt=''></img>
 			</div>
-			<div className='text'>
+			<div className='text pointer' onClick={openProfile}>
 				<p><strong>{props.user.name}</strong></p>
 				<p><small>{props.user.login}</small></p>
 			</div>

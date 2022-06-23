@@ -229,14 +229,12 @@ export const SocketListener = (props: Props) => {
 					break;
 			}
 		});
-	}, [socket, dispatch, playerMove, playerTeleport]);
+	}, [socket, dispatch, playerMove, playerTeleport, ballUpdate, setPlayers, setBalls]);
 
 	useEffect(() => {
 	}, [socket, dispatch]);
 
 	useEffect(() => {
-
-
 		const commandHandler = async (packet: PacketPlayInChatMessage) => {
 			let cmd = packet.message.text.split(" ");
 			switch (cmd[0]) {

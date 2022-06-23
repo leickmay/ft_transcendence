@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import { GameContext } from '../../../app/context/GameContext';
 import { GameStatus, Player, Sides } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
-import { Game } from '../../pages/Game';
 import { PlayerCard } from '../PlayerCard';
 
 interface Props {
@@ -83,7 +82,7 @@ export const GameMenu = (props: Props) => {
 				</div>
 			</section>
 		);
-	}, [players, counter]);
+	}, [players, counter, game.status]);
 
 	switch (game.status) {
 		case GameStatus.NONE:

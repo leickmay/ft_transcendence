@@ -1,8 +1,10 @@
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useMemo } from "react";
+import { useCallback, useContext, useMemo } from "react";
+import { SocketContext } from "../../app/context/SocketContext";
 import { MatchResult } from "../../app/interfaces/Stats";
 import { User } from "../../app/interfaces/User";
+import { PacketPlayOutProfile } from "../../app/packets/PacketPlayOutProfile";
 
 dayjs.extend(relativeTime);
 
@@ -12,16 +14,25 @@ interface Props {
 }
 
 export const History = (props: Props) => {
+	const socket = useContext(SocketContext);
+
+	let openProfile = useCallback((login: string) => {
+		socket?.emit('stats', new PacketPlayOutProfile(login));
+	}, [socket]);
+
 	let matches = useMemo(() => {
 		let targetId = props.target.id;
-		return props.history.map((m, i) =>
-			<tr key={i}>
-				<th title={dayjs(m.createdDate).format('HH:mm:ss DD/MM/YYYY')}>{dayjs(m.createdDate).fromNow()}</th>
-				<td>{m.player1.id === targetId ? m.player2.name : m.player1.name}</td>
-				<td>{m.winner === targetId ? 'Won' : 'Lost'}</td>
-			</tr>
-		);
-	}, [props.target, props.history])
+		return props.history.map((m, i) => {
+			let opponent = m.player1.id === targetId ? m.player2 : m.player1;
+			return (
+				<tr key={i}>
+					<th title={dayjs(m.createdDate).format('HH:mm:ss DD/MM/YYYY')}>{dayjs(m.createdDate).fromNow()}</th>
+					<td className="pointer" onClick={() => openProfile(opponent.login)}>{opponent.name}</td>
+					<td>{m.winner === targetId ? 'Won' : 'Lost'}</td>
+				</tr>
+			);
+		});
+	}, [props.target, props.history, openProfile])
 
 	return (
 		<div className="history">

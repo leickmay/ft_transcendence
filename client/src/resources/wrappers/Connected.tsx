@@ -32,7 +32,7 @@ export function Connected(props: Props) {
 			setBalls([]);
 			dispatch(resetGame());
 		}
-	}, [ready]);
+	}, [ready, dispatch]);
 
 	useEffect(() => {
 		const connect = async (): Promise<void> => {

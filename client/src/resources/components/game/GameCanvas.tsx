@@ -1,13 +1,12 @@
-import { useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { GameContext } from '../../../app/context/GameContext';
 import { useAnimationFrame } from '../../../app/Helpers';
 import { Directions, GameStatus } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
-import backgroundUrl from '../../../assets/images/game-background.png';
 import ballUrl from '../../../assets/images/ball.png';
+import backgroundUrl from '../../../assets/images/game-background.png';
 import paddleUrl from '../../../assets/images/paddles.png';
-import { userInfo } from 'os';
 
 const spriteWidth: number = 110;
 const spriteHeight: number = 450;
@@ -29,16 +28,17 @@ export const GameCanvas = (props: Props) => {
 	const game = useSelector((state: RootState) => state.game);
 	const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
 	const { players, balls } = useContext(GameContext);
-	const tick = useRef<number>(0);
 	const currentUser = useSelector((state: RootState) => state.users.current);
 	const drawTick = useRef<number>(0);
+	// const tick = useRef<number>(0);
+
+	// const gameInterval = useMemo<number>(() => 1000 / game.tps, [game.tps]);
 
 	let canvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
 		if (canvas !== null)
 			setCtx(canvas.getContext('2d'));
 	}, []);
 
-	const gameInterval = useMemo<number>(() => 1000 / game.tps, [game.tps]);
 
 	// useEffect(() => {
 	// 	players.current = game.players.map(p => ({ ...p }));

@@ -9,10 +9,6 @@ export const Leaderboard = () => {
 	const board = useSelector((state: RootState) => state.board);
 	const socket = useContext(SocketContext);
 
-	useEffect(() => {
-		socket?.emit('stats', new PacketPlayOutLeaderboard('won'));
-	}, [socket]);
-
 	const list = board.map((u) => {
 		return (
 			<BoardCard key={u.login} user={u} />
@@ -22,6 +18,10 @@ export const Leaderboard = () => {
 	const request = useCallback((field: 'played' | 'won' | 'level') => {
 		socket?.emit('stats', new PacketPlayOutLeaderboard(field));
 	}, [socket]);
+
+	useEffect(() => {
+		request('won');
+	}, [socket, request]);
 
 	return (
 		<table id="leaderboard" className="container">
