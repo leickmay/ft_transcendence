@@ -1,26 +1,17 @@
-
 .statistics {
+	display: flex;
+	
 
-	.figures {
-		display: flex;
-		justify-content: center;
-	}
-	
-	.figures > p {
-		margin: 1em;
-		padding: 1em;
-		background-color: black;
-		border-radius: 0.3em;
-	}
-	
 	.history {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-
-		th{
-			text-align: justify;
+		margin-left: 5em;
+		text-align: center;
+		
+		.titles {
+			background-color: rgba($color: #681e6b, $alpha: 0.5);
+			min-width: 100%;
+			h4 {
+				margin: 15px ;
+			}
 		}
 	}
-
 }
