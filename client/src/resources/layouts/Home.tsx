@@ -9,6 +9,7 @@ import { Friends } from '../pages/Friends';
 import { Game } from '../pages/Game';
 import { Leaderboard } from "../pages/Leaderboard";
 import { Options } from '../pages/Options';
+import { Profile } from "../pages/Profile";
 import { Statistics } from '../pages/Statistics';
 
 interface Props {
@@ -21,6 +22,7 @@ export function Home(props: Props) {
 			<Notifications />
 			<Navigation />
 			<Loader />
+			<Profile />
 			<Routes>
 				<Route path="/" element={<Game />} />
 				<Route path="/friends" element={<Friends />} />

@@ -1,68 +1,55 @@
-import { useContext } from 'react';
+import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js';
+import { useCallback, useContext, useEffect } from 'react';
+import { Doughnut } from 'react-chartjs-2';
 import { useSelector } from 'react-redux';
 import { SocketContext } from '../../app/context/SocketContext';
 import { PacketPlayOutStatsRequest } from '../../app/packets/PacketPlayOutStatsRequest';
 import { RootState } from '../../app/store';
-import * as dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
+import { History } from '../components/History';
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const Statistics = () => {
 	const socket = useContext(SocketContext);
-	const stats = useSelector((state: RootState) => state.stats)
+	const stats = useSelector((state: RootState) => state.stats);
 	const users = useSelector((state: RootState) => state.users);
 
-	dayjs.extend(relativeTime);
-
-	const refresh = () => {
+	const refresh = useCallback(() => {
 		socket?.emit('stats', new PacketPlayOutStatsRequest());
-	}
+	}, [socket]);
 
-	const listHistory = stats.history.map((h) => {
-		const date = new Date(h.createdDate);
-		let opponent: string;
-		if (h.player1.name === users.current!.name)
-			opponent = h.player2.name;
-		else
-			opponent = h.player1.name;
-		let result: string;
-		if (h.winner === users.current!.id)
-			result = 'won';
-		else
-			result = 'lost';
-		return (
-			<tr>
-				<td>{
-					// @ts-ignore
-					(dayjs(date) as dayjs.Dayjs).fromNow()
-				}</td>
-				<td>{opponent}</td>
-				<td>{result}</td>
-			</tr>
-		);
+	useEffect(() => {
+		refresh();
+	}, [refresh]);
 
-	});
+	const DoughnutData = {
+		labels: ['Won', 'Lost'],
+		datasets: [
+			{
+				label: '# of Game played',
+				data: [stats.matchWon, stats.nbMatchs - stats.matchWon],
+				backgroundColor: [
+					'rgba(153, 102, 255, 0.2)',
+					'rgba(255, 159, 64, 0.2)',
+				],
+				borderColor: [
+					'rgba(153, 102, 255, 1)',
+					'rgba(255, 159, 64, 1)',
+				],
+				borderWidth: 1,
+			},
+		],
+	};
 
 	return (
-		<div className="statistics">
-			<button type="submit" onClick={refresh}>Refresh</button>
-
-			{<div className="figures">
+		<div className='statistics'>
+			{/*<button type="submit" onClick={debugWin}>Win against user2</button>
+			<button type="submit" onClick={debugLose}>Lose against user2</button>*/}
+			<div className="figures">
 				<p>Game played :<br />{stats.nbMatchs}</p>
-				<p>Game won :<br />{stats.matchWon}</p>
-				<p>Game lost :<br />{stats.nbMatchs - stats.matchWon}</p>
-				<p>Win ratio :<br />{Math.floor(stats.matchWon / stats.nbMatchs * 100)} %</p>
-			</div>}
-			<div className="history">
-				<h3>Last Matches</h3>
-				<table>
-					<tr>
-						<th>Date</th>
-						<th>Opponent</th>
-						<th>Result</th>
-					</tr>
-					{listHistory}
-				</table>
+				<Doughnut data={DoughnutData} />
 			</div>
+			<History />
 		</div>
 	);
 };

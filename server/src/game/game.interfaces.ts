@@ -168,6 +168,7 @@ export class Room {
 				player.user.save();
 			}
 		}
+		
 	}
 
 	tryStart(): void { this.canStart() && this.start(); }

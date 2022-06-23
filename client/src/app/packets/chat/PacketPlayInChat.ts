@@ -49,6 +49,7 @@ export interface PacketPlayInChatInit extends Packet {
 		users: Array<UserPreview>,
 		operator?: number,
 	}>;
+	usersBlocked: Array<string>;
 }
 
 export interface PacketPlayInChatDel extends Packet {
@@ -69,3 +70,6 @@ export interface PacketPlayInChatOperator extends Packet {
 	};
 }
 
+export interface PacketPlayInChatBlock extends Packet {
+	usersBlocked: Array<string>;
+}

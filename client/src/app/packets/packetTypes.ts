@@ -6,6 +6,7 @@ export enum PacketTypesMisc {
 	STATS_UPDATE,
 	STATS_REQUEST,
 	LEADERBOARD,
+	PROFILE,
 }
 
 export enum PacketTypesUser {
@@ -25,6 +26,7 @@ export enum PacketTypesChat {
 	INIT,
 	DEL,
 	OPERATOR,
+	BLOCK,
 }
 
 export enum PacketTypesGame {
