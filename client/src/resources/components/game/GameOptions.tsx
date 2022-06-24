@@ -13,8 +13,8 @@ export const GameOptions = () => {
 	const [speedMax, setSpeedMax] = useState(80);
 	const [height, setHeight] = useState(50);
 	const [min, setMin] = useState(50);
-	const [dur, setDur] = useState(48);
-	const [cool, setCool] = useState(40);
+	const [dur, setDur] = useState(12);
+	const [cool, setCool] = useState(15);
 
 	const playersHeight = [
 		{label: "Min", value: 0},
