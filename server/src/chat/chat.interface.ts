@@ -229,7 +229,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		sender.socket?.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
 	}
 
-	command(sender: User, text: string): void {
+	commandPublic(sender: User, text: string): void {
 		if (this.isMute(sender.id))
 			return;
 		let message: Message = {
@@ -240,5 +240,17 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		};
 		sender.socket?.emit('chat', new PacketPlayOutChatMessage(this.id, message));
 		sender.socket?.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
+	}
+
+	commandPrivate(sender: User, text: string): void {
+		if (this.isMute(sender.id))
+			return;
+		let message: Message = {
+			date: Date.now(),
+			from: sender.login,
+			text: text,
+			cmd: true,
+		};
+		sender.socket?.emit('chat', new PacketPlayOutChatMessage(this.id, message));
 	}
 }

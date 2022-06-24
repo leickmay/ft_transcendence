@@ -98,7 +98,7 @@ export class ChatService {
 					user.socket?.emit('chat', new PacketPlayOutChatDel(room));
 					user.socket?.broadcast.emit('chat', new PacketPlayOutChatDel(room));
 				}
-				room?.command(user, text);
+				room?.commandPublic(user, text);
 				return true;
 			}
 			// PROMOTE login
@@ -111,7 +111,7 @@ export class ChatService {
 				if (!admin)
 					return false;
 				room.addAdmin(user, admin.id);
-				room?.command(user, text);
+				room?.commandPublic(user, text);
 				break;
 			}
 			// DEMOTE login
@@ -124,27 +124,20 @@ export class ChatService {
 				if (!admin)
 					return false;
 				room.delAdmin(user, admin.id);
-				room?.command(user, text);
+				room?.commandPublic(user, text);
 				break;
 			}
 			// PASSWORD *****
 			case "/PASSWORD": {
-				if (command.length !== 2)
+				if (command.length !== 1 && command.length !== 2)
 					return false;
 				if (user.id !== room.owner)
 					return false;
-				room.setPassword(command[1]);
-				room?.command(user, text);
-				break;
-			}
-			// PASSWORD
-			case "/PASSWORD": {
 				if (command.length === 1)
-					return false;
-				if (user.id !== room.owner)
-					return false;
-				room.setPassword(undefined);
-				room?.command(user, text);
+					room.setPassword(undefined);
+				else
+					room.setPassword(command[1]);
+				room?.commandPrivate(user, "Password Update");
 				break;
 			}
 			// KICK login
@@ -159,7 +152,7 @@ export class ChatService {
 				if (userBan.id === room.owner)
 					return false;
 				let time = Date.now();
-				room?.command(user, text);
+				room?.commandPublic(user, text);
 				room.banUser(userBan, time)
 				break;
 			}
@@ -175,7 +168,7 @@ export class ChatService {
 				if (userBan.id === room.owner)
 					return false;
 				let time = Date.now() + Number(command[2]) * 60 * 1000;
-				room?.command(user, text);
+				room?.commandPublic(user, text);
 				room.banUser(userBan, time)
 				break;
 			}
@@ -190,7 +183,7 @@ export class ChatService {
 					return false;
 				if (userBan.id === room.owner)
 					return false;
-				room?.command(user, text);
+				room?.commandPublic(user, text);
 				room.banUser(userBan, Date.now());
 				break;
 			}
@@ -206,7 +199,7 @@ export class ChatService {
 				if (userMute.id === room.owner)
 					return false;
 				let time = Date.now() + Number(command[2]) * 60 * 1000;
-				room?.command(user, text);
+				room?.commandPublic(user, text);
 				room.muteUser(userMute, time)
 				break;
 			}
@@ -221,7 +214,7 @@ export class ChatService {
 					return false;
 				if (userMute.id === room.owner)
 					return false;
-				room?.command(user, text);
+				room?.commandPublic(user, text);
 				room.muteUser(userMute, Date.now());
 				break;
 			}
@@ -248,7 +241,7 @@ export class ChatService {
 				if (tmp)
 				{
 					user.socket?.emit('chat', new PacketPlayOutChatBlock(tmp));
-					room?.command(user, text);
+					room?.commandPrivate(user, text);
 				}
 				else
 					return (false);
@@ -272,7 +265,7 @@ export class ChatService {
 				if (tmp)
 				{
 					user.socket?.emit('chat', new PacketPlayOutChatBlock(tmp));
-					room?.command(user, text);
+					room?.commandPrivate(user, text);
 				}
 				else
 					return (false);
