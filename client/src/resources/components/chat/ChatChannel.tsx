@@ -3,7 +3,7 @@ import { Dispatch, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/SocketContext";
 import { ChatTypes } from "../../../app/interfaces/Chat";
-import { PacketPlayOutChatCreate, PacketPlayOutChatJoin } from "../../../app/packets/chat/PacketPlayOutChat";
+import { PacketPlayOutChatCreate } from "../../../app/packets/chat/PacketPlayOutChat";
 import { setCurrentRooms } from "../../../app/slices/chatSlice";
 import { RootState } from "../../../app/store";
 import { hideDivById } from "../../pages/Chat";
@@ -54,22 +54,6 @@ const ChatChannel = () => {
 		hideDivById('input_password');
 	}
 
-	const joinChannel = (): void => {
-		if (name === '')
-			return;
-		let roomPacket = new PacketPlayOutChatJoin(name);
-		if (hasPassword && password !== "")
-			roomPacket.withPassword(password);
-
-		socket?.emit('chat', roomPacket);
-		
-		setName('');
-		setIsPrivate(false);
-		setHasPassword(false);
-		setPassword('');
-		hideDivById('input_password');
-	}
-
 	return (
 		<div
 			id="chatChannel"
@@ -79,9 +63,12 @@ const ChatChannel = () => {
 			<button
 				onClick={() => {switchConfigChannel()}}
 			>..</button>
-			<label>
-				Name
+			<div>
+				<label htmlFor="channelName">
+					Name
+				</label>
 				<input
+					id="channelName"
 					list="channel-visible"
 					name="names"
 					type="text"
@@ -104,18 +91,24 @@ const ChatChannel = () => {
 						})
 					}
 				</datalist>
-			</label>
-			<label>
-				Private
+			</div>
+			<div>
+				<label htmlFor="channelPrivate">
+					Private
+				</label>
 				<input
-					type="checkbox"
-					checked={isPrivate}
-					onChange={() => {setIsPrivate(!isPrivate)}}
-				/>
-			</label>
-			<label>
-				Password 
+						id="channelPrivate"
+						type="checkbox"
+						checked={isPrivate}
+						onChange={() => {setIsPrivate(!isPrivate)}}
+					/>
+				</div>
+			<div>
+				<label htmlFor="channelPassword">
+					Password 
+				</label>
 				<input
+					id="channelPassword"
 					type="checkbox"
 					checked={hasPassword}
 					onChange={() => {
@@ -123,7 +116,7 @@ const ChatChannel = () => {
 						setHasPassword(!hasPassword)}
 					}
 				/>
-			</label>
+			</div>
 			<input
 					id="input_password"
 					type="password"
@@ -142,13 +135,7 @@ const ChatChannel = () => {
 					createChannel();
 					switchConfigChannel();
 				}}
-			>Create</button>
-			<button
-				onClick={() => {
-					joinChannel();
-					switchConfigChannel();
-				}}
-			>Join</button>
+			>Submit</button>
 		</div>
 	);
 };

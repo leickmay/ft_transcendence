@@ -304,8 +304,12 @@ export class ChatService {
 						packet.name = packet.name.substring(0, 31);
 					if (packet.password && packet.password.length >= 256)
 						packet.password = packet.password.substring(0, 255);
-					if (this.rooms.find(x => x.type === ChatTypes.CHANNEL && x.name === packet.name))
-						return;
+					if (this.rooms.find(x => x.type === ChatTypes.CHANNEL && x.name === packet.name)) {
+						return this.event_join(
+							{name: packet.name, password: packet.password} as PacketPlayInChatJoin,
+							user
+						);
+					}
 					let room: ChatRoom = new ChatRoom(
 						ChatTypes.CHANNEL,
 						packet.name,
