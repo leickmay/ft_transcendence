@@ -55,7 +55,9 @@ export class ChatService {
 			.map((room: ChatRoom) => {
 				room.join(user)
 			});
-
+		let blocked = this.usersBlocked.get(user.login);
+		if (!blocked)
+			blocked = [];
 		user.send('chat', new PacketPlayOutChatInit(
 			instanceToPlain(
 				this.rooms
@@ -72,7 +74,7 @@ export class ChatService {
 						});
 					})
 			) as any,
-			this.usersBlocked[user.login],
+			blocked,
 		));
 	}
 	disconnection() {}
