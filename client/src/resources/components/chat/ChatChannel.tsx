@@ -19,7 +19,6 @@ const ChatChannel = () => {
 
 	const [name, setName] = useState('');
 	const [isPrivate, setIsPrivate] = useState(false);
-	const [hasPassword, setHasPassword] = useState(false);
 	const [password, setPassword] = useState('');
 	
 	const user = useSelector((state: RootState) => state.users.current);
@@ -41,7 +40,7 @@ const ChatChannel = () => {
 			return;
 
 		let roomPacket = new PacketPlayOutChatCreate(ChatTypes.CHANNEL).toChannel(name, !isPrivate);
-		if (hasPassword && password !== "")
+		if (password !== "")
 			roomPacket.withPassword(password);
 
 		socket?.emit('chat', roomPacket);
@@ -49,7 +48,6 @@ const ChatChannel = () => {
 		
 		setName('');
 		setIsPrivate(false);
-		setHasPassword(false);
 		setPassword('');
 		hideDivById('input_password');
 	}
@@ -64,9 +62,6 @@ const ChatChannel = () => {
 				onClick={() => {switchConfigChannel()}}
 			>..</button>
 			<div>
-				<label htmlFor="channelName">
-					Name
-				</label>
 				<input
 					id="channelName"
 					list="channel-visible"
@@ -92,31 +87,6 @@ const ChatChannel = () => {
 					}
 				</datalist>
 			</div>
-			<div>
-				<label htmlFor="channelPrivate">
-					Private
-				</label>
-				<input
-						id="channelPrivate"
-						type="checkbox"
-						checked={isPrivate}
-						onChange={() => {setIsPrivate(!isPrivate)}}
-					/>
-				</div>
-			<div>
-				<label htmlFor="channelPassword">
-					Password 
-				</label>
-				<input
-					id="channelPassword"
-					type="checkbox"
-					checked={hasPassword}
-					onChange={() => {
-						hideDivById('input_password');
-						setHasPassword(!hasPassword)}
-					}
-				/>
-			</div>
 			<input
 					id="input_password"
 					type="password"
@@ -128,8 +98,18 @@ const ChatChannel = () => {
 						else
 							event.target.value = name;
 					}}
-					style={{display: "none"}}
 			/>
+			<div>
+				<label htmlFor="channelPrivate">
+					Private
+				</label>
+				<input
+					id="channelPrivate"
+					type="checkbox"
+					checked={isPrivate}
+					onChange={() => {setIsPrivate(!isPrivate)}}
+				/>
+			</div>
 			<button
 				onClick={() => {
 					createChannel();
