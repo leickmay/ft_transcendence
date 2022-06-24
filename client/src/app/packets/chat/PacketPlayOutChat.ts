@@ -1,9 +1,6 @@
 import { ChatTypes } from "../../interfaces/Chat";
 import { PacketTypesChat, DeclarePacket } from "../packetTypes";
 
-@DeclarePacket(PacketTypesChat.COMMAND)
-export class PacketPlayOutChatRoomCommand {}
-
 @DeclarePacket(PacketTypesChat.MESSAGE)
 export class PacketPlayOutChatMessage {
 	constructor(
@@ -60,15 +57,3 @@ export class PacketPlayOutChatJoin {
 		return this;
 	}
 }
-
-@DeclarePacket(PacketTypesChat.LEAVE)
-export class PacketPlayOutChatRoomLeave {}
-
-@DeclarePacket(PacketTypesChat.UP)
-export class PacketPlayOutChatRoomUp {}
-
-@DeclarePacket(PacketTypesChat.INIT)
-export class PacketPlayOutChatRoomInit {}
-
-@DeclarePacket(PacketTypesChat.BLOCK)
-export class PacketPlayOutChatRoomBlock {}
