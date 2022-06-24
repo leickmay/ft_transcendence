@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { instanceToPlain } from "class-transformer";
 import { PacketPlayInChatCreate, PacketPlayInChatJoin, PacketPlayInChatMessage } from "src/socket/packets/chat/PacketPlayInChat";
-import { PacketPlayOutChatBlock, PacketPlayOutChatCreate, PacketPlayOutChatDel, PacketPlayOutChatInit, PacketPlayOutChatJoin } from "src/socket/packets/chat/PacketPlayOutChat";
+import { PacketPlayOutChatBlock, PacketPlayOutChatDel, PacketPlayOutChatInit, PacketPlayOutChatJoin } from "src/socket/packets/chat/PacketPlayOutChat";
 import { PacketTypesChat, Packet } from "src/socket/packets/packetTypes";
 import { User } from "src/user/user.entity";
 import { ChatTypes, ChatRoom } from "./chat.interface";
@@ -317,14 +317,15 @@ export class ChatService {
 					room.join(user);
 					this.rooms.push(room);
 
-					let roomOut: PacketPlayOutChatCreate = new PacketPlayOutChatCreate(
-						room.id,
-						room.type,
-						room.name,
-						room.visible,
-						room.users,
-						room.owner,
-					);
+					let roomOut: PacketPlayOutChatJoin = new PacketPlayOutChatJoin({
+						id: room.id,
+						type: room.type,
+						name: room.name,
+						visible: room.visible,
+						users: room.users,
+						owner: room.owner,
+						admins: room.admins,
+					});
 					user.socket?.emit('chat', roomOut);
 					if (room.visible)
 						user.socket?.broadcast.emit('chat', roomOut);
@@ -361,14 +362,15 @@ export class ChatService {
 						user.socket?.join(room.id);
 						otherUser.socket?.join(room.id);
 						
-						let roomOut = new PacketPlayOutChatCreate(
-							room.id,
-							room.type,
-							room.name,
-							room.visible,
-							room.users,
-							room.owner,
-						);
+						let roomOut = new PacketPlayOutChatJoin({
+							id: room.id,
+							type: room.type,
+							name: room.name,
+							visible: room.visible,
+							users: room.users,
+							owner: room.owner,
+							admins: room.admins,
+						});
 						
 						user.socket?.emit('chat', roomOut);
 						otherUser.socket?.emit('chat', roomOut);

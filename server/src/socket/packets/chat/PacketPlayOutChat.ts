@@ -10,18 +10,6 @@ export class PacketPlayOutChatMessage {
 	) {}
 }
 
-@DeclarePacket(PacketTypesChat.CREATE)
-export class PacketPlayOutChatCreate {
-	constructor(
-		public id: string,
-		public type: ChatTypes,
-		public name: string,
-		public visible: boolean,
-		public users: Array<UserPreview>,
-		public owner?: number,
-	) {}
-}
-
 @DeclarePacket(PacketTypesChat.JOIN)
 export class PacketPlayOutChatJoin {
 	constructor(

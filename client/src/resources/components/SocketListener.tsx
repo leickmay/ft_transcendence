@@ -7,7 +7,7 @@ import { SocketContext } from '../../app/context/SocketContext';
 import { ChatRoom, ChatTypes } from '../../app/interfaces/Chat';
 import { Ball } from '../../app/interfaces/Game.interface';
 import { User } from '../../app/interfaces/User';
-import { PacketPlayInChatAdmin, PacketPlayInChatBlock, PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOwner, PacketPlayInChatRoomCreate } from '../../app/packets/chat/PacketPlayInChat';
+import { PacketPlayInChatAdmin, PacketPlayInChatBlock, PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOwner } from '../../app/packets/chat/PacketPlayInChat';
 import { PacketPlayInBallUpdate } from '../../app/packets/PacketPlayInBallUpdate';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
 import { PacketPlayInGameDestroy } from '../../app/packets/PacketPlayInGameDestroy';
@@ -27,7 +27,7 @@ import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUser
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { Packet, PacketTypesBall, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
-import { addRoom, joinRoom, delRoom, leaveRoom, setAdmins, setChatRooms, setOwner, upUsersBlocked } from '../../app/slices/chatSlice';
+import { joinRoom, delRoom, leaveRoom, setAdmins, setChatRooms, setOwner, upUsersBlocked } from '../../app/slices/chatSlice';
 import { resetGame, updateGame } from '../../app/slices/gameSlice';
 import { setBoard } from '../../app/slices/leaderboardSlice';
 import { setProfile } from '../../app/slices/profileSlice';
@@ -311,10 +311,6 @@ export const SocketListener = (props: Props) => {
 			dispatch(receiveMessage(packet));
 		};
 
-		const createHandler = async (packet: PacketPlayInChatRoomCreate) => {
-			dispatch(addRoom(packet))
-		};
-
 		const joinHandler = async (packet: PacketPlayInChatJoin) => {
 			dispatch(joinRoom(packet));
 		};
@@ -348,10 +344,6 @@ export const SocketListener = (props: Props) => {
 			switch (packet.packet_id) {
 				case PacketTypesChat.MESSAGE: {
 					messageHandler(packet as PacketPlayInChatMessage);
-					break;
-				}
-				case PacketTypesChat.CREATE: {
-					createHandler(packet as PacketPlayInChatRoomCreate);
 					break;
 				}
 				case PacketTypesChat.JOIN: {

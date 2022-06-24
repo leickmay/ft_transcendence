@@ -7,15 +7,6 @@ export interface PacketPlayInChatMessage extends Packet {
 	message: Message;
 }
 
-export interface PacketPlayInChatRoomCreate extends Packet {
-	id: string;
-	type: ChatTypes;
-	name: string;
-	visible: boolean;
-	owner?: number;
-	users: Array<UserPreview>;
-}
-
 export interface PacketPlayInChatJoin extends Packet {
 	room: {
 		id: string,

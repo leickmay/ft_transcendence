@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ChatRoom, Command } from "../interfaces/Chat";
-import { PacketPlayInChatAdmin, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOwner, PacketPlayInChatRoomCreate } from "../packets/chat/PacketPlayInChat";
+import { PacketPlayInChatAdmin, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOwner } from "../packets/chat/PacketPlayInChat";
 
 interface State {
 	current?: string;
@@ -24,23 +24,6 @@ const slice = createSlice({
 		},
 		setChatRooms: (state: State, action: PayloadAction<Array<ChatRoom>>): void => {
 			state.rooms = action.payload;
-		},
-		addRoom: (state: State, action: PayloadAction<PacketPlayInChatRoomCreate>): void => {
-			if (state.rooms?.find(x => x.id === action.payload.id))
-				return;
-			if (state.rooms?.find(x => x.name === action.payload.name))
-				return;
-			let room: ChatRoom = {
-				id: action.payload.id,
-				type: action.payload.type,
-				name: action.payload.name,
-				messages: [],
-				visible: action.payload.visible,
-				owner: action.payload.owner,
-				admins: [],
-				users: action.payload.users,
-			}
-			state.rooms?.push(room);
 		},
 		delRoom: (state: State, action: PayloadAction<ChatRoom>): void => {
 			if (action.payload.name === "World Random")
@@ -96,5 +79,5 @@ const slice = createSlice({
 	},
 });
 
-export const {setCurrentRooms, setChatRooms, addRoom, joinRoom, delRoom, setOwner, newMessages, leaveRoom, upUsersBlocked, setAdmins} = slice.actions;
+export const {setCurrentRooms, setChatRooms, joinRoom, delRoom, setOwner, newMessages, leaveRoom, upUsersBlocked, setAdmins} = slice.actions;
 export default slice.reducer;
