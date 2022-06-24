@@ -44,6 +44,10 @@ export const Options = () => {
 						<div style={{ padding: '6px', border: '4px solid' }}>
 							<QRCode style={{ display: 'block' }} value={user.totp} />
 						</div>
+						<div className='buttons'>
+							<button onClick={closeTotp}>I scanned this QR code with authenticator - (if you didn't your account may be lost)</button>
+							<button onClick={newTotp}>Cancel two factors identification</button>
+						</div>
 					</div>
 				</section>
 			);
