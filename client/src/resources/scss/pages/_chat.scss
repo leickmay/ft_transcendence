@@ -125,4 +125,12 @@
 		border: 1px solid $primary;
 		padding: none;
 	}
+
+	.tabChat-active {
+		display: block;
+	}
+
+	.tabChat-inactive {
+		display: none;
+	}
 }

@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { AnyAction } from "@reduxjs/toolkit";
+import { Dispatch, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { ChatTypes } from "../../../app/interfaces/Chat";
-import { setCurrentRooms } from "../../../app/slices/chatSlice";
+import { setCurrentRooms, setTab } from "../../../app/slices/chatSlice";
 import store, { RootState } from "../../../app/store";
 import { getNameRoom } from "../../pages/Chat";
-import { switchConfigChannel } from "./ChatChannel";
-import { switchConfigPrivMsg } from "./ChatPrivateMessage";
 
 export const ChatNavigation = () => {
+	const dispatch: Dispatch<AnyAction> = useDispatch();
+
 	const roomsAlert = useSelector((state: RootState) => state.chat.rooms);
 	const user = useSelector((state: RootState) => state.users.current);
 	const friends = useSelector((state: RootState) => state.users.friends);
+	const tab = useSelector((state: RootState) => state.chat.tab);
 
 	const [rooms, setRooms] = useState(store.getState().chat.rooms);
 	useEffect(() => {
@@ -20,11 +22,11 @@ export const ChatNavigation = () => {
 	return (
 		<div
 			id="chatNavigation"
-			className="chatLeft"
+			className={tab === 0 ? "chatLeft  tabChat-active" : "chatLeft tabChat-inactive"}
 		>
 			<button
 				onClick={() => {
-					switchConfigChannel();
+					dispatch(setTab(1));
 				}}
 			>Channels</button>
 			<div className="chatRoomList">
@@ -43,7 +45,7 @@ export const ChatNavigation = () => {
 			</div>
 			<button
 				onClick={() => {
-					switchConfigPrivMsg();
+					dispatch(setTab(2));
 				}}
 			>Privates Messages</button>
 			<div className="chatRoomList">

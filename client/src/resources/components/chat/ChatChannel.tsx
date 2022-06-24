@@ -4,14 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/SocketContext";
 import { ChatTypes } from "../../../app/interfaces/Chat";
 import { PacketPlayOutChatCreate } from "../../../app/packets/chat/PacketPlayOutChat";
-import { setCurrentRooms } from "../../../app/slices/chatSlice";
+import { setCurrentRooms, setTab } from "../../../app/slices/chatSlice";
 import { RootState } from "../../../app/store";
-import { hideDivById } from "../../pages/Chat";
-
-export const switchConfigChannel = () => {
-	hideDivById("chatNavigation");
-	hideDivById("chatChannel");
-}
 
 const ChatChannel = () => {
 	const socket = useContext(SocketContext);
@@ -23,6 +17,7 @@ const ChatChannel = () => {
 	
 	const user = useSelector((state: RootState) => state.users.current);
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
+	const tab = useSelector((state: RootState) => state.chat.tab);
 	
 	const [roomsOffline, setRoomsOffline] = useState(rooms?.filter(
 		x => x.users.find(u => u.id === user?.id) === undefined
@@ -49,17 +44,16 @@ const ChatChannel = () => {
 		setName('');
 		setIsPrivate(false);
 		setPassword('');
-		hideDivById('input_password');
+		dispatch(setTab(0));
 	}
 
 	return (
 		<div
 			id="chatChannel"
-			className="chatLeft"
-			style={{display: "none"}}
+			className={tab === 1 ? "chatLeft  tabChat-active" : "chatLeft tabChat-inactive"}
 		>
 			<button
-				onClick={() => {switchConfigChannel()}}
+				onClick={() => {dispatch(setTab(0))}}
 			>..</button>
 			<div>
 				<input
@@ -113,7 +107,6 @@ const ChatChannel = () => {
 			<button
 				onClick={() => {
 					createChannel();
-					switchConfigChannel();
 				}}
 			>Submit</button>
 		</div>

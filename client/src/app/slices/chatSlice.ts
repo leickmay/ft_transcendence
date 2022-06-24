@@ -6,17 +6,22 @@ interface State {
 	current?: string;
 	rooms?: Array<ChatRoom>;
 	usersBlocked: Array<string>;
+	tab: number;
 }
 
 const initialState: State = {
 	current: "ChatRoom_1",
 	usersBlocked: [],
+	tab: 0,
 };
 
 const slice = createSlice({
 	name: 'chat',
 	initialState,
 	reducers: {
+		setTab: (state: State, action: PayloadAction<number>): void => {
+			state.tab = action.payload;
+		},
 		setCurrentRooms: (state: State, action: PayloadAction<string>): void => {
 			let room = state.rooms?.find(x => x.id === action.payload);
 			if (room)
@@ -79,5 +84,5 @@ const slice = createSlice({
 	},
 });
 
-export const {setCurrentRooms, setChatRooms, joinRoom, delRoom, setOwner, newMessages, leaveRoom, upUsersBlocked, setAdmins} = slice.actions;
+export const {setTab, setCurrentRooms, setChatRooms, joinRoom, delRoom, setOwner, newMessages, leaveRoom, upUsersBlocked, setAdmins} = slice.actions;
 export default slice.reducer;
