@@ -37,6 +37,7 @@ export enum PacketTypesGame {
 	STARTING,
 	START,
 	SPECTATE,
+	OPTIONS,
 }
 
 export enum PacketTypesPlayer {

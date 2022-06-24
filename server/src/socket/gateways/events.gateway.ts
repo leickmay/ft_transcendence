@@ -97,6 +97,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	@SubscribeMessage('game')
 	handleGame(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket): void {
+		console.log(packet);
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
 			return;

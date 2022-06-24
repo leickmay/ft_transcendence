@@ -1,0 +1,27 @@
+.game-options {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	//background-color: pink;
+
+	.sliders {
+		width: 80%;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	button {
+		width: 80%;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	h4 {
+		text-align: center;
+	}
+
+	h3 {
+		text-align: center;
+	}
+	
+}
