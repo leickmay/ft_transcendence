@@ -18,8 +18,9 @@ const ChatCurrentRoom = () => {
 
 	const inputNewMessage = async (element: KeyboardEvent<HTMLTextAreaElement>): Promise<void> => {
 		if (element.key === 'Enter' && newMessage !== '') {
-			if (currentID)
+			if (currentID) {
 				socket?.emit('chat', new PacketPlayOutChatMessage(currentID, newMessage));
+			}
 			setNewMessage('');
 		}
 	}

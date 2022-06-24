@@ -2,9 +2,6 @@ import { ChatTypes, Message} from "src/chat/chat.interface";
 import { UserPreview } from "src/user/user.entity";
 import { DeclarePacket, PacketTypesChat } from "../packetTypes";
 
-@DeclarePacket(PacketTypesChat.COMMAND)
-export class PacketPlayOutChatCommand {}
-
 @DeclarePacket(PacketTypesChat.MESSAGE)
 export class PacketPlayOutChatMessage {
 	constructor(
@@ -38,13 +35,6 @@ export class PacketPlayOutChatJoin {
 			admins: Array<number>,
 		},
 	) {}
-}
-
-@DeclarePacket(PacketTypesChat.LEAVE)
-export class PacketPlayOutChatLeave {}
-
-@DeclarePacket(PacketTypesChat.UP)
-export class PacketPlayOutChatUp {
 }
 
 @DeclarePacket(PacketTypesChat.INIT)

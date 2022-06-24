@@ -217,7 +217,6 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	}
 
 	send(sender: User, text: string): void {
-		console.log(this.isMute(sender.id));
 		if (this.isMute(sender.id))
 			return;
 		let message: Message = {
@@ -231,7 +230,6 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	}
 
 	command(sender: User, text: string): void {
-		console.log(this.isMute(sender.id));
 		if (this.isMute(sender.id))
 			return;
 		let message: Message = {

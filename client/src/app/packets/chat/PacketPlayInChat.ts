@@ -2,15 +2,9 @@ import { ChatTypes, Message } from "../../interfaces/Chat";
 import { UserPreview } from "../../interfaces/User";
 import { Packet } from "../packetTypes";
 
-export interface PacketPlayInChatCommand extends Packet {
-}
-
 export interface PacketPlayInChatMessage extends Packet {
 	room: string;
 	message: Message;
-}
-
-export interface PacketPlayInChatCreate extends Packet {
 }
 
 export interface PacketPlayInChatRoomCreate extends Packet {
@@ -32,13 +26,6 @@ export interface PacketPlayInChatJoin extends Packet {
 		owner?: number,
 		admins: Array<number>,
 	};
-}
-
-export interface PacketPlayInChatLeave extends Packet {
-}
-
-export interface PacketPlayInChatUp extends Packet {
-
 }
 
 export interface PacketPlayInChatInit extends Packet {

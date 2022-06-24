@@ -40,14 +40,6 @@ export class ChatService {
 				this.event_join(packet as PacketPlayInChatJoin, user);
 				break;
 			}
-			case PacketTypesChat.LEAVE: {
-				this.event_leave();
-				break;
-			}
-			case PacketTypesChat.UP: {
-				this.event_up();
-				break;
-			}
 			default:
 				break;
 		}
@@ -76,7 +68,7 @@ export class ChatService {
 							visible: room.visible,
 							users: room.users,
 							owner: room.owner,
-							admin: room.admins,
+							admins: room.admins,
 						});
 					})
 			) as any,
@@ -153,6 +145,22 @@ export class ChatService {
 				room?.command(user, text);
 				break;
 			}
+			// KICK login
+			case "/KICK": {
+				if (command.length !== 2)
+					return false;
+				if (user.id !== room.owner && !room.isAdmins(user.id))
+					return false;
+				let userBan = this.eventService.getUserByLogin(command[1]);
+				if (userBan === undefined || user.id === userBan.id || !room.isPresent(userBan.id))
+					return false;
+				if (userBan.id === room.owner)
+					return false;
+				let time = Date.now();
+				room?.command(user, text);
+				room.banUser(userBan, time)
+				break;
+			}
 			// BAN login time
 			case "/BAN": {
 				if (command.length !== 3)
@@ -176,7 +184,7 @@ export class ChatService {
 				if (user.id !== room.owner && !room.isAdmins(user.id))
 					return false;
 				let userBan = this.eventService.getUserByLogin(command[1]);
-				if (userBan === undefined || user.id === userBan.id || !room.isPresent(userBan.id))
+				if (userBan === undefined || user.id === userBan.id)
 					return false;
 				if (userBan.id === room.owner)
 					return false;
@@ -329,7 +337,6 @@ export class ChatService {
 				break;
 			}
 			case ChatTypes.PRIVATE_MESSAGE: {
-				//let otherUser = this.eventService.getUser(packet.users[0]);
 				if (packet.users && packet.users.length === 1) {
 					let otherUser = this.eventService.getUserById(packet.users[0]);
 					if (otherUser)
@@ -400,6 +407,4 @@ export class ChatService {
 			admins: room.admins,
 		}));
 	}
-	async event_leave(): Promise<void> {}
-	async event_up(): Promise<void> {}
 }

@@ -49,7 +49,7 @@ const slice = createSlice({
 				state.current = "ChatRoom_1";
 			state.rooms = state.rooms?.filter(x => x.name !== action.payload.name);
 		},
-		addUserToRoom: (state: State, action: PayloadAction<PacketPlayInChatJoin>): void => {
+		joinRoom: (state: State, action: PayloadAction<PacketPlayInChatJoin>): void => {
 			let roomTmp = action.payload.room;
 			let room: ChatRoom | undefined = state.rooms?.find(x => x.id === roomTmp.id);
 			if (room) {
@@ -69,22 +69,16 @@ const slice = createSlice({
 				state.rooms?.push(room);
 			}
 		},
-		setOwner: (state: State, action: PayloadAction<PacketPlayInChatOwner>): void => {
-			let room = state.rooms?.find(x => x.id === action.payload.room.id);
-			if (room)
-				room.owner = action.payload.room.owner;
-		},
-		addUser: (state: State, action: PayloadAction<Command>): void => {
-			if (action.payload.cmd.length >= 2)
-				state.rooms
-					?.find(x => x.name === action.payload.cmd[1])
-					?.users.push({id: action.payload.user.id, login: action.payload.user.login});
-		},
 		leaveRoom: (state: State, action: PayloadAction<Command>): void => {
 			let room = state.rooms?.find(x => x.id === action.payload.room);
 			if (room)
 				room.users = room?.users.filter(x => x.id !== action.payload.user.id);
 			state.current = "ChatRoom_1";
+		},
+		setOwner: (state: State, action: PayloadAction<PacketPlayInChatOwner>): void => {
+			let room = state.rooms?.find(x => x.id === action.payload.room.id);
+			if (room)
+				room.owner = action.payload.room.owner;
 		},
 		newMessages: (state: State, action: PayloadAction<PacketPlayInChatMessage>): void => {
 			state.rooms
@@ -102,5 +96,5 @@ const slice = createSlice({
 	},
 });
 
-export const {setCurrentRooms, setChatRooms, addRoom, addUserToRoom, delRoom, setOwner, newMessages, addUser, leaveRoom, upUsersBlocked, setAdmins} = slice.actions;
+export const {setCurrentRooms, setChatRooms, addRoom, joinRoom, delRoom, setOwner, newMessages, leaveRoom, upUsersBlocked, setAdmins} = slice.actions;
 export default slice.reducer;
