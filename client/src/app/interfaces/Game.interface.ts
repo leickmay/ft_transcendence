@@ -44,6 +44,7 @@ export interface Ball extends Entity {
 	// Local only
 	screenX: number;
 	screenY: number;
+	screenDirection: { x: number, y: number };
 }
 
 export enum GameStatus {

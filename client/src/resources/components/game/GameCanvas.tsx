@@ -87,22 +87,31 @@ export const GameCanvas = (props: Props) => {
 			}
 			for (const ball of balls) {
 				let diff = Math.abs(Math.sqrt((ball.screenX - ball.x) ** 2 + (ball.screenY - ball.y) ** 2));
-				if (diff > ball.speed * 2) {
+				if (diff > ball.speed * /* 2 */ 20) { // TODO change
 					ball.screenX = ball.x;
 					ball.screenY = ball.y;
+					ball.screenDirection = ball.direction;
 				} else {
-					let tmpX = ball.screenX + (ball.speed / stepsPerTick) * ball.direction.x;
-					let tmpY = ball.screenY + (ball.speed / stepsPerTick) * ball.direction.y;
-					let meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
-					if (meuh.y + ball.radius > game.height && ball.direction.y > 0) {
-						ball.direction.y *= -1;
-						tmpY = ball.screenY + (ball.speed / stepsPerTick) * ball.direction.y;
-						meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
-					} else if (meuh.y - ball.radius < 0 && ball.direction.y < 0) {
-						ball.direction.y *= -1;
-						tmpY = ball.screenY + (ball.speed / stepsPerTick) * ball.direction.y;
-						meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
+					let tmpX = ball.screenX + (ball.speed / stepsPerTick) * ball.screenDirection.x;
+					let tmpY = ball.screenY + (ball.speed / stepsPerTick) * ball.screenDirection.y;
+
+					let meuh = {x: tmpX, y: tmpY};
+					if (meuh.y + ball.radius > game.height && ball.screenDirection.y > 0) {
+						ball.screenDirection.y = -Math.abs(ball.screenDirection.y);
+					} else if (meuh.y - ball.radius < 0 && ball.screenDirection.y < 0) {
+						ball.screenDirection.y = Math.abs(ball.screenDirection.y);
 					}
+
+					// let meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
+					// if (meuh.y + ball.radius > game.height && ball.direction.y > 0) {
+					// 	ball.direction.y *= -1;
+					// 	tmpY = ball.screenY + (ball.speed / stepsPerTick) * ball.direction.y;
+					// 	meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
+					// } else if (meuh.y - ball.radius < 0 && ball.direction.y < 0) {
+					// 	ball.direction.y *= -1;
+					// 	tmpY = ball.screenY + (ball.speed / stepsPerTick) * ball.direction.y;
+					// 	meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
+					// }
 					ball.screenX = meuh.x;
 					ball.screenY = meuh.y;
 				}

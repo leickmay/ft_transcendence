@@ -153,6 +153,7 @@ export const SocketListener = (props: Props) => {
 				y: packet.y!,
 				screenX: packet.x!,
 				screenY: packet.y!,
+				screenDirection: packet.direction!,
 			}
 			balls.push(ball);
 		} else {

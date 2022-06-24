@@ -75,7 +75,7 @@ export class Room {
 	spectators: Array<Spectator> = [];
 
 	@Expose()
-	maxScore: number = 5;
+	maxScore: number = /* 5 */ 500; // TODO change
 
 	get nextBallId() {
 		return ++this.currentBallId;
@@ -168,7 +168,6 @@ export class Room {
 				player.user.save();
 			}
 		}
-		
 	}
 
 	tryStart(): void { this.canStart() && this.start(); }
@@ -218,7 +217,7 @@ export class Room {
 			}
 			ball.sendUpdate();
 		}
-		let winner: Player | undefined = this.players.find(p => p.score >= 5);
+		let winner: Player | undefined = this.players.find(p => p.score >= this.maxScore);
 		if (winner) {
 			this.end(winner);
 		}
