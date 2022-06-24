@@ -1,6 +1,7 @@
-import { Directions, Packet } from "./packetTypes";
+import { Directions } from "../interfaces/Game.interface";
+import { Packet } from "./packetTypes";
 
 export interface PacketPlayInPlayerMove extends Packet {
-	player: number,
+	player: number;
 	direction: Directions;
 }

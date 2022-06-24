@@ -1,10 +1,66 @@
-.game {
+#game {
+	.board {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		text-align: center;
 
-	width: 90%;
-	height: 800px;
+		@include for-phone {
+			flex-direction: column;
+		}
 
-	border: 2px solid $color-1;
-	background-color: black;
-	margin: 30px 5%;
-	//padding: 20px 0px 20px 0px;
+		&>.players {
+			padding: 15px;
+			width: 250px;
+		}
+
+		&>:not(.players) {
+			flex: 1;
+			display: flex;
+			justify-content: center;
+			margin: 0 20px;
+
+			@include for-phone {
+				flex-direction: column;
+			}
+
+			&>* {
+				&:first-child {
+					flex: 1;
+					text-align: end;
+
+					@include for-phone {
+						text-align: center;
+					}
+				}
+				&:last-child {
+					flex: 1;
+					text-align: start;
+
+					@include for-phone {
+						text-align: center;
+					}
+				}
+
+				&:nth-child(2) {
+					display: block;
+					margin: 0 15px;
+				}
+			}
+		}
+	}
+
+	div.canvas {
+		position: relative;
+		width: 100%;
+		canvas {
+			width: 100%;
+		}
+		&>.overlay {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			text-align: center;
+		}
+	}
 }

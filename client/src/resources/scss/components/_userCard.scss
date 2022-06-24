@@ -1,0 +1,100 @@
+li.user-card:not(:last-child) {
+	margin-bottom: 20px;
+	padding-bottom: 20px;
+	border-bottom: 2px solid darken($body-color, 20%);
+}
+
+.user-card {
+	display: flex;
+	align-items: center;
+	text-align: start;
+
+	&[data-direction='right' i] {
+		direction: rtl;
+	}
+
+	&>.avatar {
+		position: relative;
+
+		&>img {
+			display: block;
+		}
+
+		&>.overlay {
+			pointer-events: none;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 0;
+
+			h3 {
+				margin: 0;
+			}
+		}
+	}
+
+	&>.text {
+		margin-inline-start: 20px;
+
+		p {
+			margin: 5px 0;
+		}
+	}
+
+	&>.status {
+		margin-left: auto;
+		display: flex;
+		align-items: center;
+		justify-self: end;
+
+		&>button {
+			width: 30px;
+			height: 30px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin-right: 10px;
+			padding: 0;
+			border: none;
+
+			&:not([data-playing='true' i]) {
+				filter: grayscale(100%);
+				opacity: 30%;
+			}
+		}
+
+		&>span {
+			display: block;
+			width: 10px;
+			height: 10px;
+
+			border-radius: 100%;
+		}
+
+		&::after {
+			display: block;
+			margin-left: 5px;
+			width: 55px;
+		}
+
+		&[data-online='true' i] {
+			&>span {
+				background-color: $secondary;
+			}
+
+			&::after {
+				content: 'online';
+			}
+		}
+
+		&:not([data-online='true' i]) {
+			&>span {
+				background-color: $tertiary;
+			}
+
+			&::after {
+				content: 'offline';
+			}
+		}
+	}
+}

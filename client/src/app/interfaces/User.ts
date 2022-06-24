@@ -6,6 +6,7 @@ export interface User {
 	nbMatch?: number;
 	matchWon?: number;
 	totp?: boolean | string;
+	playing?: boolean;
 	xp: number;
 }
 
@@ -13,6 +14,7 @@ export interface UserPreview {
 	id: number;
 	login: string;
 	name?: string;
+	playing?: boolean;
 }
 
 export type UpdateUserDto = Partial<User> & { id: number };

@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { useSelector } from "react-redux";
-import { SocketContext } from "../../../app/context/socket";
+import { SocketContext } from "../../../app/context/SocketContext";
 import { ChatTypes } from "../../../app/interfaces/Chat";
 import { PacketPlayOutChatCreate } from "../../../app/packets/chat/PacketPlayOutChat";
 import { RootState } from "../../../app/store";

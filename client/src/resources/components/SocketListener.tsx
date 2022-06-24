@@ -1,30 +1,48 @@
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
-import { useContext, useEffect } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { receiveMessage } from '../../app/actions/messageActions';
-import { SocketContext } from '../../app/context/socket';
+import { GameContext } from '../../app/context/GameContext';
+import { SocketContext } from '../../app/context/SocketContext';
 import { ChatRoom, ChatTypes } from '../../app/interfaces/Chat';
+import { Ball } from '../../app/interfaces/Game.interface';
 import { User } from '../../app/interfaces/User';
 import { PacketPlayInChatAdmin, PacketPlayInChatBlock, PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOwner, PacketPlayInChatRoomCreate } from '../../app/packets/chat/PacketPlayInChat';
+import { PacketPlayInBallUpdate } from '../../app/packets/PacketPlayInBallUpdate';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
+import { PacketPlayInGameDestroy } from '../../app/packets/PacketPlayInGameDestroy';
+import { PacketPlayInGameUpdate } from '../../app/packets/PacketPlayInGameUpdate';
 import { PacketPlayInLeaderboard } from '../../app/packets/PacketPlayInLeaderboard';
+import { PacketPlayInPlayerJoin } from '../../app/packets/PacketPlayInPlayerJoin';
+import { PacketPlayInPlayerList } from '../../app/packets/PacketPlayInPlayerList';
+import { PacketPlayInPlayerMove } from '../../app/packets/PacketPlayInPlayerMove';
+import { PacketPlayInPlayerReady } from '../../app/packets/PacketPlayInPlayerReady';
+import { PacketPlayInPlayerTeleport } from '../../app/packets/PacketPlayInPlayerTeleport';
+import { PacketPlayInPlayerUpdate } from '../../app/packets/PacketPlayInPlayerUpdate';
+import { PacketPlayInProfile } from '../../app/packets/PacketPlayInProfile';
+import { PacketPlayInSearchUserResults } from '../../app/packets/PacketPlayInSearchUserResults';
 import { PacketPlayInStatsUpdate } from '../../app/packets/PacketPlayInStatsUpdate';
 import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserConnection';
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
-import { Packet, PacketTypesChat, PacketTypesMisc, PacketTypesUser } from '../../app/packets/packetTypes';
+import { Packet, PacketTypesBall, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
 import { addRoom, joinRoom, delRoom, leaveRoom, setAdmins, setChatRooms, setOwner, upUsersBlocked } from '../../app/slices/chatSlice';
+import { resetGame, updateGame } from '../../app/slices/gameSlice';
 import { setBoard } from '../../app/slices/leaderboardSlice';
+import { setProfile } from '../../app/slices/profileSlice';
 import { setUserStats } from '../../app/slices/statsSlice';
-import { addOnlineUser, removeOnlineUser, setFriends, updateUser } from '../../app/slices/usersSlice';
+import { addOnlineUser, removeOnlineUser, setFriends, setResults, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
 import { getUserByLogin } from '../pages/Chat';
+import { PacketPlayInAlreadyTaken } from '../../app/packets/PacketPlayInAlreadyTaken';
+import { pushNotification } from '../../app/actions/notificationsActions';
 
 interface Props { }
 
 export const SocketListener = (props: Props) => {
 	const socket = useContext(SocketContext);
+	const { players, setPlayers, balls, setBalls } = useContext(GameContext);
 	const ready = useSelector((state: RootState) => state.socket.ready);
 
 	const currentUser = useSelector((state: RootState) => state.users.current);
@@ -33,6 +51,14 @@ export const SocketListener = (props: Props) => {
 	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 
 	useEffect(() => {
+		const stats = (packet: PacketPlayInStatsUpdate) => {
+			dispatch(setUserStats(packet));
+		}
+
+		const board = (packet: PacketPlayInLeaderboard) => {
+			dispatch(setBoard(packet.users));
+		}
+
 		const online = (packet: PacketPlayInUserConnection) => {
 			for (const user of packet.users)
 				dispatch(addOnlineUser(user));
@@ -50,25 +76,174 @@ export const SocketListener = (props: Props) => {
 			dispatch(setFriends(packet.friends));
 		}
 
-		const stats = (packet: PacketPlayInStatsUpdate) => {
-			dispatch(setUserStats(packet));
+		const search = (packet: PacketPlayInSearchUserResults) => {
+			dispatch(setResults(packet.results));
 		}
 
-		const board = (packet: PacketPlayInLeaderboard) => {
-			dispatch(setBoard(packet.users));
+		const profile = (packet: PacketPlayInProfile) => {
+			dispatch(setProfile(packet));
+		}
+
+		const aleradyTaken = (packet: PacketPlayInAlreadyTaken) => {
+			dispatch(pushNotification('Error : ' + packet.name + ' is already taken'));
 		}
 
 		socket?.off('user').on('user', (packet: Packet) => {
-			if (packet.packet_id === PacketTypesUser.USER_CONNECTION)
-				online(packet as PacketPlayInUserConnection);
-			if (packet.packet_id === PacketTypesUser.USER_DISCONNECTED)
-				offline(packet as PacketPlayInUserDisconnected);
-			if (packet.packet_id === PacketTypesUser.USER_UPDATE)
-				update(packet as PacketPlayInUserUpdate);
-			if (packet.packet_id === PacketTypesMisc.FRIENDS)
-				friends(packet as PacketPlayInFriendsUpdate);
+			switch (packet.packet_id) {
+				case PacketTypesUser.CONNECTION:
+					online(packet as PacketPlayInUserConnection);
+					break;
+				case PacketTypesUser.DISCONNECTED:
+					offline(packet as PacketPlayInUserDisconnected);
+					break;
+				case PacketTypesUser.UPDATE:
+					update(packet as PacketPlayInUserUpdate);
+					break;
+				case PacketTypesMisc.FRIENDS:
+					friends(packet as PacketPlayInFriendsUpdate);
+					break;
+				case PacketTypesMisc.SEARCH_USER:
+					search(packet as PacketPlayInSearchUserResults);
+					break;
+				case PacketTypesMisc.ALREADY_TAKEN:
+					aleradyTaken(packet as PacketPlayInAlreadyTaken);
+					break;
+				default:
+					break;
+			}
 		});
 
+		socket?.off('stats').on('stats', (packet: Packet) => {
+			if (packet.packet_id === PacketTypesMisc.STATS_UPDATE)
+				stats(packet as PacketPlayInStatsUpdate);
+			if (packet.packet_id === PacketTypesMisc.LEADERBOARD)
+				board(packet as PacketPlayInLeaderboard);
+			if ((packet.packet_id === PacketTypesMisc.PROFILE))
+				profile(packet as PacketPlayInProfile);
+		});
+	}, [socket, dispatch]);
+
+	const playerMove = useCallback((packet: PacketPlayInPlayerMove) => {
+		let player = players.find(p => p.user.id === packet.player);
+
+		if (player)
+			player.direction = packet.direction;
+	}, [players]);
+
+	const playerTeleport = useCallback((packet: PacketPlayInPlayerTeleport) => {
+		let player = players.find(p => p.user.id === packet.player);
+
+		if (player) {
+			player.direction = packet.direction;
+			player.x = packet.x;
+			player.y = packet.y;
+		}
+	}, [players]);
+
+	const ballUpdate = useCallback((packet: PacketPlayInBallUpdate) => {
+		let ball: Ball | undefined = balls.find(b => b.id === packet.ball);
+
+		if (!ball) {
+			ball = {
+				id: packet.ball,
+				direction: packet.direction!,
+				radius: packet.size!,
+				speed: packet.speed!,
+				x: packet.x!,
+				y: packet.y!,
+				screenX: packet.x!,
+				screenY: packet.y!,
+			}
+			balls.push(ball);
+		} else {
+			if (packet.direction) ball.direction = packet.direction;
+			if (packet.size) ball.radius = packet.size;
+			if (packet.speed) ball.speed = packet.speed;
+			if (packet.x) ball.x = packet.x;
+			if (packet.y) ball.y = packet.y;
+		}
+	}, [balls]);
+
+	useEffect(() => {
+		const gameUpdate = (packet: PacketPlayInGameUpdate) => {
+			dispatch(updateGame(packet.data));
+		}
+
+		const gameDestroy = (packet: PacketPlayInGameDestroy) => {
+			setPlayers([]);
+			setBalls([]);
+			dispatch(resetGame());
+		}
+
+		const playerList = (packet: PacketPlayInPlayerList) => {
+			packet.players.forEach(p => p.screenY = p.y);
+			setPlayers(players => packet.players);
+		}
+
+		const playerJoin = (packet: PacketPlayInPlayerJoin) => {
+			packet.player.screenY = packet.player.y;
+			setPlayers(players => [...players, packet.player]);
+		}
+
+		// const remove = (packet: PacketPlayInPlayerLeave) => {
+		// 	dispatch(removePlayer(packet.player));
+		// }
+
+		const playerReady = (packet: PacketPlayInPlayerReady) => {
+			setPlayers(players => players.map(p => {
+				if (!p.ready && p.user.id === packet.player)
+					return { ...p, ready: true };
+				return p;
+			}));
+		}
+
+		const playerUpdate = (packet: PacketPlayInPlayerUpdate) => {
+			setPlayers(players => players.map(p => {
+				if (p.user.id === packet.data.id)
+					return { ...p, ...packet.data };
+				return p;
+			}));
+		}
+
+		socket?.off('game').on('game', (packet: Packet): void => {
+			switch (packet.packet_id) {
+				case PacketTypesPlayer.LIST:
+					playerList(packet as PacketPlayInPlayerList);
+					break;
+				case PacketTypesPlayer.JOIN:
+					playerJoin(packet as PacketPlayInPlayerJoin);
+					break;
+				case PacketTypesPlayer.READY:
+					playerReady(packet as PacketPlayInPlayerReady);
+					break;
+				case PacketTypesGame.UPDATE:
+					gameUpdate(packet as PacketPlayInGameUpdate);
+					break;
+				case PacketTypesGame.DESTROY:
+					gameDestroy(packet as PacketPlayInGameDestroy);
+					break;
+				case PacketTypesPlayer.MOVE:
+					playerMove(packet as PacketPlayInPlayerMove);
+					break;
+				case PacketTypesPlayer.TELEPORT:
+					playerTeleport(packet as PacketPlayInPlayerTeleport);
+					break;
+				case PacketTypesPlayer.UPDATE:
+					playerUpdate(packet as PacketPlayInPlayerUpdate);
+					break;
+				case PacketTypesBall.UPDATE:
+					ballUpdate(packet as PacketPlayInBallUpdate);
+					break;
+				default:
+					break;
+			}
+		});
+	}, [socket, dispatch, playerMove, playerTeleport, ballUpdate, setPlayers, setBalls]);
+
+	useEffect(() => {
+	}, [socket, dispatch]);
+
+	useEffect(() => {
 		const commandHandler = async (packet: PacketPlayInChatMessage) => {
 			let cmd = packet.message.text.split(" ");
 			switch (cmd[0]) {
@@ -168,13 +343,6 @@ export const SocketListener = (props: Props) => {
 		const blockHandler = async (packet: PacketPlayInChatBlock) => {
 			dispatch(upUsersBlocked(packet.usersBlocked));
 		};
-
-		socket?.off('stats').on('stats', (packet: Packet) => {
-			if (packet.packet_id === PacketTypesMisc.STATS_UPDATE)
-				stats(packet as PacketPlayInStatsUpdate);
-			if (packet.packet_id === PacketTypesMisc.LEADERBOARD)
-				board(packet as PacketPlayInLeaderboard);
-		});
 
 		socket?.off('chat').on('chat', (packet: Packet) => {
 			switch (packet.packet_id) {

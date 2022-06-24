@@ -17,8 +17,14 @@
 
 	&>div {
 		background-color: white;
-		justify-content: center;
+		align-items: center;
+		flex-direction: column;
 		display: flex;
 		padding: 15px;
+	}
+
+	.buttons {
+		display: flex;
+		flex-direction: column;
 	}
 }

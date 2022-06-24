@@ -137,9 +137,9 @@ export class ChatService {
 				room?.command(user, text);
 				break;
 			}
-			// DELPASSWORD
-			case "/DELPASSWORD": {
-				if (command.length !== 1)
+			// PASSWORD
+			case "/PASSWORD": {
+				if (command.length === 1)
 					return false;
 				if (user.id !== room.owner)
 					return false;

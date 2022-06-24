@@ -10,13 +10,18 @@
 
 @import "components/container";
 @import "components/card";
+@import "components/userCard";
 @import "components/input";
 @import "components/navigation";
 @import "components/notification";
 @import "components/boardCard";
+@import "components/history";
 
 @import "pages/login";
 @import "pages/friends";
 @import "pages/options";
+@import "pages/game";
 @import "pages/leaderboard";
 @import "pages/chat";
+@import "pages/statistics";
+@import "pages/profile";

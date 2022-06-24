@@ -1,0 +1,78 @@
+#profile {
+	position: fixed;
+	z-index: 10;
+
+	.box {
+		position: relative;
+		width: 70%;
+		margin: 0 auto;
+		height: auto;
+		max-height: 75vh;
+		margin-top: calc(100vh - 85vh - 20px);
+		background: rgb(2, 2, 2);
+		border-radius: 4px;
+		padding: 20px;
+		border: 1px solid #999;
+		overflow-y: auto;
+		overscroll-behavior: none;
+
+		@include for-tablet {
+			width: 80%;
+		}
+
+		@include for-phone {
+			width: 90%;
+		}
+
+		.close-icon {
+			position: absolute;
+			width: 30px;
+			height: 30px;
+			right: 0;
+			top: 0;
+			font-size: 10px;
+			
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			line-height: 0;
+		}
+
+		.profile {
+			height: 100%;
+			overflow-y: auto;
+
+			.stats {
+				display: flex;
+				justify-content: space-around;
+				flex-wrap: wrap;
+				gap: 20px;
+			
+				.player {
+					display: flex;
+					align-items: center;
+					gap: 10px;
+				}
+		
+				.graph {
+					text-align: center;
+				}
+			}
+		
+			.history {
+				
+				text-align: center;
+				table {
+					width: 100%;
+				}
+				.titles {
+					background-color: rgba($color: #681e6b, $alpha: 0.5);
+					min-width: 100%;
+					h4 {
+						margin: 15px ;
+					}
+				}
+			}
+		}
+	}
+}

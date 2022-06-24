@@ -1,13 +1,16 @@
-import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
-import { SocketContext } from '../../app/context/socket';
+import { GameContext } from '../../app/context/GameContext';
+import { SocketContext } from '../../app/context/SocketContext';
 import { logout } from '../../app/Helpers';
+import { Ball, Player } from '../../app/interfaces/Game.interface';
 import { User } from '../../app/interfaces/User';
+import { resetGame } from '../../app/slices/gameSlice';
 import { setCurrentUser } from '../../app/slices/usersSlice';
+import { RootState } from '../../app/store';
 import { Home } from '../layouts/Home';
 
 interface Props {
@@ -15,11 +18,21 @@ interface Props {
 
 export function Connected(props: Props) {
 	const navigate = useNavigate();
-
+	const dispatch = useDispatch();
+	const ready = useSelector((state: RootState) => state.socket.ready);
 	const [cookies, setCookie, removeCookie] = useCookies(['access_token']);
 	const [socket, setSocket] = useState<Socket>();
 
-	const dispatch: Dispatch<AnyAction> = useDispatch();
+	let [players, setPlayers] = useState<Array<Player>>([]);
+	let [balls, setBalls] = useState<Array<Ball>>([]);
+
+	useEffect(() => {
+		if (!ready) {
+			setPlayers([]);
+			setBalls([]);
+			dispatch(resetGame());
+		}
+	}, [ready, dispatch]);
 
 	useEffect(() => {
 		const connect = async (): Promise<void> => {
@@ -68,8 +81,10 @@ export function Connected(props: Props) {
 	}, [socket, dispatch, navigate, setCookie, removeCookie, cookies.access_token]);
 
 	return (
-		<SocketContext.Provider value={socket}>
-			<Home />
-		</SocketContext.Provider>
+		<GameContext.Provider value={{players, setPlayers, balls, setBalls}}>
+			<SocketContext.Provider value={socket}>
+				<Home />
+			</SocketContext.Provider>
+		</GameContext.Provider>
 	);
 }
