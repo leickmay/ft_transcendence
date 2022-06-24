@@ -21,10 +21,36 @@
 		flex-direction: column;
 		display: flex;
 		padding: 15px;
-	}
 
-	.buttons {
-		display: flex;
-		flex-direction: column;
+		p {
+			margin: 0;
+			color: black;
+			margin-bottom: 15px;
+		}
+
+		&>.buttons {
+			margin-top: 15px;
+			font-size: 1rem;
+			display: flex;
+
+			&>button {
+				border: none;
+				margin: 0 15px;
+				padding: 10px;
+				width: 120px;
+
+				&:hover {
+					background-color: $body-color;
+				}
+
+				&:first-child {
+					color: green;
+				}
+
+				&:last-child {
+					color: red;
+				}
+			}
+		}
 	}
 }

@@ -1,5 +1,5 @@
 import { ChangeEvent, KeyboardEvent, useContext, useEffect, useState } from 'react';
-import QRCode from "react-qr-code";
+import { QRCodeSVG } from 'qrcode.react';
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/SocketContext";
 import { PacketPlayOutTotp } from '../../app/packets/PacketPlayOutTotp';
@@ -7,6 +7,7 @@ import { PacketPlayOutUserUpdate } from '../../app/packets/PacketPlayOutUserUpda
 import { updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
 import { ImageUploader } from '../components/ImageUploader';
+import iconUrl from '../../assets/images/icon.png';
 
 export const Options = () => {
 	const socket = useContext(SocketContext);
@@ -41,12 +42,18 @@ export const Options = () => {
 			return (
 				<section id='totp-qr' className='overlay pointer' onClick={closeTotp}>
 					<div className='cursor' onClick={e => e.stopPropagation()}>
+						<p className='h3'>Scan this QR code with<br />an authenticator</p>
 						<div style={{ padding: '6px', border: '4px solid' }}>
-							<QRCode style={{ display: 'block' }} value={user.totp} />
+							<QRCodeSVG style={{ display: 'block' }} size={256} level={'L'} imageSettings={{
+								src: iconUrl,
+								excavate: true,
+								width: 256 / 5,
+								height: 256 / 5,
+							}} value={user.totp} />
 						</div>
 						<div className='buttons'>
-							<button onClick={closeTotp}>I scanned this QR code with authenticator - (if you didn't your account may be lost)</button>
-							<button onClick={newTotp}>Cancel two factors identification</button>
+							<button onClick={closeTotp}>Enable 2fa</button>
+							<button onClick={newTotp}>Cancel</button>
 						</div>
 					</div>
 				</section>
