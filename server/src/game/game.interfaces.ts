@@ -193,9 +193,7 @@ export class Room {
 		}, 5000);
 	}
 
-	private loop = (): void => {
-		console.log(new Date());
-		
+	private loop = (): void => {		
 		for (const player of this.players) {
 			player.move();
 			player.sendUpdate();
