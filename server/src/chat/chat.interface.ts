@@ -119,7 +119,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 
 	setPassword(password: string | undefined) {
 		if (password)
-			this.password = password.substring(0, 255);
+			this.password = password;
 		else
 			this.password = undefined;
 	}

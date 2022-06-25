@@ -1,29 +1,24 @@
-import { AnyAction } from "@reduxjs/toolkit";
-import { Dispatch, useContext, useEffect, useState } from "react";
+import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
+import { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/SocketContext";
 import { ChatTypes } from "../../../app/interfaces/Chat";
-import { PacketPlayOutChatCreate, PacketPlayOutChatJoin } from "../../../app/packets/chat/PacketPlayOutChat";
-import { setCurrentRooms } from "../../../app/slices/chatSlice";
+import { PacketPlayOutChatCreate } from "../../../app/packets/chat/PacketPlayOutChat";
+import { setCurrentRooms, setTabBigScreen } from "../../../app/slices/chatSlice";
 import { RootState } from "../../../app/store";
-import { hideDivById } from "../../pages/Chat";
-
-export const switchConfigChannel = () => {
-	hideDivById("chatNavigation");
-	hideDivById("chatChannel");
-}
 
 const ChatChannel = () => {
 	const socket = useContext(SocketContext);
-	const dispatch: Dispatch<AnyAction> = useDispatch();
+	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 
 	const [name, setName] = useState('');
 	const [isPrivate, setIsPrivate] = useState(false);
-	const [hasPassword, setHasPassword] = useState(false);
 	const [password, setPassword] = useState('');
 	
 	const user = useSelector((state: RootState) => state.users.current);
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
+	const bigTab = useSelector((state: RootState) => state.chat.tabBigScreen);
+	const smallTab = useSelector((state: RootState) => state.chat.tabSmallScreen);
 	
 	const [roomsOffline, setRoomsOffline] = useState(rooms?.filter(
 		x => x.users.find(u => u.id === user?.id) === undefined
@@ -41,7 +36,7 @@ const ChatChannel = () => {
 			return;
 
 		let roomPacket = new PacketPlayOutChatCreate(ChatTypes.CHANNEL).toChannel(name, !isPrivate);
-		if (hasPassword && password !== "")
+		if (password !== "")
 			roomPacket.withPassword(password);
 
 		socket?.emit('chat', roomPacket);
@@ -49,50 +44,42 @@ const ChatChannel = () => {
 		
 		setName('');
 		setIsPrivate(false);
-		setHasPassword(false);
 		setPassword('');
-		hideDivById('input_password');
+		dispatch(setTabBigScreen(0));
 	}
 
-	const joinChannel = (): void => {
-		if (name === '')
-			return;
-		let roomPacket = new PacketPlayOutChatJoin(name);
-		if (hasPassword && password !== "")
-			roomPacket.withPassword(password);
-
-		socket?.emit('chat', roomPacket);
-		
-		setName('');
-		setIsPrivate(false);
-		setHasPassword(false);
-		setPassword('');
-		hideDivById('input_password');
+	const setClassName = (tab: number) => {
+		let className: string = "chatLeft";
+		if (bigTab === tab)
+			className = className + " tabChat-active";
+		else
+			className = className + " tabChat-inactive";
+		if (smallTab === 1)
+			className = className + " room-active";
+		else
+			className = className + " room-inactive";
+		return className;
 	}
 
 	return (
 		<div
 			id="chatChannel"
-			className="chatLeft"
-			style={{display: "none"}}
+			className={setClassName(1)}
 		>
 			<button
-				onClick={() => {switchConfigChannel()}}
+				onClick={() => {dispatch(setTabBigScreen(0))}}
 			>..</button>
-			<label>
-				Name
 				<input
+					id="channelName"
 					list="channel-visible"
 					name="names"
 					type="text"
 					placeholder="Name"
 					value={name}
-					onChange={event => 
-					{
-						if (event.target.value !== '\n' && event.target.value.length < 32)
+					maxLength={16}
+					onChange={event => {
+						if (event.target.value !== '\n')
 							setName(event.target.value)
-						else
-							event.target.value = name;
 					}}
 				/>
 				<datalist id="channel-visible">
@@ -104,51 +91,33 @@ const ChatChannel = () => {
 						})
 					}
 				</datalist>
-			</label>
-			<label>
-				Private
 				<input
+						id="input_password"
+						type="password"
+						placeholder="Password"
+						value={password}
+						maxLength={32}
+						onChange={event => {
+							if (event.target.value !== '\n')
+								setPassword(event.target.value)
+						}}
+				/>
+			<div className="checkBox">
+				<label htmlFor="channelPrivate">
+					Private
+				</label>
+				<input
+					id="channelPrivate"
 					type="checkbox"
 					checked={isPrivate}
 					onChange={() => {setIsPrivate(!isPrivate)}}
 				/>
-			</label>
-			<label>
-				Password 
-				<input
-					type="checkbox"
-					checked={hasPassword}
-					onChange={() => {
-						hideDivById('input_password');
-						setHasPassword(!hasPassword)}
-					}
-				/>
-			</label>
-			<input
-					id="input_password"
-					type="password"
-					placeholder="Password"
-					value={password}
-					onChange={event => {
-						if (event.target.value !== '\n' && event.target.value.length < 256)
-							setPassword(event.target.value)
-						else
-							event.target.value = name;
-					}}
-					style={{display: "none"}}
-			/>
+			</div>
 			<button
 				onClick={() => {
 					createChannel();
-					switchConfigChannel();
 				}}
-			>Create</button>
-			<button
-				onClick={() => {
-					joinChannel();
-					switchConfigChannel();
-				}}
-			>Join</button>
+			>Submit</button>
 		</div>
 	);
 };

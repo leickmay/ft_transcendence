@@ -10,16 +10,6 @@ import ChatCurrentRoom from "../components/chat/ChatRoom";
 **	Utils
 */
 
-export const hideDivById = (id: string): void => {
-	let tmp = document.getElementById(id);
-	if (tmp && tmp.style.display === 'none') {
-		tmp.style.display = 'block';
-	}
-	else if (tmp) {
-		tmp.style.display = 'none';
-	}
-}
-
 export const scrollToBottomById = async (id: string) => {
 	let element = document.getElementById(id);
 	let height = element?.scrollHeight;

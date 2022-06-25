@@ -43,17 +43,3 @@ export class PacketPlayOutChatCreate {
 		return this;
 	}
 }
-
-@DeclarePacket(PacketTypesChat.JOIN)
-export class PacketPlayOutChatJoin {
-	public password?: string;
-
-	constructor(
-		public name: string,
-	) {}
-
-	withPassword(password?: string): PacketPlayOutChatJoin {
-		this.password = password;
-		return this;
-	}
-}
