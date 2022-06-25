@@ -1,5 +1,6 @@
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { getNameRoom } from '../../resources/pages/Chat';
+import { ChatTypes } from '../interfaces/Chat';
 import { PacketPlayInChatMessage } from '../packets/chat/PacketPlayInChat';
 import { newMessages } from '../slices/chatSlice';
 import { RootState } from '../store';
@@ -14,7 +15,7 @@ export const receiveMessage = (packet: PacketPlayInChatMessage) => (dispatch: Th
 			return;
 	}
 	let room = getState().chat.rooms?.find(x => x.id === packet.room);
-	if (!room)
+	if (!room || room.type === ChatTypes.CHANNEL)
 		return;
 	let notification = getNameRoom(room)?.toString() + "(" + packet.message.from + ") : " + packet.message.text.substring(0, 16);
 	dispatch(pushNotification({ text: notification }));

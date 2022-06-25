@@ -5,14 +5,13 @@ import { PacketPlayInPlayerMove } from 'src/socket/packets/PacketPlayInPlayerMov
 import { PacketPlayInGameOptions } from 'src/socket/packets/PacketPlayInGameOptions';
 import { PacketPlayInPlayerReady } from 'src/socket/packets/PacketPlayInPlayerReady';
 import { PacketPlayOutGameUpdate } from 'src/socket/packets/PacketPlayOutGameUpdate';
-import { PacketPlayOutUserConnection } from 'src/socket/packets/PacketPlayOutUserConnection';
 import { Packet, PacketTypesGame, PacketTypesPlayer } from 'src/socket/packets/packetTypes';
 import { StatsService } from 'src/stats/stats.service';
 import { User } from '../user/user.entity';
 import { GameStatus, Player, Room } from "./game.interfaces";
 import { PacketPlayInPlayerInvite } from 'src/socket/packets/PacketPlayInPlayerInvite';
 import { PacketPlayOutGameInvitation } from 'src/socket/packets/PacketPlayOutGameInvitation';
-import { use } from 'passport';
+import { PacketPlayInPlayerAccept } from 'src/socket/packets/PacketPlayInPlayerAccept';
 
 export class GameService {
 	rooms: Array<Room> = new Array<Room>();
@@ -53,6 +52,9 @@ export class GameService {
 			case PacketTypesGame.INVITATION:
 				this.handleInvite(packet as PacketPlayInPlayerInvite, user);
 				break;
+			case PacketTypesGame.ACCEPT:
+				this.handleAccept(packet as PacketPlayInPlayerAccept, user);
+				break;
 			default:
 				break;
 		}
@@ -65,6 +67,16 @@ export class GameService {
 		if (index > -1) {
 			this.waitList.splice(index, 1);
 		}
+	}
+
+	handleAccept(packet: PacketPlayInPlayerAccept, user: User): void {
+		console.log(packet.room);
+		if (!packet.room)
+			return;
+		let room = this.privRooms.find(x => x.id === packet.room);
+		if (!room)
+			return;
+		room.join(user);
 	}
 
 	handleInvite(packet: PacketPlayInPlayerInvite, user: User): void {

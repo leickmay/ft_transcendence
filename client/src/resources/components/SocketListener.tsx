@@ -207,6 +207,17 @@ export const SocketListener = (props: Props) => {
 		}
 		const handleInvitation = (packet: PacketPlayInGameInvitation) => {
 			console.log(packet);
+			dispatch(pushNotification({
+				text:"/Game Invitation by " + packet.user.login,
+				duration: 10000,
+				button: {
+					text: 'Accept',
+					action: 'ACCEPT_GAME_INVITATION',
+					data: {
+						id: packet.room.id,
+					},
+				},
+			}));
 		}
 
 		socket?.off('game').on('game', (packet: Packet): void => {
