@@ -22,11 +22,11 @@ export const ImageUploader = () => {
 		let formData = new FormData();
 
 		if (!file) {
-			dispatch(pushNotification('A file is required'));
+			dispatch(pushNotification({ text: 'A file is required' }));
 		} else if (file.size > 2000000) {
-			dispatch(pushNotification('The file size is limited to 2MB'));
+			dispatch(pushNotification({ text: 'The file size is limited to 2MB' }));
 		} else if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
-			dispatch(pushNotification('Only images of type JPEG or PNG are accepted'));
+			dispatch(pushNotification({ text: 'Only images of type JPEG or PNG are accepted' }));
 		} else {
 			formData.set('avatar', file);
 
@@ -36,7 +36,7 @@ export const ImageUploader = () => {
 				body: formData,
 			}).then((response) => {
 				if (!response.ok) {
-					dispatch(pushNotification('Upload failed'));
+					dispatch(pushNotification({ text: 'Upload failed' }));
 				}
 			}).catch((error) => {
 				console.log("Error : ", error);

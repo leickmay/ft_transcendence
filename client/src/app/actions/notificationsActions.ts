@@ -1,12 +1,12 @@
-import { AnyAction, Dispatch } from '@reduxjs/toolkit';
-import { addNotification, hideNotification, popNotification } from '../slices/notificationsSlice';
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import { Notification, addNotification, hideNotification, popNotification } from '../slices/notificationsSlice';
 import { RootState } from '../store';
 
-export const pushNotification = (message: string) => async (dispatch: Dispatch<AnyAction>, getState: () => RootState) => {
+export const pushNotification = (content: Notification) => async (dispatch: ThunkDispatch<RootState, unknown, AnyAction>, getState: () => RootState) => {
 	let id = getState().notifications.next;
-	dispatch(addNotification(message));
-	await new Promise(resolve => setTimeout(resolve, getState().notifications.duration));
+	dispatch(addNotification(content));
+	await new Promise(resolve => setTimeout(resolve, content.duration || getState().notifications.duration));
 	dispatch(hideNotification(id));
 	await new Promise(resolve => setTimeout(resolve, 1000));
-	dispatch(popNotification());
+	dispatch(popNotification(id));
 };

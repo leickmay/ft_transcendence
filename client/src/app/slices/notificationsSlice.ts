@@ -1,11 +1,20 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+export interface Notification {
+	text: string;
+	duration?: number;
+	button?: {
+		text: string;
+		action: 'ACCEPT_GAME_INVITATION' | string,
+	}
+}
+
 interface State {
 	next: number,
 	duration: number,
 	actives: Array<{
 		id: number,
-		message: string,
+		content: Notification,
 		visible: boolean,
 	}>;
 }
@@ -20,14 +29,14 @@ const slice = createSlice({
 	name: 'alerts',
 	initialState,
 	reducers: {
-		addNotification: (state: State, data: PayloadAction<string>): State => {
+		addNotification: (state: State, data: PayloadAction<Notification>): State => {
 			return {
 				...state,
 				next: state.next + 1,
 				actives: [
 					{
 						id: state.next,
-						message: data.payload,
+						content: data.payload,
 						visible: true,
 					},
 					...state.actives,
@@ -40,10 +49,10 @@ const slice = createSlice({
 				actives: state.actives.map(n => n.id === data.payload ? {...n, visible: false} : n),
 			}
 		},
-		popNotification: (state: State) => {
+		popNotification: (state: State, data: PayloadAction<number>) => {
 			return {
 				...state,
-				actives: state.actives.slice(0, state.actives.length - 1),
+				actives: state.actives.filter(n => n.id !== data.payload),
 			}
 		},
 	}

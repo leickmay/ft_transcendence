@@ -24,6 +24,7 @@
 		font-size: 1.6rem;
 
 		&.show {
+			pointer-events: all;
 			max-height: none;
 			animation: notification-show 0.6s ease-out forwards;
 		}
