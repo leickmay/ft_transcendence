@@ -1,4 +1,4 @@
-import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { QRCodeSVG } from 'qrcode.react';
 import { ChangeEvent, KeyboardEvent, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";

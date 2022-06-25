@@ -6,7 +6,7 @@ import { pushNotification } from '../../app/actions/notificationsActions';
 import { GameContext } from '../../app/context/GameContext';
 import { SocketContext } from '../../app/context/SocketContext';
 import { ChatRoom, ChatTypes } from '../../app/interfaces/Chat';
-import { Ball } from '../../app/interfaces/Game.interface';
+import { Ball, Vector2 } from '../../app/interfaces/Game.interface';
 import { User } from '../../app/interfaces/User';
 import { PacketPlayInChatAdmin, PacketPlayInChatBlock, PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOwner } from '../../app/packets/chat/PacketPlayInChat';
 import { PacketPlayInAlreadyTaken } from '../../app/packets/PacketPlayInAlreadyTaken';
@@ -135,8 +135,7 @@ export const SocketListener = (props: Props) => {
 
 		if (player) {
 			player.direction = packet.direction;
-			player.x = packet.x;
-			player.y = packet.y;
+			player.location = new Vector2(packet.x, packet.y);
 		}
 	}, [players]);
 
@@ -146,22 +145,21 @@ export const SocketListener = (props: Props) => {
 		if (!ball) {
 			ball = {
 				id: packet.ball,
+				location: packet.location!,
 				direction: packet.direction!,
 				radius: packet.size!,
 				speed: packet.speed!,
-				x: packet.x!,
-				y: packet.y!,
-				screenX: packet.x!,
-				screenY: packet.y!,
-				screenDirection: packet.direction!,
+				screen: {
+					location: packet.location!,
+					direction: packet.direction!,
+				},
 			}
 			balls.push(ball);
 		} else {
 			if (packet.direction) ball.direction = packet.direction;
 			if (packet.size) ball.radius = packet.size;
 			if (packet.speed) ball.speed = packet.speed;
-			if (packet.x) ball.x = packet.x;
-			if (packet.y) ball.y = packet.y;
+			if (packet.location) ball.location = packet.location;
 		}
 	}, [balls]);
 
@@ -177,12 +175,12 @@ export const SocketListener = (props: Props) => {
 		}
 
 		const playerList = (packet: PacketPlayInPlayerList) => {
-			packet.players.forEach(p => p.screenY = p.y);
+			packet.players.forEach(p => p.screenY = p.location.y);
 			setPlayers(players => packet.players);
 		}
 
 		const playerJoin = (packet: PacketPlayInPlayerJoin) => {
-			packet.player.screenY = packet.player.y;
+			packet.player.screenY = packet.player.location.y;
 			setPlayers(players => [...players, packet.player]);
 		}
 
