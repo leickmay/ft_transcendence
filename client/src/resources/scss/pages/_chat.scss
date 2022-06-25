@@ -5,7 +5,7 @@
 	min-height: 670px;
 	min-width: 350px;
 	width: 100%;
-	border: 8px solid #00000000;
+	border: 8px solid rgba($primary, 0);
 	@include for-tablet {
 		flex-direction:column;
 	}
@@ -43,7 +43,7 @@
 		flex-grow: 3;
 		width: 75%;
 		padding: 0.5rem;
-		background-color: #000000cc;
+		background-color: rgba($overlay, 0.70);
 		@include for-tablet {
 			width: 100%;
 		}
