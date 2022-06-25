@@ -165,7 +165,7 @@ export const GameOptions = () => {
 				</div> 
 				: 
 				<></>}
-				<button onClick={sendSettings}>Validate Game Settings</button>
+				<button onClick={sendSettings}>Create custom game</button>
 			</div>
 		</div>
 	)

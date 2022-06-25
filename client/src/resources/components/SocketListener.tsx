@@ -26,7 +26,7 @@ import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserCo
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
-import { Packet, PacketTypesBall, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
+import { Packet, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
 import { addRoom, addUserToRoom, delRoom, leaveRoom, setChatRooms, setOperator, upUsersBlocked } from '../../app/slices/chatSlice';
 import { resetGame, updateGame } from '../../app/slices/gameSlice';
 import { setBoard } from '../../app/slices/leaderboardSlice';
@@ -37,6 +37,7 @@ import { RootState } from '../../app/store';
 import { getUserByLogin } from '../pages/Chat';
 import { PacketPlayInAlreadyTaken } from '../../app/packets/PacketPlayInAlreadyTaken';
 import { pushNotification } from '../../app/actions/notificationsActions';
+import { PacketPlayInGameInvitation } from '../../app/packets/PacketPlayInGameInvitation';
 
 interface Props { }
 
@@ -204,6 +205,9 @@ export const SocketListener = (props: Props) => {
 				return p;
 			}));
 		}
+		const handleInvitation = (packet: PacketPlayInGameInvitation) => {
+			console.log(packet);
+		}
 
 		socket?.off('game').on('game', (packet: Packet): void => {
 			switch (packet.packet_id) {
@@ -231,8 +235,8 @@ export const SocketListener = (props: Props) => {
 				case PacketTypesPlayer.UPDATE:
 					playerUpdate(packet as PacketPlayInPlayerUpdate);
 					break;
-				case PacketTypesBall.UPDATE:
-					ballUpdate(packet as PacketPlayInBallUpdate);
+				case PacketTypesGame.INVITATION:
+					handleInvitation(packet as PacketPlayInGameInvitation);
 					break;
 				default:
 					break;

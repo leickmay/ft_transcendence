@@ -1,8 +1,11 @@
 import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js';
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useContext, useMemo, useRef } from "react";
 import { Doughnut } from 'react-chartjs-2';
 import { useDispatch, useSelector } from "react-redux";
+import { SocketContext } from "../../app/context/SocketContext";
+import { GameStatus } from "../../app/interfaces/Game.interface";
+import { PacketPlayOutPlayerInvite } from "../../app/packets/PacketPlayOutPlayerInvite";
 import { resetProfile } from "../../app/slices/profileSlice";
 import { RootState } from "../../app/store";
 import { History } from "../components/History";
@@ -10,7 +13,9 @@ import { History } from "../components/History";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const Profile = () => {
-	const stats = useSelector((state: RootState) => state.profile);
+	const socket = useContext(SocketContext);
+	const profile = useSelector((state: RootState) => state.profile);
+	const game = useSelector((state: RootState) => state.game);
 	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 	const ref = useRef<HTMLInputElement>(null);
 
@@ -29,7 +34,7 @@ export const Profile = () => {
 		datasets: [
 			{
 				label: '# of Game played',
-				data: [stats.matchWon, stats.nbMatchs - stats.matchWon],
+				data: [profile.matchWon, profile.nbMatchs - profile.matchWon],
 				backgroundColor: [
 					'rgba(153, 102, 255, 0.2)',
 					'rgba(255, 159, 64, 0.2)',
@@ -41,9 +46,29 @@ export const Profile = () => {
 				borderWidth: 1,
 			},
 		],
-	}), [stats]);
+	}), [profile]);
 
-	if (stats.user) {
+
+	const sendInvitation = () => {
+		let target = profile.user?.id;
+		if (!target)
+			return;
+		if (game.status === GameStatus.WAITING) {
+			socket?.emit('game', new PacketPlayOutPlayerInvite(target));
+		}
+		else{
+			socket?.emit('game', new PacketPlayOutPlayerInvite(target));
+		}
+	}
+
+	const getButtonGameInvitation = () => {
+		if (game.status === GameStatus.WAITING)
+			return <button onClick={sendInvitation}>Custom Game Invitation</button>
+		else
+			return <button onClick={sendInvitation}>Game Invitation</button>
+	}
+
+	if (profile.user) {
 		return (
 			<div id="profile" className="pointer overlay" onClick={handleClose}>
 				<div ref={ref} className="box cursor" onClick={e => e.stopPropagation()}>
@@ -52,21 +77,22 @@ export const Profile = () => {
 						<div className="stats">
 							<div className="player">
 								<div className="avatar">
-									<img src={stats.user?.avatar} width="75px" height="75px" alt=""></img>
+									<img src={profile.user?.avatar} width="75px" height="75px" alt=""></img>
 								</div>
+								{getButtonGameInvitation()}
 								<div className="infos">
-									<p>{stats.user?.name}</p>
-									<p>{stats.user?.login}</p>
-									<p>Level {stats.user ? Math.floor(stats.user.xp / 100) : 0}</p>
-									<p>Progress for next level : {stats.user ? stats.user.xp % 100 : 0} %</p>
+									<p>{profile.user?.name}</p>
+									<p>{profile.user?.login}</p>
+									<p>Level {profile.user ? Math.floor(profile.user.xp / 100) : 0}</p>
+									<p>Progress for next level : {profile.user ? profile.user.xp % 100 : 0} %</p>
 								</div>
 							</div>
 							<div className="graph">
-								<p>Game played :<br />{stats.nbMatchs}</p>
+								<p>Game played :<br />{profile.nbMatchs}</p>
 								<Doughnut data={graphData} />
 							</div>
 						</div>
-						<History target={stats.user} history={stats.history} />
+						<History target={profile.user} history={profile.history} />
 					</div>
 				</div>
 			</div>
