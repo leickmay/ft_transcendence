@@ -1,19 +1,20 @@
+import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { KeyboardEvent, useContext, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/SocketContext";
 import { PacketPlayOutChatMessage } from "../../../app/packets/chat/PacketPlayOutChat";
+import { setTabSmallScreen } from "../../../app/slices/chatSlice";
 import { RootState } from "../../../app/store";
 import {getNameRoom, getTime, scrollToBottomById } from "../../pages/Chat";
-import { ChatButtonNav } from "./ChatButtonNav";
 
 const ChatCurrentRoom = () => {
 	const socket = useContext(SocketContext);
+	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
 	const currentID = useSelector((state: RootState) => state.chat.current);
 	const users = useSelector((state: RootState) => state.users);
 	const usersBlocked = useSelector((state: RootState) => state.chat.usersBlocked);
-	//const bigTab = useSelector((state: RootState) => state.chat.tabBigScreen);
 	const smallTab = useSelector((state: RootState) => state.chat.tabSmallScreen);
 
 
@@ -56,7 +57,12 @@ const ChatCurrentRoom = () => {
 
 	return (
 		<div id="chatRoom" className={setClassName()}>
-			<ChatButtonNav />
+			<button id={"buttonNav"} onClick={() => {
+				dispatch(setTabSmallScreen(1));
+				}}
+			>
+				Settings
+			</button>
 			<h2>{getNameRoom(current)}{getGrade()}</h2>
 			<div id="chatRoomMesssages">
 			{

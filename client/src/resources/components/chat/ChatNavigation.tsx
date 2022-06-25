@@ -2,10 +2,9 @@ import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ChatTypes } from "../../../app/interfaces/Chat";
-import { setCurrentRooms, setTabBigScreen } from "../../../app/slices/chatSlice";
+import { setCurrentRooms, setTabBigScreen, setTabSmallScreen } from "../../../app/slices/chatSlice";
 import store, { RootState } from "../../../app/store";
 import { getNameRoom } from "../../pages/Chat";
-import { ChatButtonNav } from "./ChatButtonNav";
 
 export const ChatNavigation = () => {
 	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
@@ -40,7 +39,6 @@ export const ChatNavigation = () => {
 			id="chatNavigation"
 			className={setClassName(0)}
 		>
-			<ChatButtonNav />
 			<button
 				onClick={() => {
 					dispatch(setTabBigScreen(1));
@@ -53,7 +51,11 @@ export const ChatNavigation = () => {
 						.filter((x) => x.name === "World Random" || x.users.find(u => u.id === user?.id))
 						.map((value, index) => {
 							return (
-								<div onClick={() => {store.dispatch(setCurrentRooms(value.id))}} key={index}>
+								<div onClick={() => {
+											dispatch(setCurrentRooms(value.id))
+											dispatch(setTabSmallScreen(0));
+										}} key={index}
+								>
 									{value.name}
 								</div>
 							);
@@ -71,7 +73,11 @@ export const ChatNavigation = () => {
 						?.filter((x) => x.type === ChatTypes.PRIVATE_MESSAGE)
 						.map((value, index) => {
 							return (
-								<div onClick={() => {store.dispatch(setCurrentRooms(value.id))}} key={index}>
+								<div onClick={() => {
+										dispatch(setCurrentRooms(value.id));
+										dispatch(setTabSmallScreen(0));
+									}} key={index}
+								>
 									{getNameRoom(value)}
 								</div>
 							);
