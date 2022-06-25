@@ -69,7 +69,6 @@ const ChatChannel = () => {
 			<button
 				onClick={() => {dispatch(setTabBigScreen(0))}}
 			>..</button>
-			<div>
 				<input
 					id="channelName"
 					list="channel-visible"
@@ -92,19 +91,18 @@ const ChatChannel = () => {
 						})
 					}
 				</datalist>
-			</div>
-			<input
-					id="input_password"
-					type="password"
-					placeholder="Password"
-					value={password}
-					maxLength={32}
-					onChange={event => {
-						if (event.target.value !== '\n')
-							setName(event.target.value)
-					}}
-			/>
-			<div>
+				<input
+						id="input_password"
+						type="password"
+						placeholder="Password"
+						value={password}
+						maxLength={32}
+						onChange={event => {
+							if (event.target.value !== '\n')
+								setPassword(event.target.value)
+						}}
+				/>
+			<div className="checkBox">
 				<label htmlFor="channelPrivate">
 					Private
 				</label>

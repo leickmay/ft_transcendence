@@ -95,6 +95,15 @@
 		}
 	}
 
+	.checkBox {
+		width: 100%;
+		display: flex;
+		flex-direction:column;
+		align-items: center;
+		padding: 0.2rem 1rem 0.2rem 1rem;
+		margin-bottom: 0.4rem;
+	}
+
 	input {
 		width: 100%;
 		padding: 0.2rem 1rem 0.2rem 1rem;
