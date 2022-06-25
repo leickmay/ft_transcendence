@@ -135,7 +135,7 @@ export const SocketListener = (props: Props) => {
 
 		if (player) {
 			player.direction = packet.direction;
-			player.location = new Vector2(packet.x, packet.y);
+			player.location = new Vector2(packet.location);
 		}
 	}, [players]);
 
@@ -145,21 +145,21 @@ export const SocketListener = (props: Props) => {
 		if (!ball) {
 			ball = {
 				id: packet.ball,
-				location: packet.location!,
-				direction: packet.direction!,
+				location: new Vector2(packet.location!),
+				direction: new Vector2(packet.direction!),
 				radius: packet.size!,
 				speed: packet.speed!,
 				screen: {
-					location: packet.location!,
-					direction: packet.direction!,
+					location: new Vector2(packet.location!),
+					direction: new Vector2(packet.direction!),
 				},
 			}
 			balls.push(ball);
 		} else {
-			if (packet.direction) ball.direction = packet.direction;
+			if (packet.direction) ball.direction = new Vector2(packet.direction);
 			if (packet.size) ball.radius = packet.size;
 			if (packet.speed) ball.speed = packet.speed;
-			if (packet.location) ball.location = packet.location;
+			if (packet.location) ball.location = new Vector2(packet.location);
 		}
 	}, [balls]);
 

@@ -21,35 +21,28 @@ const interpolate = (a: { x: number, y: number }, b: { x: number, y: number }, f
 	return { x: nx, y: ny };
 }
 
-// const intersect = (p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2): Vector2 | undefined => {
-// 	// Check if none of the lines are of length 0
-// 	if (p1.equals(p2) || p3.equals(p4))
-// 		return undefined;
+const intersect = (p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2): Vector2 | undefined => {
+	// Check if none of the lines are of length 0
+	if (p1.equals(p2) || p3.equals(p4))
+		return undefined;
 
-// 	let dir1 = p1.clone().sub(p2);
-// 	let dir2 = p3.clone().sub(p4);
+	let dir1 = p1.clone().sub(p2);
+	let dir2 = p3.clone().sub(p4);
 
-// 	let denominator = dir1.x * dir2.y - dir1.y * dir2.x;
+	let denominator = dir1.x * dir2.y - dir1.y * dir2.x;
 
-// 	// Lines are parallel
-// 	if (denominator === 0) {
-// 		return undefined;
-// 	}
+	// Lines are parallel
+	if (denominator === 0)
+		return undefined;
 
-// 	let ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator;
-// 	let ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator;
+	let lhs = p1.x * p2.y - p1.y * p2.x;
+	let rhs = p3.x * p4.y - p3.y * p4.x;
 
-// 	// is the intersection along the segments
-// 	if (ua < 0 || ua > 1 || ub < 0 || ub > 1) {
-// 		return undefined;
-// 	}
+	let px = (lhs * dir2.x - dir1.x * rhs) / denominator;
+	let py = (lhs * dir2.y - dir1.y * rhs) / denominator;
 
-// 	// Return a object with the x and y coordinates of the intersection
-// 	let x = x1 + ua * (x2 - x1);
-// 	let y = y1 + ua * (y2 - y1);
-
-// 	return new Vector2(x, y);
-// }
+	return new Vector2(px, py);
+}
 
 interface Props {
 }
@@ -117,16 +110,23 @@ export const GameCanvas = (props: Props) => {
 			}
 			for (const ball of balls) {
 				let speed = ball.speed / stepsPerTick;
-				let diff = ball.screen.location.distance(ball.direction);
-				if (diff > ball.speed * /* 2 */ 20) { // TODO change
-					ball.screen.location = ball.location;
-					ball.screen.direction = ball.direction;
+				let diff = ball.screen.location.distance(ball.location);
+				
+				if (diff > ball.speed * /* 2 */ 20) { // TODO change					
+					ball.screen.location = ball.location.clone();
+					ball.screen.direction = ball.direction.clone();
 				} else {
-					let tmp = ball.location.clone().add(ball.direction.clone().mul(speed));
+					let tmp = ball.screen.location.clone().add(ball.screen.direction.clone().mul(speed));
 
-					// intersect(new Vector2(), new Vector2(game.width, 0), ball.screen.location, tmp)
-
-					// let meuh = { x: tmpX, y: tmpY };
+					let inter = intersect(new Vector2(), new Vector2(game.width, 0), ball.screen.location, tmp);
+					if (inter)
+						console.log(Math.round(ball.screen.location.distance(inter)));
+						
+					// if (inter)
+					// 	ctx.strokeRect(inter.x - ball.radius, inter.y - ball.radius, ball.radius * 2, ball.radius * 2);
+					// inter = intersect(new Vector2(0, game.height), new Vector2(game.width, game.height), ball.screen.location, tmp);
+					// if (inter)
+					// 	ctx.strokeRect(inter.x - ball.radius, inter.y - ball.radius, ball.radius * 2, ball.radius * 2);
 
 					// if (meuh.y + ball.radius > game.height && ball.screenDirection.y > 0) {
 					// 	ball.screenDirection.y = -Math.abs(ball.screenDirection.y);
@@ -144,14 +144,13 @@ export const GameCanvas = (props: Props) => {
 					// 	tmpY = ball.screenY + (ball.speed / stepsPerTick) * ball.direction.y;
 					// 	meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
 					// }
-					// ball.screenX = meuh.x;
-					// ball.screenY = meuh.y;
+					ball.screen.location = tmp;
 				}
-				// drawImage(ballImg, ball.screenX, ball.screenY, ball.radius * 2, ball.radius * 2, ((drawTick.current * ((ball.speed * 5) / 10)) % 360) * Math.PI / 180);
+				drawImage(ballImg, ball.screen.location.x, ball.screen.location.y, ball.radius * 2, ball.radius * 2, ((drawTick.current * ((ball.speed * 5) / 10)) % 360) * Math.PI / 180);
 
 				ctx.strokeStyle = 'green';
 				ctx.lineWidth = 4;
-				// ctx.strokeRect(ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2);
+				// ctx.strokeRect(ball.location.x - ball.radius, ball.location.y - ball.radius, ball.radius * 2, ball.radius * 2);
 			}
 
 			ctx.textAlign = 'right';

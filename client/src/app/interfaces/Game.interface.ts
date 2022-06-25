@@ -51,7 +51,7 @@ export class Vector2 {
 	}
 
 	distance(other: Vector2): number {
-		return Math.sqrt((this.x - other.x) ** 2 + (this.y - other.y) ** 2);
+		return Math.abs(Math.sqrt((this.x - other.x) ** 2 + (this.y - other.y) ** 2));
 	}
 }
 
