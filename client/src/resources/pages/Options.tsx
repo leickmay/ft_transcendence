@@ -1,19 +1,20 @@
-import { ChangeEvent, KeyboardEvent, useContext, useEffect, useState } from 'react';
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { QRCodeSVG } from 'qrcode.react';
+import { ChangeEvent, KeyboardEvent, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/SocketContext";
 import { PacketPlayOutTotp } from '../../app/packets/PacketPlayOutTotp';
 import { PacketPlayOutUserUpdate } from '../../app/packets/PacketPlayOutUserUpdate';
 import { updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
-import { ImageUploader } from '../components/ImageUploader';
 import iconUrl from '../../assets/images/icon.png';
+import { ImageUploader } from '../components/ImageUploader';
 
 export const Options = () => {
 	const socket = useContext(SocketContext);
 	const user = useSelector((state: RootState) => state.users.current);
 	const [name, setName] = useState(user?.name);
-	const dispatch = useDispatch();
+	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 
 	useEffect(() => {
 		if (user?.name)

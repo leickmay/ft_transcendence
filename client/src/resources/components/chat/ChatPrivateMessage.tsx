@@ -1,21 +1,21 @@
+import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { useContext } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/SocketContext";
 import { ChatTypes } from "../../../app/interfaces/Chat";
 import { PacketPlayOutChatCreate } from "../../../app/packets/chat/PacketPlayOutChat";
+import { setTabBigScreen } from "../../../app/slices/chatSlice";
 import { RootState } from "../../../app/store";
-import { hideDivById } from "../../pages/Chat";
-
-export const switchConfigPrivMsg = () => {
-	hideDivById("chatNavigation");
-	hideDivById("chatPrivateMessage");
-}
 
 const ChatPrivateMessage = () => {
 	const socket = useContext(SocketContext);
+	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
+
 	const onlineUsers = useSelector((state: RootState) => state.users.online);
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
 	const usersBlocked = useSelector((state: RootState) => state.chat.usersBlocked);
+	const bigTab = useSelector((state: RootState) => state.chat.tabBigScreen);
+	const smallTab = useSelector((state: RootState) => state.chat.tabSmallScreen);
 
 	const hasAlreadyPrivMsg = (userId: number): boolean => {
 		return !rooms?.find(r => r.type === ChatTypes.PRIVATE_MESSAGE && r.users.find(u => u.id === userId));
@@ -25,6 +25,7 @@ const ChatPrivateMessage = () => {
 		let roomPacket : PacketPlayOutChatCreate;
 		roomPacket = new PacketPlayOutChatCreate(ChatTypes.PRIVATE_MESSAGE).toPrivateMessage([id]);
 		socket?.emit('chat', roomPacket);
+		dispatch(setTabBigScreen(0));
 	}
 
 	const isBlocked = (login: string): boolean => {
@@ -35,15 +36,27 @@ const ChatPrivateMessage = () => {
 		return false;
 	}
 
+	const setClassName = (tab: number) => {
+		let className: string = "chatLeft";
+		if (bigTab === tab)
+			className = className + " tabChat-active";
+		else
+			className = className + " tabChat-inactive";
+		if (smallTab === 1)
+			className = className + " room-active";
+		else
+			className = className + " room-inactive";
+		return className;
+	}
+
 	return (
 		<div
 			id="chatPrivateMessage"
-			className="chatLeft"
-			style={{display: "none"}}
+			className={setClassName(2)}
 		>
 			<button
 				onClick={() => {
-					switchConfigPrivMsg();
+					dispatch(setTabBigScreen(0));
 				}}
 			>..</button>
 			<h2>Online Players</h2>
@@ -57,7 +70,6 @@ const ChatPrivateMessage = () => {
 							key={index} 
 							onClick={() => {
 								createPrivateMessage(value.id);
-								switchConfigPrivMsg();
 							}}
 						>
 							+ {value.login}

@@ -85,7 +85,7 @@ export const SocketListener = (props: Props) => {
 		}
 
 		const aleradyTaken = (packet: PacketPlayInAlreadyTaken) => {
-			dispatch(pushNotification('Error : ' + packet.name + ' is already taken'));
+			dispatch(pushNotification({ text: 'Error : ' + packet.name + ' is already taken' }));
 		}
 
 		socket?.off('user').on('user', (packet: Packet) => {
