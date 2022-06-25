@@ -1,6 +1,8 @@
-import { ChangeEvent, KeyboardEvent, useContext, useEffect, useState } from 'react';
-import QRCode from "react-qr-code";
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import { ChangeEvent, KeyboardEvent, useContext, useEffect, useRef, useState } from 'react';
+// import QRCode from "react-qr-code";
 import { useDispatch, useSelector } from "react-redux";
+import { pushNotification } from '../../app/actions/notificationsActions';
 import { SocketContext } from "../../app/context/SocketContext";
 import { PacketPlayOutTotp } from '../../app/packets/PacketPlayOutTotp';
 import { PacketPlayOutUserUpdate } from '../../app/packets/PacketPlayOutUserUpdate';
@@ -12,7 +14,7 @@ export const Options = () => {
 	const socket = useContext(SocketContext);
 	const user = useSelector((state: RootState) => state.users.current);
 	const [name, setName] = useState(user?.name);
-	const dispatch = useDispatch();
+	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 
 	useEffect(() => {
 		if (user?.name)
@@ -42,7 +44,7 @@ export const Options = () => {
 				<section id='totp-qr' className='overlay pointer' onClick={closeTotp}>
 					<div className='cursor' onClick={e => e.stopPropagation()}>
 						<div style={{ padding: '6px', border: '4px solid' }}>
-							<QRCode style={{ display: 'block' }} value={user.totp} />
+							{/* <QRCode style={{ display: 'block' }} value={user.totp} /> */}
 						</div>
 						<div className='buttons'>
 							<button onClick={closeTotp}>I scanned this QR code with authenticator - (if you didn't your account may be lost)</button>

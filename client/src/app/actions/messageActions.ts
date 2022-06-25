@@ -17,5 +17,5 @@ export const receiveMessage = (packet: PacketPlayInChatMessage) => (dispatch: Th
 	if (!room)
 		return;
 	let notification = getNameRoom(room)?.toString() + "(" + packet.message.from + ") : " + packet.message.text.substring(0, 16);
-	dispatch(pushNotification(notification));
+	dispatch(pushNotification({ text: notification }));
 };

@@ -18,7 +18,8 @@ export interface ChatRoom {
 	name: string;
 	visible: boolean;
 	users: Array<UserPreview>;
-	operator?: number;
+	owner?: number;
+	admins: Array<number>;
 	messages: Array<Message>;
 }
 

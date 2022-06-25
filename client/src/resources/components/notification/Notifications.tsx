@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
-import { Notification } from "./Notification";
+import { NotificationElement } from "./Notification";
 
 interface Props {
 }
@@ -11,7 +11,7 @@ export const Notifications = (props: Props) => {
 	return (
 		<div id="notifications">
 			{notifications.map(n =>
-				<Notification key={n.id} visible={n.visible} text={n.message}></Notification>
+				<NotificationElement key={n.id} id={n.id} visible={n.visible} content={n.content}></NotificationElement>
 			)}
 		</div>
 	)

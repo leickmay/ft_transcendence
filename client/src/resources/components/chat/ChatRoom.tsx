@@ -1,25 +1,31 @@
+import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { KeyboardEvent, useContext, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/SocketContext";
 import { PacketPlayOutChatMessage } from "../../../app/packets/chat/PacketPlayOutChat";
+import { setTabSmallScreen } from "../../../app/slices/chatSlice";
 import { RootState } from "../../../app/store";
 import {getNameRoom, getTime, scrollToBottomById } from "../../pages/Chat";
 
 const ChatCurrentRoom = () => {
 	const socket = useContext(SocketContext);
+	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
 	const currentID = useSelector((state: RootState) => state.chat.current);
 	const users = useSelector((state: RootState) => state.users);
 	const usersBlocked = useSelector((state: RootState) => state.chat.usersBlocked);
+	const smallTab = useSelector((state: RootState) => state.chat.tabSmallScreen);
+
 
 	const [current, setCurrent] = useState(rooms?.find(x => x.id === currentID));
 	const [newMessage, setNewMessage] = useState('');
 
 	const inputNewMessage = async (element: KeyboardEvent<HTMLTextAreaElement>): Promise<void> => {
 		if (element.key === 'Enter' && newMessage !== '') {
-			if (currentID)
+			if (currentID) {
 				socket?.emit('chat', new PacketPlayOutChatMessage(currentID, newMessage));
+			}
 			setNewMessage('');
 		}
 	}
@@ -32,13 +38,32 @@ const ChatCurrentRoom = () => {
 		scrollToBottomById('chatRoomMesssages');
 	}, [current?.messages]);
 
+	const getGrade = (): string => {
+		if (users.current?.id === current?.owner)
+			return " (Owner)";
+		if (current?.admins?.find(x => x === users.current?.id))
+			return " (Admin)";
+		return "";
+	}
+
+	const setClassName = () => {
+		let className: string = "chatRight";
+		if (smallTab === 0)
+			className = className + " room-active";
+		else
+			className = className + " room-inactive";
+		return className;
+	}
+
 	return (
-		<div id="chatRoom" className="chatRight">
-			<h2>{getNameRoom(current)}</h2>
-			{
-				(users.current?.id === current?.operator) &&
-				<button>Operator</button>
-			}
+		<div id="chatRoom" className={setClassName()}>
+			<button id={"buttonNav"} onClick={() => {
+				dispatch(setTabSmallScreen(1));
+				}}
+			>
+				Settings
+			</button>
+			<h2>{getNameRoom(current)}{getGrade()}</h2>
 			<div id="chatRoomMesssages">
 			{
 					current?.messages?.filter(m => !usersBlocked || !usersBlocked.find(b => b === m.from))
@@ -67,12 +92,10 @@ const ChatCurrentRoom = () => {
 				id="sendMessage"
 				value={newMessage}
 				placeholder='Type your message...'
+				maxLength={256}
 				onChange={event => {
-					if (event.target.value !== '\n' && event.target.value.length < 256)
+					if (event.target.value !== '\n')
 						setNewMessage(event.target.value)
-					else {
-						event.target.value = newMessage;
-					}
 				}}
 				onKeyDown={event => inputNewMessage(event)}
 				rows={3}

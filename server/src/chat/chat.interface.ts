@@ -1,5 +1,5 @@
 import { Exclude, Expose, Transform } from "class-transformer";
-import { PacketPlayOutChatMessage, PacketPlayOutChatOperator } from "src/socket/packets/chat/PacketPlayOutChat";
+import { PacketPlayOutChatAdmin, PacketPlayOutChatMessage, PacketPlayOutChatOwner } from "src/socket/packets/chat/PacketPlayOutChat";
 import { User, UserPreview } from "src/user/user.entity";
 
 export interface Message {
@@ -40,7 +40,10 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	mute: Array<{id: Number, time: number}>;
 
 	@Expose()
-	operator?: number;
+	owner?: number;
+
+	@Expose()
+	admins: Array<number>;
 	
 	@Expose()
 	@Transform(({value}) => !!value)
@@ -51,7 +54,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		name: string,
 		visible: boolean,
 		users: Array<UserPreview>,
-		operator?: number,
+		owner?: number,
 		password?: string,
 	) {
 		++ChatRoom.current;
@@ -60,7 +63,8 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		this.name = name;
 		this.visible = visible;
 		this.users = users;
-		this.operator = operator;
+		this.owner = owner;
+		this.admins = [];
 		this.password = password;
 		this.ban = [];
 		this.mute = [];
@@ -115,7 +119,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 
 	setPassword(password: string | undefined) {
 		if (password)
-			this.password = password.substring(0, 255);
+			this.password = password;
 		else
 			this.password = undefined;
 	}
@@ -124,14 +128,50 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		this.password = undefined;
 	}
 
-	setOperator(user: User, id: number) {
-		this.operator = id;
-		let room = new PacketPlayOutChatOperator({
+	setOwner(user: User, id: number) {
+		this.owner = id;
+		let room = new PacketPlayOutChatOwner({
 			id: this.id,
-			 operator: this.operator,
+			owner: this.owner,
 		})
 		user.socket?.emit('chat', room);
 		user.socket?.to(this.id).emit('chat', room);
+	}
+
+	addAdmin(user: User, id: number) {
+		if (this.admins.find(x => x === id))
+			return;
+		this.admins = [
+			...this.admins,
+			id,
+		];
+		let room = new PacketPlayOutChatAdmin({
+			id: this.id,
+			admins: this.admins,
+		})
+		user.socket?.emit('chat', room);
+		user.socket?.to(this.id).emit('chat', room);
+	}
+
+	delAdmin(user: User, id: number) {
+		if (!this.admins.find(x => x === id))
+			return;
+		this.admins = [
+			...this.admins.filter(x => x !== id),
+		];
+		let room = new PacketPlayOutChatAdmin({
+			id: this.id,
+			admins: this.admins,
+		})
+		user.socket?.emit('chat', room);
+		user.socket?.to(this.id).emit('chat', room);
+	}
+
+	isAdmins(userID: number): boolean {
+		let user = this.admins.find(x => x == userID);
+		if (user === undefined)
+			return false;
+		return true;
 	}
 
 	isPresent(userID: number): boolean {
@@ -159,11 +199,14 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	
 		this.users = this.users.filter(x => x.id !== user.id);
 
-		if (this.operator === user.id && this.users.length > 0) {
-			this.operator = this.users[0].id;
-			let room = new PacketPlayOutChatOperator({
+		if (this.owner === user.id && this.users.length > 0) {
+			this.owner = this.users[0].id;
+			let ownerMute = this.mute.find(x => x.id === this.owner)
+			if (ownerMute)
+				ownerMute.time = Date.now();
+			let room = new PacketPlayOutChatOwner({
 				id: this.id,
-			 	operator: this.operator,
+			 	owner: this.owner,
 			})
 			user.socket?.emit('chat', room);
 			user.socket?.to(this.id).emit('chat', room);
@@ -186,7 +229,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		sender.socket?.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
 	}
 
-	command(sender: User, text: string): void {
+	commandPublic(sender: User, text: string): void {
 		if (this.isMute(sender.id))
 			return;
 		let message: Message = {
@@ -197,5 +240,17 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		};
 		sender.socket?.emit('chat', new PacketPlayOutChatMessage(this.id, message));
 		sender.socket?.to(this.id).emit('chat', new PacketPlayOutChatMessage(this.id, message));
+	}
+
+	commandPrivate(sender: User, text: string): void {
+		if (this.isMute(sender.id))
+			return;
+		let message: Message = {
+			date: Date.now(),
+			from: sender.login,
+			text: text,
+			cmd: true,
+		};
+		sender.socket?.emit('chat', new PacketPlayOutChatMessage(this.id, message));
 	}
 }

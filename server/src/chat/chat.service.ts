@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { instanceToPlain } from "class-transformer";
 import { PacketPlayInChatCreate, PacketPlayInChatJoin, PacketPlayInChatMessage } from "src/socket/packets/chat/PacketPlayInChat";
-import { PacketPlayOutChatBlock, PacketPlayOutChatCreate, PacketPlayOutChatDel, PacketPlayOutChatInit, PacketPlayOutChatJoin } from "src/socket/packets/chat/PacketPlayOutChat";
+import { PacketPlayOutChatBlock, PacketPlayOutChatDel, PacketPlayOutChatInit, PacketPlayOutChatJoin } from "src/socket/packets/chat/PacketPlayOutChat";
 import { PacketTypesChat, Packet } from "src/socket/packets/packetTypes";
 import { User } from "src/user/user.entity";
 import { ChatTypes, ChatRoom } from "./chat.interface";
@@ -40,14 +40,6 @@ export class ChatService {
 				this.event_join(packet as PacketPlayInChatJoin, user);
 				break;
 			}
-			case PacketTypesChat.LEAVE: {
-				this.event_leave();
-				break;
-			}
-			case PacketTypesChat.UP: {
-				this.event_up();
-				break;
-			}
 			default:
 				break;
 		}
@@ -63,7 +55,9 @@ export class ChatService {
 			.map((room: ChatRoom) => {
 				room.join(user)
 			});
-
+		let blocked = this.usersBlocked.get(user.login);
+		if (!blocked)
+			blocked = [];
 		user.send('chat', new PacketPlayOutChatInit(
 			instanceToPlain(
 				this.rooms
@@ -75,11 +69,12 @@ export class ChatService {
 							type: room.type,
 							visible: room.visible,
 							users: room.users,
-							operator: room.operator,
+							owner: room.owner,
+							admins: room.admins,
 						});
 					})
 			) as any,
-			this.usersBlocked[user.login],
+			blocked,
 		));
 	}
 	disconnection() {}
@@ -90,7 +85,7 @@ export class ChatService {
 
 	async event_command(user: User, room: ChatRoom, text: string): Promise<boolean> {
 		let command = text.split(" ");
-		switch (command[0]) {
+		switch (command[0].toUpperCase()) {
 			// EXIT
 			case "/EXIT": {
 				if (command.length !== 1)
@@ -103,55 +98,79 @@ export class ChatService {
 					user.socket?.emit('chat', new PacketPlayOutChatDel(room));
 					user.socket?.broadcast.emit('chat', new PacketPlayOutChatDel(room));
 				}
-				room?.command(user, text);
+				room?.commandPublic(user, text);
 				return true;
 			}
-			// OPERATOR login
-			case "/OPERATOR": {
+			// PROMOTE login
+			case "/PROMOTE": {
 				if (command.length !== 2)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner)
 					return false;
-				let operator = this.eventService.getUserByLogin(command[1]);
-				if (!operator)
+				let admin = room.users.find(x => x.login === command[1]);
+				if (!admin)
 					return false;
-				room.setOperator(user, operator.id);
-				room?.command(user, text);
+				room.addAdmin(user, admin.id);
+				room?.commandPublic(user, text);
+				break;
+			}
+			// DEMOTE login
+			case "/DEMOTE": {
+				if (command.length !== 2)
+					return false;
+				if (user.id !== room.owner)
+					return false;
+				let admin = room.users.find(x => x.login === command[1]);
+				if (!admin)
+					return false;
+				room.delAdmin(user, admin.id);
+				room?.commandPublic(user, text);
 				break;
 			}
 			// PASSWORD *****
 			case "/PASSWORD": {
-				if (command.length !== 2)
+				if (command.length !== 1 && command.length !== 2)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner)
 					return false;
-				room.setPassword(command[1]);
-				room?.command(user, text);
+				if (command[1].length > 32)
+					return (false);
+				if (command.length === 1)
+					room.setPassword(undefined);
+				else
+					room.setPassword(command[1]);
+				room?.commandPrivate(user, "Password Update");
 				break;
 			}
-			// DELPASSWORD
-			case "/DELPASSWORD": {
-				if (command.length !== 1)
+			// KICK login
+			case "/KICK": {
+				if (command.length !== 2)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner && !room.isAdmins(user.id))
 					return false;
-				room.setPassword(undefined);
-				room?.command(user, text);
+				let userBan = this.eventService.getUserByLogin(command[1]);
+				if (userBan === undefined || user.id === userBan.id || !room.isPresent(userBan.id))
+					return false;
+				if (userBan.id === room.owner)
+					return false;
+				let time = Date.now();
+				room?.commandPublic(user, text);
+				room.banUser(userBan, time)
 				break;
 			}
 			// BAN login time
 			case "/BAN": {
 				if (command.length !== 3)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner && !room.isAdmins(user.id))
 					return false;
 				let userBan = this.eventService.getUserByLogin(command[1]);
-				if (userBan === undefined )
+				if (userBan === undefined || user.id === userBan.id || !room.isPresent(userBan.id))
 					return false;
-				if (user.id === userBan.id)
+				if (userBan.id === room.owner)
 					return false;
 				let time = Date.now() + Number(command[2]) * 60 * 1000;
-				room?.command(user, text);
+				room?.commandPublic(user, text);
 				room.banUser(userBan, time)
 				break;
 			}
@@ -159,14 +178,14 @@ export class ChatService {
 			case "/UNBAN": {
 				if (command.length !== 2)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner && !room.isAdmins(user.id))
 					return false;
 				let userBan = this.eventService.getUserByLogin(command[1]);
-				if (userBan === undefined )
+				if (userBan === undefined || user.id === userBan.id)
 					return false;
-				if (user.id === userBan.id)
+				if (userBan.id === room.owner)
 					return false;
-				room?.command(user, text);
+				room?.commandPublic(user, text);
 				room.banUser(userBan, Date.now());
 				break;
 			}
@@ -174,15 +193,15 @@ export class ChatService {
 			case "/MUTE": {
 				if (command.length !== 3)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner && !room.isAdmins(user.id))
 					return false;
 				let userMute = this.eventService.getUserByLogin(command[1]);
-				if (userMute === undefined )
+				if (userMute === undefined || user.id === userMute.id || !room.isPresent(userMute.id))
 					return false;
-				if (user.id === userMute.id)
+				if (userMute.id === room.owner)
 					return false;
 				let time = Date.now() + Number(command[2]) * 60 * 1000;
-				room?.command(user, text);
+				room?.commandPublic(user, text);
 				room.muteUser(userMute, time)
 				break;
 			}
@@ -190,14 +209,14 @@ export class ChatService {
 			case "/UNMUTE": {
 				if (command.length !== 2)
 					return false;
-				if (user.id !== room.operator)
+				if (user.id !== room.owner && !room.isAdmins(user.id))
 					return false;
 				let userMute = this.eventService.getUserByLogin(command[1]);
-				if (userMute === undefined )
+				if (userMute === undefined || user.id === userMute.id || !room.isPresent(userMute.id))
 					return false;
-				if (user.id === userMute.id)
+				if (userMute.id === room.owner)
 					return false;
-				room?.command(user, text);
+				room?.commandPublic(user, text);
 				room.muteUser(userMute, Date.now());
 				break;
 			}
@@ -224,7 +243,7 @@ export class ChatService {
 				if (tmp)
 				{
 					user.socket?.emit('chat', new PacketPlayOutChatBlock(tmp));
-					room?.command(user, text);
+					room?.commandPrivate(user, text);
 				}
 				else
 					return (false);
@@ -248,7 +267,7 @@ export class ChatService {
 				if (tmp)
 				{
 					user.socket?.emit('chat', new PacketPlayOutChatBlock(tmp));
-					room?.command(user, text);
+					room?.commandPrivate(user, text);
 				}
 				else
 					return (false);
@@ -266,15 +285,16 @@ export class ChatService {
 		let room: ChatRoom | undefined = this.rooms.find(x => x.id === packet.room);
 		if (!room?.isPresent(user.id))
 			return;
-		if (packet.text.length >= 256) {
-			packet.text = packet.text.substring(0, 255);
+		if (packet.text.length > 256) {
+			packet.text = packet.text.substring(0, 256);
 		}
 		if (packet.text.startsWith('/')){
 			if (await this.event_command(user, room, packet.text)) {
 				return;
 			}
 		}
-		room?.send(user, packet.text)
+		else
+			room?.send(user, packet.text)
 	}
 	async event_create(packet: PacketPlayInChatCreate, user: User): Promise<void> {
 		if (packet.type === undefined)
@@ -282,12 +302,16 @@ export class ChatService {
 		switch (packet.type) {
 			case ChatTypes.CHANNEL: {
 				if (packet.name !== undefined && packet.visible !== undefined) {
-					if (packet.name.length >= 32)
-						packet.name = packet.name.substring(0, 31);
-					if (packet.password && packet.password.length >= 256)
-						packet.password = packet.password.substring(0, 255);
-					if (this.rooms.find(x => x.type === ChatTypes.CHANNEL && x.name === packet.name))
-						return;
+					if (packet.name.length > 16)
+						break;
+					if (packet.password && packet.password.length > 32)
+						break;
+					if (this.rooms.find(x => x.type === ChatTypes.CHANNEL && x.name === packet.name)) {
+						return this.event_join(
+							{name: packet.name, password: packet.password} as PacketPlayInChatJoin,
+							user
+						);
+					}
 					let room: ChatRoom = new ChatRoom(
 						ChatTypes.CHANNEL,
 						packet.name,
@@ -299,14 +323,15 @@ export class ChatService {
 					room.join(user);
 					this.rooms.push(room);
 
-					let roomOut: PacketPlayOutChatCreate = new PacketPlayOutChatCreate(
-						room.id,
-						room.type,
-						room.name,
-						room.visible,
-						room.users,
-						room.operator,
-					);
+					let roomOut: PacketPlayOutChatJoin = new PacketPlayOutChatJoin({
+						id: room.id,
+						type: room.type,
+						name: room.name,
+						visible: room.visible,
+						users: room.users,
+						owner: room.owner,
+						admins: room.admins,
+					});
 					user.socket?.emit('chat', roomOut);
 					if (room.visible)
 						user.socket?.broadcast.emit('chat', roomOut);
@@ -314,7 +339,6 @@ export class ChatService {
 				break;
 			}
 			case ChatTypes.PRIVATE_MESSAGE: {
-				//let otherUser = this.eventService.getUser(packet.users[0]);
 				if (packet.users && packet.users.length === 1) {
 					let otherUser = this.eventService.getUserById(packet.users[0]);
 					if (otherUser)
@@ -344,14 +368,15 @@ export class ChatService {
 						user.socket?.join(room.id);
 						otherUser.socket?.join(room.id);
 						
-						let roomOut = new PacketPlayOutChatCreate(
-							room.id,
-							room.type,
-							room.name,
-							room.visible,
-							room.users,
-							room.operator,
-						);
+						let roomOut = new PacketPlayOutChatJoin({
+							id: room.id,
+							type: room.type,
+							name: room.name,
+							visible: room.visible,
+							users: room.users,
+							owner: room.owner,
+							admins: room.admins,
+						});
 						
 						user.socket?.emit('chat', roomOut);
 						otherUser.socket?.emit('chat', roomOut);
@@ -381,9 +406,8 @@ export class ChatService {
 			type: room.type,
 			visible: room.visible,
 			users: room.users,
-			operator: room.operator,
+			owner: room.owner,
+			admins: room.admins,
 		}));
 	}
-	async event_leave(): Promise<void> {}
-	async event_up(): Promise<void> {}
 }

@@ -1,22 +1,32 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ChatRoom, Command } from "../interfaces/Chat";
-import { PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOperator, PacketPlayInChatRoomCreate } from "../packets/chat/PacketPlayInChat";
+import { PacketPlayInChatAdmin, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOwner } from "../packets/chat/PacketPlayInChat";
 
 interface State {
 	current?: string;
 	rooms?: Array<ChatRoom>;
 	usersBlocked: Array<string>;
+	tabSmallScreen: number;
+	tabBigScreen: number;
 }
 
 const initialState: State = {
 	current: "ChatRoom_1",
 	usersBlocked: [],
+	tabSmallScreen: 0,
+	tabBigScreen: 0,
 };
 
 const slice = createSlice({
 	name: 'chat',
 	initialState,
 	reducers: {
+		setTabSmallScreen: (state: State, action: PayloadAction<number>): void => {
+			state.tabSmallScreen = action.payload;
+		},
+		setTabBigScreen: (state: State, action: PayloadAction<number>): void => {
+			state.tabBigScreen = action.payload;
+		},
 		setCurrentRooms: (state: State, action: PayloadAction<string>): void => {
 			let room = state.rooms?.find(x => x.id === action.payload);
 			if (room)
@@ -25,22 +35,6 @@ const slice = createSlice({
 		setChatRooms: (state: State, action: PayloadAction<Array<ChatRoom>>): void => {
 			state.rooms = action.payload;
 		},
-		addRoom: (state: State, action: PayloadAction<PacketPlayInChatRoomCreate>): void => {
-			if (state.rooms?.find(x => x.id === action.payload.id))
-				return;
-			if (state.rooms?.find(x => x.name === action.payload.name))
-				return;
-			let room: ChatRoom = {
-				id: action.payload.id,
-				type: action.payload.type,
-				name: action.payload.name,
-				messages: [],
-				visible: action.payload.visible,
-				operator: action.payload.operator,
-				users: action.payload.users,
-			}
-			state.rooms?.push(room);
-		},
 		delRoom: (state: State, action: PayloadAction<ChatRoom>): void => {
 			if (action.payload.name === "World Random")
 			 	return;
@@ -48,7 +42,7 @@ const slice = createSlice({
 				state.current = "ChatRoom_1";
 			state.rooms = state.rooms?.filter(x => x.name !== action.payload.name);
 		},
-		addUserToRoom: (state: State, action: PayloadAction<PacketPlayInChatJoin>): void => {
+		joinRoom: (state: State, action: PayloadAction<PacketPlayInChatJoin>): void => {
 			let roomTmp = action.payload.room;
 			let room: ChatRoom | undefined = state.rooms?.find(x => x.id === roomTmp.id);
 			if (room) {
@@ -61,28 +55,23 @@ const slice = createSlice({
 					name: roomTmp.name,
 					visible: roomTmp.visible,
 					users: roomTmp.users,
-					operator: roomTmp.operator,
+					owner: roomTmp.owner,
+					admins: roomTmp.admins,
 					messages: [],
 				}
 				state.rooms?.push(room);
 			}
-		},
-		setOperator: (state: State, action: PayloadAction<PacketPlayInChatOperator>): void => {
-			let room = state.rooms?.find(x => x.id === action.payload.room.id);
-			if (room)
-				room.operator = action.payload.room.operator;
-		},
-		addUser: (state: State, action: PayloadAction<Command>): void => {
-			if (action.payload.cmd.length >= 2)
-				state.rooms
-					?.find(x => x.name === action.payload.cmd[1])
-					?.users.push({id: action.payload.user.id, login: action.payload.user.login});
 		},
 		leaveRoom: (state: State, action: PayloadAction<Command>): void => {
 			let room = state.rooms?.find(x => x.id === action.payload.room);
 			if (room)
 				room.users = room?.users.filter(x => x.id !== action.payload.user.id);
 			state.current = "ChatRoom_1";
+		},
+		setOwner: (state: State, action: PayloadAction<PacketPlayInChatOwner>): void => {
+			let room = state.rooms?.find(x => x.id === action.payload.room.id);
+			if (room)
+				room.owner = action.payload.room.owner;
 		},
 		newMessages: (state: State, action: PayloadAction<PacketPlayInChatMessage>): void => {
 			state.rooms
@@ -92,8 +81,13 @@ const slice = createSlice({
 		upUsersBlocked: (state: State, action: PayloadAction<Array<string>>): void => {
 			state.usersBlocked = action.payload;
 		},
+		setAdmins: (state: State, action: PayloadAction<PacketPlayInChatAdmin>): void => {
+			let room = state.rooms?.find(x => x.id === action.payload.room.id);
+			if (room)
+				room.admins = action.payload.room.admins;
+		},
 	},
 });
 
-export const {setCurrentRooms, setChatRooms, addRoom, addUserToRoom, delRoom, setOperator, newMessages, addUser, leaveRoom, upUsersBlocked} = slice.actions;
+export const {setTabSmallScreen, setTabBigScreen, setCurrentRooms, setChatRooms, joinRoom, delRoom, setOwner, newMessages, leaveRoom, upUsersBlocked, setAdmins} = slice.actions;
 export default slice.reducer;
