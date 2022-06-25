@@ -4,6 +4,7 @@ import { SocketContext } from "../../../app/context/SocketContext";
 import { PacketPlayOutChatMessage } from "../../../app/packets/chat/PacketPlayOutChat";
 import { RootState } from "../../../app/store";
 import {getNameRoom, getTime, scrollToBottomById } from "../../pages/Chat";
+import { ChatButtonNav } from "./ChatButtonNav";
 
 const ChatCurrentRoom = () => {
 	const socket = useContext(SocketContext);
@@ -12,6 +13,9 @@ const ChatCurrentRoom = () => {
 	const currentID = useSelector((state: RootState) => state.chat.current);
 	const users = useSelector((state: RootState) => state.users);
 	const usersBlocked = useSelector((state: RootState) => state.chat.usersBlocked);
+	//const bigTab = useSelector((state: RootState) => state.chat.tabBigScreen);
+	const smallTab = useSelector((state: RootState) => state.chat.tabSmallScreen);
+
 
 	const [current, setCurrent] = useState(rooms?.find(x => x.id === currentID));
 	const [newMessage, setNewMessage] = useState('');
@@ -41,8 +45,18 @@ const ChatCurrentRoom = () => {
 		return "";
 	}
 
+	const setClassName = () => {
+		let className: string = "chatRight";
+		if (smallTab === 0)
+			className = className + " room-active";
+		else
+			className = className + " room-inactive";
+		return className;
+	}
+
 	return (
-		<div id="chatRoom" className="chatRight">
+		<div id="chatRoom" className={setClassName()}>
+			<ChatButtonNav />
 			<h2>{getNameRoom(current)}{getGrade()}</h2>
 			<div id="chatRoomMesssages">
 			{
@@ -72,12 +86,10 @@ const ChatCurrentRoom = () => {
 				id="sendMessage"
 				value={newMessage}
 				placeholder='Type your message...'
+				maxLength={256}
 				onChange={event => {
-					if (event.target.value !== '\n' && event.target.value.length < 256)
+					if (event.target.value !== '\n')
 						setNewMessage(event.target.value)
-					else {
-						event.target.value = newMessage;
-					}
 				}}
 				onKeyDown={event => inputNewMessage(event)}
 				rows={3}

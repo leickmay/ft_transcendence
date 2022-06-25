@@ -133,6 +133,8 @@ export class ChatService {
 					return false;
 				if (user.id !== room.owner)
 					return false;
+				if (command[1].length > 32)
+					return (false);
 				if (command.length === 1)
 					room.setPassword(undefined);
 				else
@@ -283,8 +285,8 @@ export class ChatService {
 		let room: ChatRoom | undefined = this.rooms.find(x => x.id === packet.room);
 		if (!room?.isPresent(user.id))
 			return;
-		if (packet.text.length >= 256) {
-			packet.text = packet.text.substring(0, 255);
+		if (packet.text.length > 256) {
+			packet.text = packet.text.substring(0, 256);
 		}
 		if (packet.text.startsWith('/')){
 			if (await this.event_command(user, room, packet.text)) {
@@ -300,10 +302,10 @@ export class ChatService {
 		switch (packet.type) {
 			case ChatTypes.CHANNEL: {
 				if (packet.name !== undefined && packet.visible !== undefined) {
-					if (packet.name.length >= 32)
-						packet.name = packet.name.substring(0, 31);
-					if (packet.password && packet.password.length >= 256)
-						packet.password = packet.password.substring(0, 255);
+					if (packet.name.length > 16)
+						break;
+					if (packet.password && packet.password.length > 32)
+						break;
 					if (this.rooms.find(x => x.type === ChatTypes.CHANNEL && x.name === packet.name)) {
 						return this.event_join(
 							{name: packet.name, password: packet.password} as PacketPlayInChatJoin,

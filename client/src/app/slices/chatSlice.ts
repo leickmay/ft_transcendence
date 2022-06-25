@@ -6,21 +6,26 @@ interface State {
 	current?: string;
 	rooms?: Array<ChatRoom>;
 	usersBlocked: Array<string>;
-	tab: number;
+	tabSmallScreen: number;
+	tabBigScreen: number;
 }
 
 const initialState: State = {
 	current: "ChatRoom_1",
 	usersBlocked: [],
-	tab: 0,
+	tabSmallScreen: 0,
+	tabBigScreen: 0,
 };
 
 const slice = createSlice({
 	name: 'chat',
 	initialState,
 	reducers: {
-		setTab: (state: State, action: PayloadAction<number>): void => {
-			state.tab = action.payload;
+		setTabSmallScreen: (state: State, action: PayloadAction<number>): void => {
+			state.tabSmallScreen = action.payload;
+		},
+		setTabBigScreen: (state: State, action: PayloadAction<number>): void => {
+			state.tabBigScreen = action.payload;
 		},
 		setCurrentRooms: (state: State, action: PayloadAction<string>): void => {
 			let room = state.rooms?.find(x => x.id === action.payload);
@@ -84,5 +89,5 @@ const slice = createSlice({
 	},
 });
 
-export const {setTab, setCurrentRooms, setChatRooms, joinRoom, delRoom, setOwner, newMessages, leaveRoom, upUsersBlocked, setAdmins} = slice.actions;
+export const {setTabSmallScreen, setTabBigScreen, setCurrentRooms, setChatRooms, joinRoom, delRoom, setOwner, newMessages, leaveRoom, upUsersBlocked, setAdmins} = slice.actions;
 export default slice.reducer;
