@@ -139,28 +139,6 @@ export const GameCanvas = (props: Props) => {
 					if (location.equals(ball.screen.location))
 						location = location.add(direction.mul(speed));
 
-					// if (inter)
-					// 	ctx.strokeRect(inter.x - ball.radius, inter.y - ball.radius, ball.radius * 2, ball.radius * 2);
-					// inter = intersect(new Vector2(0, game.height), new Vector2(game.width, game.height), ball.screen.location, tmp);
-					// if (inter)
-					// 	ctx.strokeRect(inter.x - ball.radius, inter.y - ball.radius, ball.radius * 2, ball.radius * 2);
-
-					// if (meuh.y + ball.radius > game.height && ball.screenDirection.y > 0) {
-					// 	ball.screenDirection.y = -Math.abs(ball.screenDirection.y);
-					// } else if (meuh.y - ball.radius < 0 && ball.screenDirection.y < 0) {
-					// 	ball.screenDirection.y = Math.abs(ball.screenDirection.y);
-					// }
-
-					// let meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
-					// if (meuh.y + ball.radius > game.height && ball.direction.y > 0) {
-					// 	ball.direction.y *= -1;
-					// 	tmpY = ball.screenY + (ball.speed / stepsPerTick) * ball.direction.y;
-					// 	meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
-					// } else if (meuh.y - ball.radius < 0 && ball.direction.y < 0) {
-					// 	ball.direction.y *= -1;
-					// 	tmpY = ball.screenY + (ball.speed / stepsPerTick) * ball.direction.y;
-					// 	meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
-					// }
 					ball.screen.location = location.interpolate(ball.location, 0.1);
 					ball.screen.direction = direction;
 				}
