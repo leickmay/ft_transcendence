@@ -269,7 +269,7 @@ export const SocketListener = (props: Props) => {
 					break;
 			}
 		});
-	}, [socket, dispatch, playerMove, playerTeleport, ballUpdate, setPlayers, setBalls]);
+	}, [socket, dispatch, playerMove, playerTeleport, ballUpdate, setPlayers, setBalls, navigate]);
 
 	useEffect(() => {
 	}, [socket, dispatch]);
