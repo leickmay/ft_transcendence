@@ -42,29 +42,25 @@ export class Vector2 {
 	mul(other: Vector2): Vector2;
 	mul(other: Vector2 | number): Vector2 {
 		if (typeof other === 'number') {
-			this.x *= other;
-			this.y *= other;
-		} else {
-			this.x += other.x;
-			this.y += other.y;
+			return new Vector2(this.x * other, this.y * other);
 		}
-		return this;
+		return new Vector2(this.x * other.x, this.y * other.y);
 	}
 
 	add(other: Vector2): Vector2 {
-		this.x += other.x;
-		this.y += other.y;
-		return this;
+		return new Vector2(this.x + other.x, this.y + other.y);
 	}
 
 	sub(other: Vector2): Vector2 {
-		this.x -= other.x;
-		this.y -= other.y;
-		return this;
+		return new Vector2(this.x - other.x, this.y - other.y);
 	}
 
 	distance(other: Vector2): number {
 		return Math.abs(Math.sqrt((this.x - other.x) ** 2 + (this.y - other.y) ** 2));
+	}
+
+	interpolate(other: Vector2, frac: number): Vector2 {
+		return this.add(other.sub(this).mul(frac));
 	}
 }
 
@@ -252,7 +248,6 @@ export class Room {
 			player.sendUpdate();
 		}
 		for (const ball of this.balls) {
-			this.checkPlayerCollisions(ball);
 			if (ball.location.x < -ball.radius || ball.location.x > this.width + ball.radius) {
 				let side = ball.location.x < -ball.radius ? Sides.LEFT : Sides.RIGHT;
 				for (const player of this.players) {
@@ -291,22 +286,6 @@ export class Room {
 		var dx = distX - player.width / 2;
 		var dy = distY - player.height / 2;
 		return (dx * dx + dy * dy <= (ball.radius * ball.radius));
-	}
-
-	checkPlayerCollisions(ball: Ball) {
-		if (ball.willCollideVertical())
-			ball.setDirection(ball.direction.x, -ball.direction.y);
-
-		for (const player of this.players) {
-			if (this.getCollision(ball, player)) {
-				if (player.side === Sides.LEFT)
-					ball.setDirection(Math.abs(ball.direction.x), ball.direction.y);
-				else
-					ball.setDirection(-Math.abs(ball.direction.x), ball.direction.y);
-				ball.speed = Math.min(ball.speed + 0.5, ball.maxSpeed);
-				ball.sendUpdate();
-			}
-		}
 	}
 
 	stop(): void {
@@ -398,7 +377,7 @@ export class Player implements Entity {
 
 export class Ball implements Entity {
 	id: number;
-	room: Room;
+	game: Room;
 	radius: number;
 	speed: number;
 	location: Vector2;
@@ -408,7 +387,7 @@ export class Ball implements Entity {
 
 	constructor(room: Room, radius: number, speed: number, maxSpeed: number) {
 		this.id = room.nextBallId;
-		this.room = room;
+		this.game = room;
 		this.radius = radius;
 		this.speed = speed;
 		this.maxSpeed = maxSpeed;
@@ -417,12 +396,12 @@ export class Ball implements Entity {
 	}
 
 	sendUpdate() {
-		this.room.broadcast(new PacketPlayOutBallUpdate(this.id, this.location, this.direction, this.radius, this.speed));
+		this.game.broadcast(new PacketPlayOutBallUpdate(this.id, this.location, this.direction, this.radius, this.speed));
 	}
 
 	resetLocation(): void {
-		this.location = new Vector2(this.room.width / 2 - this.radius / 2, this.room.height / 2 - this.radius / 2);
-		this.setDirection(0, 0);
+		this.location = new Vector2(this.game.width / 2 - this.radius / 2, this.game.height / 2 - this.radius / 2);
+		this.setDirection(0.1, 1);
 	}
 
 	setDirection(x: number, y: number): void {
@@ -434,12 +413,63 @@ export class Ball implements Entity {
 		}
 	}
 
-	willCollideVertical(): boolean {
-		let nextY = this.location.y + (this.direction.y * this.speed);
-		return nextY < 0 || nextY > this.room.height;
+	intersect(p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2): Vector2 | undefined {
+		// Check if none of the lines are of length 0
+		if (p1.equals(p2) || p3.equals(p4))
+			return undefined;
+	
+		let dir1 = p1.sub(p2);
+		let dir2 = p3.sub(p4);
+	
+		let denominator = dir1.x * dir2.y - dir1.y * dir2.x;
+	
+		// Lines are parallel
+		if (denominator === 0)
+			return undefined;
+	
+		let lhs = p1.x * p2.y - p1.y * p2.x;
+		let rhs = p3.x * p4.y - p3.y * p4.x;
+	
+		let px = (lhs * dir2.x - dir1.x * rhs) / denominator;
+		let py = (lhs * dir2.y - dir1.y * rhs) / denominator;
+	
+		return new Vector2(px, py);
+	}
+	
+	verticalCollidesDist(y: number, location: Vector2, direction: Vector2): number | undefined {
+		let inter = this.intersect(new Vector2(0, y), new Vector2(1, y), location, location.add(direction));
+		if (inter)
+			return location.distance(inter);
+		return undefined;
 	}
 
 	move() {
-		this.location.add(this.direction.clone().mul(this.speed));
+		let location = this.location.clone();
+		let direction = this.direction.clone();
+
+		let dist;
+
+		if (dist = this.verticalCollidesDist(0, location.sub(new Vector2(0, this.radius)), direction)) {
+			if (dist < this.speed) {
+				location = location.add(direction.mul(dist));
+				direction.y = Math.abs(direction.y);
+				location = location.add(direction.mul(this.speed - dist));
+			}
+		}
+		if (dist = this.verticalCollidesDist(this.game.height, location.add(new Vector2(0, this.radius)), direction)) {
+			if (dist < this.speed) {
+				location = location.add(direction.mul(dist));
+				direction.y = -Math.abs(direction.y);
+				location = location.add(direction.mul(this.speed - dist));
+			}
+		}
+		for (const player of this.game.players) {
+			// TODO
+		}
+		if (location.equals(this.location))
+			location = location.add(direction.mul(this.speed));
+
+		this.location = location;
+		this.direction = direction;
 	}
 }

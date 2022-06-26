@@ -15,19 +15,13 @@ const backgroundImg = new Image(); backgroundImg.src = backgroundUrl;
 const ballImg = new Image(); ballImg.src = ballUrl;
 const paddleImg = new Image(); paddleImg.src = paddleUrl;
 
-const interpolate = (a: { x: number, y: number }, b: { x: number, y: number }, frac: number): { x: number, y: number } => {
-	var nx = a.x + (b.x - a.x) * frac;
-	var ny = a.y + (b.y - a.y) * frac;
-	return { x: nx, y: ny };
-}
-
 const intersect = (p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2): Vector2 | undefined => {
 	// Check if none of the lines are of length 0
 	if (p1.equals(p2) || p3.equals(p4))
 		return undefined;
 
-	let dir1 = p1.clone().sub(p2);
-	let dir2 = p3.clone().sub(p4);
+	let dir1 = p1.sub(p2);
+	let dir2 = p3.sub(p4);
 
 	let denominator = dir1.x * dir2.y - dir1.y * dir2.x;
 
@@ -42,6 +36,13 @@ const intersect = (p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2): Vector2 
 	let py = (lhs * dir2.y - dir1.y * rhs) / denominator;
 
 	return new Vector2(px, py);
+}
+
+const verticalCollidesDist = (y: number, location: Vector2, direction: Vector2): number | undefined => {
+	let inter = intersect(new Vector2(0, y), new Vector2(1, y), location, location.add(direction));
+	if (inter)
+		return location.distance(inter);
+	return undefined;
 }
 
 interface Props {
@@ -96,7 +97,7 @@ export const GameCanvas = (props: Props) => {
 							player.screenY -= (player.speed / stepsPerTick);
 						else
 							player.screenY += (player.speed / stepsPerTick);
-						let meuh = interpolate({ x: player.location.x, y: player.screenY }, { x: player.location.x, y: player.location.y }, 0.1);
+						let meuh = new Vector2(player.location.x, player.screenY).interpolate(new Vector2(player.location.x, player.location.y), 0.1);
 						player.screenY = meuh.y;
 					}
 				}
@@ -111,17 +112,33 @@ export const GameCanvas = (props: Props) => {
 			for (const ball of balls) {
 				let speed = ball.speed / stepsPerTick;
 				let diff = ball.screen.location.distance(ball.location);
-				
-				if (diff > ball.speed * /* 2 */ 20) { // TODO change					
+
+				if (diff > ball.speed * /* 2 */ 10) { // TODO change					
 					ball.screen.location = ball.location.clone();
 					ball.screen.direction = ball.direction.clone();
 				} else {
-					let tmp = ball.screen.location.clone().add(ball.screen.direction.clone().mul(speed));
+					let location = ball.screen.location.clone();
+					let direction = ball.screen.direction.clone();
 
-					let inter = intersect(new Vector2(), new Vector2(game.width, 0), ball.screen.location, tmp);
-					if (inter)
-						console.log(Math.round(ball.screen.location.distance(inter)));
-						
+					let dist;
+
+					if (dist = verticalCollidesDist(0, location.sub(new Vector2(0, ball.radius)), direction)) {
+						if (dist < speed) {
+							location = location.add(direction.mul(dist));
+							direction.y = Math.abs(direction.y);
+							location = location.add(direction.mul(speed - dist));
+						}
+					}
+					if (dist = verticalCollidesDist(game.height, location.add(new Vector2(0, ball.radius)), direction)) {
+						if (dist < speed) {
+							location = location.add(direction.mul(dist));
+							direction.y = -Math.abs(direction.y);
+							location = location.add(direction.mul(speed - dist));
+						}
+					}
+					if (location.equals(ball.screen.location))
+						location = location.add(direction.mul(speed));
+
 					// if (inter)
 					// 	ctx.strokeRect(inter.x - ball.radius, inter.y - ball.radius, ball.radius * 2, ball.radius * 2);
 					// inter = intersect(new Vector2(0, game.height), new Vector2(game.width, game.height), ball.screen.location, tmp);
@@ -144,13 +161,14 @@ export const GameCanvas = (props: Props) => {
 					// 	tmpY = ball.screenY + (ball.speed / stepsPerTick) * ball.direction.y;
 					// 	meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
 					// }
-					ball.screen.location = tmp;
+					ball.screen.location = location.interpolate(ball.location, 0.1);
+					ball.screen.direction = direction;
 				}
 				drawImage(ballImg, ball.screen.location.x, ball.screen.location.y, ball.radius * 2, ball.radius * 2, ((drawTick.current * ((ball.speed * 5) / 10)) % 360) * Math.PI / 180);
 
 				ctx.strokeStyle = 'green';
 				ctx.lineWidth = 4;
-				// ctx.strokeRect(ball.location.x - ball.radius, ball.location.y - ball.radius, ball.radius * 2, ball.radius * 2);
+				ctx.strokeRect(ball.location.x - ball.radius, ball.location.y - ball.radius, ball.radius * 2, ball.radius * 2);
 			}
 
 			ctx.textAlign = 'right';

@@ -16,7 +16,7 @@ export class Vector2 {
 			this.y = y || 0;
 		}
 	}
-	
+
 	equals(other: Vector2): boolean {
 		return this.x === other.x && this.y === other.y;
 	}
@@ -29,29 +29,25 @@ export class Vector2 {
 	mul(other: Vector2): Vector2;
 	mul(other: Vector2 | number): Vector2 {
 		if (typeof other === 'number') {
-			this.x *= other;
-			this.y *= other;
-		} else {
-			this.x += other.x;
-			this.y += other.y;
+			return new Vector2(this.x * other, this.y * other);
 		}
-		return this;
+		return new Vector2(this.x * other.x, this.y * other.y);
 	}
 
 	add(other: Vector2): Vector2 {
-		this.x += other.x;
-		this.y += other.y;
-		return this;
+		return new Vector2(this.x + other.x, this.y + other.y);
 	}
 
 	sub(other: Vector2): Vector2 {
-		this.x -= other.x;
-		this.y -= other.y;
-		return this;
+		return new Vector2(this.x - other.x, this.y - other.y);
 	}
 
 	distance(other: Vector2): number {
 		return Math.abs(Math.sqrt((this.x - other.x) ** 2 + (this.y - other.y) ** 2));
+	}
+
+	interpolate(other: Vector2, frac: number): Vector2 {
+		return this.add(other.sub(this).mul(frac));
 	}
 }
 
