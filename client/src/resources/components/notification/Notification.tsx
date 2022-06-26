@@ -1,6 +1,7 @@
 import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { useContext } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
 import { SocketContext } from "../../../app/context/SocketContext";
 import { PacketPlayOutPlayerAccept } from "../../../app/packets/PacketPlayOutPlayerAccept";
 import { hideNotification, Notification } from "../../../app/slices/notificationsSlice";
@@ -16,6 +17,7 @@ interface Props {
 export const NotificationElement = (props: Props) => {
 	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 	const socket = useContext(SocketContext);
+	const navigate = useNavigate();
 
 	const clicked = () => {
 		console.log(props.content.button?.data?.id);
@@ -29,6 +31,7 @@ export const NotificationElement = (props: Props) => {
 			target: -1,
 		}));
 		dispatch(hideNotification(props.id));
+		navigate('/game', {replace: true});
 	};
 
 	return (

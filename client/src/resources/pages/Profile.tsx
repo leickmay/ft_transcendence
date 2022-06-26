@@ -3,10 +3,11 @@ import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js';
 import { useCallback, useContext, useMemo, useRef } from "react";
 import { Doughnut } from 'react-chartjs-2';
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 import { SocketContext } from "../../app/context/SocketContext";
 import { GameStatus } from "../../app/interfaces/Game.interface";
 import { PacketPlayOutPlayerInvite } from "../../app/packets/PacketPlayOutPlayerInvite";
-import { InvitationStates, setInvitation, setInvitationStatus, setInvitationTarget } from "../../app/slices/profileSlice";
+import { InvitationStates, setInvitationTarget } from "../../app/slices/profileSlice";
 import { resetProfile } from "../../app/slices/profileSlice";
 import { RootState } from "../../app/store";
 import { History } from "../components/History";
@@ -15,6 +16,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const Profile = () => {
 	const socket = useContext(SocketContext);
+	const navigate = useNavigate();
 
 	const profile = useSelector((state: RootState) => state.profile);
 	const game = useSelector((state: RootState) => state.game);
@@ -60,6 +62,8 @@ export const Profile = () => {
 		socket?.emit('game', new PacketPlayOutPlayerInvite(target));
 		console.log(profile.user?.id || -1)
 		dispatch(setInvitationTarget(profile.user?.id || -1));
+		navigate('/game', {replace: true});
+		dispatch(resetProfile());
 	}
 
 	const getButtonGameInvitation = () => {
