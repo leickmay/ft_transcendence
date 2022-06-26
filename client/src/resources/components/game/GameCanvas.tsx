@@ -2,7 +2,7 @@ import { useCallback, useContext, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { GameContext } from '../../../app/context/GameContext';
 import { useAnimationFrame } from '../../../app/Helpers';
-import { Directions, GameStatus, Vector2 } from '../../../app/interfaces/Game.interface';
+import { Directions, GameStatus, Sides, Vector2 } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
 import ballUrl from '../../../assets/images/ball.png';
 import backgroundUrl from '../../../assets/images/game-background.png';
@@ -134,6 +134,19 @@ export const GameCanvas = (props: Props) => {
 							location = location.add(direction.mul(dist));
 							direction.y = -Math.abs(direction.y);
 							location = location.add(direction.mul(speed - dist));
+						}
+					}
+					for (const player of players) {
+						let sideX = player.side === Sides.LEFT ? player.location.x + player.width : player.location.x;
+
+						let inter = intersect(new Vector2(sideX, 0), new Vector2(sideX, 1), location, location.add(direction));
+						if (inter) {
+							let dist = location.distance(inter);
+							if (dist < speed) {
+								location = location.add(direction.mul(dist));
+								direction.x = -Math.abs(direction.x);
+								location = location.add(direction.mul(speed - dist));
+							}
 						}
 					}
 					if (location.equals(ball.screen.location))
