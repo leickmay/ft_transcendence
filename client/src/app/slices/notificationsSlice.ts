@@ -6,6 +6,9 @@ export interface Notification {
 	button?: {
 		text: string;
 		action: 'ACCEPT_GAME_INVITATION' | string,
+		data?: {
+			id: number;
+		},
 	}
 }
 

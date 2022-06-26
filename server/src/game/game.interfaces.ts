@@ -100,10 +100,10 @@ export class Room {
 		return 'game_' + this.id.toString();
 	}
 
-	canStart(): boolean { return this.status === GameStatus.WAITING && this.players.every(p => p.ready); }
+	canStart(): boolean { return this.status === GameStatus.WAITING && this.players.length >= this.minPlayers && this.players.every(p => p.ready); }
 	isFull(): boolean { return this.players.length >= this.maxPlayers; }
 
-	join(user: User): void {
+	join(user: User): boolean {
 		if (!this.isFull()) {
 			user.send('game', new PacketPlayOutGameUpdate(instanceToPlain(this)));
 			user.send('game', new PacketPlayOutPlayerList(instanceToPlain(this.players)));
@@ -116,7 +116,9 @@ export class Room {
 			user.socket?.join(this.getSocketRoom());
 			this.broadcast(new PacketPlayOutPlayerJoin(instanceToPlain(user.player)));
 			this.server.emit('user', new PacketPlayOutUserConnection([{ id: user.id, login: user.login, playing: true }]));
+			return true;
 		}
+		return false;
 	}
 
 	spectate(user: User): void {

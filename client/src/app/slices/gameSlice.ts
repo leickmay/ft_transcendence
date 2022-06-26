@@ -9,7 +9,7 @@ interface State {
 	minPlayers: number;
 	maxPlayers: number;
 	startTime: number;
-	maxDifference: number,
+	maxDifference: number;
 	// spectators: Array<Spectator>;
 }
 
