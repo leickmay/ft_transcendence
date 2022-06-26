@@ -6,9 +6,6 @@ export class PacketPlayOutGameOptions {
 		public speedMin: number,
 		public speedMax: number,
 		public height: number,
-		public minimize: boolean,
-		public minimization: number,
-		public duration: number,
-		public cooldown: number,
+		public cowMode: boolean,
 	) {}
 }
