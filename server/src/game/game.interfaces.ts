@@ -142,7 +142,7 @@ export class Room {
 	spectators: Array<Spectator> = [];
 
 	@Expose()
-	maxScore: number = /* 5 */ 500; // TODO change
+	maxScore: number = 5; // TODO change
 
 	get nextBallId() {
 		return ++this.currentBallId;
