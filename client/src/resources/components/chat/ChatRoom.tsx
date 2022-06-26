@@ -10,7 +10,7 @@ import { PacketPlayOutProfile } from "../../../app/packets/PacketPlayOutProfile"
 import { PacketTypesChat } from "../../../app/packets/packetTypes";
 import { newMessages, setTabSmallScreen } from "../../../app/slices/chatSlice";
 import { RootState } from "../../../app/store";
-import {getNameRoom, getTime, scrollToBottomById } from "../../pages/Chat";
+import {getLoginPrivateMessage, getNameRoom, getTime, scrollToBottomById } from "../../pages/Chat";
 
 const ChatCurrentRoom = () => {
 	const socket = useContext(SocketContext);
@@ -95,7 +95,7 @@ const ChatCurrentRoom = () => {
 			return (
 				<h2>
 					<div onClick={() => {
-							socket?.emit('stats', new PacketPlayOutProfile(getNameRoom(current) || ""));
+							socket?.emit('stats', new PacketPlayOutProfile(getLoginPrivateMessage(current) || ""));
 						}}
 					>
 						{getNameRoom(current)}
