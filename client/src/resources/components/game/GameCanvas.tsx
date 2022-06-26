@@ -113,7 +113,7 @@ export const GameCanvas = (props: Props) => {
 				let speed = ball.speed / stepsPerTick;
 				let diff = ball.screen.location.distance(ball.location);
 
-				if (diff > ball.speed * /* 2 */ 10) { // TODO change					
+				if (diff > ball.speed * 2) { // TODO change					
 					ball.screen.location = ball.location.clone();
 					ball.screen.direction = ball.direction.clone();
 				} else {
@@ -139,13 +139,42 @@ export const GameCanvas = (props: Props) => {
 					for (const player of players) {
 						let sideX = player.side === Sides.LEFT ? player.location.x + player.width : player.location.x;
 
-						let inter = intersect(new Vector2(sideX, 0), new Vector2(sideX, 1), location, location.add(direction));
+						let inter = intersect(new Vector2(sideX, 0), new Vector2(sideX, 1), location.clone(), location.add(direction));
 						if (inter) {
 							let dist = location.distance(inter);
 							if (dist < speed) {
-								location = location.add(direction.mul(dist));
-								direction.x = -Math.abs(direction.x);
-								location = location.add(direction.mul(speed - dist));
+								if (inter.y >= player.location.y && inter.y <= player.location.y + player.height) {
+									let percent = (inter.y - player.location.y) - player.height / 2;
+									console.log(percent);
+
+									location = location.add(direction.mul(dist));
+									direction.x = player.side === Sides.LEFT ? Math.abs(direction.x) : -Math.abs(direction.x);
+									location = location.add(direction.mul(speed - dist));
+								}
+							}
+						}
+						inter = intersect(new Vector2(0, player.location.y), new Vector2(1, player.location.y), location.clone(), location.add(direction));
+						if (inter) {
+							let dist = location.distance(inter);
+							if (dist < speed) {
+								if (inter.x >= player.location.x && inter.x - 10 <= player.location.x + player.width) {
+									location = location.add(direction.mul(dist));
+									direction.x = player.side === Sides.LEFT ? Math.abs(direction.x) : -Math.abs(direction.x);
+									direction.y = -Math.abs(direction.y);
+									location = location.add(direction.mul(speed - dist));
+								}
+							}
+						}
+						inter = intersect(new Vector2(0, player.location.y + player.height), new Vector2(1, player.location.y + player.height), location.clone(), location.add(direction));
+						if (inter) {
+							let dist = location.distance(inter);
+							if (dist < speed) {
+								if (inter.x >= player.location.x && inter.x <= player.location.x + player.width) {
+									location = location.add(direction.mul(dist));
+									direction.x = player.side === Sides.LEFT ? Math.abs(direction.x) : -Math.abs(direction.x);
+									direction.y = Math.abs(direction.y);
+									location = location.add(direction.mul(speed - dist));
+								}
 							}
 						}
 					}
@@ -159,7 +188,7 @@ export const GameCanvas = (props: Props) => {
 
 				ctx.strokeStyle = 'green';
 				ctx.lineWidth = 4;
-				ctx.strokeRect(ball.location.x - ball.radius, ball.location.y - ball.radius, ball.radius * 2, ball.radius * 2);
+				// ctx.strokeRect(ball.location.x - ball.radius, ball.location.y - ball.radius, ball.radius * 2, ball.radius * 2);
 			}
 
 			ctx.textAlign = 'right';

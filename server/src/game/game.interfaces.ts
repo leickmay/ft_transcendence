@@ -233,7 +233,7 @@ export class Room {
 				status: GameStatus.RUNNING,
 			}));
 
-			let b = new Ball(this, 30, 30, 60);
+			let b = new Ball(this, 30, 50, 100);
 			b.setDirection(1, 1);
 			this.balls.push(b);
 
@@ -253,6 +253,7 @@ export class Room {
 				for (const player of this.players) {
 					if (player.side !== side) {
 						++player.score;
+						ball.speed = ball.baseSpeed;
 						this.broadcast(new PacketPlayOutPlayerUpdate({id: player.user.id, score: player.score}));
 					}
 				}
@@ -263,6 +264,9 @@ export class Room {
 				ball.resetLocation();
 			} else {
 				ball.move();
+				if (this.tick % 20 === 0 && ball.speed < ball.maxSpeed) {
+					ball.speed++;
+				}
 			}
 			ball.sendUpdate();
 		}
@@ -382,13 +386,15 @@ export class Ball implements Entity {
 	speed: number;
 	location: Vector2;
 	direction: Vector2;
-
-	maxSpeed: number;
+	
+	readonly baseSpeed: number;
+	readonly maxSpeed: number;
 
 	constructor(room: Room, radius: number, speed: number, maxSpeed: number) {
 		this.id = room.nextBallId;
 		this.game = room;
 		this.radius = radius;
+		this.baseSpeed = speed;
 		this.speed = speed;
 		this.maxSpeed = maxSpeed;
 		this.resetLocation();
@@ -401,12 +407,12 @@ export class Ball implements Entity {
 
 	resetLocation(): void {
 		this.location = new Vector2(this.game.width / 2 - this.radius / 2, this.game.height / 2 - this.radius / 2);
-		this.setDirection(0.1, 1);
+		this.setDirection(0.4, 1);
 	}
 
 	setDirection(x: number, y: number): void {
 		if (x == 0 && y == 0) {
-			this.direction = new Vector2(Math.floor(Math.random() * 2) === 0 ? -1 : 1, 1);
+			this.direction = new Vector2(Math.floor(Math.random() * 2) === 0 ? -1 : 1, 0);
 		} else {
 			let mag = Math.sqrt(x ** 2 + y ** 2);
 			this.direction = new Vector2(x / mag, y / mag);
@@ -464,7 +470,47 @@ export class Ball implements Entity {
 			}
 		}
 		for (const player of this.game.players) {
-			// TODO
+			
+			let sideX = player.side === Sides.LEFT ? player.location.x + player.width : player.location.x;
+
+			let inter = this.intersect(new Vector2(sideX, 0), new Vector2(sideX, 1), location.clone(), location.add(direction));
+			if (inter) {
+				let dist = location.distance(inter);
+				if (dist < this.speed) {
+					if (inter.y >= player.location.y && inter.y <= player.location.y + player.height) {
+						let percent = (inter.y - player.location.y) - player.height / 2;
+						console.log(percent);
+
+						location = location.add(direction.mul(dist));
+						direction.x = player.side === Sides.LEFT ? Math.abs(direction.x) : -Math.abs(direction.x);
+						location = location.add(direction.mul(this.speed - dist));
+					}
+				}
+			}
+			inter = this.intersect(new Vector2(0, player.location.y), new Vector2(1, player.location.y), location.clone(), location.add(direction));
+			if (inter) {
+				let dist = location.distance(inter);
+				if (dist < this.speed) {
+					if (inter.x >= player.location.x && inter.x - 10 <= player.location.x + player.width) {
+						location = location.add(direction.mul(dist));
+						direction.x = player.side === Sides.LEFT ? Math.abs(direction.x) : -Math.abs(direction.x);
+						direction.y = -Math.abs(direction.y);
+						location = location.add(direction.mul(this.speed - dist));
+					}
+				}
+			}
+			inter = this.intersect(new Vector2(0, player.location.y + player.height), new Vector2(1, player.location.y + player.height), location.clone(), location.add(direction));
+			if (inter) {
+				let dist = location.distance(inter);
+				if (dist < this.speed) {
+					if (inter.x >= player.location.x && inter.x <= player.location.x + player.width) {
+						location = location.add(direction.mul(dist));
+						direction.x = player.side === Sides.LEFT ? Math.abs(direction.x) : -Math.abs(direction.x);
+						direction.y = Math.abs(direction.y);
+						location = location.add(direction.mul(this.speed - dist));
+					}
+				}
+			}
 		}
 		if (location.equals(this.location))
 			location = location.add(direction.mul(this.speed));
