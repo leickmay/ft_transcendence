@@ -20,7 +20,6 @@ export const NotificationElement = (props: Props) => {
 	const navigate = useNavigate();
 
 	const clicked = () => {
-		console.log(props.content.button?.data?.id);
 		if (props.content.button?.action === 'ACCEPT_GAME_INVITATION') {
 			let id = props.content.button.data?.id;
 			if (id)
@@ -31,7 +30,7 @@ export const NotificationElement = (props: Props) => {
 			target: -1,
 		}));
 		dispatch(hideNotification(props.id));
-		navigate('/game', {replace: true});
+		navigate('/', {replace: true});
 	};
 
 	return (

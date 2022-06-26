@@ -1,6 +1,7 @@
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
 import { receiveMessage } from '../../app/actions/messageActions';
 import { pushNotification } from '../../app/actions/notificationsActions';
 import { GameContext } from '../../app/context/GameContext';
@@ -50,6 +51,7 @@ export const SocketListener = (props: Props) => {
 	const currentUser = useSelector((state: RootState) => state.users.current);
 	const rooms = useSelector((state: RootState) => state.chat.rooms);
 
+	const navigate = useNavigate();
 	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 
 	useEffect(() => {
@@ -183,6 +185,7 @@ export const SocketListener = (props: Props) => {
 		const playerList = (packet: PacketPlayInPlayerList) => {
 			packet.players.forEach(p => p.screenY = p.location.y);
 			setPlayers(players => packet.players);
+			navigate('/', {replace: true});
 		}
 
 		const playerJoin = (packet: PacketPlayInPlayerJoin) => {

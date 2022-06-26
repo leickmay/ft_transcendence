@@ -12,6 +12,8 @@ import { GameStatus, Player, Room } from "./game.interfaces";
 import { PacketPlayInPlayerInvite } from 'src/socket/packets/PacketPlayInPlayerInvite';
 import { PacketPlayOutGameInvitation } from 'src/socket/packets/PacketPlayOutGameInvitation';
 import { PacketPlayInPlayerAccept } from 'src/socket/packets/PacketPlayInPlayerAccept';
+import { PacketPlayInPlayerLeave } from 'src/socket/packets/PacketPlayInPlayerLeave';
+import { PacketPlayInGameSpectateRequest } from 'src/socket/packets/PacketPlayInGameSpectateRequest';
 
 export class GameService {
 	rooms: Array<Room> = new Array<Room>();
@@ -43,6 +45,9 @@ export class GameService {
 			case PacketTypesPlayer.READY:
 				this.handleReady(packet as PacketPlayInPlayerReady, user);
 				break;
+			case PacketTypesPlayer.LEAVE:
+				this.handleLeave(packet as PacketPlayInPlayerLeave, user);
+				break;
 			case PacketTypesPlayer.MOVE:
 				this.handlePlayerMove(packet as PacketPlayInPlayerMove, user);
 				break;
@@ -55,11 +60,14 @@ export class GameService {
 			case PacketTypesGame.ACCEPT:
 				this.handleAccept(packet as PacketPlayInPlayerAccept, user);
 				break;
+			case PacketTypesGame.SPECTATE:
+				this.handleSpectate(packet as PacketPlayInGameSpectateRequest, user);
+				break;
 			default:
 				break;
 		}
 	}
-
+		
 	onLeave(user: User): void {
 		user.player?.leave()
 
@@ -69,9 +77,27 @@ export class GameService {
 		}
 	}
 
+	handleSpectate(packet: PacketPlayInGameSpectateRequest, user: User) {
+		if (!packet.target)
+			return;
+		if (user.player)
+			return;
+		this.eventsService.getUserById(packet.target)?.player?.room.spectate(user);
+	}
+
+	handleLeave(packet: PacketPlayInPlayerLeave, user: User) {
+		if (user.spectate) {
+			user.spectate.removeSpectator(user);
+		}
+		if (user.player) {
+			user.player.leave();
+		}
+	}
+
 	handleAccept(packet: PacketPlayInPlayerAccept, user: User): void {
-		console.log(packet.room);
 		if (!packet.room)
+			return;
+		if (user.player || this.waitList.includes(user))
 			return;
 		let room = this.privRooms.find(x => x.id === packet.room);
 		if (!room)

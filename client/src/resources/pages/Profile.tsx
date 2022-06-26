@@ -5,6 +5,7 @@ import { Doughnut } from 'react-chartjs-2';
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { SocketContext } from "../../app/context/SocketContext";
+import { PacketPlayOutFriends } from "../../app/packets/PacketPlayOutFriends";
 import { PacketPlayOutPlayerInvite } from "../../app/packets/PacketPlayOutPlayerInvite";
 import { InvitationStates, setInvitationTarget } from "../../app/slices/profileSlice";
 import { resetProfile } from "../../app/slices/profileSlice";
@@ -17,17 +18,21 @@ export const Profile = () => {
 	const socket = useContext(SocketContext);
 	const navigate = useNavigate();
 
+	const friends = useSelector((state: RootState) => state.users.friends);
 	const profile = useSelector((state: RootState) => state.profile);
 	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 	const ref = useRef<HTMLInputElement>(null);
 	const invitation = useSelector((state: RootState) => state.profile.invitation);
 	const online = useSelector((state: RootState) => state.users.online);
 
-	// let removeFriend = (): JSX.Element => {
-	// 	return (<div onClick={() => socket?.emit('user', new PacketPlayOutFriends('remove', props.user.id))}>
-	// 		<p className='pointer' style={{ fontSize: '1rem' }}>Retirer l'amis</p>
-	// 	</div>);
-	// }
+	let removeFriend = useMemo((): JSX.Element => {
+		if (friends.find(f => f.id === profile.user?.id)) {
+			return (<div onClick={() => socket?.emit('user', new PacketPlayOutFriends('remove', profile.user?.id))}>
+				<p className='pointer' style={{ fontSize: '1rem' }}>Retirer l'amis</p>
+			</div>);
+		}
+		return <></>;
+	}, [profile.user, friends, socket]);
 
 	const handleClose = useCallback(() => {
 		dispatch(resetProfile());
@@ -58,14 +63,12 @@ export const Profile = () => {
 		if (!target)
 			return;
 		socket?.emit('game', new PacketPlayOutPlayerInvite(target));
-		console.log(profile.user?.id || -1)
 		dispatch(setInvitationTarget(profile.user?.id || -1));
 		navigate('/game', {replace: true});
 		dispatch(resetProfile());
 	}
 
 	const getButtonGameInvitation = () => {
-		console.log(invitation.status)
 		if (!online.find(x => x.id === profile.user?.id))
 			return <></>;
 		switch (invitation.status) {
@@ -93,6 +96,7 @@ export const Profile = () => {
 				<div ref={ref} className="box cursor" onClick={e => e.stopPropagation()}>
 					<span className="close-icon pointer" onClick={handleClose}>╳</span>
 					{getButtonGameInvitation()}
+					{removeFriend}
 					<div className='profile'>
 						<div className="stats">
 							<div className="player">

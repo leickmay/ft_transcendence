@@ -1,6 +1,6 @@
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { Socket } from 'socket.io';
-import { Player } from 'src/game/game.interfaces';
+import { Player, Room } from 'src/game/game.interfaces';
 import { Image } from 'src/images/image.entity';
 import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn, RelationId } from 'typeorm';
 
@@ -68,6 +68,7 @@ export class User extends BaseEntity {
 	socket?: Socket;
 
 	player: Player | null = null;
+	spectate: Room | null = null;
 
 	@Expose({ name: 'avatar' })
 	getAvatarUrl() {
