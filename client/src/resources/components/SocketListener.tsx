@@ -33,7 +33,7 @@ import { Packet, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesP
 import { delRoom, joinRoom, leaveRoom, setAdmins, setChatRooms, setOwner, upUsersBlocked } from '../../app/slices/chatSlice';
 import { resetGame, updateGame } from '../../app/slices/gameSlice';
 import { setBoard } from '../../app/slices/leaderboardSlice';
-import { setProfile } from '../../app/slices/profileSlice';
+import { InvitationStates, setInvitation, setInvitationStatus, setProfile } from '../../app/slices/profileSlice';
 import { setUserStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, setResults, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
@@ -174,6 +174,10 @@ export const SocketListener = (props: Props) => {
 			setPlayers([]);
 			setBalls([]);
 			dispatch(resetGame());
+			dispatch(setInvitation({
+				status: InvitationStates.NO_INVITATION,
+				target: -1,
+			}));
 		}
 
 		const playerList = (packet: PacketPlayInPlayerList) => {
@@ -184,6 +188,10 @@ export const SocketListener = (props: Props) => {
 		const playerJoin = (packet: PacketPlayInPlayerJoin) => {
 			packet.player.screenY = packet.player.y;
 			setPlayers(players => [...players, packet.player]);
+			console.log("IN_GAME")
+			dispatch(setInvitationStatus(
+				InvitationStates.IN_GAME,
+			));
 		}
 
 		// const remove = (packet: PacketPlayInPlayerLeave) => {
@@ -209,7 +217,7 @@ export const SocketListener = (props: Props) => {
 			console.log(packet);
 			dispatch(pushNotification({
 				text:"/Game Invitation by " + packet.user.login,
-				duration: 10000,
+				duration: 30000,
 				button: {
 					text: 'Accept',
 					action: 'ACCEPT_GAME_INVITATION',

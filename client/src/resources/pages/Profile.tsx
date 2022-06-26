@@ -1,11 +1,12 @@
 import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js';
-import { useCallback, useContext, useMemo, useRef, useState } from "react";
+import { useCallback, useContext, useMemo, useRef } from "react";
 import { Doughnut } from 'react-chartjs-2';
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/SocketContext";
 import { GameStatus } from "../../app/interfaces/Game.interface";
 import { PacketPlayOutPlayerInvite } from "../../app/packets/PacketPlayOutPlayerInvite";
+import { InvitationStates, setInvitation, setInvitationStatus, setInvitationTarget } from "../../app/slices/profileSlice";
 import { resetProfile } from "../../app/slices/profileSlice";
 import { RootState } from "../../app/store";
 import { History } from "../components/History";
@@ -14,11 +15,13 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const Profile = () => {
 	const socket = useContext(SocketContext);
+
 	const profile = useSelector((state: RootState) => state.profile);
 	const game = useSelector((state: RootState) => state.game);
 	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 	const ref = useRef<HTMLInputElement>(null);
-	const [invitationSent, setInvitationSent] = useState(false);
+	const invitation = useSelector((state: RootState) => state.profile.invitation);
+	const online = useSelector((state: RootState) => state.users.online);
 
 	// let removeFriend = (): JSX.Element => {
 	// 	return (<div onClick={() => socket?.emit('user', new PacketPlayOutFriends('remove', props.user.id))}>
@@ -54,27 +57,35 @@ export const Profile = () => {
 		let target = profile.user?.id;
 		if (!target)
 			return;
-		if (game.status === GameStatus.WAITING) {
-			socket?.emit('game', new PacketPlayOutPlayerInvite(target));
-			setInvitationSent(true);
-			console.log(1);
-		}
-		else{
-			socket?.emit('game', new PacketPlayOutPlayerInvite(target));
-			setInvitationSent(true);
-			console.log(2);
-		}
+		socket?.emit('game', new PacketPlayOutPlayerInvite(target));
+		console.log(profile.user?.id || -1)
+		dispatch(setInvitationTarget(profile.user?.id || -1));
 	}
 
 	const getButtonGameInvitation = () => {
-		if (invitationSent === true){
-			if (game.status === GameStatus.WAITING)
-				return <button onClick={sendInvitation}>Custom Game Invitation</button>
-			else
-				return <button onClick={sendInvitation}>Game Invitation</button>
+		console.log(invitation.status)
+		if (!online.find(x => x.id === profile.user?.id))
+			return <></>;
+		switch (invitation.status) {
+			case InvitationStates.NO_INVITATION: {
+				if (game.status === GameStatus.WAITING)
+					return <button onClick={sendInvitation}>Custom game invitation</button>
+				else
+					return <button onClick={sendInvitation}>Classic game invitation</button>
+			}
+			case InvitationStates.PENDING_INVITATION: {
+				if (profile.user?.id === invitation.target)
+					return <button>Invited</button>;
+				break;
+			}
+			case InvitationStates.IN_GAME: {
+				if (profile.user?.id === invitation.target)
+					return <button>Invited</button>
+				break;
+			}
+			default:
+				return <></>;
 		}
-		else 
-			return <p>Pending invitation...</p>
 	}
 
 	if (profile.user) {
@@ -110,4 +121,3 @@ export const Profile = () => {
 	else
 		return (<></>)
 }
-

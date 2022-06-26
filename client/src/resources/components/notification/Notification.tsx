@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { SocketContext } from "../../../app/context/SocketContext";
 import { PacketPlayOutPlayerAccept } from "../../../app/packets/PacketPlayOutPlayerAccept";
 import { hideNotification, Notification } from "../../../app/slices/notificationsSlice";
+import { InvitationStates, setInvitation } from "../../../app/slices/profileSlice";
 import { RootState } from "../../../app/store";
 
 interface Props {
@@ -23,6 +24,10 @@ export const NotificationElement = (props: Props) => {
 			if (id)
 				socket?.emit('game', new PacketPlayOutPlayerAccept(id));
 		}
+		dispatch(setInvitation({
+			status: InvitationStates.IN_GAME,
+			target: -1,
+		}));
 		dispatch(hideNotification(props.id));
 	};
 
