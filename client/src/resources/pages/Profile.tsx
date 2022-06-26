@@ -5,7 +5,6 @@ import { Doughnut } from 'react-chartjs-2';
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { SocketContext } from "../../app/context/SocketContext";
-import { GameStatus } from "../../app/interfaces/Game.interface";
 import { PacketPlayOutPlayerInvite } from "../../app/packets/PacketPlayOutPlayerInvite";
 import { InvitationStates, setInvitationTarget } from "../../app/slices/profileSlice";
 import { resetProfile } from "../../app/slices/profileSlice";
@@ -19,7 +18,6 @@ export const Profile = () => {
 	const navigate = useNavigate();
 
 	const profile = useSelector((state: RootState) => state.profile);
-	const game = useSelector((state: RootState) => state.game);
 	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 	const ref = useRef<HTMLInputElement>(null);
 	const invitation = useSelector((state: RootState) => state.profile.invitation);
@@ -72,10 +70,7 @@ export const Profile = () => {
 			return <></>;
 		switch (invitation.status) {
 			case InvitationStates.NO_INVITATION: {
-				if (game.status === GameStatus.WAITING)
-					return <button onClick={sendInvitation}>Custom game invitation</button>
-				else
-					return <button onClick={sendInvitation}>Classic game invitation</button>
+				return <button onClick={sendInvitation}> Send Invitation</button>
 			}
 			case InvitationStates.PENDING_INVITATION: {
 				if (profile.user?.id === invitation.target)
@@ -97,13 +92,13 @@ export const Profile = () => {
 			<div id="profile" className="pointer overlay" onClick={handleClose}>
 				<div ref={ref} className="box cursor" onClick={e => e.stopPropagation()}>
 					<span className="close-icon pointer" onClick={handleClose}>╳</span>
+					{getButtonGameInvitation()}
 					<div className='profile'>
 						<div className="stats">
 							<div className="player">
 								<div className="avatar">
 									<img src={profile.user?.avatar} width="75px" height="75px" alt=""></img>
 								</div>
-								{getButtonGameInvitation()}
 								<div className="infos">
 									<p>{profile.user?.name}</p>
 									<p>{profile.user?.login}</p>
