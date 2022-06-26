@@ -1,6 +1,6 @@
 import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js';
-import { useCallback, useContext, useMemo, useRef } from "react";
+import { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { Doughnut } from 'react-chartjs-2';
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/SocketContext";
@@ -18,6 +18,7 @@ export const Profile = () => {
 	const game = useSelector((state: RootState) => state.game);
 	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 	const ref = useRef<HTMLInputElement>(null);
+	const [invitationSent, setInvitationSent] = useState(false);
 
 	// let removeFriend = (): JSX.Element => {
 	// 	return (<div onClick={() => socket?.emit('user', new PacketPlayOutFriends('remove', props.user.id))}>
@@ -55,17 +56,25 @@ export const Profile = () => {
 			return;
 		if (game.status === GameStatus.WAITING) {
 			socket?.emit('game', new PacketPlayOutPlayerInvite(target));
+			setInvitationSent(true);
+			console.log(1);
 		}
 		else{
 			socket?.emit('game', new PacketPlayOutPlayerInvite(target));
+			setInvitationSent(true);
+			console.log(2);
 		}
 	}
 
 	const getButtonGameInvitation = () => {
-		if (game.status === GameStatus.WAITING)
-			return <button onClick={sendInvitation}>Custom Game Invitation</button>
-		else
-			return <button onClick={sendInvitation}>Game Invitation</button>
+		if (invitationSent === true){
+			if (game.status === GameStatus.WAITING)
+				return <button onClick={sendInvitation}>Custom Game Invitation</button>
+			else
+				return <button onClick={sendInvitation}>Game Invitation</button>
+		}
+		else 
+			return <p>Pending invitation...</p>
 	}
 
 	if (profile.user) {
