@@ -77,13 +77,13 @@ const ChatCurrentRoom = () => {
 		}
 	}
 
-	const getButtonOnLoginToProfile = (login: string, date: number) => {
+	const getButtonOnLoginToProfile = (login: string, name: string, date: number) => {
 		return (
 			<div onClick={() => {
 			 		socket?.emit('stats', new PacketPlayOutProfile(login));
 				}}
 			>
-				{login} - {getTime(date)}
+				{name} - {getTime(date)}
 			</div>
 		);
 	}
@@ -99,10 +99,10 @@ const ChatCurrentRoom = () => {
 			{getTitleWithButtonOrNot()}
 			<div id="chatRoomMesssages">
 			{
-					current?.messages?.filter(m => !usersBlocked || !usersBlocked.find(b => b === m.from))
+					current?.messages?.filter(m => !usersBlocked || !usersBlocked.find(b => b === m.from.login))
 						?.map((value, index) => {
 							let from: string = "otherMessage";
-							if (value.from === users.current?.login) {
+							if (value.from.login === users.current?.login) {
 								from = "myMessage";
 							}
 							if (value.cmd === true) {
@@ -110,7 +110,7 @@ const ChatCurrentRoom = () => {
 							}
 							return (
 								<div className={from} key={index}>
-									{getButtonOnLoginToProfile(value.from, value.date)}
+									{getButtonOnLoginToProfile(value.from.login, value.from.name, value.date)}
 									<div>
 										{value.text}
 									</div>

@@ -48,7 +48,7 @@ export class ChatService {
 	connection(user: User): void {
 		let worldRandom = this.rooms.find(r => r.name === "World Random");
 		if (worldRandom && !(worldRandom?.isPresent(user.id)))
-			worldRandom.users.push({id: user.id, login: user.login})
+			worldRandom.users.push({id: user.id, login: user.login, name: user.name})
 
 		this.rooms
 			.filter(r => r.isPresent(user.id))
@@ -316,7 +316,7 @@ export class ChatService {
 						ChatTypes.CHANNEL,
 						packet.name,
 						packet.visible,
-						[{id: user.id, login: user.login}],
+						[{id: user.id, login: user.login, name: user.name}],
 						user.id,
 						packet.password,
 					);
@@ -357,8 +357,8 @@ export class ChatService {
 							name,
 							false,
 							[
-								{id: user.id, login: user.login},
-								{id: otherUser.id, login: otherUser.login},
+								{id: user.id, login: user.login, name: user.name},
+								{id: otherUser.id, login: otherUser.login, name: otherUser.name},
 							],
 							undefined,
 							undefined,

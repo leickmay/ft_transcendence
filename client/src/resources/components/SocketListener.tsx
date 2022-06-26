@@ -276,7 +276,7 @@ export const SocketListener = (props: Props) => {
 			let cmd = packet.message.text.split(" ");
 			switch (cmd[0]) {
 				case "/EXIT": {
-					let user: User | undefined = getUserByLogin(packet.message.from);
+					let user: User | undefined = getUserByLogin(packet.message.from.login);
 					if (user?.id !== currentUser?.id)
 						break;
 					let room = rooms?.find(x => x.id === packet.room);

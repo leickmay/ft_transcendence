@@ -69,7 +69,7 @@ export class PacketPlayOutChatAdmin {
 	constructor(
 		public room: {
 			id: string,
-			admins: Array<number>;
+			admins: Array<number>,
 		},
 	) {}
 }

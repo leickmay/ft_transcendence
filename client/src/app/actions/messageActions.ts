@@ -8,10 +8,10 @@ import { pushNotification } from './notificationsActions';
 
 export const receiveMessage = (packet: PacketPlayInChatMessage) => (dispatch: ThunkDispatch<RootState, unknown, AnyAction>, getState: () => RootState) => {
 	dispatch(newMessages(packet));
-	if (getState().users.current?.login === packet.message.from)
+	if (getState().users.current?.login === packet.message.from.login)
 		return;
 	if (getState().chat.usersBlocked) {
-		if (getState().chat.usersBlocked.find(x => x === packet.message.from))
+		if (getState().chat.usersBlocked.find(x => x === packet.message.from.login))
 			return;
 	}
 	let room = getState().chat.rooms?.find(x => x.id === packet.room);
