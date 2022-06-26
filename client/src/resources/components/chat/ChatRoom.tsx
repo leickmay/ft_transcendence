@@ -46,18 +46,17 @@ const ChatCurrentRoom = () => {
 	const inputNewMessage = async (element: KeyboardEvent<HTMLTextAreaElement>): Promise<void> => {
 		if (element.key === 'Enter' && newMessage !== '') {
 			if (currentID && newMessage.toUpperCase().startsWith('/HELP')) {
-				sendHelp('/EXIT');
-				sendHelp('/PROMOTE login');
-				sendHelp('/DEMOTE login');
-				sendHelp('/PASSWORD *****');
-				sendHelp('/KICK login');
-				sendHelp('/BAN login time');
-				sendHelp('/UNBAN login');
-				sendHelp('/MUTE login time');
-				sendHelp('/UNMUTE login');
-				sendHelp('/BLOCK login');
-				sendHelp('/UNBLOCK login');
-
+				sendHelp('(Everyone) /EXIT');
+				sendHelp('(Everyone) /BLOCK login');
+				sendHelp('(Everyone) /UNBLOCK login');
+				sendHelp('(Admin) /KICK login');
+				sendHelp('(Admin) /BAN login time');
+				sendHelp('(Admin) /UNBAN login');
+				sendHelp('(Admin) /MUTE login time');
+				sendHelp('(Admin) /UNMUTE login');
+				sendHelp('(Owner) /PROMOTE login');
+				sendHelp('(Owner) /DEMOTE login');
+				sendHelp('(Owner) /PASSWORD *****');
 			}
 			else if (currentID) {
 				socket?.emit('chat', new PacketPlayOutChatMessage(currentID, newMessage));
