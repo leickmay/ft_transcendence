@@ -1,11 +1,14 @@
+import { FormHelperText } from "@mui/material";
 import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { KeyboardEvent, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/SocketContext";
 import { ChatTypes } from "../../../app/interfaces/Chat";
+import { PacketPlayInChatMessage } from "../../../app/packets/chat/PacketPlayInChat";
 import { PacketPlayOutChatMessage } from "../../../app/packets/chat/PacketPlayOutChat";
 import { PacketPlayOutProfile } from "../../../app/packets/PacketPlayOutProfile";
-import { setTabSmallScreen } from "../../../app/slices/chatSlice";
+import { PacketTypesChat } from "../../../app/packets/packetTypes";
+import { newMessages, setTabSmallScreen } from "../../../app/slices/chatSlice";
 import { RootState } from "../../../app/store";
 import {getNameRoom, getTime, scrollToBottomById } from "../../pages/Chat";
 
@@ -23,9 +26,39 @@ const ChatCurrentRoom = () => {
 	const [current, setCurrent] = useState(rooms?.find(x => x.id === currentID));
 	const [newMessage, setNewMessage] = useState('');
 
+	const sendHelp = async (msg: string) => {
+		let help: PacketPlayInChatMessage = {
+			packet_id: PacketTypesChat.MESSAGE,
+			room: currentID || "",
+			message: {
+				date: Date.now(),
+				from: {
+					login: "help",
+					name: "HELP",
+				},
+				text: msg,
+				cmd: true,
+			},
+		}
+		dispatch(newMessages(help));
+	}
+
 	const inputNewMessage = async (element: KeyboardEvent<HTMLTextAreaElement>): Promise<void> => {
 		if (element.key === 'Enter' && newMessage !== '') {
-			if (currentID) {
+			if (currentID && newMessage.toUpperCase().startsWith('/HELP')) {
+				sendHelp('(Everyone) /EXIT');
+				sendHelp('(Everyone) /BLOCK login');
+				sendHelp('(Everyone) /UNBLOCK login');
+				sendHelp('(Admin) /KICK login');
+				sendHelp('(Admin) /BAN login time');
+				sendHelp('(Admin) /UNBAN login');
+				sendHelp('(Admin) /MUTE login time');
+				sendHelp('(Admin) /UNMUTE login');
+				sendHelp('(Owner) /PROMOTE login');
+				sendHelp('(Owner) /DEMOTE login');
+				sendHelp('(Owner) /PASSWORD *****');
+			}
+			else if (currentID) {
 				socket?.emit('chat', new PacketPlayOutChatMessage(currentID, newMessage));
 			}
 			setNewMessage('');

@@ -133,7 +133,7 @@ export class ChatService {
 					return false;
 				if (user.id !== room.owner)
 					return false;
-				if (command[1].length > 32)
+				if (command.length === 2 && command[1].length > 32)
 					return (false);
 				if (command.length === 1)
 					room.setPassword(undefined);
