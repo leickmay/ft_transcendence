@@ -17,8 +17,8 @@ export const BoardCard = (props: Props) => {
 
 	return (
 		<tr className="boardcard">
-			<th>
-				<img onClick={togglePopup} src={props.user.avatar} width="75px" height="75px" alt=""></img>
+			<th className="name">
+				<img onClick={togglePopup} src={props.user.avatar} alt=""></img>
 				<p>{props.user.name}</p>
 			</th>
 			<td>
