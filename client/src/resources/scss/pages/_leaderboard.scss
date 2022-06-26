@@ -3,8 +3,16 @@
 		background-color: rgba($color: #681e6b, $alpha: 0.5);
 		min-width: 100%;
 
+		tr {
+			max-width: 90%;
+		}
+
 		h4 {
-			margin: 15px ;
+			margin: 15px;
+		}
+
+		button {
+			width: 100%;
 		}
 	}
 }

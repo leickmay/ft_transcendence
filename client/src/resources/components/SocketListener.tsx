@@ -13,6 +13,7 @@ import { PacketPlayInAlreadyTaken } from '../../app/packets/PacketPlayInAlreadyT
 import { PacketPlayInBallUpdate } from '../../app/packets/PacketPlayInBallUpdate';
 import { PacketPlayInFriendsUpdate } from '../../app/packets/PacketPlayInFriendsUpdate';
 import { PacketPlayInGameDestroy } from '../../app/packets/PacketPlayInGameDestroy';
+import { PacketPlayInGameInvitation } from '../../app/packets/PacketPlayInGameInvitation';
 import { PacketPlayInGameUpdate } from '../../app/packets/PacketPlayInGameUpdate';
 import { PacketPlayInLeaderboard } from '../../app/packets/PacketPlayInLeaderboard';
 import { PacketPlayInPlayerJoin } from '../../app/packets/PacketPlayInPlayerJoin';
@@ -28,11 +29,11 @@ import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserCo
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
-import { Packet, PacketTypesBall, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
+import { Packet, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
 import { delRoom, joinRoom, leaveRoom, setAdmins, setChatRooms, setOwner, upUsersBlocked } from '../../app/slices/chatSlice';
 import { resetGame, updateGame } from '../../app/slices/gameSlice';
 import { setBoard } from '../../app/slices/leaderboardSlice';
-import { setProfile } from '../../app/slices/profileSlice';
+import { InvitationStates, setInvitation, setInvitationStatus, setProfile } from '../../app/slices/profileSlice';
 import { setUserStats } from '../../app/slices/statsSlice';
 import { addOnlineUser, removeOnlineUser, setFriends, setResults, updateUser } from '../../app/slices/usersSlice';
 import { RootState } from '../../app/store';
@@ -172,6 +173,10 @@ export const SocketListener = (props: Props) => {
 			setPlayers([]);
 			setBalls([]);
 			dispatch(resetGame());
+			dispatch(setInvitation({
+				status: InvitationStates.NO_INVITATION,
+				target: -1,
+			}));
 		}
 
 		const playerList = (packet: PacketPlayInPlayerList) => {
@@ -182,6 +187,10 @@ export const SocketListener = (props: Props) => {
 		const playerJoin = (packet: PacketPlayInPlayerJoin) => {
 			packet.player.screenY = packet.player.location.y;
 			setPlayers(players => [...players, packet.player]);
+			console.log("IN_GAME")
+			dispatch(setInvitationStatus(
+				InvitationStates.IN_GAME,
+			));
 		}
 
 		// const remove = (packet: PacketPlayInPlayerLeave) => {
@@ -201,6 +210,20 @@ export const SocketListener = (props: Props) => {
 				if (p.user.id === packet.data.id)
 					return { ...p, ...packet.data };
 				return p;
+			}));
+		}
+		const handleInvitation = (packet: PacketPlayInGameInvitation) => {
+			console.log(packet);
+			dispatch(pushNotification({
+				text:"/Game Invitation by " + packet.user.login,
+				duration: 30000,
+				button: {
+					text: 'Accept',
+					action: 'ACCEPT_GAME_INVITATION',
+					data: {
+						id: packet.room.id,
+					},
+				},
 			}));
 		}
 
@@ -230,8 +253,8 @@ export const SocketListener = (props: Props) => {
 				case PacketTypesPlayer.UPDATE:
 					playerUpdate(packet as PacketPlayInPlayerUpdate);
 					break;
-				case PacketTypesBall.UPDATE:
-					ballUpdate(packet as PacketPlayInBallUpdate);
+				case PacketTypesGame.INVITATION:
+					handleInvitation(packet as PacketPlayInGameInvitation);
 					break;
 				default:
 					break;

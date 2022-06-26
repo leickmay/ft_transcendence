@@ -35,9 +35,7 @@ export const GameMenu = (props: Props) => {
 	const getSearchButtonElement = useCallback((): JSX.Element => {
 		return (
 			<div className="buttonWindow">
-				<button onMouseDown={props.search}>Search Match</button>
-				{/* <button onMouseDown={() => createPrivRoom()}>Create private room</button>
-				<input type="number" onKeyDown={joinPrivRoom} placeholder=" debug privRoom ID"/> */}
+				{<button onMouseDown={props.search}>Search Match</button> }
 			</div>
 		);
 	}, [props.search]);

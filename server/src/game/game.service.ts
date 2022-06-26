@@ -2,18 +2,21 @@ import { forwardRef, Inject } from '@nestjs/common';
 import { EventsService } from 'src/socket/events.service';
 import { PacketPlayInPlayerJoin } from 'src/socket/packets/PacketPlayInPlayerJoin';
 import { PacketPlayInPlayerMove } from 'src/socket/packets/PacketPlayInPlayerMove';
+import { PacketPlayInGameOptions } from 'src/socket/packets/PacketPlayInGameOptions';
 import { PacketPlayInPlayerReady } from 'src/socket/packets/PacketPlayInPlayerReady';
 import { PacketPlayOutGameUpdate } from 'src/socket/packets/PacketPlayOutGameUpdate';
-import { PacketPlayOutUserConnection } from 'src/socket/packets/PacketPlayOutUserConnection';
-import { Packet, PacketTypesPlayer } from 'src/socket/packets/packetTypes';
+import { Packet, PacketTypesGame, PacketTypesPlayer } from 'src/socket/packets/packetTypes';
 import { StatsService } from 'src/stats/stats.service';
 import { User } from '../user/user.entity';
 import { GameStatus, Player, Room } from "./game.interfaces";
+import { PacketPlayInPlayerInvite } from 'src/socket/packets/PacketPlayInPlayerInvite';
+import { PacketPlayOutGameInvitation } from 'src/socket/packets/PacketPlayOutGameInvitation';
+import { PacketPlayInPlayerAccept } from 'src/socket/packets/PacketPlayInPlayerAccept';
 
 export class GameService {
-	rooms: Array<Room> = new Array;
-	privRooms: Array<Room> = new Array;
-	waitList: Array<User> = new Array;
+	rooms: Array<Room> = new Array<Room>();
+	privRooms: Array<Room> = new Array<Room>();
+	waitList: Array<User> = new Array<User>();
 
 	constructor(
 		@Inject(forwardRef(() => EventsService))
@@ -43,6 +46,15 @@ export class GameService {
 			case PacketTypesPlayer.MOVE:
 				this.handlePlayerMove(packet as PacketPlayInPlayerMove, user);
 				break;
+			case PacketTypesGame.OPTIONS:
+				this.handlePrivateRoom(packet as PacketPlayInGameOptions, user);
+				break;
+			case PacketTypesGame.INVITATION:
+				this.handleInvite(packet as PacketPlayInPlayerInvite, user);
+				break;
+			case PacketTypesGame.ACCEPT:
+				this.handleAccept(packet as PacketPlayInPlayerAccept, user);
+				break;
 			default:
 				break;
 		}
@@ -54,6 +66,48 @@ export class GameService {
 		const index = this.waitList.indexOf(user);
 		if (index > -1) {
 			this.waitList.splice(index, 1);
+		}
+	}
+
+	handleAccept(packet: PacketPlayInPlayerAccept, user: User): void {
+		console.log(packet.room);
+		if (!packet.room)
+			return;
+		let room = this.privRooms.find(x => x.id === packet.room);
+		if (!room)
+			return;
+		room.join(user);
+	}
+
+	handleInvite(packet: PacketPlayInPlayerInvite, user: User): void {
+		if (!packet.target)
+			return;
+		let target = this.eventsService.getUserById(packet.target);
+		if (!target || !target.socket || target.player)
+			return;
+		let room = user.player?.room;
+		if (!room) {
+			room = new Room(this.eventsService.getServer()!, this.statsService)
+			room.join(user);
+			this.privRooms.push(room);
+		}
+		target.socket.emit('game', new PacketPlayOutGameInvitation(
+			{
+				id: room.id
+			},
+			{
+				id: user.id,
+				login: user.login,
+				name: user.name,
+			}
+		));
+	}
+
+	handlePrivateRoom(packet: PacketPlayInGameOptions, user: User): void {
+		if (!user.player && !this.waitList.includes(user)) {
+			let room = new Room(this.eventsService.getServer()!, this.statsService);
+			room.join(user);
+			this.privRooms.push(room);
 		}
 	}
 

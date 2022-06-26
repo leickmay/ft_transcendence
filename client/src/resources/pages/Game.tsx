@@ -8,6 +8,7 @@ import { PacketPlayOutPlayerReady } from '../../app/packets/PacketPlayOutPlayerR
 import { RootState } from '../../app/store';
 import { GameCanvas } from '../components/game/GameCanvas';
 import { GameMenu } from '../components/game/GameMenu';
+import { GameOptions } from '../components/game/GameOptions';
 
 let moveUp: boolean = false;
 let moveDown: boolean = false;
@@ -78,6 +79,7 @@ export const Game = (props: Props) => {
 
 	return (
 		<div id="game" className='container' onClick={() => handleClick()}>
+			{game.status === 0 ? <GameOptions/> : <></>}
 			<p>{GameStatus[game.status]}</p>
 			<GameMenu search={searchMatch} />
 			{game.status >= GameStatus.WAITING && <GameCanvas />}
