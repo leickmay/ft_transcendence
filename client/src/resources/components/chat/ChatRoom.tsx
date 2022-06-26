@@ -1,4 +1,3 @@
-import { FormHelperText } from "@mui/material";
 import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { KeyboardEvent, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,7 +32,7 @@ const ChatCurrentRoom = () => {
 			message: {
 				date: Date.now(),
 				from: {
-					login: "help",
+					login: "🤔",
 					name: "HELP",
 				},
 				text: msg,

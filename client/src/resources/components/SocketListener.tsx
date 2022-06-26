@@ -269,7 +269,7 @@ export const SocketListener = (props: Props) => {
 					break;
 			}
 		});
-	}, [socket, dispatch, playerMove, playerTeleport, ballUpdate, setPlayers, setBalls]);
+	}, [socket, dispatch, playerMove, playerTeleport, ballUpdate, setPlayers, setBalls, navigate]);
 
 	useEffect(() => {
 	}, [socket, dispatch]);
@@ -277,7 +277,7 @@ export const SocketListener = (props: Props) => {
 	useEffect(() => {
 		const commandHandler = async (packet: PacketPlayInChatMessage) => {
 			let cmd = packet.message.text.split(" ");
-			switch (cmd[0]) {
+			switch (cmd[0].toUpperCase()) {
 				case "/EXIT": {
 					let user: User | undefined = getUserByLogin(packet.message.from.login);
 					if (user?.id !== currentUser?.id)
