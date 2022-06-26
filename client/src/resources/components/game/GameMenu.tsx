@@ -1,9 +1,11 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { GameContext } from '../../../app/context/GameContext';
+import { SocketContext } from '../../../app/context/SocketContext';
 import { GameStatus, Player, Sides } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
 import { PlayerCard } from '../PlayerCard';
+import { PacketPlayOutPlayerLeave } from '../../../app/packets/PacketPlayOutPlayerLeave';
 
 interface Props {
 	search: () => void;
@@ -12,6 +14,7 @@ interface Props {
 export const GameMenu = (props: Props) => {
 	const { players } = useContext(GameContext);
 	const game = useSelector((state: RootState) => state.game);
+	const socket = useContext(SocketContext);
 	const [counter, setCounter] = useState<number>();
 
 	useEffect(() => {
@@ -31,6 +34,10 @@ export const GameMenu = (props: Props) => {
 			setCounter(undefined);
 		}
 	}, [game.status, game.startTime]);
+
+	const leave = useCallback(() => {
+		socket?.emit('game', new PacketPlayOutPlayerLeave());
+	}, [socket]);
 
 	const getSearchButtonElement = useCallback((): JSX.Element => {
 		return (
@@ -62,23 +69,28 @@ export const GameMenu = (props: Props) => {
 		let right = players.filter(p => p.side === Sides.RIGHT);
 
 		return (
-			<section className='board'>
-				<div className='players'>
-					{listPlayers(left)}
-				</div>
-				<span className='h1 text-neon2-tertiary text-stroke-2'>
-					{game.status === GameStatus.RUNNING ?
-						<>
-							<span>{left.reduce((p, l) => p + l.score, 0)}</span><span>-</span><span>{right.reduce((p, l) => p + l.score, 0)}</span>
-						</>
-						:
-						counter ?? 'VS'
-					}
-				</span>
-				<div className='players'>
-					{listPlayers(right)}
-				</div>
-			</section>
+			<>
+				<section>
+					<button onClick={leave}>Quitter</button>
+				</section>
+				<section className='board'>
+					<div className='players'>
+						{listPlayers(left)}
+					</div>
+					<span className='h1 text-neon2-tertiary text-stroke-2'>
+						{game.status === GameStatus.RUNNING ?
+							<>
+								<span>{left.reduce((p, l) => p + l.score, 0)}</span><span>-</span><span>{right.reduce((p, l) => p + l.score, 0)}</span>
+							</>
+							:
+							counter ?? 'VS'
+						}
+					</span>
+					<div className='players'>
+						{listPlayers(right)}
+					</div>
+				</section>
+			</>
 		);
 	}, [players, counter, game.status]);
 

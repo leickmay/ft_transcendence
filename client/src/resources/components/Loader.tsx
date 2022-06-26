@@ -16,7 +16,17 @@ export const Loader = (props: Props) => {
 		if (ready) {
 			setLoadingElement(undefined);
 		} else {
-			setLoadingElement(<div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.8)' }}><h3>Reconnection...</h3></div>);
+			setLoadingElement(<div style={{
+				position: 'fixed',
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				zIndex: 15,
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				backgroundColor: 'rgba(0, 0, 0, 0.8)' }}><h3>Reconnection...</h3></div>);
 		}
 	}, [socket, ready]);
 

@@ -6,6 +6,7 @@ import { RootState } from "../../app/store";
 import { BoardCard } from "../components/BoardCard";
 
 export const Leaderboard = () => {
+	const ready = useSelector((state: RootState) => state.socket.ready);
 	const board = useSelector((state: RootState) => state.board);
 	const socket = useContext(SocketContext);
 
@@ -21,7 +22,7 @@ export const Leaderboard = () => {
 
 	useEffect(() => {
 		request('level');
-	}, [socket, request]);
+	}, [ready, socket, request]);
 
 	return (
 		<table id="leaderboard" className="container">

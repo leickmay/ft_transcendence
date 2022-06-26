@@ -9,6 +9,7 @@ import { PacketPlayOutPlayerReady } from "src/socket/packets/PacketPlayOutPlayer
 import { PacketPlayOutPlayerTeleport } from "src/socket/packets/PacketPlayOutPlayerTeleport";
 import { PacketPlayOutPlayerUpdate } from "src/socket/packets/PacketPlayOutPlayerUpdate";
 import { PacketPlayOutUserConnection } from "src/socket/packets/PacketPlayOutUserConnection";
+import { PacketPlayOutUserUpdate } from "src/socket/packets/PacketPlayOutUserUpdate";
 import { StatsService } from "src/stats/stats.service";
 import { clearInterval } from "timers";
 import { User } from "../user/user.entity";
@@ -29,7 +30,7 @@ export class Vector2 {
 			this.y = y || 0;
 		}
 	}
-	
+
 	equals(other: Vector2): boolean {
 		return this.x === other.x && this.y === other.y;
 	}
@@ -98,10 +99,6 @@ export enum Directions {
 	DOWN,
 }
 
-export interface Spectator {
-	user: User;
-}
-
 export enum GameStatus {
 	NONE,
 	MATCHMAKING,
@@ -119,7 +116,7 @@ export class Room {
 	private tick = 0;
 
 	@Expose()
-	readonly tps = 20;
+	readonly tps = 30;
 	@Expose()
 	readonly height: number = 1080;
 	@Expose()
@@ -139,7 +136,7 @@ export class Room {
 	private currentBallId = 0;
 	players: Array<Player> = [];
 	balls: Array<Ball> = [];
-	spectators: Array<Spectator> = [];
+	spectators: Array<User> = [];
 
 	@Expose()
 	maxScore: number = 5; // TODO change
@@ -172,6 +169,9 @@ export class Room {
 
 	join(user: User): boolean {
 		if (!this.isFull()) {
+			if (user.spectate) {
+				user.spectate.removeSpectator(user);
+			}
 			user.send('game', new PacketPlayOutGameUpdate(instanceToPlain(this)));
 			user.send('game', new PacketPlayOutPlayerList(instanceToPlain(this.players)));
 
@@ -189,30 +189,43 @@ export class Room {
 	}
 
 	spectate(user: User): void {
+		if (user.spectate) {
+			user.spectate.removeSpectator(user);
+		}
 		user.send('game', new PacketPlayOutGameUpdate(instanceToPlain(this)));
 		user.send('game', new PacketPlayOutPlayerList(instanceToPlain(this.players)));
 
-		this.spectators.push({user: user});
+		user.spectate = this;
+		this.spectators.push(user);
 
 		user.socket?.join(this.getSocketRoom());
 	}
 
 	private remove(player: Player): User | undefined {
+		player.user.player = null;
 		let index = this.players.indexOf(player);
-		if (index > -1) {
+		this.server.emit('user', new PacketPlayOutUserConnection([{ id: player.user.id, login: player.user.login, playing: false }]));
+		player.user.socket?.leave(this.getSocketRoom());
+		if (index > -1)
 			this.players.splice(index, 1);
-			this.server.emit('user', new PacketPlayOutUserConnection([{ id: player.user.id, login: player.user.login, playing: false }]));
-			player.user.socket?.leave(this.getSocketRoom());
-			player.user.player = null;
-			return player.user;
-		}
-		return undefined;
+		return player.user;
+	}
+
+	removeSpectator(user: User): void {
+		user.spectate = null;
+		let index = this.spectators.indexOf(user);
+
+		user.send('game', new PacketPlayOutGameDestroy());
+		user.socket?.leave(this.getSocketRoom());
+		if (index > -1)
+			this.spectators.splice(index, 1);
 	}
 
 	leave(player: Player): void {
 		let user = this.remove(player);
 
 		if (user) {
+			user.send('game', new PacketPlayOutGameDestroy());
 			// let left = this.countLeftTeam();
 			// if (left === 0 || left === this.players.length) {
 			this.clear();
@@ -228,18 +241,23 @@ export class Room {
 		clearInterval(this.gameInterval);
 		this.gameInterval = undefined;
 		if (winner) {
-			if (this.players.length === 2) {
-				this.statsService.addStat(this.players[0].user, this.players[1].user, winner.user.id);
-			}
 			for (const player of this.players) {
 				player.user.xp += player.side === winner.side ? 20 : 5;
 				player.user.xp += player.score;
+
+				this.statsService.addStat(this.players[0].user, this.players[1].user, winner.user.id);
 				player.user.nbMatch++;
 				if (player.side === winner.side)
 					player.user.matchWon++;
+
 				player.user.save();
+				player.user.send('user', new PacketPlayOutUserUpdate({
+					id: player.user.id,
+					xp: player.user.xp,
+				}));
 			}
 		}
+		this.clear();
 	}
 
 	tryStart(): void { this.canStart() && this.start(); }
@@ -255,14 +273,14 @@ export class Room {
 				status: GameStatus.RUNNING,
 			}));
 
-			let b = new Ball(this, 30, 50, 100);
+			let b = new Ball(this, 30, 40, 100);
 			this.balls.push(b);
 
 			this.gameInterval = setInterval(this.loop, 1000 / this.tps);
 		}, 5000);
 	}
 
-	private loop = (): void => {		
+	private loop = (): void => {
 		for (const player of this.players) {
 			player.move();
 			player.sendUpdate();
@@ -274,7 +292,7 @@ export class Room {
 					if (player.side !== side) {
 						++player.score;
 						ball.speed = ball.baseSpeed;
-						this.broadcast(new PacketPlayOutPlayerUpdate({id: player.user.id, score: player.score}));
+						this.broadcast(new PacketPlayOutPlayerUpdate({ id: player.user.id, score: player.score }));
 					}
 				}
 				this.players.forEach(p => {
@@ -324,10 +342,14 @@ export class Room {
 	clear(): void {
 		this.stop();
 		this.broadcast(new PacketPlayOutGameDestroy());
+		for (const spectator of this.spectators) {
+			this.removeSpectator(spectator);
+		}
 		for (const player of this.players) {
 			this.remove(player);
 		}
 		this.players = [];
+		this.spectators = [];
 	}
 }
 
@@ -345,7 +367,7 @@ export class Player implements Entity {
 	height: number;
 
 	@Expose()
-	speed: number = 40;
+	speed: number = 25;
 	@Expose()
 	score: number = 0
 
@@ -406,7 +428,7 @@ export class Ball implements Entity {
 	speed: number;
 	location: Vector2;
 	direction: Vector2;
-	
+
 	readonly baseSpeed: number;
 	readonly maxSpeed: number;
 
@@ -443,25 +465,25 @@ export class Ball implements Entity {
 		// Check if none of the lines are of length 0
 		if (p1.equals(p2) || p3.equals(p4))
 			return undefined;
-	
+
 		let dir1 = p1.sub(p2);
 		let dir2 = p3.sub(p4);
-	
+
 		let denominator = dir1.x * dir2.y - dir1.y * dir2.x;
-	
+
 		// Lines are parallel
 		if (denominator === 0)
 			return undefined;
-	
+
 		let lhs = p1.x * p2.y - p1.y * p2.x;
 		let rhs = p3.x * p4.y - p3.y * p4.x;
-	
+
 		let px = (lhs * dir2.x - dir1.x * rhs) / denominator;
 		let py = (lhs * dir2.y - dir1.y * rhs) / denominator;
-	
+
 		return new Vector2(px, py);
 	}
-	
+
 	verticalCollidesDist(y: number, location: Vector2, direction: Vector2): number | undefined {
 		let inter = this.intersect(new Vector2(0, y), new Vector2(1, y), location, location.add(direction));
 		if (inter)
@@ -490,7 +512,6 @@ export class Ball implements Entity {
 			}
 		}
 		for (const player of this.game.players) {
-			
 			let sideX = player.side === Sides.LEFT ? player.location.x + player.width : player.location.x;
 
 			let inter = this.intersect(new Vector2(sideX, 0), new Vector2(sideX, 1), location.clone(), location.add(direction));
@@ -499,7 +520,7 @@ export class Ball implements Entity {
 				if (dist < this.speed) {
 					if (inter.y >= player.location.y && inter.y <= player.location.y + player.height) {
 						location = location.add(direction.mul(dist));
-						
+
 						let percent = ((inter.y - player.location.y) / player.height) * 2 - 1;
 						direction = new Vector2(player.side === Sides.LEFT ? 1 : -1, percent).normalize();
 

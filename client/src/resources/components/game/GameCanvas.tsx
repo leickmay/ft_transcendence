@@ -113,7 +113,7 @@ export const GameCanvas = (props: Props) => {
 				let speed = ball.speed / stepsPerTick;
 				let diff = ball.screen.location.distance(ball.location);
 
-				if (diff > ball.speed * 2) { // TODO change					
+				if (diff > ball.speed * 1.5) {					
 					ball.screen.location = ball.location.clone();
 					ball.screen.direction = ball.direction.clone();
 				} else {
@@ -181,7 +181,7 @@ export const GameCanvas = (props: Props) => {
 					if (location.equals(ball.screen.location))
 						location = location.add(direction.mul(speed));
 
-					ball.screen.location = location.interpolate(ball.location, 0.1);
+					ball.screen.location = location.interpolate(ball.location, 0.2);
 					ball.screen.direction = direction;
 				}
 				drawImage(ballImg, ball.screen.location.x, ball.screen.location.y, ball.radius * 2, ball.radius * 2, ((drawTick.current * ((ball.speed * 5) / 10)) % 360) * Math.PI / 180);
@@ -216,7 +216,7 @@ export const GameCanvas = (props: Props) => {
 			{game.status === GameStatus.WAITING &&
 				<div className="overlay">
 					<span className='h2'>
-						{players.some(p => p.user.id === currentUser?.id && p.ready) ?
+						{players.some(p => p.user.id === currentUser?.id && p.ready) || !players.find(p => p.user.id === currentUser?.id) ?
 							<>Waiting for others players</>
 							:
 							<>Click to start</>

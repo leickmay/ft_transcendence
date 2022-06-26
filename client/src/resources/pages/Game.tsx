@@ -79,8 +79,7 @@ export const Game = (props: Props) => {
 
 	return (
 		<div id="game" className='container' onClick={() => handleClick()}>
-			{game.status === 0 ? <GameOptions/> : <></>}
-			<p>{GameStatus[game.status]}</p>
+			{game.status === GameStatus.NONE ? <GameOptions/> : <></>}
 			<GameMenu search={searchMatch} />
 			{game.status >= GameStatus.WAITING && <GameCanvas />}
 		</div>

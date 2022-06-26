@@ -52,18 +52,18 @@ export class OptionsService {
 				const target = await User.findOneBy({name: name});
 				if (target)
 					user.send('user', new PacketPlayOutAlreadyTaken(packet.options['name']));
-				else
+				else {
 					validated.name = name;
+					user.name = name;
+				}
 			}
 		}
 
-		if (Object.keys(validated).length) {
-			await User.update(user.id, validated);
-			this.eventsService.getServer()?.emit('user', new PacketPlayOutUserUpdate({
-				id: user.id,
-				...validated,
-			}));
-		}
+		user.save();
+		this.eventsService.getServer()?.emit('user', new PacketPlayOutUserUpdate({
+			id: user.id,
+			...validated,
+		}));
 	}
 
 	async totpHandler(packet: PacketPlayInTotp, user: User): Promise<void> {
@@ -81,6 +81,8 @@ export class OptionsService {
 		let friends = await user.friends;
 
 		if (packet.action === 'add' || packet.action === 'remove') {
+			if (!packet.id)
+				return;
 			if (packet.action == 'add') {
 				if (packet.id !== user.id && !friends.find(e => e.id === packet.id)) {
 					let target = await User.findOneBy({ id: packet.id });
