@@ -2,7 +2,9 @@ import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { KeyboardEvent, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../../../app/context/SocketContext";
+import { ChatTypes } from "../../../app/interfaces/Chat";
 import { PacketPlayOutChatMessage } from "../../../app/packets/chat/PacketPlayOutChat";
+import { PacketPlayOutProfile } from "../../../app/packets/PacketPlayOutProfile";
 import { setTabSmallScreen } from "../../../app/slices/chatSlice";
 import { RootState } from "../../../app/store";
 import {getNameRoom, getTime, scrollToBottomById } from "../../pages/Chat";
@@ -55,6 +57,37 @@ const ChatCurrentRoom = () => {
 		return className;
 	}
 
+	const getTitleWithButtonOrNot = () => {
+		if (current?.type === ChatTypes.PRIVATE_MESSAGE) {
+			return (
+				<h2>
+					<div onClick={() => {
+							socket?.emit('stats', new PacketPlayOutProfile(getNameRoom(current) || ""));
+						}}
+					>
+						{getNameRoom(current)}
+					</div>
+				</h2>
+			);
+		}
+		else {
+			return (
+				<h2>{getNameRoom(current)}{getGrade()}</h2>
+			);
+		}
+	}
+
+	const getButtonOnLoginToProfile = (login: string, date: number) => {
+		return (
+			<div onClick={() => {
+			 		socket?.emit('stats', new PacketPlayOutProfile(login));
+				}}
+			>
+				{login} - {getTime(date)}
+			</div>
+		);
+	}
+
 	return (
 		<div id="chatRoom" className={setClassName()}>
 			<button id={"buttonNav"} onClick={() => {
@@ -63,7 +96,7 @@ const ChatCurrentRoom = () => {
 			>
 				Settings
 			</button>
-			<h2>{getNameRoom(current)}{getGrade()}</h2>
+			{getTitleWithButtonOrNot()}
 			<div id="chatRoomMesssages">
 			{
 					current?.messages?.filter(m => !usersBlocked || !usersBlocked.find(b => b === m.from))
@@ -77,9 +110,7 @@ const ChatCurrentRoom = () => {
 							}
 							return (
 								<div className={from} key={index}>
-									<div>
-										{value.from} - {getTime(value.date)}
-									</div>
+									{getButtonOnLoginToProfile(value.from, value.date)}
 									<div>
 										{value.text}
 									</div>
