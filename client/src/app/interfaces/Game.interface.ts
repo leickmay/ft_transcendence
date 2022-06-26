@@ -16,13 +16,22 @@ export class Vector2 {
 			this.y = y || 0;
 		}
 	}
-
+	
 	equals(other: Vector2): boolean {
 		return this.x === other.x && this.y === other.y;
 	}
 
 	clone(): Vector2 {
 		return new Vector2(this.x, this.y);
+	}
+
+	div(n: number): Vector2;
+	div(other: Vector2): Vector2;
+	div(other: Vector2 | number): Vector2 {
+		if (typeof other === 'number') {
+			return new Vector2(this.x / other, this.y / other);
+		}
+		return new Vector2(this.x / other.x, this.y / other.y);
 	}
 
 	mul(n: number): Vector2;
@@ -42,12 +51,20 @@ export class Vector2 {
 		return new Vector2(this.x - other.x, this.y - other.y);
 	}
 
+	length(): number {
+		return Math.sqrt(this.x ** 2 + this.y ** 2);
+	}
+
 	distance(other: Vector2): number {
 		return Math.abs(Math.sqrt((this.x - other.x) ** 2 + (this.y - other.y) ** 2));
 	}
 
 	interpolate(other: Vector2, frac: number): Vector2 {
 		return this.add(other.sub(this).mul(frac));
+	}
+
+	normalize() {
+		return this.clone().div(this.length());
 	}
 }
 

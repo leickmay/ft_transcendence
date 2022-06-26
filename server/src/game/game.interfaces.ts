@@ -38,6 +38,15 @@ export class Vector2 {
 		return new Vector2(this.x, this.y);
 	}
 
+	div(n: number): Vector2;
+	div(other: Vector2): Vector2;
+	div(other: Vector2 | number): Vector2 {
+		if (typeof other === 'number') {
+			return new Vector2(this.x / other, this.y / other);
+		}
+		return new Vector2(this.x / other.x, this.y / other.y);
+	}
+
 	mul(n: number): Vector2;
 	mul(other: Vector2): Vector2;
 	mul(other: Vector2 | number): Vector2 {
@@ -55,12 +64,20 @@ export class Vector2 {
 		return new Vector2(this.x - other.x, this.y - other.y);
 	}
 
+	length(): number {
+		return Math.sqrt(this.x ** 2 + this.y ** 2);
+	}
+
 	distance(other: Vector2): number {
 		return Math.abs(Math.sqrt((this.x - other.x) ** 2 + (this.y - other.y) ** 2));
 	}
 
 	interpolate(other: Vector2, frac: number): Vector2 {
 		return this.add(other.sub(this).mul(frac));
+	}
+
+	normalize() {
+		return this.clone().div(this.length());
 	}
 }
 
@@ -234,7 +251,6 @@ export class Room {
 			}));
 
 			let b = new Ball(this, 30, 50, 100);
-			b.setDirection(1, 1);
 			this.balls.push(b);
 
 			this.gameInterval = setInterval(this.loop, 1000 / this.tps);
@@ -407,7 +423,7 @@ export class Ball implements Entity {
 
 	resetLocation(): void {
 		this.location = new Vector2(this.game.width / 2 - this.radius / 2, this.game.height / 2 - this.radius / 2);
-		this.setDirection(0.4, 1);
+		this.setDirection(0, 0);
 	}
 
 	setDirection(x: number, y: number): void {
@@ -478,11 +494,11 @@ export class Ball implements Entity {
 				let dist = location.distance(inter);
 				if (dist < this.speed) {
 					if (inter.y >= player.location.y && inter.y <= player.location.y + player.height) {
-						let percent = (inter.y - player.location.y) - player.height / 2;
-						console.log(percent);
-
 						location = location.add(direction.mul(dist));
-						direction.x = player.side === Sides.LEFT ? Math.abs(direction.x) : -Math.abs(direction.x);
+						
+						let percent = ((inter.y - player.location.y) / player.height) * 2 - 1;
+						direction = new Vector2(player.side === Sides.LEFT ? 1 : -1, percent).normalize();
+
 						location = location.add(direction.mul(this.speed - dist));
 					}
 				}
@@ -493,8 +509,7 @@ export class Ball implements Entity {
 				if (dist < this.speed) {
 					if (inter.x >= player.location.x && inter.x - 10 <= player.location.x + player.width) {
 						location = location.add(direction.mul(dist));
-						direction.x = player.side === Sides.LEFT ? Math.abs(direction.x) : -Math.abs(direction.x);
-						direction.y = -Math.abs(direction.y);
+						direction = new Vector2(player.side === Sides.LEFT ? 1 : -1, -2).normalize();
 						location = location.add(direction.mul(this.speed - dist));
 					}
 				}
@@ -505,8 +520,7 @@ export class Ball implements Entity {
 				if (dist < this.speed) {
 					if (inter.x >= player.location.x && inter.x <= player.location.x + player.width) {
 						location = location.add(direction.mul(dist));
-						direction.x = player.side === Sides.LEFT ? Math.abs(direction.x) : -Math.abs(direction.x);
-						direction.y = Math.abs(direction.y);
+						direction = new Vector2(player.side === Sides.LEFT ? 1 : -1, 2).normalize();
 						location = location.add(direction.mul(this.speed - dist));
 					}
 				}

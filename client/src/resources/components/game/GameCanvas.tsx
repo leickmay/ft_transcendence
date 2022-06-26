@@ -144,11 +144,11 @@ export const GameCanvas = (props: Props) => {
 							let dist = location.distance(inter);
 							if (dist < speed) {
 								if (inter.y >= player.location.y && inter.y <= player.location.y + player.height) {
-									let percent = (inter.y - player.location.y) - player.height / 2;
-									console.log(percent);
-
 									location = location.add(direction.mul(dist));
-									direction.x = player.side === Sides.LEFT ? Math.abs(direction.x) : -Math.abs(direction.x);
+									
+									let percent = ((inter.y - player.location.y) / player.height) * 2 - 1;
+									direction = new Vector2(player.side === Sides.LEFT ? 1 : -1, percent).normalize();
+
 									location = location.add(direction.mul(speed - dist));
 								}
 							}
