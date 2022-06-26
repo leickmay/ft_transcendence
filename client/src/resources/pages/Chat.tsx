@@ -48,6 +48,17 @@ export const getNameRoom = (room: ChatRoom | undefined): string | undefined => {
 	return (undefined);
 }
 
+export const getLoginPrivateMessage = (room: ChatRoom | undefined): string | undefined => {
+	if (!room)
+		return (undefined);
+	if (room.type === ChatTypes.PRIVATE_MESSAGE) {
+		let users: Array<UserPreview> = room.users.filter(x => x.id !== store.getState().users.current?.id);
+		if (users.length === 1)
+			return(users[0].login)
+	}
+	return (undefined);
+}
+
 /*
 **	Time
 */
