@@ -9,6 +9,7 @@ import { Readable } from 'stream';
 import { User } from './user.entity';
 import { UserService } from './user.service';
 import { PacketPlayOutUserUpdate } from 'src/socket/packets/PacketPlayOutUserUpdate';
+import { Image } from 'src/images/image.entity';
 
 export const Public = () => SetMetadata("isPublic", true );
 
@@ -41,6 +42,9 @@ export class UserController {
 	async uploadFile(@UploadedFile() file: Express.Multer.File, @Req() request) {
 		let user: User = request.user;
 
+		if (!user)
+			return;
+
 		await this.userService.setAvatar(user, {
 			avatar: {
 				content: file.buffer,
@@ -49,18 +53,14 @@ export class UserController {
 		});
 		this.eventsService.getServer()?.emit('user', new PacketPlayOutUserUpdate({
 			id: user.id,
-			avatar: user.getAvatarUrl() + '?r=' + Math.floor(Math.random() * 1000), // avoid same url for image reload
+			avatar: user.getAvatarUrl(),
 		}));
 	}
 
 	@Public()
-	@Get('/avatar/:login')
-	async getAvatar(@Param('login') login: string, @Res({ passthrough: true }) response: Response) {
-		let user: User | null = await this.userService.getByLogin(login, {
-			relations: ['avatar']
-		});
-
-		const avatar = await user?.avatar;
+	@Get('/avatar/:id')
+	async getAvatar(@Param('id') id: number, @Res({ passthrough: true }) response: Response) {
+		const avatar = await Image.findOneBy({id});
 
 		if (!avatar)
 			throw new NotFoundException();
@@ -69,7 +69,7 @@ export class UserController {
 
 		response.set({
 			'Content-Disposition': `inline; filename="${avatar.filename}"`,
-			'Content-Type': 'image' // TYPE image/??? --------------------------------------------------
+			'Content-Type': 'image'
 		})
 
 		return new StreamableFile(stream);
