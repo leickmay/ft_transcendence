@@ -79,11 +79,11 @@ export class User extends BaseEntity {
 	}
 
 	@Expose()
-	@Column({ nullable: true })
+	@Column({ default: 0 })
 	matchWon: number;
 
 	@Expose()
-	@Column({ nullable: true })
+	@Column({ default: 0 })
 	nbMatch: number;
 
 	@Expose()

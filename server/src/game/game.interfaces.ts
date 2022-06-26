@@ -213,10 +213,10 @@ export class Room {
 		let user = this.remove(player);
 
 		if (user) {
-			let left = this.countLeftTeam();
-			if (left === 0 || left === this.players.length) {
-				this.clear();
-			}
+			// let left = this.countLeftTeam();
+			// if (left === 0 || left === this.players.length) {
+			this.clear();
+			// }
 		}
 	}
 
@@ -234,6 +234,9 @@ export class Room {
 			for (const player of this.players) {
 				player.user.xp += player.side === winner.side ? 20 : 5;
 				player.user.xp += player.score;
+				player.user.nbMatch++;
+				if (player.side === winner.side)
+					player.user.matchWon++;
 				player.user.save();
 			}
 		}

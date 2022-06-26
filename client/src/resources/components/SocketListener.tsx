@@ -17,6 +17,7 @@ import { PacketPlayInGameInvitation } from '../../app/packets/PacketPlayInGameIn
 import { PacketPlayInGameUpdate } from '../../app/packets/PacketPlayInGameUpdate';
 import { PacketPlayInLeaderboard } from '../../app/packets/PacketPlayInLeaderboard';
 import { PacketPlayInPlayerJoin } from '../../app/packets/PacketPlayInPlayerJoin';
+import { PacketPlayInPlayerLeave } from '../../app/packets/PacketPlayInPlayerLeave';
 import { PacketPlayInPlayerList } from '../../app/packets/PacketPlayInPlayerList';
 import { PacketPlayInPlayerMove } from '../../app/packets/PacketPlayInPlayerMove';
 import { PacketPlayInPlayerReady } from '../../app/packets/PacketPlayInPlayerReady';
@@ -29,7 +30,7 @@ import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserCo
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
-import { Packet, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
+import { Packet, PacketTypesBall, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
 import { delRoom, joinRoom, leaveRoom, setAdmins, setChatRooms, setOwner, upUsersBlocked } from '../../app/slices/chatSlice';
 import { resetGame, updateGame } from '../../app/slices/gameSlice';
 import { setBoard } from '../../app/slices/leaderboardSlice';
@@ -187,15 +188,14 @@ export const SocketListener = (props: Props) => {
 		const playerJoin = (packet: PacketPlayInPlayerJoin) => {
 			packet.player.screenY = packet.player.location.y;
 			setPlayers(players => [...players, packet.player]);
-			console.log("IN_GAME")
 			dispatch(setInvitationStatus(
 				InvitationStates.IN_GAME,
 			));
 		}
 
-		// const remove = (packet: PacketPlayInPlayerLeave) => {
-		// 	dispatch(removePlayer(packet.player));
-		// }
+		const playerLeave = (packet: PacketPlayInPlayerLeave) => {
+			setPlayers(players => players.filter(p => p.user.id !== packet.id));
+		}
 
 		const playerReady = (packet: PacketPlayInPlayerReady) => {
 			setPlayers(players => players.map(p => {
@@ -235,6 +235,9 @@ export const SocketListener = (props: Props) => {
 				case PacketTypesPlayer.JOIN:
 					playerJoin(packet as PacketPlayInPlayerJoin);
 					break;
+				case PacketTypesPlayer.LEAVE:
+					playerLeave(packet as PacketPlayInPlayerLeave);
+					break;
 				case PacketTypesPlayer.READY:
 					playerReady(packet as PacketPlayInPlayerReady);
 					break;
@@ -255,6 +258,9 @@ export const SocketListener = (props: Props) => {
 					break;
 				case PacketTypesGame.INVITATION:
 					handleInvitation(packet as PacketPlayInGameInvitation);
+					break;
+				case PacketTypesBall.UPDATE:
+					ballUpdate(packet as PacketPlayInBallUpdate);
 					break;
 				default:
 					break;

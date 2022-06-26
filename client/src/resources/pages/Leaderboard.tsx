@@ -20,7 +20,7 @@ export const Leaderboard = () => {
 	}, [socket]);
 
 	useEffect(() => {
-		request('won');
+		request('level');
 	}, [socket, request]);
 
 	return (
