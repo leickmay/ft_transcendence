@@ -33,7 +33,7 @@ const ChatCurrentRoom = () => {
 			message: {
 				date: Date.now(),
 				from: {
-					login: "help",
+					login: "🤔",
 					name: "HELP",
 				},
 				text: msg,
