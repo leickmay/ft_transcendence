@@ -72,7 +72,7 @@ export class User extends BaseEntity {
 
 	@Expose({ name: 'avatar' })
 	getAvatarUrl() {
-		return this.avatarId ? '/api/users/avatar/' + this.login : this.intra_picture;
+		return this.avatarId ? '/api/users/avatar/' + this.avatarId : this.intra_picture;
 	}
 
 	send(event: string, packet: any) {
