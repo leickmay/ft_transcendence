@@ -32,7 +32,7 @@ import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUser
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
 import { Packet, PacketTypesBall, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
-import { delRoom, joinRoom, leaveRoom, setAdmins, setChatRooms, setOwner, upUsersBlocked } from '../../app/slices/chatSlice';
+import { delRoom, joinRoom, leaveRoom, setAdmins, setChatRooms, setOwner, upUserInPrivateMessage, upUsersBlocked } from '../../app/slices/chatSlice';
 import { resetGame, updateGame } from '../../app/slices/gameSlice';
 import { setBoard } from '../../app/slices/leaderboardSlice';
 import { InvitationStates, setInvitation, setInvitationStatus, setProfile } from '../../app/slices/profileSlice';
@@ -74,6 +74,7 @@ export const SocketListener = (props: Props) => {
 
 		const update = (packet: PacketPlayInUserUpdate) => {
 			dispatch(updateUser(packet.user));
+			dispatch(upUserInPrivateMessage({id: packet.user.id, name: packet.user.name}))
 		}
 
 		const friends = (packet: PacketPlayInFriendsUpdate) => {
@@ -216,7 +217,6 @@ export const SocketListener = (props: Props) => {
 			}));
 		}
 		const handleInvitation = (packet: PacketPlayInGameInvitation) => {
-			console.log(packet);
 			dispatch(pushNotification({
 				text:"/Game Invitation by " + packet.user.login,
 				duration: 30000,

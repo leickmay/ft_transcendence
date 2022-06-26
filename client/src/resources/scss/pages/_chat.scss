@@ -11,6 +11,11 @@
 		flex-direction: column;
 	}
 
+	.goBack {
+		font-size: 2rem;
+		width: 100%;
+		padding-bottom: 1rem;
+	}
 	.chatLeft {
 		width: 25%;
 		overflow: auto;
@@ -31,6 +36,20 @@
 				border: 1px solid $primary;
 				padding: 0.5rem;
 				margin: 0.5rem;
+			}
+		}
+
+		.onlineList {
+			font-size: 1.42rem;
+			width: 100%;
+		}
+
+		.inputChannel {
+			padding-bottom: 1rem;
+			display: flex;
+			flex-direction: column;
+			label {
+				font-size: 1.42rem;
 			}
 		}
 

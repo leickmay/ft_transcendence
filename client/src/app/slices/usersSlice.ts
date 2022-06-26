@@ -36,6 +36,7 @@ const slice = createSlice({
 			return {
 				...state,
 				friends: state.friends.map(friend => friend.id === action.payload.id ? { ...friend, ...action.payload } : friend),
+				online: state.online.map(online => online.id === action.payload.id ? { ...online, ...action.payload } : online),
 			};
 		},
 		setTotp: (state: State, action: PayloadAction<boolean>): State => {

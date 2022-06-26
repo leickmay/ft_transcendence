@@ -54,12 +54,13 @@ const ChatPrivateMessage = () => {
 			id="chatPrivateMessage"
 			className={setClassName(2)}
 		>
-			<button
-				onClick={() => {
-					dispatch(setTabBigScreen(0));
-				}}
-			>..</button>
-			<h2>Online Players</h2>
+			<div
+				className="goBack"
+				onClick={() => {dispatch(setTabBigScreen(0))}}
+			>
+				❎
+			</div>
+			<div className="goBack">Online Players</div>
 			{
 				onlineUsers
 					.filter(u => hasAlreadyPrivMsg(u.id))
@@ -67,12 +68,13 @@ const ChatPrivateMessage = () => {
 					.map((value, index) => {
 					return (
 						<div
+							className="onlineList"
 							key={index} 
 							onClick={() => {
 								createPrivateMessage(value.id);
 							}}
 						>
-							+ {value.login}
+							💬 {value.login}
 						</div>
 					)
 				})
