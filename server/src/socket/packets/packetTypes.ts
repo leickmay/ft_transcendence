@@ -45,6 +45,7 @@ export enum PacketTypesGame {
 
 export enum PacketTypesPlayer {
 	JOIN = 411,
+	LEAVE,
 	UPDATE,
 	READY,
 	MOVE,

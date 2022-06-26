@@ -2,7 +2,7 @@ import { useCallback, useContext, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { GameContext } from '../../../app/context/GameContext';
 import { useAnimationFrame } from '../../../app/Helpers';
-import { Directions, GameStatus } from '../../../app/interfaces/Game.interface';
+import { Directions, GameStatus, Sides, Vector2 } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
 import ballUrl from '../../../assets/images/ball.png';
 import backgroundUrl from '../../../assets/images/game-background.png';
@@ -15,10 +15,34 @@ const backgroundImg = new Image(); backgroundImg.src = backgroundUrl;
 const ballImg = new Image(); ballImg.src = ballUrl;
 const paddleImg = new Image(); paddleImg.src = paddleUrl;
 
-const interpolate = (a: { x: number, y: number }, b: { x: number, y: number }, frac: number): { x: number, y: number } => {
-	var nx = a.x + (b.x - a.x) * frac;
-	var ny = a.y + (b.y - a.y) * frac;
-	return { x: nx, y: ny };
+const intersect = (p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2): Vector2 | undefined => {
+	// Check if none of the lines are of length 0
+	if (p1.equals(p2) || p3.equals(p4))
+		return undefined;
+
+	let dir1 = p1.sub(p2);
+	let dir2 = p3.sub(p4);
+
+	let denominator = dir1.x * dir2.y - dir1.y * dir2.x;
+
+	// Lines are parallel
+	if (denominator === 0)
+		return undefined;
+
+	let lhs = p1.x * p2.y - p1.y * p2.x;
+	let rhs = p3.x * p4.y - p3.y * p4.x;
+
+	let px = (lhs * dir2.x - dir1.x * rhs) / denominator;
+	let py = (lhs * dir2.y - dir1.y * rhs) / denominator;
+
+	return new Vector2(px, py);
+}
+
+const verticalCollidesDist = (y: number, location: Vector2, direction: Vector2): number | undefined => {
+	let inter = intersect(new Vector2(0, y), new Vector2(1, y), location, location.add(direction));
+	if (inter)
+		return location.distance(inter);
+	return undefined;
 }
 
 interface Props {
@@ -61,56 +85,110 @@ export const GameCanvas = (props: Props) => {
 
 			ctx.drawImage(backgroundImg, 0, 0, game.width, game.height);
 			for (const player of players) {
-				let diff = Math.abs(player.screenY - player.y);
+				let diff = Math.abs(player.screenY - player.location.y);
 
 				if (player.direction === Directions.STATIC) {
-					player.screenY = player.y;
+					player.screenY = player.location.y;
 				} else {
 					if (diff > player.speed * 2) {
-						player.screenY = player.y;
+						player.screenY = player.location.y;
 					} else {
 						if (player.direction === Directions.UP)
 							player.screenY -= (player.speed / stepsPerTick);
 						else
 							player.screenY += (player.speed / stepsPerTick);
-						let meuh = interpolate({ x: player.x, y: player.screenY }, { x: player.x, y: player.y }, 0.1);
+						let meuh = new Vector2(player.location.x, player.screenY).interpolate(new Vector2(player.location.x, player.location.y), 0.1);
 						player.screenY = meuh.y;
 					}
 				}
 				player.screenY = Math.max(Math.min(player.screenY, game.height - player.height), 0);
 
-				ctx.drawImage(paddleImg, player.direction * spriteWidth, player.side * spriteHeight, spriteWidth, spriteHeight, player.x, player.screenY, player.width, player.height);
+				ctx.drawImage(paddleImg, player.direction * spriteWidth, player.side * spriteHeight, spriteWidth, spriteHeight, player.location.x, player.screenY, player.width, player.height);
 
 				ctx.strokeStyle = players[0] === player ? 'red' : 'blue';
 				ctx.lineWidth = 4;
 				// ctx.strokeRect(player.x, player.y, player.width, player.height);
 			}
 			for (const ball of balls) {
-				let diff = Math.abs(Math.sqrt((ball.screenX - ball.x) ** 2 + (ball.screenY - ball.y) ** 2));
-				if (diff > ball.speed * 2) {
-					ball.screenX = ball.x;
-					ball.screenY = ball.y;
+				let speed = ball.speed / stepsPerTick;
+				let diff = ball.screen.location.distance(ball.location);
+
+				if (diff > ball.speed * 2) { // TODO change					
+					ball.screen.location = ball.location.clone();
+					ball.screen.direction = ball.direction.clone();
 				} else {
-					let tmpX = ball.screenX + (ball.speed / stepsPerTick) * ball.direction.x;
-					let tmpY = ball.screenY + (ball.speed / stepsPerTick) * ball.direction.y;
-					let meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
-					if (meuh.y + ball.radius > game.height && ball.direction.y > 0) {
-						ball.direction.y *= -1;
-						tmpY = ball.screenY + (ball.speed / stepsPerTick) * ball.direction.y;
-						meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
-					} else if (meuh.y - ball.radius < 0 && ball.direction.y < 0) {
-						ball.direction.y *= -1;
-						tmpY = ball.screenY + (ball.speed / stepsPerTick) * ball.direction.y;
-						meuh = interpolate({ x: tmpX, y: tmpY }, { x: ball.x, y: ball.y }, 0.1);
+					let location = ball.screen.location.clone();
+					let direction = ball.screen.direction.clone();
+
+					let dist;
+
+					if (dist = verticalCollidesDist(0, location.sub(new Vector2(0, ball.radius)), direction)) {
+						if (dist < speed) {
+							location = location.add(direction.mul(dist));
+							direction.y = Math.abs(direction.y);
+							location = location.add(direction.mul(speed - dist));
+						}
 					}
-					ball.screenX = meuh.x;
-					ball.screenY = meuh.y;
+					if (dist = verticalCollidesDist(game.height, location.add(new Vector2(0, ball.radius)), direction)) {
+						if (dist < speed) {
+							location = location.add(direction.mul(dist));
+							direction.y = -Math.abs(direction.y);
+							location = location.add(direction.mul(speed - dist));
+						}
+					}
+					for (const player of players) {
+						let sideX = player.side === Sides.LEFT ? player.location.x + player.width : player.location.x;
+
+						let inter = intersect(new Vector2(sideX, 0), new Vector2(sideX, 1), location.clone(), location.add(direction));
+						if (inter) {
+							let dist = location.distance(inter);
+							if (dist < speed) {
+								if (inter.y >= player.location.y && inter.y <= player.location.y + player.height) {
+									location = location.add(direction.mul(dist));
+									
+									let percent = ((inter.y - player.location.y) / player.height) * 2 - 1;
+									direction = new Vector2(player.side === Sides.LEFT ? 1 : -1, percent).normalize();
+
+									location = location.add(direction.mul(speed - dist));
+								}
+							}
+						}
+						inter = intersect(new Vector2(0, player.location.y), new Vector2(1, player.location.y), location.clone(), location.add(direction));
+						if (inter) {
+							let dist = location.distance(inter);
+							if (dist < speed) {
+								if (inter.x >= player.location.x && inter.x - 10 <= player.location.x + player.width) {
+									location = location.add(direction.mul(dist));
+									direction.x = player.side === Sides.LEFT ? Math.abs(direction.x) : -Math.abs(direction.x);
+									direction.y = -Math.abs(direction.y);
+									location = location.add(direction.mul(speed - dist));
+								}
+							}
+						}
+						inter = intersect(new Vector2(0, player.location.y + player.height), new Vector2(1, player.location.y + player.height), location.clone(), location.add(direction));
+						if (inter) {
+							let dist = location.distance(inter);
+							if (dist < speed) {
+								if (inter.x >= player.location.x && inter.x <= player.location.x + player.width) {
+									location = location.add(direction.mul(dist));
+									direction.x = player.side === Sides.LEFT ? Math.abs(direction.x) : -Math.abs(direction.x);
+									direction.y = Math.abs(direction.y);
+									location = location.add(direction.mul(speed - dist));
+								}
+							}
+						}
+					}
+					if (location.equals(ball.screen.location))
+						location = location.add(direction.mul(speed));
+
+					ball.screen.location = location.interpolate(ball.location, 0.1);
+					ball.screen.direction = direction;
 				}
-				drawImage(ballImg, ball.screenX, ball.screenY, ball.radius * 2, ball.radius * 2, ((drawTick.current * ((ball.speed * 5) / 10)) % 360) * Math.PI / 180);
+				drawImage(ballImg, ball.screen.location.x, ball.screen.location.y, ball.radius * 2, ball.radius * 2, ((drawTick.current * ((ball.speed * 5) / 10)) % 360) * Math.PI / 180);
 
 				ctx.strokeStyle = 'green';
 				ctx.lineWidth = 4;
-				// ctx.strokeRect(ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2);
+				// ctx.strokeRect(ball.location.x - ball.radius, ball.location.y - ball.radius, ball.radius * 2, ball.radius * 2);
 			}
 
 			ctx.textAlign = 'right';

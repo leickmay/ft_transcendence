@@ -6,7 +6,7 @@ import { pushNotification } from '../../app/actions/notificationsActions';
 import { GameContext } from '../../app/context/GameContext';
 import { SocketContext } from '../../app/context/SocketContext';
 import { ChatRoom, ChatTypes } from '../../app/interfaces/Chat';
-import { Ball } from '../../app/interfaces/Game.interface';
+import { Ball, Vector2 } from '../../app/interfaces/Game.interface';
 import { User } from '../../app/interfaces/User';
 import { PacketPlayInChatAdmin, PacketPlayInChatBlock, PacketPlayInChatDel, PacketPlayInChatInit, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOwner } from '../../app/packets/chat/PacketPlayInChat';
 import { PacketPlayInAlreadyTaken } from '../../app/packets/PacketPlayInAlreadyTaken';
@@ -17,6 +17,7 @@ import { PacketPlayInGameInvitation } from '../../app/packets/PacketPlayInGameIn
 import { PacketPlayInGameUpdate } from '../../app/packets/PacketPlayInGameUpdate';
 import { PacketPlayInLeaderboard } from '../../app/packets/PacketPlayInLeaderboard';
 import { PacketPlayInPlayerJoin } from '../../app/packets/PacketPlayInPlayerJoin';
+import { PacketPlayInPlayerLeave } from '../../app/packets/PacketPlayInPlayerLeave';
 import { PacketPlayInPlayerList } from '../../app/packets/PacketPlayInPlayerList';
 import { PacketPlayInPlayerMove } from '../../app/packets/PacketPlayInPlayerMove';
 import { PacketPlayInPlayerReady } from '../../app/packets/PacketPlayInPlayerReady';
@@ -29,7 +30,7 @@ import { PacketPlayInUserConnection } from '../../app/packets/PacketPlayInUserCo
 import { PacketPlayInUserDisconnected } from '../../app/packets/PacketPlayInUserDisconnected';
 import { PacketPlayInUserUpdate } from '../../app/packets/PacketPlayInUserUpdate';
 import { PacketPlayOutFriends } from '../../app/packets/PacketPlayOutFriends';
-import { Packet, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
+import { Packet, PacketTypesBall, PacketTypesChat, PacketTypesGame, PacketTypesMisc, PacketTypesPlayer, PacketTypesUser } from '../../app/packets/packetTypes';
 import { delRoom, joinRoom, leaveRoom, setAdmins, setChatRooms, setOwner, upUsersBlocked } from '../../app/slices/chatSlice';
 import { resetGame, updateGame } from '../../app/slices/gameSlice';
 import { setBoard } from '../../app/slices/leaderboardSlice';
@@ -136,8 +137,7 @@ export const SocketListener = (props: Props) => {
 
 		if (player) {
 			player.direction = packet.direction;
-			player.x = packet.x;
-			player.y = packet.y;
+			player.location = new Vector2(packet.location);
 		}
 	}, [players]);
 
@@ -147,21 +147,21 @@ export const SocketListener = (props: Props) => {
 		if (!ball) {
 			ball = {
 				id: packet.ball,
-				direction: packet.direction!,
+				location: new Vector2(packet.location!),
+				direction: new Vector2(packet.direction!),
 				radius: packet.size!,
 				speed: packet.speed!,
-				x: packet.x!,
-				y: packet.y!,
-				screenX: packet.x!,
-				screenY: packet.y!,
+				screen: {
+					location: new Vector2(packet.location!),
+					direction: new Vector2(packet.direction!),
+				},
 			}
 			balls.push(ball);
 		} else {
-			if (packet.direction) ball.direction = packet.direction;
+			if (packet.direction) ball.direction = new Vector2(packet.direction);
 			if (packet.size) ball.radius = packet.size;
 			if (packet.speed) ball.speed = packet.speed;
-			if (packet.x) ball.x = packet.x;
-			if (packet.y) ball.y = packet.y;
+			if (packet.location) ball.location = new Vector2(packet.location);
 		}
 	}, [balls]);
 
@@ -181,22 +181,21 @@ export const SocketListener = (props: Props) => {
 		}
 
 		const playerList = (packet: PacketPlayInPlayerList) => {
-			packet.players.forEach(p => p.screenY = p.y);
+			packet.players.forEach(p => p.screenY = p.location.y);
 			setPlayers(players => packet.players);
 		}
 
 		const playerJoin = (packet: PacketPlayInPlayerJoin) => {
-			packet.player.screenY = packet.player.y;
+			packet.player.screenY = packet.player.location.y;
 			setPlayers(players => [...players, packet.player]);
-			console.log("IN_GAME")
 			dispatch(setInvitationStatus(
 				InvitationStates.IN_GAME,
 			));
 		}
 
-		// const remove = (packet: PacketPlayInPlayerLeave) => {
-		// 	dispatch(removePlayer(packet.player));
-		// }
+		const playerLeave = (packet: PacketPlayInPlayerLeave) => {
+			setPlayers(players => players.filter(p => p.user.id !== packet.id));
+		}
 
 		const playerReady = (packet: PacketPlayInPlayerReady) => {
 			setPlayers(players => players.map(p => {
@@ -236,6 +235,9 @@ export const SocketListener = (props: Props) => {
 				case PacketTypesPlayer.JOIN:
 					playerJoin(packet as PacketPlayInPlayerJoin);
 					break;
+				case PacketTypesPlayer.LEAVE:
+					playerLeave(packet as PacketPlayInPlayerLeave);
+					break;
 				case PacketTypesPlayer.READY:
 					playerReady(packet as PacketPlayInPlayerReady);
 					break;
@@ -256,6 +258,9 @@ export const SocketListener = (props: Props) => {
 					break;
 				case PacketTypesGame.INVITATION:
 					handleInvitation(packet as PacketPlayInGameInvitation);
+					break;
+				case PacketTypesBall.UPDATE:
+					ballUpdate(packet as PacketPlayInBallUpdate);
 					break;
 				default:
 					break;

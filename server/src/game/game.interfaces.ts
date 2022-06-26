@@ -13,9 +13,76 @@ import { StatsService } from "src/stats/stats.service";
 import { clearInterval } from "timers";
 import { User } from "../user/user.entity";
 
-export interface Entity {
+export class Vector2 {
 	x: number;
 	y: number;
+
+	constructor();
+	constructor(x: number, y: number);
+	constructor(point: { x: number, y: number });
+	constructor(x?: number | { x: number, y: number }, y?: number) {
+		if (typeof x === 'object') {
+			this.x = x.x;
+			this.y = x.y;
+		} else {
+			this.x = x || 0;
+			this.y = y || 0;
+		}
+	}
+	
+	equals(other: Vector2): boolean {
+		return this.x === other.x && this.y === other.y;
+	}
+
+	clone(): Vector2 {
+		return new Vector2(this.x, this.y);
+	}
+
+	div(n: number): Vector2;
+	div(other: Vector2): Vector2;
+	div(other: Vector2 | number): Vector2 {
+		if (typeof other === 'number') {
+			return new Vector2(this.x / other, this.y / other);
+		}
+		return new Vector2(this.x / other.x, this.y / other.y);
+	}
+
+	mul(n: number): Vector2;
+	mul(other: Vector2): Vector2;
+	mul(other: Vector2 | number): Vector2 {
+		if (typeof other === 'number') {
+			return new Vector2(this.x * other, this.y * other);
+		}
+		return new Vector2(this.x * other.x, this.y * other.y);
+	}
+
+	add(other: Vector2): Vector2 {
+		return new Vector2(this.x + other.x, this.y + other.y);
+	}
+
+	sub(other: Vector2): Vector2 {
+		return new Vector2(this.x - other.x, this.y - other.y);
+	}
+
+	length(): number {
+		return Math.sqrt(this.x ** 2 + this.y ** 2);
+	}
+
+	distance(other: Vector2): number {
+		return Math.abs(Math.sqrt((this.x - other.x) ** 2 + (this.y - other.y) ** 2));
+	}
+
+	interpolate(other: Vector2, frac: number): Vector2 {
+		return this.add(other.sub(this).mul(frac));
+	}
+
+	normalize() {
+		return this.clone().div(this.length());
+	}
+}
+
+export interface Entity {
+	location: Vector2;
 
 	resetLocation(): void;
 }
@@ -75,7 +142,7 @@ export class Room {
 	spectators: Array<Spectator> = [];
 
 	@Expose()
-	maxScore: number = 5;
+	maxScore: number = 5; // TODO change
 
 	get nextBallId() {
 		return ++this.currentBallId;
@@ -146,10 +213,10 @@ export class Room {
 		let user = this.remove(player);
 
 		if (user) {
-			let left = this.countLeftTeam();
-			if (left === 0 || left === this.players.length) {
-				this.clear();
-			}
+			// let left = this.countLeftTeam();
+			// if (left === 0 || left === this.players.length) {
+			this.clear();
+			// }
 		}
 	}
 
@@ -167,10 +234,12 @@ export class Room {
 			for (const player of this.players) {
 				player.user.xp += player.side === winner.side ? 20 : 5;
 				player.user.xp += player.score;
+				player.user.nbMatch++;
+				if (player.side === winner.side)
+					player.user.matchWon++;
 				player.user.save();
 			}
 		}
-		
 	}
 
 	tryStart(): void { this.canStart() && this.start(); }
@@ -186,12 +255,10 @@ export class Room {
 				status: GameStatus.RUNNING,
 			}));
 
-			let b = new Ball(this, 30, 30, 60);
-			b.setDirection(1, 1);
+			let b = new Ball(this, 30, 50, 100);
 			this.balls.push(b);
 
 			this.gameInterval = setInterval(this.loop, 1000 / this.tps);
-			// this.balls.push(new Ball(this.balls.length, this, 75, 8));
 		}, 5000);
 	}
 
@@ -201,12 +268,12 @@ export class Room {
 			player.sendUpdate();
 		}
 		for (const ball of this.balls) {
-			this.checkPlayerCollisions(ball);
-			if (ball.x < -ball.radius || ball.x > this.width + ball.radius) {
-				let side = ball.x < -ball.radius ? Sides.LEFT : Sides.RIGHT;
+			if (ball.location.x < -ball.radius || ball.location.x > this.width + ball.radius) {
+				let side = ball.location.x < -ball.radius ? Sides.LEFT : Sides.RIGHT;
 				for (const player of this.players) {
 					if (player.side !== side) {
 						++player.score;
+						ball.speed = ball.baseSpeed;
 						this.broadcast(new PacketPlayOutPlayerUpdate({id: player.user.id, score: player.score}));
 					}
 				}
@@ -217,10 +284,13 @@ export class Room {
 				ball.resetLocation();
 			} else {
 				ball.move();
+				if (this.tick % 20 === 0 && ball.speed < ball.maxSpeed) {
+					ball.speed++;
+				}
 			}
 			ball.sendUpdate();
 		}
-		let winner: Player | undefined = this.players.find(p => p.score >= 5);
+		let winner: Player | undefined = this.players.find(p => p.score >= this.maxScore);
 		if (winner) {
 			this.end(winner);
 		}
@@ -228,8 +298,8 @@ export class Room {
 	}
 
 	getCollision(ball: Ball, player: Player) {
-		var distX = Math.abs(ball.x - player.x - player.width / 2);
-		var distY = Math.abs(ball.y - player.y - player.height / 2);
+		var distX = Math.abs(ball.location.x - player.location.x - player.width / 2);
+		var distY = Math.abs(ball.location.y - player.location.y - player.height / 2);
 
 		if (distX > (player.width / 2 + ball.radius)) { return false; }
 		if (distY > (player.height / 2 + ball.radius)) { return false; }
@@ -240,22 +310,6 @@ export class Room {
 		var dx = distX - player.width / 2;
 		var dy = distY - player.height / 2;
 		return (dx * dx + dy * dy <= (ball.radius * ball.radius));
-	}
-
-	checkPlayerCollisions(ball: Ball) {
-		if (ball.willCollideVertical())
-			ball.setDirection(ball.direction.x, -ball.direction.y);
-
-		for (const player of this.players) {
-			if (this.getCollision(ball, player)) {
-				if (player.side === Sides.LEFT)
-					ball.setDirection(Math.abs(ball.direction.x), ball.direction.y);
-				else
-					ball.setDirection(-Math.abs(ball.direction.x), ball.direction.y);
-				ball.speed = Math.min(ball.speed + 0.5, ball.maxSpeed);
-				ball.sendUpdate();
-			}
-		}
 	}
 
 	stop(): void {
@@ -280,9 +334,7 @@ export class Room {
 @Exclude()
 export class Player implements Entity {
 	@Expose()
-	x: number;
-	@Expose()
-	y: number;
+	location: Vector2;
 
 	@Expose()
 	user: User;
@@ -327,24 +379,19 @@ export class Player implements Entity {
 	}
 
 	resetLocation(): void {
-		this.y = this.room.height / 2 - this.height / 2;
-
-		if (this.side == Sides.LEFT)
-			this.x = 0;
-		else
-			this.x = this.room.width - this.width;
+		this.location = new Vector2(this.side == Sides.LEFT ? 0 : this.room.width - this.width, this.room.height / 2 - this.height / 2);
 	}
 
 	move() {
 		if (this.direction === Directions.UP)
-			this.y -= this.speed;
+			this.location.y -= this.speed;
 		else if (this.direction === Directions.DOWN)
-			this.y += this.speed;
-		this.y = Math.max(Math.min(this.y, this.room.height - this.height), 0);
+			this.location.y += this.speed;
+		this.location.y = Math.max(Math.min(this.location.y, this.room.height - this.height), 0);
 	}
 
 	sendUpdate() {
-		this.room.broadcast(new PacketPlayOutPlayerTeleport(this.user.id, this.direction, this.x, this.y));
+		this.room.broadcast(new PacketPlayOutPlayerTeleport(this.user.id, this.location, this.direction));
 	}
 
 	leave() {
@@ -354,19 +401,20 @@ export class Player implements Entity {
 
 export class Ball implements Entity {
 	id: number;
-	room: Room;
+	game: Room;
 	radius: number;
 	speed: number;
-	x: number;
-	y: number;
-	direction: { x: number, y: number };
-
-	maxSpeed: number;
+	location: Vector2;
+	direction: Vector2;
+	
+	readonly baseSpeed: number;
+	readonly maxSpeed: number;
 
 	constructor(room: Room, radius: number, speed: number, maxSpeed: number) {
 		this.id = room.nextBallId;
-		this.room = room;
+		this.game = room;
 		this.radius = radius;
+		this.baseSpeed = speed;
 		this.speed = speed;
 		this.maxSpeed = maxSpeed;
 		this.resetLocation();
@@ -374,31 +422,118 @@ export class Ball implements Entity {
 	}
 
 	sendUpdate() {
-		this.room.broadcast(new PacketPlayOutBallUpdate(this.id, this.direction, this.radius, this.speed, this.x, this.y));
+		this.game.broadcast(new PacketPlayOutBallUpdate(this.id, this.location, this.direction, this.radius, this.speed));
 	}
 
 	resetLocation(): void {
-		this.x = this.room.width / 2 - this.radius / 2;
-		this.y = this.room.height / 2 - this.radius / 2;
+		this.location = new Vector2(this.game.width / 2 - this.radius / 2, this.game.height / 2 - this.radius / 2);
 		this.setDirection(0, 0);
 	}
 
 	setDirection(x: number, y: number): void {
 		if (x == 0 && y == 0) {
-			this.direction = { x: Math.floor(Math.random() * 2) === 0 ? -1 : 1, y: 1 };
+			this.direction = new Vector2(Math.floor(Math.random() * 2) === 0 ? -1 : 1, 0);
 		} else {
 			let mag = Math.sqrt(x ** 2 + y ** 2);
-			this.direction = { x: x / mag, y: y / mag };
+			this.direction = new Vector2(x / mag, y / mag);
 		}
 	}
 
-	willCollideVertical(): boolean {
-		let nextY = this.y + (this.direction.y * this.speed);
-		return nextY < 0 || nextY > this.room.height;
+	intersect(p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2): Vector2 | undefined {
+		// Check if none of the lines are of length 0
+		if (p1.equals(p2) || p3.equals(p4))
+			return undefined;
+	
+		let dir1 = p1.sub(p2);
+		let dir2 = p3.sub(p4);
+	
+		let denominator = dir1.x * dir2.y - dir1.y * dir2.x;
+	
+		// Lines are parallel
+		if (denominator === 0)
+			return undefined;
+	
+		let lhs = p1.x * p2.y - p1.y * p2.x;
+		let rhs = p3.x * p4.y - p3.y * p4.x;
+	
+		let px = (lhs * dir2.x - dir1.x * rhs) / denominator;
+		let py = (lhs * dir2.y - dir1.y * rhs) / denominator;
+	
+		return new Vector2(px, py);
+	}
+	
+	verticalCollidesDist(y: number, location: Vector2, direction: Vector2): number | undefined {
+		let inter = this.intersect(new Vector2(0, y), new Vector2(1, y), location, location.add(direction));
+		if (inter)
+			return location.distance(inter);
+		return undefined;
 	}
 
 	move() {
-		this.x += this.direction.x * this.speed;
-		this.y += this.direction.y * this.speed;
+		let location = this.location.clone();
+		let direction = this.direction.clone();
+
+		let dist;
+
+		if (dist = this.verticalCollidesDist(0, location.sub(new Vector2(0, this.radius)), direction)) {
+			if (dist < this.speed) {
+				location = location.add(direction.mul(dist));
+				direction.y = Math.abs(direction.y);
+				location = location.add(direction.mul(this.speed - dist));
+			}
+		}
+		if (dist = this.verticalCollidesDist(this.game.height, location.add(new Vector2(0, this.radius)), direction)) {
+			if (dist < this.speed) {
+				location = location.add(direction.mul(dist));
+				direction.y = -Math.abs(direction.y);
+				location = location.add(direction.mul(this.speed - dist));
+			}
+		}
+		for (const player of this.game.players) {
+			
+			let sideX = player.side === Sides.LEFT ? player.location.x + player.width : player.location.x;
+
+			let inter = this.intersect(new Vector2(sideX, 0), new Vector2(sideX, 1), location.clone(), location.add(direction));
+			if (inter) {
+				let dist = location.distance(inter);
+				if (dist < this.speed) {
+					if (inter.y >= player.location.y && inter.y <= player.location.y + player.height) {
+						location = location.add(direction.mul(dist));
+						
+						let percent = ((inter.y - player.location.y) / player.height) * 2 - 1;
+						direction = new Vector2(player.side === Sides.LEFT ? 1 : -1, percent).normalize();
+
+						location = location.add(direction.mul(this.speed - dist));
+					}
+				}
+			}
+			inter = this.intersect(new Vector2(0, player.location.y), new Vector2(1, player.location.y), location.clone(), location.add(direction));
+			if (inter) {
+				let dist = location.distance(inter);
+				if (dist < this.speed) {
+					if (inter.x >= player.location.x && inter.x - 10 <= player.location.x + player.width) {
+						location = location.add(direction.mul(dist));
+						direction = new Vector2(player.side === Sides.LEFT ? 1 : -1, -2).normalize();
+						location = location.add(direction.mul(this.speed - dist));
+					}
+				}
+			}
+			inter = this.intersect(new Vector2(0, player.location.y + player.height), new Vector2(1, player.location.y + player.height), location.clone(), location.add(direction));
+			if (inter) {
+				let dist = location.distance(inter);
+				if (dist < this.speed) {
+					if (inter.x >= player.location.x && inter.x <= player.location.x + player.width) {
+						location = location.add(direction.mul(dist));
+						direction = new Vector2(player.side === Sides.LEFT ? 1 : -1, 2).normalize();
+						location = location.add(direction.mul(this.speed - dist));
+					}
+				}
+			}
+		}
+		if (location.equals(this.location))
+			location = location.add(direction.mul(this.speed));
+
+		this.location = location;
+		this.direction = direction;
 	}
 }
