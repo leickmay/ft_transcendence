@@ -1,5 +1,5 @@
 .boardcard {
-	background-color: rgba($color:#681e6b, $alpha: 0.5);
+	background-color: rgba($color: #681e6b, $alpha: 0.5);
 	border-radius: 25px;
 	margin: 10px;
 	padding: 10px;
@@ -8,6 +8,20 @@
 	th {
 		display: flex;
 		align-items: center;
+
+		@include for-tablet {
+			flex-direction: column;
+		}
+
+		img {
+			max-width: 75px;
+			max-height: 75px;
+
+			@include for-tablet {
+				width: 50%;
+				height: 50%;
+			}
+		}
 
 		p {
 			margin: 0 5px;
