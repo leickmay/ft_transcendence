@@ -2,7 +2,10 @@ import { UserPreview, User } from "./User";
 
 export interface Message {
 	date: number;
-	from: string;
+	from: {
+		login: string;
+		name: string;
+	};
 	text: string;
 	cmd: boolean;
 }
@@ -13,7 +16,7 @@ export enum ChatTypes {
 }
 
 export interface ChatRoom {
-	id: string,
+	id: string;
 	type: ChatTypes;
 	name: string;
 	visible: boolean;

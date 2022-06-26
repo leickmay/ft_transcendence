@@ -43,7 +43,7 @@ export const getNameRoom = (room: ChatRoom | undefined): string | undefined => {
 	if (room.type === ChatTypes.PRIVATE_MESSAGE) {
 		let users: Array<UserPreview> = room.users.filter(x => x.id !== store.getState().users.current?.id);
 		if (users.length === 1)
-			return(users[0].login)
+			return(users[0].name)
 	}
 	return (undefined);
 }

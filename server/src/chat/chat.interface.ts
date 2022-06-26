@@ -4,7 +4,10 @@ import { User, UserPreview } from "src/user/user.entity";
 
 export interface Message {
 	date: number;
-	from: string;
+	from: {
+		login: string;
+		name: string;
+	};
 	text: string;
 	cmd: boolean;
 }
@@ -31,7 +34,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 	visible: boolean;
 
 	@Expose()
-	users: Array<{id: number, login: string}>;
+	users: Array<{id: number, login: string, name?: string}>;
 
 	@Expose()
 	ban: Array<{id: Number, time: number}>;
@@ -185,7 +188,7 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 			return false;
 
 		if (!this.isPresent(user.id))
-			this.users.push({id: user.id, login: user.login});
+			this.users.push({id: user.id, login: user.login, name: user.name});
 
 		user.socket?.join(this.id);
 		return true;
@@ -221,7 +224,10 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 			return;
 		let message: Message = {
 			date: Date.now(),
-			from: sender.login,
+			from: {
+				login: sender.login,
+				name: sender.name,
+			},
 			text: text,
 			cmd: false,
 		};
@@ -234,7 +240,10 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 			return;
 		let message: Message = {
 			date: Date.now(),
-			from: sender.login,
+			from: {
+				login: sender.login,
+				name: sender.name,
+			},
 			text: text,
 			cmd: true,
 		};
@@ -247,7 +256,10 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 			return;
 		let message: Message = {
 			date: Date.now(),
-			from: sender.login,
+			from: {
+				login: sender.login,
+				name: sender.name,
+			},
 			text: text,
 			cmd: true,
 		};
