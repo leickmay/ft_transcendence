@@ -116,7 +116,7 @@ const ChatCurrentRoom = () => {
 			 		socket?.emit('stats', new PacketPlayOutProfile(login));
 				}}
 			>
-				{name} - {getTime(date)}
+				{name} ({login}) - {getTime(date)}
 			</div>
 		);
 	}
