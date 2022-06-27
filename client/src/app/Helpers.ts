@@ -4,7 +4,9 @@ import { Socket } from "socket.io-client";
 import { CookieSetOptions } from "universal-cookie";
 
 export const logout = (removeCookie: (name: any, options?: CookieSetOptions | undefined) => void, navigate: NavigateFunction, socket?: Socket) => {
-	removeCookie('access_token');
+	removeCookie('access_token', {
+		sameSite: 'lax',
+	});
 	socket?.disconnect();
 	navigate('/login');
 }
