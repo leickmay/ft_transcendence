@@ -25,14 +25,14 @@ const ChatCurrentRoom = () => {
 	const [current, setCurrent] = useState(rooms?.find(x => x.id === currentID));
 	const [newMessage, setNewMessage] = useState('');
 
-	const sendHelp = async (msg: string) => {
+	const sendHelp = async (msg: string, who: string) => {
 		let help: PacketPlayInChatMessage = {
 			packet_id: PacketTypesChat.MESSAGE,
 			room: currentID || "",
 			message: {
 				date: Date.now(),
 				from: {
-					login: "🤔",
+					login: "🤔 " + who,
 					name: "HELP",
 				},
 				text: msg,
@@ -45,17 +45,17 @@ const ChatCurrentRoom = () => {
 	const inputNewMessage = async (element: KeyboardEvent<HTMLTextAreaElement>): Promise<void> => {
 		if (element.key === 'Enter' && newMessage !== '') {
 			if (currentID && newMessage.toUpperCase().startsWith('/HELP')) {
-				sendHelp('(Everyone) /EXIT');
-				sendHelp('(Everyone) /BLOCK login');
-				sendHelp('(Everyone) /UNBLOCK login');
-				sendHelp('(Admin) /KICK login');
-				sendHelp('(Admin) /BAN login time');
-				sendHelp('(Admin) /UNBAN login');
-				sendHelp('(Admin) /MUTE login time');
-				sendHelp('(Admin) /UNMUTE login');
-				sendHelp('(Owner) /PROMOTE login');
-				sendHelp('(Owner) /DEMOTE login');
-				sendHelp('(Owner) /PASSWORD *****');
+				sendHelp('/EXIT', 'Everyone');
+				sendHelp('/BLOCK login', 'Everyone');
+				sendHelp('/UNBLOCK login', 'Everyone');
+				sendHelp('/KICK login', 'Admin');
+				sendHelp('/BAN login time', 'Admin');
+				sendHelp('/UNBAN login', 'Admin');
+				sendHelp('/MUTE login time', 'Admin');
+				sendHelp('/UNMUTE login', 'Admin');
+				sendHelp('/PROMOTE login', 'Owner');
+				sendHelp('/DEMOTE login', 'Owner');
+				sendHelp('/PASSWORD *****', 'Owner');
 			}
 			else if (currentID) {
 				socket?.emit('chat', new PacketPlayOutChatMessage(currentID, newMessage));

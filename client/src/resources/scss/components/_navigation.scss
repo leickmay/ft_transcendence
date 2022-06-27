@@ -7,16 +7,14 @@ nav {
 
 	& > ul {
 		font-size: 1.5em;
-
 		display: flex;
 		justify-content: space-around;
 		flex-wrap: wrap;
-		gap: 15px;
 
 		& > li {
 			& > a {
 				display: block;
-				padding: 10px 0px;
+				padding: 1rem 1rem 0rem 1rem;
 			}
 		}
 	}

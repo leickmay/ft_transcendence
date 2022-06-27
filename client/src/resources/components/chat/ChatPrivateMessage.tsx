@@ -58,7 +58,7 @@ const ChatPrivateMessage = () => {
 				className="goBack"
 				onClick={() => {dispatch(setTabBigScreen(0))}}
 			>
-				❎
+				❌
 			</div>
 			<div className="goBack">Online Players</div>
 			{
