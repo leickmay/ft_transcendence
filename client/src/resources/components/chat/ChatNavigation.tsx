@@ -39,7 +39,7 @@ export const ChatNavigation = () => {
 			id="chatNavigation"
 			className={setClassName(0)}
 		>
-			<button
+			<button className="button-hovered"
 				onClick={() => {
 					dispatch(setTabBigScreen(1));
 				}}
@@ -62,7 +62,7 @@ export const ChatNavigation = () => {
 					})
 				}
 			</div>
-			<button
+			<button className="button-hovered"
 				onClick={() => {
 					dispatch(setTabBigScreen(2));
 				}}

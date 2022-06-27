@@ -37,7 +37,7 @@ export const Friends = () => {
 					{searchInputValue && results.map(u =>
 						<li key={u.id}>
 							<span>{u.name} <small>{u.login}</small></span>
-							<button style={{ visibility: canAdd(u.id) ? undefined : 'hidden' }} className="border-primary" onClick={() => addFriend(u.id)}>add</button>
+							<button style={{ visibility: canAdd(u.id) ? undefined : 'hidden' }} className="button-hovered" onClick={() => addFriend(u.id)}>add</button>
 						</li>
 					)}
 				</ul>

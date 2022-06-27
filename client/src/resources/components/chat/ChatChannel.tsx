@@ -127,7 +127,7 @@ const ChatChannel = () => {
 					onChange={() => {setIsPrivate(!isPrivate)}}
 				/>
 			</div>
-			<button
+			<button className="button-hovered"
 				onClick={() => {
 					createChannel();
 				}}

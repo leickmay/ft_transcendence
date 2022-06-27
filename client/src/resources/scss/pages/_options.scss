@@ -1,8 +1,13 @@
 #options {
 	text-align: center;
+	background-color: rgba($overlay, $overlay-opacity);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+
+	button {
+		margin-bottom: 30px;
+	}
 }
 
 #totp-qr {

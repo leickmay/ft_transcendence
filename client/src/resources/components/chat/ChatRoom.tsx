@@ -122,7 +122,7 @@ const ChatCurrentRoom = () => {
 
 	return (
 		<div id="chatRoom" className={setClassName()}>
-			<button id={"buttonNav"} onClick={() => {
+			<button className="button-hovered" id={"buttonNav"} onClick={() => {
 				dispatch(setTabSmallScreen(1));
 				}}
 			>

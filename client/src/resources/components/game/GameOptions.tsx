@@ -52,7 +52,7 @@ export const GameOptions = () => {
 		<div id="game-options" className='container border-primary'>
 			<h2>Join a public game</h2>
 			<div className="config">
-				<button onClick={search}>Search Game</button>
+				<button className="button-hovered" onClick={search}>Search Game</button>
 			</div>
 			<h2>Configure private game</h2>
 			<div className="config">
@@ -95,7 +95,7 @@ export const GameOptions = () => {
 						onChange={handleChange} 
 						/>
 				</div>
-				<button onClick={sendSettings}>Create custom game</button>
+				<button className="button-hovered" onClick={sendSettings}>Create custom game</button>
 			</div>
 		</div>
 	)

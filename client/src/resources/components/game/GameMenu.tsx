@@ -63,7 +63,7 @@ export const GameMenu = (props: Props) => {
 		return (
 			<>
 				<section>
-					<button onClick={leave}>Quitter</button>
+					<button className="button-hovered" onClick={leave}>Quitter</button>
 				</section>
 				<section className='board'>
 					<div className='players'>
