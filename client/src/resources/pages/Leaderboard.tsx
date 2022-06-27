@@ -32,13 +32,13 @@ export const Leaderboard = () => {
 						<h4>Player</h4>
 					</th>
 					<th>
-						<button onClick={() => request('played')}>Match Played</button>
+						<button className="button-selected" onClick={() => request('played')}>Match Played</button>
 					</th>
 					<th>
-						<button onClick={() => request('won')}>Match Won</button>
+						<button className="button-selected"  onClick={() => request('won')}>Match Won</button>
 					</th>
 					<th>
-						<button onClick={() => request('level')}>Level</button>
+						<button className="button-selected"  onClick={() => request('level')}>Level</button>
 					</th>
 				</tr>
 				{list}

@@ -32,7 +32,7 @@ export const NotificationElement = (props: Props) => {
 		<div className={'bg-overlay rounded ' + (props.visible ? 'show' : '')}>
 			<span>{props.content.text}</span>
 			{props.content.button &&
-				<button onClick={clicked}>{props.content.button.text}</button>
+				<button className="button-hovered" onClick={clicked}>{props.content.button.text}</button>
 			}
 		</div>
 	)

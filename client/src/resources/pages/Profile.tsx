@@ -29,18 +29,19 @@ export const Profile = () => {
 	const online = useSelector((state: RootState) => state.users.online);
 	const game = useSelector((state: RootState) => state.game);
 
-	let removeFriend = useMemo((): JSX.Element => {
-		if (friends.find(f => f.id === profile.user?.id)) {
-			return (<div onClick={() => socket?.emit('user', new PacketPlayOutFriends('remove', profile.user?.id))}>
-				<p className='pointer' style={{ fontSize: '1rem' }}>Retirer l'amis</p>
-			</div>);
-		}
-		return <></>;
-	}, [profile.user, friends, socket]);
-
 	const handleClose = useCallback(() => {
 		dispatch(resetProfile());
 	}, [dispatch]);
+
+	let removeFriend = useMemo((): JSX.Element => {
+		if (friends.find(f => f.id === profile.user?.id)) {
+			return(<button className="button-hovered" onClick={() => {
+				socket?.emit('user', new PacketPlayOutFriends('remove', profile.user?.id));
+				handleClose();
+			}}>Remove friend&nbsp;&nbsp;🗑</button>);
+		}
+		return <></>;
+	}, [profile.user, friends, socket, handleClose]);
 
 	const graphData = useMemo(() => ({
 		labels: ['Won', 'Lost'],
@@ -84,7 +85,7 @@ export const Profile = () => {
 			else if (invitation.target)
 				return <button disabled>You have already sent an invitation</button>;
 			else
-				return <button onClick={sendInvitation}>Send Invitation</button>;
+				return <button className="button-hovered" onClick={sendInvitation}> Send Game Invitation&nbsp;&nbsp;📩</button>
 		}
 	}, [online, profile.user, invitation, game, players.length, sendInvitation]);
 

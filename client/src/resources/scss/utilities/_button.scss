@@ -9,7 +9,7 @@ button, .btn {
 	font-size: $button-font-size;
 	font-weight: $button-font-weight;
 
-	background: transparent;
+	//background: transparent;
 
 	&.square {
 		position: relative;
@@ -29,5 +29,20 @@ button, .btn {
 			display: block;
 			padding-bottom: 100%;
 		}
+	}
+}
+
+.button-hovered {
+	&:hover {
+		border: 2px inset fuchsia;
+		background-color: rgba(255, 0, 255, 0.393);
+		color: white;
+	}
+}
+
+.button-selected {
+	&:focus {
+		border: 2px inset fuchsia;
+		color: white;
 	}
 }
