@@ -17,7 +17,9 @@ export const Loading = () => {
 			});
 			if (!res.ok)
 				throw res.statusText;
-			setCookie('access_token', await res.text());
+			setCookie('access_token', await res.text(), {
+				sameSite: 'lax',
+			});
 			navigate('/', {replace: true});
 		};
 

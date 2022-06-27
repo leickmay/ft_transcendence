@@ -40,13 +40,13 @@ export function Connected(props: Props) {
 				'Authorization': 'Bearer ' + cookies.access_token,
 				'Content-Type': 'application/json',
 			};
-			let res: Response = await fetch('/api/users', {headers});
+			let res: Response = await fetch('/api/users', { headers });
 
 			let data: any = await res.json();
 			if (data.totp_validation) {
-				res = await fetch('/api/login/totp', {method: 'POST', headers, body: JSON.stringify({token: prompt('Double authentification token :')})});
+				res = await fetch('/api/login/totp', { method: 'POST', credentials: 'include', headers, body: JSON.stringify({ token: prompt('Double authentification token :') }) });
 				if (res.ok) {
-					setCookie('access_token', await res.text());		
+					setCookie('access_token', await res.text(), { secure: true, sameSite: 'lax' });
 					return;
 				}
 			}
@@ -81,7 +81,7 @@ export function Connected(props: Props) {
 	}, [socket, dispatch, navigate, setCookie, removeCookie, cookies.access_token]);
 
 	return (
-		<GameContext.Provider value={{players, setPlayers, balls, setBalls}}>
+		<GameContext.Provider value={{ players, setPlayers, balls, setBalls }}>
 			<SocketContext.Provider value={socket}>
 				<Home />
 			</SocketContext.Provider>

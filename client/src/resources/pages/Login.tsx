@@ -23,29 +23,12 @@ export const Login = () => {
 			navigate('/');
 	}, [navigate, socket?.connected]);
 
-	const debugLogin = async (event: KeyboardEvent<HTMLInputElement>): Promise<void> => {
-		if (event.code === 'Enter' || event.keyCode === 13) {
-			const target: HTMLInputElement = event.currentTarget;
-			
-			fetch('/api/debug/?id=' + target.value)
-			.then(res => {
-				if (!res.ok)
-					throw new Error('Unknown user');
-				navigate('/');
-			})
-			.catch(() => {
-				target.value = '';
-			});
-		}
-	}
-
 	return (
 		<div id="login" className="bg-overlay rounded border-primary">
 			<h1 className="text-neon-primary">Stonks Pong 3000</h1>
 			<a className="btn border-neon-primary bg-overlay rounded square" href={getAuthorizeHref()}>
 				<span className="content">Sign in with 42</span>
 			</a>
-			<input type="number" onKeyDown={debugLogin} placeholder='Debug Login'/>
 		</div>
 	);
 }
