@@ -131,7 +131,14 @@ export class GameService {
 
 	handlePrivateRoom(packet: PacketPlayInGameOptions, user: User): void {
 		if (!user.player && !this.waitList.includes(user)) {
-			let room = new Room(this.eventsService.getServer()!, this.statsService);
+			let room = new Room(
+				this.eventsService.getServer()!,
+				this.statsService,
+				(50 + Math.min(Math.max(packet.speedMin ?? 50, 0), 100)) / 100,
+				(50 + Math.min(Math.max(packet.speedMax ?? 50, 0), 100)) / 100,
+				(50 + Math.min(Math.max(packet.height ?? 50, 0), 100)) / 100,
+				packet.cowMode || false,
+			);
 			room.join(user);
 			this.privRooms.push(room);
 		}

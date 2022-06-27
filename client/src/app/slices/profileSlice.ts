@@ -4,15 +4,8 @@ import { User } from "../interfaces/User";
 import { PacketPlayInProfile } from "../packets/PacketPlayInProfile";
 
 export interface Invitation {
-	status: InvitationStates,
-	target: number,
+	target: number | undefined,
 }
-
-export enum InvitationStates {
-	NO_INVITATION,
-	PENDING_INVITATION,
-	IN_GAME,
-};
 
 interface State {
 	nbMatchs: number,
@@ -28,23 +21,15 @@ const initialState: State = {
 	history: [],
 	user: undefined,
 	invitation: {
-		status: InvitationStates.NO_INVITATION,
-		target: -1,
-	}
+		target: undefined,
+	},
 }
 
 const slice = createSlice({
 	name: 'profile',
 	initialState,
 	reducers: {
-		setInvitation: (state: State, action: PayloadAction<Invitation>): void => {
-			state.invitation.status = action.payload.status;
-			state.invitation.target = action.payload.target;
-		},
-		setInvitationStatus: (state: State, action: PayloadAction<InvitationStates>): void => {
-			state.invitation.status = action.payload;
-		},
-		setInvitationTarget: (state: State, action: PayloadAction<number>): void => {
+		setInvitationTarget: (state: State, action: PayloadAction<number | undefined>): void => {
 			state.invitation.target = action.payload;
 		},
 		setProfile: (state: State, action: PayloadAction<PacketPlayInProfile>): void => {
@@ -62,5 +47,5 @@ const slice = createSlice({
 	}
 });
 
-export const { setInvitationTarget, setInvitationStatus, setInvitation, setProfile, resetProfile } = slice.actions;
+export const { setInvitationTarget, setProfile, resetProfile } = slice.actions;
 export default slice.reducer;
