@@ -257,7 +257,6 @@ export class Room {
 				}));
 			}
 		}
-		this.clear();
 	}
 
 	tryStart(): void { this.canStart() && this.start(); }
