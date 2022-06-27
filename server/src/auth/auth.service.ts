@@ -56,12 +56,14 @@ export class AuthService {
 		let tmpUser = await this.userService.getById42(data.id);
 		
 		if (!tmpUser) {
-			tmpUser = await this.userService.create({
-				'id42': data.id,
-				'name': data.displayname,
-				'login': data.login,
-				'intra_picture': data.image_url
-			});
+			try {
+				tmpUser = await this.userService.create({
+					'id42': data.id,
+					'name': data.displayname,
+					'login': data.login,
+					'intra_picture': data.image_url
+				});
+			} catch {}
 		}
 		return tmpUser;
 	}

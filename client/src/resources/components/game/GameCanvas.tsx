@@ -4,6 +4,7 @@ import { GameContext } from '../../../app/context/GameContext';
 import { useAnimationFrame } from '../../../app/Helpers';
 import { Directions, GameStatus, Sides, Vector2 } from '../../../app/interfaces/Game.interface';
 import { RootState } from '../../../app/store';
+import cowUrl from '../../../assets/images/cowball.png';
 import ballUrl from '../../../assets/images/ball.png';
 import backgroundUrl from '../../../assets/images/game-background.png';
 import paddleUrl from '../../../assets/images/paddles.png';
@@ -12,6 +13,7 @@ const spriteWidth: number = 110;
 const spriteHeight: number = 450;
 
 const backgroundImg = new Image(); backgroundImg.src = backgroundUrl;
+const cowImg = new Image(); cowImg.src = cowUrl;
 const ballImg = new Image(); ballImg.src = ballUrl;
 const paddleImg = new Image(); paddleImg.src = paddleUrl;
 
@@ -54,23 +56,16 @@ export const GameCanvas = (props: Props) => {
 	const { players, balls } = useContext(GameContext);
 	const currentUser = useSelector((state: RootState) => state.users.current);
 	const drawTick = useRef<number>(0);
-	// const tick = useRef<number>(0);
-
-	// const gameInterval = useMemo<number>(() => 1000 / game.tps, [game.tps]);
 
 	let canvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
 		if (canvas !== null)
 			setCtx(canvas.getContext('2d'));
 	}, []);
 
-
-	// useEffect(() => {
-	// 	players.current = game.players.map(p => ({ ...p }));
-	// }, [game.players]);
-
-	const drawImage = useCallback((image: HTMLImageElement, x: number, y: number, dw: number, dh: number, rotation: number) => {
+	const drawImage = useCallback((image: HTMLImageElement, x: number, y: number, dw: number, dh: number, rotation: number, flip: number = 1) => {
 		ctx!.save();
 		ctx!.setTransform(1, 0, 0, 1, x, y);
+		ctx!.scale(flip, 1);
 		ctx!.rotate(rotation);
 		ctx!.drawImage(image, -dw / 2, -dh / 2, dw, dh);
 		ctx!.restore();
@@ -122,14 +117,14 @@ export const GameCanvas = (props: Props) => {
 
 					let dist;
 
-					if (dist = verticalCollidesDist(0, location.sub(new Vector2(0, ball.radius)), direction)) {
+					if (!!(dist = verticalCollidesDist(0, location.sub(new Vector2(0, ball.radius)), direction))) {
 						if (dist < speed) {
 							location = location.add(direction.mul(dist));
 							direction.y = Math.abs(direction.y);
 							location = location.add(direction.mul(speed - dist));
 						}
 					}
-					if (dist = verticalCollidesDist(game.height, location.add(new Vector2(0, ball.radius)), direction)) {
+					if (!!(dist = verticalCollidesDist(game.height, location.add(new Vector2(0, ball.radius)), direction))) {
 						if (dist < speed) {
 							location = location.add(direction.mul(dist));
 							direction.y = -Math.abs(direction.y);
@@ -184,7 +179,12 @@ export const GameCanvas = (props: Props) => {
 					ball.screen.location = location.interpolate(ball.location, 0.2);
 					ball.screen.direction = direction;
 				}
-				drawImage(ballImg, ball.screen.location.x, ball.screen.location.y, ball.radius * 2, ball.radius * 2, ((drawTick.current * ((ball.speed * 5) / 10)) % 360) * Math.PI / 180);
+				let flip = Math.sign(ball.direction.x);
+				if (game.cowMode) {
+					drawImage(cowImg, ball.screen.location.x, ball.screen.location.y, ball.radius * 2, ball.radius * 2, 0, flip);
+				} else {
+					drawImage(ballImg, ball.screen.location.x, ball.screen.location.y, ball.radius * 2, ball.radius * 2, ((drawTick.current * ((ball.speed * 5) / 10)) % 360) * Math.PI / 180, flip);
+				}
 
 				ctx.strokeStyle = 'green';
 				ctx.lineWidth = 4;
@@ -198,16 +198,6 @@ export const GameCanvas = (props: Props) => {
 			ctx.fillText(Math.round(1000 / delta) + 'fps', game.width, 0);
 		}
 	}, [ctx, players, drawImage]);
-
-	// useEffect(() => {
-	// 	const loop = () => {
-	// 	}
-
-	// 	const intervalId = setInterval(loop, gameInterval);
-	// 	return (() => {
-	// 		clearInterval(intervalId);
-	// 	});
-	// }, [players, gameInterval]);
 
 	return (
 		<div className="canvas border-neon-primary">
