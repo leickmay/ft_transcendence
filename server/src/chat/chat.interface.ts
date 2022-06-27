@@ -18,7 +18,7 @@ export enum ChatTypes {
 }
 
 @Exclude()
-export class ChatRoom { // instanceToPlain to send (BACK)
+export class ChatRoom {
 	private static current = 0;
 
 	@Expose()
@@ -117,10 +117,6 @@ export class ChatRoom { // instanceToPlain to send (BACK)
 		}
 		else
 			tmp.time = time;
-	}
-
-	unmuteUser(user: User, time: number) {
-
 	}
 
 	isMute(userID: number): boolean {
