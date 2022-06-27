@@ -3,10 +3,9 @@ import { useSelector } from 'react-redux';
 import { GameContext } from '../../../app/context/GameContext';
 import { SocketContext } from '../../../app/context/SocketContext';
 import { GameStatus, Player, Sides } from '../../../app/interfaces/Game.interface';
+import { PacketPlayOutPlayerLeave } from '../../../app/packets/PacketPlayOutPlayerLeave';
 import { RootState } from '../../../app/store';
 import { PlayerCard } from '../PlayerCard';
-import { PacketPlayOutPlayerLeave } from '../../../app/packets/PacketPlayOutPlayerLeave';
-import { resourceLimits } from 'worker_threads';
 
 interface Props {
 	search: () => void;
@@ -102,7 +101,7 @@ export const GameMenu = (props: Props) => {
 				</section>
 			</>
 		);
-	}, [players, counter, game.status, leave]);
+	}, [players, counter, game.status, leave, user?.id]);
 
 
 

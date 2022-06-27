@@ -1,4 +1,4 @@
-import { KeyboardEvent, useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { SocketContext } from '../../app/context/SocketContext';
 

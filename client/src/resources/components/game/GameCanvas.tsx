@@ -122,14 +122,14 @@ export const GameCanvas = (props: Props) => {
 
 					let dist;
 
-					if (dist = verticalCollidesDist(0, location.sub(new Vector2(0, ball.radius)), direction)) {
+					if (!!(dist = verticalCollidesDist(0, location.sub(new Vector2(0, ball.radius)), direction))) {
 						if (dist < speed) {
 							location = location.add(direction.mul(dist));
 							direction.y = Math.abs(direction.y);
 							location = location.add(direction.mul(speed - dist));
 						}
 					}
-					if (dist = verticalCollidesDist(game.height, location.add(new Vector2(0, ball.radius)), direction)) {
+					if (!!(dist = verticalCollidesDist(game.height, location.add(new Vector2(0, ball.radius)), direction))) {
 						if (dist < speed) {
 							location = location.add(direction.mul(dist));
 							direction.y = -Math.abs(direction.y);
