@@ -66,9 +66,16 @@ const ChatChannel = () => {
 			id="chatChannel"
 			className={setClassName(1)}
 		>
-			<button
+			<div
+				className="goBack"
 				onClick={() => {dispatch(setTabBigScreen(0))}}
-			>..</button>
+			>
+				❎
+			</div>
+			<div className="inputChannel">
+				<label htmlFor="channelName">
+					Name :
+				</label>
 				<input
 					id="channelName"
 					list="channel-visible"
@@ -91,6 +98,11 @@ const ChatChannel = () => {
 						})
 					}
 				</datalist>
+			</div>
+			<div className="inputChannel">
+				<label htmlFor="input_password">
+					Password :
+				</label>
 				<input
 						id="input_password"
 						type="password"
@@ -102,13 +114,15 @@ const ChatChannel = () => {
 								setPassword(event.target.value)
 						}}
 				/>
-			<div className="checkBox">
+			</div>
+			<div className="inputChannel checkBox">
 				<label htmlFor="channelPrivate">
-					Private
+					Public {!isPrivate ? '✅' : '❌'} / Private {isPrivate ? '✅' : '❌'}
 				</label>
 				<input
 					id="channelPrivate"
 					type="checkbox"
+					style={{ display: 'none' }}
 					checked={isPrivate}
 					onChange={() => {setIsPrivate(!isPrivate)}}
 				/>
@@ -117,7 +131,7 @@ const ChatChannel = () => {
 				onClick={() => {
 					createChannel();
 				}}
-			>Submit</button>
+			>Create or Join</button>
 		</div>
 	);
 };

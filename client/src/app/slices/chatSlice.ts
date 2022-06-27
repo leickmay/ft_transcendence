@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ChatRoom, Command } from "../interfaces/Chat";
+import { ChatRoom, ChatTypes, Command } from "../interfaces/Chat";
 import { PacketPlayInChatAdmin, PacketPlayInChatJoin, PacketPlayInChatMessage, PacketPlayInChatOwner } from "../packets/chat/PacketPlayInChat";
 
 interface State {
@@ -21,6 +21,17 @@ const slice = createSlice({
 	name: 'chat',
 	initialState,
 	reducers: {
+		upUserInPrivateMessage: (state: State, action: PayloadAction<{id: number, name?: string}>): void => {
+			if (!action.payload.name)
+				return;
+			state.rooms?.forEach((r):void => {
+				if (r.type === ChatTypes.PRIVATE_MESSAGE) {
+					let userUp = r.users.find(u => u.id === action.payload.id);
+					if (userUp)
+						userUp.name = action.payload.name;
+				}
+			});
+		},
 		setTabSmallScreen: (state: State, action: PayloadAction<number>): void => {
 			state.tabSmallScreen = action.payload;
 		},
@@ -89,5 +100,5 @@ const slice = createSlice({
 	},
 });
 
-export const {setTabSmallScreen, setTabBigScreen, setCurrentRooms, setChatRooms, joinRoom, delRoom, setOwner, newMessages, leaveRoom, upUsersBlocked, setAdmins} = slice.actions;
+export const { upUserInPrivateMessage, setTabSmallScreen, setTabBigScreen, setCurrentRooms, setChatRooms, joinRoom, delRoom, setOwner, newMessages, leaveRoom, upUsersBlocked, setAdmins} = slice.actions;
 export default slice.reducer;
