@@ -45,7 +45,8 @@ export class UserController {
 		if (!user)
 			return;
 
-		await this.userService.setAvatar(user, {
+		let connectedUser = this.eventsService.getUserById(user.id);
+		await this.userService.setAvatar(connectedUser || user, {
 			avatar: {
 				content: file.buffer,
 				filename: file.originalname,
