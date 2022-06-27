@@ -84,7 +84,7 @@ export const GameMenu = (props: Props) => {
 				</section>
 			</>
 		);
-	}, [players, counter, game.status]);
+	}, [players, counter, game.status, leave]);
 
 	switch (game.status) {
 		case GameStatus.NONE:

@@ -6,6 +6,7 @@ interface State {
 	width: number;
 	height: number;
 	status: GameStatus;
+	cowMode: boolean;
 	minPlayers: number;
 	maxPlayers: number;
 	startTime: number;
@@ -18,6 +19,7 @@ const initialState: State = {
 	status: GameStatus.NONE,
 	width: 1920,
 	height: 1080,
+	cowMode: false,
 	minPlayers: 2,
 	maxPlayers: 2,
 	startTime: 5,

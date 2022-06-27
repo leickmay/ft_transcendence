@@ -7,23 +7,27 @@ import { useNavigate } from "react-router";
 import { SocketContext } from "../../app/context/SocketContext";
 import { PacketPlayOutFriends } from "../../app/packets/PacketPlayOutFriends";
 import { PacketPlayOutPlayerInvite } from "../../app/packets/PacketPlayOutPlayerInvite";
-import { InvitationStates, setInvitationTarget } from "../../app/slices/profileSlice";
+import { setInvitationTarget } from "../../app/slices/profileSlice";
 import { resetProfile } from "../../app/slices/profileSlice";
 import { RootState } from "../../app/store";
 import { History } from "../components/History";
+import { GameStatus } from "../../app/interfaces/Game.interface";
+import { GameContext } from "../../app/context/GameContext";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const Profile = () => {
 	const socket = useContext(SocketContext);
 	const navigate = useNavigate();
-
+	
+	const { players } = useContext(GameContext);
 	const friends = useSelector((state: RootState) => state.users.friends);
 	const profile = useSelector((state: RootState) => state.profile);
 	const dispatch: ThunkDispatch<RootState, unknown, AnyAction> = useDispatch();
 	const ref = useRef<HTMLInputElement>(null);
 	const invitation = useSelector((state: RootState) => state.profile.invitation);
 	const online = useSelector((state: RootState) => state.users.online);
+	const game = useSelector((state: RootState) => state.game);
 
 	let removeFriend = useMemo((): JSX.Element => {
 		if (friends.find(f => f.id === profile.user?.id)) {
@@ -57,8 +61,7 @@ export const Profile = () => {
 		],
 	}), [profile]);
 
-
-	const sendInvitation = () => {
+	const sendInvitation = useCallback(() => {
 		let target = profile.user?.id;
 		if (!target)
 			return;
@@ -66,36 +69,31 @@ export const Profile = () => {
 		dispatch(setInvitationTarget(profile.user?.id || -1));
 		navigate('/game', {replace: true});
 		dispatch(resetProfile());
-	}
+	}, [profile, dispatch, navigate, socket])
 
-	const getButtonGameInvitation = () => {
+	const getButtonGameInvitation = useMemo(() => {		
 		if (!online.find(x => x.id === profile.user?.id))
 			return <></>;
-		switch (invitation.status) {
-			case InvitationStates.NO_INVITATION: {
-				return <button onClick={sendInvitation}> Send Invitation</button>
-			}
-			case InvitationStates.PENDING_INVITATION: {
-				if (profile.user?.id === invitation.target)
-					return <button>Invited</button>;
-				break;
-			}
-			case InvitationStates.IN_GAME: {
-				if (profile.user?.id === invitation.target)
-					return <button>Invited</button>
-				break;
-			}
-			default:
-				return <></>;
+		if (game.status !== GameStatus.NONE && game.status !== GameStatus.WAITING) {
+			return <button disabled>Cannot invite now</button>
+		} else if (players.length >= game.maxPlayers) {
+			return <button disabled>Your game is full</button>
+		} else {
+			if (profile.user?.id === invitation.target)
+				return <button disabled>Invited</button>;
+			else if (invitation.target)
+				return <button disabled>You have already sent an invitation</button>;
+			else
+				return <button onClick={sendInvitation}>Send Invitation</button>;
 		}
-	}
+	}, [online, profile.user, invitation, game, players.length, sendInvitation]);
 
 	if (profile.user) {
 		return (
 			<div id="profile" className="pointer overlay" onClick={handleClose}>
 				<div ref={ref} className="box cursor" onClick={e => e.stopPropagation()}>
 					<span className="close-icon pointer" onClick={handleClose}>╳</span>
-					{getButtonGameInvitation()}
+					{getButtonGameInvitation}
 					{removeFriend}
 					<div className='profile'>
 						<div className="stats">
