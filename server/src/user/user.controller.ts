@@ -45,13 +45,15 @@ export class UserController {
 		if (!user)
 			return;
 
-		let connectedUser = this.eventsService.getUserById(user.id);
-		await this.userService.setAvatar(connectedUser || user, {
+		await this.userService.setAvatar(user, {
 			avatar: {
 				content: file.buffer,
 				filename: file.originalname,
 			},
 		});
+		let connectedUser = this.eventsService.getUserById(user.id);
+		if (connectedUser)
+			connectedUser.avatarId = user.avatarId;
 		this.eventsService.getServer()?.emit('user', new PacketPlayOutUserUpdate({
 			id: user.id,
 			avatar: user.getAvatarUrl(),
