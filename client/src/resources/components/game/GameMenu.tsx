@@ -39,14 +39,6 @@ export const GameMenu = (props: Props) => {
 		socket?.emit('game', new PacketPlayOutPlayerLeave());
 	}, [socket]);
 
-	const getSearchButtonElement = useCallback((): JSX.Element => {
-		return (
-			<div className="buttonWindow">
-				{<button onMouseDown={props.search}>Search Match</button> }
-			</div>
-		);
-	}, [props.search]);
-
 	const getMatchmakingElement = useCallback((): JSX.Element => {
 		return (
 			<div className="roomSearchMatch">
@@ -96,7 +88,7 @@ export const GameMenu = (props: Props) => {
 
 	switch (game.status) {
 		case GameStatus.NONE:
-			return getSearchButtonElement();
+			return <></>;
 		case GameStatus.MATCHMAKING:
 			return getMatchmakingElement();
 		default:

@@ -3,6 +3,7 @@ import { useCallback, useContext, useState } from "react"
 import { SocketContext } from "../../../app/context/SocketContext";
 import { PacketPlayOutGameOptions } from "../../../app/packets/PacketPlayOutGameOptions";
 import { PacketPlayOutPlayerJoin } from "../../../app/packets/PacketPlayOutPlayerJoin";
+import moohUrl from "../../../assets/sounds/Cow.mp3"
 
 export const GameOptions = () => {
 
@@ -38,8 +39,7 @@ export const GameOptions = () => {
 		setCowMode(!cowMode);
 		if (!cowMode)
 		{
-			let path = "./sounds/Cow.mp3"
-			const audio = new Audio(path);
+			const audio = new Audio(moohUrl);
 			audio.play();
 		}
 	};
