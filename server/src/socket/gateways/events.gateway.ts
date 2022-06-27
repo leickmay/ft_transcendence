@@ -54,6 +54,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			if (!user || Object.values(this.eventsService.users).find(e => e.id === user.id)) {
 				throw Error('Already connected');
 			}
+			client.broadcast.emit('user', new PacketPlayOutUserConnection([{ id: user.id, login: user.login }]));
+			client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => ({ id: u.id, login: u.login, playing: !!u.player }))));
+			this.eventsService.addUser(client, user);
 			client.emit('ready');
 		} catch (e) {
 			client.emit('error', new UnauthorizedException());
@@ -109,7 +112,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		} catch (e) { }
 	}
 
-	@SubscribeMessage('ready')
+	@SubscribeMessage('reload')
 	handleReady(@MessageBody() packet: Packet, @ConnectedSocket() client: Socket): void {
 		let user: User = this.eventsService.users[client.id];
 		if (!user)
@@ -117,5 +120,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		client.broadcast.emit('user', new PacketPlayOutUserConnection([{ id: user.id, login: user.login }]));
 		client.emit('user', new PacketPlayOutUserConnection(Object.values(this.eventsService.users).map(u => ({ id: u.id, login: u.login, playing: !!u.player }))));
 		this.eventsService.addUser(client, user);
+		client.emit('ready');
 	}
 }

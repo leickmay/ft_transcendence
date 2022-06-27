@@ -63,7 +63,6 @@ export function Connected(props: Props) {
 			});
 			instance.on('ready', () => {
 				dispatch({ type: 'socket/ready', payload: true });
-				instance.send('ready');
 			});
 			instance.on('error', (e: any) => {
 				if (e.status === 401) {

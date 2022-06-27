@@ -1,6 +1,9 @@
+import { useContext, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { SocketContext } from "../../app/context/SocketContext";
 import { ChatRoom, ChatTypes } from "../../app/interfaces/Chat";
 import { UserPreview, User } from "../../app/interfaces/User";
-import store from "../../app/store";
+import store, { RootState } from "../../app/store";
 import ChatChannel from "../components/chat/ChatChannel";
 import { ChatNavigation } from "../components/chat/ChatNavigation";
 import ChatPrivateMessage from "../components/chat/ChatPrivateMessage";
@@ -69,6 +72,15 @@ export const getTime = (time: number): string => {
 }
 
 export const Chat = () => {
+	const socket = useContext(SocketContext);
+	const rooms = useSelector((state: RootState) => state.chat.rooms);
+
+	useEffect(() => {
+		if (!rooms || rooms.length === 0) {
+			socket?.emit('reload');
+		}
+	}, [socket, rooms]);
+
 	return (
 		<div id="chat" className="container">
 			<ChatNavigation />
