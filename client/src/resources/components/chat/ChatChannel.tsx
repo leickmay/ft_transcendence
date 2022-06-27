@@ -70,7 +70,7 @@ const ChatChannel = () => {
 				className="goBack"
 				onClick={() => {dispatch(setTabBigScreen(0))}}
 			>
-				❎
+				❌
 			</div>
 			<div className="inputChannel">
 				<label htmlFor="channelName">
