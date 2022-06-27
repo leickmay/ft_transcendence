@@ -138,6 +138,13 @@ export class Room {
 	balls: Array<Ball> = [];
 	spectators: Array<User> = [];
 
+	ballBaseSpeedRatio: number;
+	ballMaxSpeedRatio: number;
+	playerHeightRatio: number;
+
+	@Expose()
+	cowMode: boolean;
+
 	@Expose()
 	maxScore: number = 5; // TODO change
 
@@ -148,8 +155,16 @@ export class Room {
 	constructor(
 		private readonly server: Server,
 		private readonly statsService: StatsService,
+		ballBaseSpeedRatio: number = 0.7,
+		ballMaxSpeedRatio: number = 1.2,
+		playerHeightRatio: number = 1,
+		cowMode: boolean = false,
 	) {
 		this.id = ++Room.current;
+		this.ballBaseSpeedRatio = ballBaseSpeedRatio;
+		this.ballMaxSpeedRatio = ballMaxSpeedRatio;
+		this.playerHeightRatio = playerHeightRatio;
+		this.cowMode = cowMode;
 	}
 
 	private countLeftTeam(): number {
@@ -175,7 +190,7 @@ export class Room {
 			user.send('game', new PacketPlayOutGameUpdate(instanceToPlain(this)));
 			user.send('game', new PacketPlayOutPlayerList(instanceToPlain(this.players)));
 
-			let player = new Player(user, this, this.chooseSide(), 110 * 0.75, 450 * 0.75);
+			let player = new Player(user, this, this.chooseSide(), 110 * 0.75 * this.playerHeightRatio, 450 * 0.75 * this.playerHeightRatio);
 
 			user.player = player;
 			this.players.push(player);
@@ -241,11 +256,13 @@ export class Room {
 		clearInterval(this.gameInterval);
 		this.gameInterval = undefined;
 		if (winner) {
+			if (this.players.length === 2) {
+				this.statsService.addStat(this.players[0].user, this.players[1].user, winner.user.id);
+			}
 			for (const player of this.players) {
 				player.user.xp += player.side === winner.side ? 20 : 5;
 				player.user.xp += player.score;
 
-				this.statsService.addStat(this.players[0].user, this.players[1].user, winner.user.id);
 				player.user.nbMatch++;
 				if (player.side === winner.side)
 					player.user.matchWon++;
@@ -257,7 +274,6 @@ export class Room {
 				}));
 			}
 		}
-		this.clear();
 	}
 
 	tryStart(): void { this.canStart() && this.start(); }
@@ -273,7 +289,7 @@ export class Room {
 				status: GameStatus.RUNNING,
 			}));
 
-			let b = new Ball(this, 30, 40, 100);
+			let b = new Ball(this, 30, 70 * this.ballBaseSpeedRatio, 70 * this.ballMaxSpeedRatio);
 			this.balls.push(b);
 
 			this.gameInterval = setInterval(this.loop, 1000 / this.tps);
@@ -342,10 +358,12 @@ export class Room {
 	clear(): void {
 		this.stop();
 		this.broadcast(new PacketPlayOutGameDestroy());
-		for (const spectator of this.spectators) {
+		let spectators = [...this.spectators];
+		for (const spectator of spectators) {
 			this.removeSpectator(spectator);
 		}
-		for (const player of this.players) {
+		let players = [...this.players];
+		for (const player of players) {
 			this.remove(player);
 		}
 		this.players = [];

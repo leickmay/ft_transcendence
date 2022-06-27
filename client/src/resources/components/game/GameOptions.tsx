@@ -10,7 +10,7 @@ export const GameOptions = () => {
 	const socket = useContext(SocketContext);
 
 	const [speedMin, setSpeedMin] = useState(20);
-	const [speedMax, setSpeedMax] = useState(80);
+	const [speedMax, setSpeedMax] = useState(70);
 	const [height, setHeight] = useState(50);
 	const [cowMode, setCowMode] = useState(false);
 
@@ -61,7 +61,7 @@ export const GameOptions = () => {
 					getAriaLabel={() => "Temperature range"}
 					defaultValue={[
 						20,
-						80
+						70
 					]}
 					step={10}
 					valueLabelDisplay="auto"

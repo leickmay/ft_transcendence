@@ -70,7 +70,7 @@ const ChatChannel = () => {
 				className="goBack"
 				onClick={() => {dispatch(setTabBigScreen(0))}}
 			>
-				❎
+				❌
 			</div>
 			<div className="inputChannel">
 				<label htmlFor="channelName">
@@ -117,7 +117,7 @@ const ChatChannel = () => {
 			</div>
 			<div className="inputChannel checkBox">
 				<label htmlFor="channelPrivate">
-					Public {!isPrivate ? '✅' : '❌'} / Private {isPrivate ? '✅' : '❌'}
+					Private {isPrivate ? '✅' : '❌'}
 				</label>
 				<input
 					id="channelPrivate"

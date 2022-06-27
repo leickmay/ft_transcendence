@@ -17,27 +17,13 @@ export class AuthController {
 		private jwtService: JwtService,
 	) {}
 
-	@Get('/debug')
-	async debug(@Query('id') id: number, @Res() response: Response) {
-		let user = await this.userService.get(id);
-		if (!user) {
-			throw new NotFoundException('User not found');
-		}
-
-		const payload = {
-			id: user.id,
-			login: user.login,
-		};
-
-		let token = this.jwtService.sign(payload);
-		response.cookie('access_token', token).send(token);
-	}
-
 	@Post('/login')
 	async login(@Body('code') code: string, @Res() response: Response): Promise<void> {
 		if (code) {
 			const token = await this.authService.login(code);
-			response.cookie('access_token', token).send(token);
+			response.cookie('access_token', token, {
+				sameSite: 'lax',
+			}).send(token);
 		} else {
 			throw new UnprocessableEntityException();
 		}
@@ -58,7 +44,9 @@ export class AuthController {
 		if (token && totp.validate({token}) == 0) {
 			const token = await this.authService.makeJWTToken(request.user, false);
 
-			response.cookie('access_token', token).send(token);
+			response.cookie('access_token', token, {
+				sameSite: 'lax',
+			}).send(token);
 		} else {
 			throw new ForbiddenException();
 		}

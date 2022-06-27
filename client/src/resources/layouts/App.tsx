@@ -7,7 +7,6 @@ import { install } from "resize-observer";
 interface Props {
 }
 
-
 export default function App(props: Props) {
 	install();
 	return (

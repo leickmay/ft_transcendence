@@ -210,8 +210,8 @@ export const GameCanvas = (props: Props) => {
 	// }, [players, gameInterval]);
 
 	return (
-		<div className="canvas">
-			<canvas className='border-neon-primary' ref={canvasRef} height={game.height} width={game.width}>
+		<div className="canvas border-neon-primary">
+			<canvas ref={canvasRef} height={game.height} width={game.width}>
 			</canvas>
 			{game.status === GameStatus.WAITING &&
 				<div className="overlay">
