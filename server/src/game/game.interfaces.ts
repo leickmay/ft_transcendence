@@ -116,7 +116,7 @@ export class Room {
 	private tick = 0;
 
 	@Expose()
-	readonly tps = 30;
+	readonly tps = 60;
 	@Expose()
 	readonly height: number = 1080;
 	@Expose()
@@ -289,7 +289,7 @@ export class Room {
 				status: GameStatus.RUNNING,
 			}));
 
-			let b = new Ball(this, 30, 70 * this.ballBaseSpeedRatio, 70 * this.ballMaxSpeedRatio);
+			let b = new Ball(this, 30, 35 * this.ballBaseSpeedRatio, 35 * this.ballMaxSpeedRatio);
 			this.balls.push(b);
 
 			this.gameInterval = setInterval(this.loop, 1000 / this.tps);
@@ -385,7 +385,7 @@ export class Player implements Entity {
 	height: number;
 
 	@Expose()
-	speed: number = 25;
+	speed: number = 12;
 	@Expose()
 	score: number = 0
 

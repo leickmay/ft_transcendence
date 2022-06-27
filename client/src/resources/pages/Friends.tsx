@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useContext, useState } from "react";
+import { ChangeEvent, useCallback, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../app/context/SocketContext";
 import { PacketPlayOutFriends } from "../../app/packets/PacketPlayOutFriends";
@@ -12,6 +12,13 @@ export const Friends = () => {
 	const friends = useSelector((state: RootState) => state.users.friends);
 	const results = useSelector((state: RootState) => state.users.results);
 	const [searchInputValue, setSearchInputValue] = useState<string>('');
+	const rooms = useSelector((state: RootState) => state.chat.rooms);
+
+	useEffect(() => {
+		if (!rooms || rooms.length === 0) {
+			socket?.emit('reload');
+		}
+	}, [socket, rooms]);
 
 	const addFriend = useCallback((target: number) => {
 		socket?.emit('user', new PacketPlayOutFriends("add", target));
