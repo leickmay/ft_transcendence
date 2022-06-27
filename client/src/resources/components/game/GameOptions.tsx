@@ -1,9 +1,8 @@
-import { Input, Slider } from "@mui/material"
+import { Slider } from "@mui/material"
 import { useCallback, useContext, useState } from "react"
 import { SocketContext } from "../../../app/context/SocketContext";
 import { PacketPlayOutGameOptions } from "../../../app/packets/PacketPlayOutGameOptions";
 import { PacketPlayOutPlayerJoin } from "../../../app/packets/PacketPlayOutPlayerJoin";
-
 
 export const GameOptions = () => {
 
@@ -26,9 +25,7 @@ export const GameOptions = () => {
 		return playersHeight[playersHeight.findIndex((mark) => mark.value === value)].label;
 	}
 
-
 	function sendSettings() {
-
 		socket?.emit('game', new PacketPlayOutGameOptions(
 			speedMin,
 			speedMax,
@@ -39,6 +36,12 @@ export const GameOptions = () => {
 
 	const handleChange = () => {
 		setCowMode(!cowMode);
+		if (!cowMode)
+		{
+			let path = "./sounds/Cow.mp3"
+			const audio = new Audio(path);
+			audio.play();
+		}
 	};
 
 	const search = useCallback(() => {
@@ -89,7 +92,8 @@ export const GameOptions = () => {
 						type="checkbox"
 						style={{ display: 'none' }}
 						checked={cowMode}
-						onChange={handleChange} />
+						onChange={handleChange} 
+						/>
 				</div>
 				<button onClick={sendSettings}>Create custom game</button>
 			</div>
