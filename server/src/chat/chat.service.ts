@@ -86,7 +86,6 @@ export class ChatService {
 	async event_command(user: User, room: ChatRoom, text: string): Promise<boolean> {
 		let command = text.split(" ");
 		switch (command[0].toUpperCase()) {
-			// EXIT
 			case "/EXIT": {
 				if (command.length !== 1)
 					return false;
@@ -101,7 +100,6 @@ export class ChatService {
 				room?.commandPublic(user, text);
 				return true;
 			}
-			// PROMOTE login
 			case "/PROMOTE": {
 				if (command.length !== 2)
 					return false;
@@ -114,7 +112,6 @@ export class ChatService {
 				room?.commandPublic(user, text);
 				break;
 			}
-			// DEMOTE login
 			case "/DEMOTE": {
 				if (command.length !== 2)
 					return false;
@@ -127,7 +124,6 @@ export class ChatService {
 				room?.commandPublic(user, text);
 				break;
 			}
-			// PASSWORD *****
 			case "/PASSWORD": {
 				if (command.length !== 1 && command.length !== 2)
 					return false;
@@ -142,7 +138,6 @@ export class ChatService {
 				room?.commandPrivate(user, "Password Update");
 				break;
 			}
-			// KICK login
 			case "/KICK": {
 				if (command.length !== 2)
 					return false;
@@ -158,7 +153,6 @@ export class ChatService {
 				room.banUser(userBan, time)
 				break;
 			}
-			// BAN login time
 			case "/BAN": {
 				if (command.length !== 3)
 					return false;
@@ -174,7 +168,6 @@ export class ChatService {
 				room.banUser(userBan, time)
 				break;
 			}
-			// UNBAN login
 			case "/UNBAN": {
 				if (command.length !== 2)
 					return false;
@@ -189,7 +182,6 @@ export class ChatService {
 				room.unbanUser(userBan, Date.now());
 				break;
 			}
-			// MUTE login times
 			case "/MUTE": {
 				if (command.length !== 3)
 					return false;
@@ -205,7 +197,6 @@ export class ChatService {
 				room.muteUser(userMute, time)
 				break;
 			}
-			// UNMUTE login
 			case "/UNMUTE": {
 				if (command.length !== 2)
 					return false;
@@ -220,7 +211,6 @@ export class ChatService {
 				room.muteUser(userMute, Date.now());
 				break;
 			}
-			//BLOCK login
 			case "/BLOCK": {
 				if (command.length !== 2)
 					return false;
@@ -249,7 +239,6 @@ export class ChatService {
 					return (false);
 				break;
 			}
-			//UNBLOCK login
 			case "/UNBLOCK": {
 				if (command.length !== 2)
 					return false;
